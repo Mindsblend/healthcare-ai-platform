@@ -1,65 +1,75 @@
-import Image from "next/image";
+import Image from 'next/image'
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="flex flex-col">
+      {/* Hero Section */}
+      <div className="flex flex-1 flex-col md:flex-row">
+        {/* Left: Image */}
+        <div className="md:w-1/2 flex justify-start items-center pl-8">
+          <Image
+            src="/images/hero.svg"
+            alt="Healthy Lifestyle"
+            width={660}
+            height={100}
+          />
+        </div>
+
+        {/* Right: Text + Buttons */}
+        <div className="md:w-1/2 flex flex-col justify-center items-end text-right mt-12 pr-26">
+          <h1 className="font-aria font-extrabold text-[64px] text-black leading-[85px] max-w-[473px]">
+            سلامتی امروز، پلی به فردایی شادتر
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="font-ray font-medium text-[18px] leading-[24px] text-black max-w-[463px]">
+            سلامتی چیزی نیست که بتوان آن را به فردا موکول کرد. هر تصمیم کوچک امروز، یا پلی به سوی تمرکز، انرژی و عمری طولانی‌تر است —یا قدمی خاموش به سوی آینده‌ای پر از خستگی و محدودیت. ما اینجا هستیم تا با یک تست سادهٔ هوش مصنوعی و انتخاب محصولات سالم، راهی عملی برای تغییر واقعی پیش روی شما بگذاریم.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+
+          <div className="flex justify-end gap-4 mt-5 mb-6">
+            <button className="flex items-center justify-center w-[145px] h-[54px] border border-black rounded-full text-black font-ray font-medium text-[16px] hover:bg-black hover:text-white transition whitespace-nowrap px-0">
+              آشنایی با محصولات
+            </button>
+            <button className="w-[210px] h-[54px] bg-black text-white rounded-full flex items-center px-4 gap-4">
+              {/* Circle with icon */}
+              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                <Image
+                  src="/images/arrow.svg"
+                  alt="Top Right Image"
+                  width={20}
+                  height={20}
+                />
+              </div>
+
+              {/* Button text */}
+              <span className="font-aria font-medium text-[16px]">شروع سفر سلامتی</span>
+            </button>
+          </div>
+          <div className="w-full flex flex-col justify-between items-end mb-6">
+            {/* Top: Image */}
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+              src="/images/mini-products.svg"
+              alt="Top Right Image"
+              width={140}
+              height={50}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+            {/* Bottom: Paragraph */}
+            <p className="text-black font-ray font-medium text-[16px] text-right max-w-xs transition whitespace-nowrap">
+              هر محصول ما، یک قدم به سوی آینده‌ای سالم‌تر
+            </p>
+          </div>
+
+          <div className='flex justify-end gap-22'>
+            <div>
+              <h1 className='font-aria font-extrabold text-[64px] text-black leading-[50px]'>+۲۰۰</h1>
+              <p className='font-ray text-medium text-[14px] text-black'>محصول سالم و ارگانیک</p>
+            </div>
+            <div>
+              <h1 className='font-aria font-extrabold text-[64px] text-black leading-[50px]'>+۵۰۰۰</h1>
+              <p className='font-ray text-medium text-[14px] text-black'>مشتری از سراسر کشور </p>
+            </div>
+          </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
