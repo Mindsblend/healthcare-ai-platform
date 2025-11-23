@@ -149,6 +149,64 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Image Left, Text Right */}
+      <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-[1200px] mx-auto mt-10 pr-16">
+        {/* Left: Image */}
+        <div className="md:w-1/2 flex justify-start">
+          <Image
+            src="/images/herbs-one.svg"
+            alt="Section 1 Image"
+            width={800}
+            height={800}
+          />
+        </div>
+
+        {/* Right: Text */}
+        <div className="md:w-1/2 flex flex-col justify-center items-end text-right">
+          <h2 className="font-aria font-bold text-[40px] text-black leading-[50px] mb-4">
+            پایه و سرمایه‌ای که کیفیت لحظه‌های زندگی با عزیزانت را تعیین می‌کند
+          </h2>
+          <div
+            className="font-ray text-[22px] text-[#6A7073] leading-[24px] max-w-[591px] text-right whitespace-pre-line"
+            dir="rtl"
+          >
+            {`زمانی که سلامتی هست، زندگی معنای دیگری دارد. بخش بزرگی از این معنا در لحظات کوچک و واقعی است که در آن حاضر میشویم: صدای خنده‌ی فرزندانمان، گفتگوی صمیمانه با همسر، لمس ساده‌ی صبحی آرام که پر از امید است. این‌ها سرمایه‌هایی‌اند که ارزششان با هیچ عددی سنجیده نمی‌شود.
+
+اما وقتی سلامتی‌ات را نادیده می‌گیری، سایه‌ای سنگین بر همه‌ی این لحظات می‌افتد. انرژی‌ات ته می‌کشد، دردهای پنهان آرام‌آرام آشکار می‌شوند، و خستگی مداوم تو را از شادی‌های کوچک دور می‌کند. آن‌وقت حتی ساده‌ترین لحظات با عزیزانت، دست‌نیافتنی می‌شوند.
+
+سرمایه‌گذاری روی بدن و ذهن امروزت یعنی ساختن آینده‌ای که در آن می‌توانی حاضر و پرانرژی کنار کسانی باشی که دوستشان داری. هر روز غفلت، یک خاطره‌ی ناب را از تو و خانواده‌ات می‌گیرد.`}
+          </div>
+        </div>
+      </div>
+
+      {/* Image Right, Text Left */}
+      <div className="flex flex-col md:flex-row-reverse items-center justify-between w-full max-w-[1200px] mx-auto pl-16">
+        {/* Right: Image */}
+        <div className="md:w-1/2 flex justify-end">
+          <Image
+            src="/images/herbs-two.svg"
+            alt="Section 2 Image"
+            width={800}
+            height={800}
+          />
+        </div>
+
+        {/* Left: Text */}
+        <div className="md:w-1/2 flex flex-col justify-center items-start text-right">
+          <h2 className="font-aria font-bold text-[40px] text-black leading-[50px] mb-4">
+            سرنوشتت پیری نیست، بلکه نتیجه‌ی انتخاب‌هایی است که امروز میگیری
+          </h2>
+          <div
+            className="font-ray text-[22px] text-[#6A7073] leading-[24px] max-w-[591px] text-right whitespace-pre-line"
+            dir="rtl"
+          >
+            {`شاید همیشه دیده‌ایم که پدر و مادر یا اطرافیان‌مان با بالا رفتن سن، آرام‌آرام توانایی‌هایشان را از دست داده‌اند؛ دردهای مزمن، انرژی کم، وابستگی به دارو و از دست رفتن آزادی عمل. ناخودآگاه باور کرده‌ایم که این سرنوشت ما هم خواهد بود. اما این فقط یک توهم است.
+
+سلامتی آینده تو، حاصل تصمیم‌های امروز توست. اگر از همین حالا برای مراقبت از بدن و ذهن خود سرمایه‌گذاری کنی، می‌توانی سال‌های پیری را نه با بیماری و محدودیت، بلکه با انرژی، آزادی و حضور واقعی در کنار کسانی که دوستشان داری تجربه کنی. انتخاب با توست: تکرار چرخه‌ای که دیده‌ای، یا ساختن آینده‌ای که شایسته‌اش هستی.`}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
