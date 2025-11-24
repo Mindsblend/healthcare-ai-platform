@@ -151,7 +151,7 @@ export default function Home() {
       </div>
 
       {/* Image Left, Text Right */}
-      <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-[1200px] mx-auto mt-10 pr-16">
+      <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-[1200px] mx-auto mt-10">
         {/* Left: Image */}
         <div className="md:w-1/2 flex justify-start">
           <Image
@@ -181,7 +181,7 @@ export default function Home() {
       </div>
 
       {/* Image Right, Text Left */}
-      <div className="flex flex-col md:flex-row-reverse items-center justify-between w-full max-w-[1200px] mx-auto pl-16">
+      <div className="flex flex-col md:flex-row-reverse items-center justify-between w-full max-w-[1200px] mx-auto">
         {/* Right: Image */}
         <div className="md:w-1/2 flex justify-end">
           <Image
@@ -206,6 +206,119 @@ export default function Home() {
 سلامتی آینده تو، حاصل تصمیم‌های امروز توست. اگر از همین حالا برای مراقبت از بدن و ذهن خود سرمایه‌گذاری کنی، می‌توانی سال‌های پیری را نه با بیماری و محدودیت، بلکه با انرژی، آزادی و حضور واقعی در کنار کسانی که دوستشان داری تجربه کنی. انتخاب با توست: تکرار چرخه‌ای که دیده‌ای، یا ساختن آینده‌ای که شایسته‌اش هستی.`}
           </div>
         </div>
+      </div>
+
+      <div className="w-full flex flex-col md:flex-row items-center justify-between max-w-[1200px] mx-auto py-12 gap-10">
+
+        {/* LEFT — Card with Image + Circle Icon */}
+        <div className="relative w-full md:w-1/2 flex justify-center">
+          <div className="bg-white shadow-lg rounded-2xl p-6 w-[665px] h-[745px] flex flex-col items-center">
+
+            {/* Image */}
+            <img
+              src="/images/your-image.png"
+              alt="Card Image"
+              className="w-[220px] h-auto rounded-xl object-cover"
+            />
+
+            {/* Circle with Icon */}
+            <div className="absolute top-[55%] right-[18%] w-[70px] h-[70px] bg-white rounded-full shadow-lg flex items-center justify-center">
+              <img
+                src="/icons/your-icon.svg"
+                alt="Icon"
+                className="w-[30px] h-[30px]"
+              />
+            </div>
+
+          </div>
+        </div>
+
+        {/* RIGHT — Title + Paragraph */}
+        <div className="w-full md:w-1/2 flex flex-col text-right items-end min-h-screen relative">
+
+          {/* Title */}
+          <h1 className="font-aria text-[64px] font-bold leading-[80px] text-black top-0 self-end py-4 bg-white/70 backdrop-blur z-10">
+            سرمایه‌گذاری روی بدن، سرمایه‌گذاری روی آینده
+          </h1>
+
+          {/* Spacer pushes bottom content down */}
+          <div className="flex-1"></div>
+
+          {/* BOTTOM BLOCK — Acts as the “stop boundary” */}
+          <div className="w-full flex flex-col items-end pb-4">
+            <p className="font-ray text-[22px] text-[#6A7073] leading-[24px] mb-4" dir="rtl">
+              بدن شما شایستهٔ زندگی‌ای پرانرژی و بدون محدودیت است. محصولات ارگانیک ما، ابزار شما برای ساختن فردایی سالم و طولانی است. همین حالا قدم اول را بردار و سرمایه‌گذاری روی سلامتت را آغاز کن.
+            </p>
+
+            <button className="bg-black text-white rounded-full flex items-center justify-between h-[54px] min-w-[187px] px-2">
+              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center flex-none">
+                <Image src="/images/arrow.svg" alt="Arrow" width={20} height={20} className="rotate-[45deg]" />
+              </div>
+
+              <span className="font-ray font-medium text-[16px] text-white whitespace-nowrap mr-2">
+                مشاهده محصولات
+              </span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <div className="w-full flex flex-col md:flex-row-reverse items-center justify-between max-w-[1200px] mx-auto py-12 gap-10">
+
+        {/* RIGHT — Card with Image + Icon */}
+        <div className="relative w-full md:w-1/2 flex justify-center">
+          <div className="bg-white shadow-lg rounded-2xl p-6 w-[665px] h-[745px] flex flex-col items-center">
+
+            {/* Image */}
+            <img
+              src="/images/your-image.png"
+              alt="Card Image"
+              className="w-[220px] h-auto rounded-xl object-cover"
+            />
+
+            {/* Circle with Icon */}
+            <div className="absolute top-[55%] right-[18%] w-[70px] h-[70px] bg-white rounded-full shadow-lg flex items-center justify-center">
+              <img
+                src="/icons/your-icon.svg"
+                alt="Icon"
+                className="w-[30px] h-[30px]"
+              />
+            </div>
+
+          </div>
+        </div>
+
+        {/* RIGHT — Title + Paragraph */}
+        <div className="w-full md:w-1/2 flex flex-col text-right items-start min-h-screen relative">
+
+          {/* Title */}
+          <h1 className="font-aria text-[64px] font-bold leading-[80px] text-black top-0 self-end py-4 bg-white/70 backdrop-blur z-10">
+            یک تست هوشمند، برای آینده‌ای بدون محدودیت
+          </h1>
+
+          {/* Spacer pushes bottom content down */}
+          <div className="flex-1"></div>
+
+          {/* BOTTOM BLOCK — Acts as the “stop boundary” */}
+          <div className="w-full flex flex-col items-end pb-4">
+            <p className="font-ray text-[22px] text-[#6A7073] leading-[24px] mb-4" dir="rtl">
+              با یک تست هوش مصنوعی ساده، برنامه غذایی و مسیر سلامتی شخصی خود را دریافت کن. ارزش واقعی این ابزار، در سرمایه‌گذاری امروز شما روی انرژی، شفافیت ذهنی و طول عمر فرداست — و کاملاً رایگان هست.
+            </p>
+
+            <button className="bg-black text-white rounded-full flex items-center justify-between h-[54px] min-w-[187px] px-2">
+              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center flex-none">
+                <Image src="/images/arrow.svg" alt="Arrow" width={20} height={20} className="rotate-[45deg]" />
+              </div>
+
+              <span className="font-ray font-medium text-[16px] text-white whitespace-nowrap mr-2">
+                مشاهده محصولات
+              </span>
+            </button>
+          </div>
+
+        </div>
+
       </div>
     </div>
   );
