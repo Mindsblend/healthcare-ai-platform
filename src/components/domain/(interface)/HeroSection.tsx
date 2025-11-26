@@ -5,10 +5,10 @@ const HeroSection = () => {
     <div className="px-24 flex justify-between items-center">
       {/* Right: Text + Buttons */}
       <div className="flex flex-col justify-center mt-12">
-        <h1 className="font-aria font-extrabold text-[64px] text-black leading-[85px] max-w-[473px]">
+        <h1 className="font-aria font-extrabold text-[64px] text-color-title-on-light leading-21 max-w-[473px]">
           سلامتی امروز، پلی به فردایی شادتر
         </h1>
-        <p className="font-ray font-medium text-[18px] leading-[24px] text-black max-w-[463px]">
+        <p className="font-ray font-medium text-[18px] leading-5 text-color-body-on-light max-w-[463px]">
           سلامتی چیزی نیست که بتوان آن را به فردا موکول کرد. هر تصمیم کوچک امروز، یا پلی به سوی
           تمرکز، انرژی و عمری طولانی‌تر است —یا قدمی خاموش به سوی آینده‌ای پر از خستگی و محدودیت. ما
           اینجا هستیم تا با یک تست سادهٔ هوش مصنوعی و انتخاب محصولات سالم، راهی عملی برای تغییر
@@ -34,21 +34,19 @@ const HeroSection = () => {
           <Image src="/images/mini-products.svg" alt="Top Right Image" width={140} height={50} />
 
           {/* Bottom: Paragraph */}
-          <p className="text-black font-ray font-medium text-base max-w-xs transition whitespace-nowrap">
+          <p className="text-color-body-on-light font-ray font-medium text-base max-w-xs transition whitespace-nowrap">
             هر محصول ما، یک قدم به سوی آینده‌ای سالم‌تر
           </p>
         </div>
 
         <div className="flex gap-22">
           <div>
-            <h1 className="font-aria font-extrabold text-[64px] text-black leading-[50px]">
-              ۵۰۰۰+
-            </h1>
-            <p className="font-ray text-medium text-[14px] text-black">مشتری از سراسر کشور </p>
+            <h1 className="font-aria font-extrabold text-[64px] text-color-title-on-light leading-12">۵۰۰۰+</h1>
+            <p className="font-ray text-medium text-[14px] text-color-title-on-light">مشتری از سراسر کشور </p>
           </div>
           <div>
-            <h1 className="font-aria font-extrabold text-[64px] text-black leading-[50px]">۲۰۰+</h1>
-            <p className="font-ray text-medium text-[14px] text-black">محصول سالم و ارگانیک</p>
+            <h1 className="font-aria font-extrabold text-[64px] text-color-title-on-light leading-12">۲۰۰+</h1>
+            <p className="font-ray text-medium text-[14px] text-color-title-on-light">محصول سالم و ارگانیک</p>
           </div>
         </div>
       </div>

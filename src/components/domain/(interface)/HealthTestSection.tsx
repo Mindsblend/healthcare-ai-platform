@@ -6,12 +6,12 @@ const HealthTestSection = () => {
       <div className="flex flex-col md:flex-row items-center justify-center p-12 gap-9">
         {/* RIGHT — Title + Paragraph */}
         <div className="flex flex-col h-[745px] items-center justify-between max-w-xl">
-          <h1 className="font-aria text-6xl font-bold text-black py-4">
+          <h1 className="font-aria text-6xl font-bold text-color-title-on-light py-4">
             سرمایه‌گذاری روی بدن، سرمایه‌گذاری روی آینده
           </h1>
 
           <div>
-            <p className="font-ray text-lg text-[#6A7073] mb-4">
+            <p className="font-ray text-lg text-color-body-on-light mb-4">
               بدن شما شایستهٔ زندگی‌ای پرانرژی و بدون محدودیت است. محصولات ارگانیک ما، ابزار شما
               برای ساختن فردایی سالم و طولانی است. همین حالا قدم اول را بردار و سرمایه‌گذاری روی
               سلامتت را آغاز کن.
@@ -58,12 +58,12 @@ const HealthTestSection = () => {
       <div className="flex flex-col md:flex-row-reverse items-center justify-center p-12 gap-9">
         {/* RIGHT — Title + Paragraph */}
         <div className="flex flex-col h-[745px] items-center justify-between max-w-xl">
-          <h1 className="font-aria text-6xl font-bold text-black py-4">
+          <h1 className="font-aria text-6xl font-bold text-color-title-on-light py-4">
             یک تست هوشمند، برای آینده‌ای بدون محدودیت
           </h1>
 
           <div>
-            <p className="font-ray text-lg text-[#6A7073] mb-4">
+            <p className="font-ray text-lg text-color-body-on-light mb-4">
               با یک تست هوش مصنوعی ساده، برنامه غذایی و مسیر سلامتی شخصی خود را دریافت کن. ارزش
               واقعی این ابزار، در سرمایه‌گذاری امروز شما روی انرژی، شفافیت ذهنی و طول عمر فرداست — و
               کاملاً رایگان هست.

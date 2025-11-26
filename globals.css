@@ -1,51 +1,45 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   /* -------------------
      Backgrounds
   ------------------- */
-  --bg-page: #ffffff;            /* default page background */
-  --bg-section: #161A1D;         /* section background */
-  --bg-section-deep: #1B2024;    /* nested / deeper section background */
+  --bg-page: #ffffff; /* default page background */
+  --bg-section: #161a1d; /* section background */
+  --bg-section-deep: #1b2024; /* nested / deeper section background */
 
   /* -------------------
      Text / Foregrounds
   ------------------- */
-  --text-title: #000000;          /* titles on light bg */
-  --text-body: #6A7073;           /* paragraph on light bg */
-  --text-on-dark: #ffffff;         /* text/icons on dark bg */
-  --accent-purple: #B1C8FF;       /* icons/highlights on dark bg */
-
-  /* -------------------
-     Gradient / decorative
-  ------------------- */
-  --gradient-dark: linear-gradient(to right, #B1C8FF, #B4E4FF);
+  --text-title-on-light: #000000; /* titles on light bg */
+  --text-title-on-dark: #ffffff; /* titles on dark bg */
+  --text-body-on-light: #555555; /* paragraph on light bg */
+  --text-body-on-dark: #a2a2a2; /* paragraph on dark bg */
+  --accent-purple: #b1c8ff; /* icons/highlights on dark bg */
+  --accent-blue: #b4e4ff; /* icons/highlights on dark bg */
 }
 
 @theme inline {
   /* -------------------
      Backgrounds
   ------------------- */
-  --color-bg-page: var(--bg-page);
-  --color-bg-section: var(--bg-section);
-  --color-bg-section-deep: var(--bg-section-deep);
+  --color-page: var(--bg-page);
+  --color-section: var(--bg-section);
+  --color-section-deep: var(--bg-section-deep);
 
   /* -------------------
      Text / Foregrounds
   ------------------- */
-  --color-color-title: var(--text-title);
-  --color-color-body: var(--text-body);
-  --color-color-on-dark: var(--text-on-dark);
+  --color-color-title-on-light: var(--text-title-on-light);
+  --color-color-title-on-dark: var(--text-title-on-dark);
+  --color-color-body-on-light: var(--text-body-on-light);
+  --color-color-body-on-dark: var(--text-body-on-dark);
 
   /* -------------------
      Accent
   ------------------- */
   --color-accent-purple: var(--accent-purple);
-
-  /* -------------------
-     Gradient / Decorative
-  ------------------- */
-  --color-gradient-dark: var(--gradient-dark);
+  --color-accent-blue: var(--accent-blue);
 
   /* Fonts */
   --font-aria: var(--font-aria);
