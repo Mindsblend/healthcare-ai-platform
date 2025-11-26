@@ -117,9 +117,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" dir="rtl">
       <body
         className={`${AriaFont.variable} ${RayFont.variable} antialiased`}
+        style={{
+          "--color-primary": "#1B2024",
+          "--color-secondary": "#23282D",
+          "--color-accent": "#B1C8FF",
+          "--color-dark-bg": "#161A1D",
+          "--color-gray-text": "#6A7073",
+          // add more custom colors here
+        } as React.CSSProperties}
       >
         <Navbar />
         {children}

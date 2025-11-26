@@ -1,20 +1,60 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* -------------------
+     Backgrounds
+  ------------------- */
+  --bg-page: #ffffff;            /* default page background */
+  --bg-section: #161A1D;         /* section background */
+  --bg-section-deep: #1B2024;    /* nested / deeper section background */
+
+  /* -------------------
+     Text / Foregrounds
+  ------------------- */
+  --text-title: #000000;          /* titles on light bg */
+  --text-body: #6A7073;           /* paragraph on light bg */
+  --text-on-dark: #ffffff;         /* text/icons on dark bg */
+  --accent-purple: #B1C8FF;       /* icons/highlights on dark bg */
+
+  /* -------------------
+     Gradient / decorative
+  ------------------- */
+  --gradient-dark: linear-gradient(to right, #B1C8FF, #B4E4FF);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* -------------------
+     Backgrounds
+  ------------------- */
+  --color-bg-page: var(--bg-page);
+  --color-bg-section: var(--bg-section);
+  --color-bg-section-deep: var(--bg-section-deep);
+
+  /* -------------------
+     Text / Foregrounds
+  ------------------- */
+  --color-color-title: var(--text-title);
+  --color-color-body: var(--text-body);
+  --color-color-on-dark: var(--text-on-dark);
+
+  /* -------------------
+     Accent
+  ------------------- */
+  --color-accent-purple: var(--accent-purple);
+
+  /* -------------------
+     Gradient / Decorative
+  ------------------- */
+  --color-gradient-dark: var(--gradient-dark);
+
+  /* Fonts */
   --font-aria: var(--font-aria);
   --font-ray: var(--font-ray);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #fff;
     --foreground: #ededed;
   }
 }
