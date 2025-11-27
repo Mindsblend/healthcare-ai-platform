@@ -2,29 +2,34 @@ import Image from 'next/image'
 
 const HealthInvestmentSection = () => {
   return (
-    <div className="w-full flex flex-col items-center justify-center bg-section">
+    <div className="bg-section flex w-full flex-col items-center justify-center">
       {/* Title */}
-      <h2 className="font-aria font-bold text-[50px] text-color-title-on-dark text-center mt-16 mb-16 max-w-[730px] leading-16">
+      <h2 className="font-aria text-color-title-on-dark mt-16 mb-16 max-w-[730px] text-center text-[50px] leading-16 font-bold">
         سرمایه‌ای که هیچ بانکی نمی‌تواند به شما بدهد
       </h2>
 
       {/* Cards Wrapper */}
 
-      <div className="w-full max-w-[1200px] grid grid-cols-[1fr_1fr_475px] gap-8 mb-16 px-8">
+      <div className="mb-16 grid w-full max-w-[1200px] grid-cols-[1fr_1fr_475px] gap-8 px-8">
         {/* RIGHT COLUMN (tall card) */}
-        <div className="bg-linear-to-r from-accent-purple to-accent-blue rounded-3xl w-[475px] h-[497px] p-6 flex flex-col justify-center">
+        <div className="from-accent-purple to-accent-blue flex h-[497px] w-[475px] flex-col justify-center rounded-3xl bg-linear-to-r p-6">
           {/* Icon Circle */}
-          <div className="flex mb-6">
-            <div className="w-[70px] h-[70px] rounded-full bg-section flex items-center justify-center">
-              <Image src="/images/spa.svg" alt="Healthy Lifestyle" width={35} height={35} />
+          <div className="mb-6 flex">
+            <div className="bg-section flex h-[70px] w-[70px] items-center justify-center rounded-full">
+              <Image
+                src="/images/spa.svg"
+                alt="Healthy Lifestyle"
+                width={35}
+                height={35}
+              />
             </div>
           </div>
 
-          <h3 className="font-aria text-color-title-on-light text-[30px] font-semibold mb-4 leading-5">
+          <h3 className="font-aria text-color-title-on-light mb-4 text-[30px] leading-5 font-semibold">
             سلامتی؛ بزرگ‌ترین سرمایه‌ زندگی
           </h3>
 
-          <div className="font-ray text-[16px] text-color-body-on-light leading-5 whitespace-pre-line max-w-[600px]">
+          <div className="font-ray text-color-body-on-light max-w-[600px] text-[16px] leading-5 whitespace-pre-line">
             {`سلامتی نه یک «هزینه»، بلکه بنیادی‌ترین «سرمایه‌گذاری» زندگی است.
             وقتی بدن شما انرژی پاک دارد، ذهن شما شفاف‌تر می‌شود. وقتی تغذیه شما سالم است، تصمیم‌هایتان عمیق‌تر و اثرگذارتر خواهند بود.
         
@@ -37,19 +42,20 @@ const HealthInvestmentSection = () => {
         {/* LEFT COLUMN (2 stacked) */}
         <div className="flex flex-col gap-6 md:col-span-2">
           {/* Top-left small card */}
-          <div className="bg-section-deep rounded-3xl h-[199px] flex flex-col justify-center items-center">
-            <h3 className="font-aria text-[30px] font-semibold text-color-title-on-dark max-w-[493px]">
+          <div className="bg-section-deep flex h-[199px] flex-col items-center justify-center rounded-3xl">
+            <h3 className="font-aria text-color-title-on-dark max-w-[493px] text-[30px] font-semibold">
               مطالعات نشان می‌دهد که
-              <span className="text-accent-purple"> ۸۰٪</span> بیماری‌های مزمن با تغذیه و سبک زندگی
-              سالم <span className="text-accent-purple">قابل پیشگیری</span> هستند
+              <span className="text-accent-purple"> ۸۰٪</span> بیماری‌های مزمن
+              با تغذیه و سبک زندگی سالم{' '}
+              <span className="text-accent-purple">قابل پیشگیری</span> هستند
             </h3>
           </div>
 
           {/* Bottom-left small card */}
-          <div className="bg-section-deep rounded-3xl h-[270px] p-12 flex flex-col justify-center">
+          <div className="bg-section-deep flex h-[270px] flex-col justify-center rounded-3xl p-12">
             {/* Icon Circle */}
-            <div className="flex mb-4">
-              <div className="w-[70px] h-[70px] rounded-full bg-section flex items-center justify-center">
+            <div className="mb-4 flex">
+              <div className="bg-section flex h-[70px] w-[70px] items-center justify-center rounded-full">
                 <Image
                   src="/images/vital-signs.svg"
                   alt="Healthy Lifestyle"
@@ -59,14 +65,15 @@ const HealthInvestmentSection = () => {
               </div>
             </div>
 
-            <h3 className="font-aria text-[30px] text-color-title-on-dark font-semibold leading-11">
+            <h3 className="font-aria text-color-title-on-dark text-[30px] leading-11 font-semibold">
               حیات در دستانت
             </h3>
-            <p className="font-ray text-color-body-on-dark text-col leading-5 max-w-[536px]">
-              تحقیقات دانشگاه هاروارد نشان داده است که انتخاب یک رژیم غذایی متعادل می‌تواند امید به
-              زندگی را بین ۱۰ تا ۱۴ سال افزایش دهد. این تنها به معنای سال‌های بیشتر نیست، بلکه به
-              معنای سال‌هایی با کیفیت بالاتر است؛ سال‌هایی که می‌توانید با انرژی، تمرکز و آزادی
-              بیشتری زندگی کنید.
+            <p className="font-ray text-color-body-on-dark text-col max-w-[536px] leading-5">
+              تحقیقات دانشگاه هاروارد نشان داده است که انتخاب یک رژیم غذایی
+              متعادل می‌تواند امید به زندگی را بین ۱۰ تا ۱۴ سال افزایش دهد. این
+              تنها به معنای سال‌های بیشتر نیست، بلکه به معنای سال‌هایی با کیفیت
+              بالاتر است؛ سال‌هایی که می‌توانید با انرژی، تمرکز و آزادی بیشتری
+              زندگی کنید.
             </p>
           </div>
         </div>

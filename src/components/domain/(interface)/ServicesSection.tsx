@@ -2,50 +2,85 @@ import Image from 'next/image'
 
 const ServicesSection = () => {
   return (
-    <div className="mt-28">
-      <div className="flex flex-col items-center text-center justify-center">
-        <h1 className="text-color-title text-5xl max-w-lg font-aria font-extrabold">
+    <div className="mt-28 flex flex-col items-center justify-center">
+      <div className="flex flex-col items-center justify-center text-center">
+        <h1 className="text-color-title-on-light font-aria max-w-lg text-5xl font-extrabold">
           راهکاری کامل برای سلامتی و تجربه خرید مطمئن
         </h1>
-        <p className="font-ray text-xl mt-7 text-color-title max-w-lg">
-          با ما، سلامتی و تجربه خرید شما به بالاترین استانداردها می‌رسد. هر محصول ارگانیک ما با دقت
-          انتخاب و بسته‌بندی می‌شود تا کیفیت و تازگی آن حفظ شود.
+        <p className="font-ray text-color-body-on-light mt-7 max-w-lg text-xl">
+          با ما، سلامتی و تجربه خرید شما به بالاترین استانداردها می‌رسد. هر
+          محصول ارگانیک ما با دقت انتخاب و بسته‌بندی می‌شود تا کیفیت و تازگی آن
+          حفظ شود.
         </p>
       </div>
-      <div className="grid grid-cols-1 mt-14 sm:grid-cols-2 lg:grid-cols-4 flex-wrap">
-        <div className="flex flex-col w-[350px] pb-16 pt-6 px-8 h-[337px] justify-between">
-          <Image src="/images/support.png" alt="support" width={70} height={70} />
-          <div className="text-color-title">
-            <h1 className="font-ray font-extrabold text-xl">پشتیبانی همیشه در دسترس</h1>
-            <p className="text-lg mt-1.5 font-ray max-w-3xs">
-              از انتخاب محصول تا بعد از خرید، تیم ما آماده پاسخگویی و راهنمایی شماست.
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-col w-[350px] pb-16 pt-6 px-8 h-[337px] justify-between">
-          <Image src="/images/package.png" alt="package" width={70} height={70} />
-          <div className="text-color-title">
-            <h1 className="font-ray font-extrabold text-xl">بسته‌بندی استاندارد</h1>
-            <p className="text-lg mt-1.5 font-ray max-w-3xs">
-              هر محصول با دقت و در بسته‌بندی امن و مناسب ارسال می‌شود تا کیفیت حفظ شود.
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-col w-[350px] pb-16 pt-6 px-8 h-[337px] justify-between">
-          <Image src="/images/credit_card.png" alt="credit_card" width={70} height={70} />
-          <div className="text-color-title">
-            <h1 className="font-ray font-extrabold text-xl">پرداخت امن و آسان</h1>
-            <p className="text-lg mt-1.5 font-ray max-w-3xs">
-              با روش‌های متنوع و مطمئن، خریدی بی‌دغدغه و راحت را تجربه کنید.
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-col w-[350px] pb-16 pt-6 px-8 h-[337px] justify-between">
-          <Image src="/images/delivery_truck.png" alt="delivery_truck" width={70} height={70} />
-          <div className="text-color-title">
-            <h1 className="font-ray font-extrabold text-xl">ارسال سریع و مطمئن</h1>
-            <p className="text-lg mt-1.5 font-ray max-w-3xs">
+      <div className="mt-14 grid w-full grid-cols-1 flex-wrap sm:grid-cols-2 lg:grid-cols-4">
+        {/* Fast Delivery */}
+        <div className="flex h-[337px] flex-col justify-between border-t-2 border-dashed border-black pt-6 pr-8 pb-16">
+          <Image
+            src="/images/delivery_truck.png"
+            alt="delivery_truck"
+            width={70}
+            height={70}
+          />
+          <div className="text-color-title-on-light">
+            <h1 className="font-ray text-xl font-extrabold">
+              ارسال سریع و مطمئن
+            </h1>
+            <p className="text-color-body-on-light font-ray mt-1.5 max-w-[266px] text-lg">
               سفارش شما در کوتاه‌ترین زمان و با نهایت اطمینان به دستتان می‌رسد..
+            </p>
+          </div>
+        </div>
+        {/* Standard Packaging */}
+        <div className="flex h-[337px] flex-col justify-between border-t-2 border-r-2 border-dashed border-black pt-6 pr-8 pb-16">
+          <Image
+            src="/images/package.png"
+            alt="package"
+            width={70}
+            height={70}
+          />
+          <div className="text-color-title-on-light">
+            <h1 className="font-ray text-xl font-extrabold">
+              بسته‌بندی استاندارد
+            </h1>
+            <p className="text-color-body-on-light font-ray mt-1.5 max-w-[266px] text-lg">
+              هر محصول با دقت و در بسته‌بندی امن و مناسب ارسال می‌شود تا کیفیت
+              حفظ شود.
+            </p>
+          </div>
+        </div>
+        {/* Customers Support */}
+        <div className="flex h-[337px] flex-col justify-between border-t-2 border-r-2 border-dashed border-black pt-6 pr-8 pb-16">
+          <Image
+            src="/images/support.png"
+            alt="support"
+            width={70}
+            height={70}
+          />
+          <div className="text-color-title-on-light">
+            <h1 className="font-ray text-xl font-extrabold">
+              پشتیبانی همیشه در دسترس
+            </h1>
+            <p className="text-color-body-on-light font-ray mt-1.5 max-w-[266px] text-lg">
+              از انتخاب محصول تا بعد از خرید، تیم ما آماده پاسخگویی و راهنمایی
+              شماست.
+            </p>
+          </div>
+        </div>
+        {/* Easy Payment */}
+        <div className="flex h-[337px] flex-col justify-between border-t-2 border-r-2 border-dashed border-black pt-6 pr-8 pb-16">
+          <Image
+            src="/images/credit_card.png"
+            alt="credit_card"
+            width={70}
+            height={70}
+          />
+          <div className="text-color-title-on-light">
+            <h1 className="font-ray text-xl font-extrabold">
+              پرداخت امن و آسان
+            </h1>
+            <p className="text-color-body-on-light font-ray mt-1.5 max-w-[266px] text-lg">
+              با روش‌های متنوع و مطمئن، خریدی بی‌دغدغه و راحت را تجربه کنید.
             </p>
           </div>
         </div>

@@ -2,57 +2,83 @@ import Image from 'next/image'
 
 const HeroSection = () => {
   return (
-    <div className="px-24 flex justify-between items-center">
+    <div className="flex items-center justify-between px-24">
       {/* Right: Text + Buttons */}
-      <div className="flex flex-col justify-center mt-12">
-        <h1 className="font-aria font-extrabold text-[64px] text-color-title-on-light leading-21 max-w-[473px]">
+      <div className="mt-12 flex flex-col justify-center">
+        <h1 className="font-aria text-color-title-on-light max-w-[473px] text-[64px] leading-21 font-extrabold">
           سلامتی امروز، پلی به فردایی شادتر
         </h1>
-        <p className="font-ray font-medium text-[18px] leading-5 text-color-body-on-light max-w-[463px]">
-          سلامتی چیزی نیست که بتوان آن را به فردا موکول کرد. هر تصمیم کوچک امروز، یا پلی به سوی
-          تمرکز، انرژی و عمری طولانی‌تر است —یا قدمی خاموش به سوی آینده‌ای پر از خستگی و محدودیت. ما
-          اینجا هستیم تا با یک تست سادهٔ هوش مصنوعی و انتخاب محصولات سالم، راهی عملی برای تغییر
-          واقعی پیش روی شما بگذاریم.
+        <p className="font-ray text-color-body-on-light max-w-[463px] text-[18px] leading-5 font-medium">
+          سلامتی چیزی نیست که بتوان آن را به فردا موکول کرد. هر تصمیم کوچک
+          امروز، یا پلی به سوی تمرکز، انرژی و عمری طولانی‌تر است —یا قدمی خاموش
+          به سوی آینده‌ای پر از خستگی و محدودیت. ما اینجا هستیم تا با یک تست
+          سادهٔ هوش مصنوعی و انتخاب محصولات سالم، راهی عملی برای تغییر واقعی پیش
+          روی شما بگذاریم.
         </p>
 
-        <div className="flex gap-4 mt-5 mb-6">
-          <button className="w-[210px] h-[54px] bg-black text-white rounded-full cursor-pointer flex items-center px-3 justify-between">
+        <div className="mt-5 mb-6 flex gap-4">
+          <button className="flex h-[54px] w-[210px] cursor-pointer items-center justify-between rounded-full bg-black px-3 text-white">
             {/* Button text */}
-            <span className="font-aria font-medium text-base">شروع سفر سلامتی</span>
+            <span className="font-aria text-base font-medium">
+              شروع سفر سلامتی
+            </span>
 
             {/* Circle with icon */}
-            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-              <Image src="/images/arrow.svg" alt="Top Right Image" width={20} height={20} />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white">
+              <Image
+                src="/images/arrow.svg"
+                alt="Top Right Image"
+                width={20}
+                height={20}
+              />
             </div>
           </button>
-          <button className="flex items-center cursor-pointer justify-center w-[145px] h-[54px] border border-black rounded-full text-black font-ray font-medium text-base hover:bg-black hover:text-white transition whitespace-nowrap px-0">
+          <button className="font-ray flex h-[54px] w-[145px] cursor-pointer items-center justify-center rounded-full border border-black px-0 text-base font-medium whitespace-nowrap text-black transition hover:bg-black hover:text-white">
             آشنایی با محصولات
           </button>
         </div>
-        <div className="w-full flex flex-col justify-between mb-6">
+        <div className="mb-6 flex w-full flex-col justify-between">
           {/* Top: Image */}
-          <Image src="/images/mini-products.svg" alt="Top Right Image" width={140} height={50} />
+          <Image
+            src="/images/mini-products.svg"
+            alt="Top Right Image"
+            width={140}
+            height={50}
+          />
 
           {/* Bottom: Paragraph */}
-          <p className="text-color-body-on-light font-ray font-medium text-base max-w-xs transition whitespace-nowrap">
+          <p className="text-color-body-on-light font-ray max-w-xs text-base font-medium whitespace-nowrap transition">
             هر محصول ما، یک قدم به سوی آینده‌ای سالم‌تر
           </p>
         </div>
 
         <div className="flex gap-22">
           <div>
-            <h1 className="font-aria font-extrabold text-[64px] text-color-title-on-light leading-12">۵۰۰۰+</h1>
-            <p className="font-ray text-medium text-[14px] text-color-title-on-light">مشتری از سراسر کشور </p>
+            <h1 className="font-aria text-color-title-on-light text-[64px] leading-12 font-extrabold">
+              ۵۰۰۰+
+            </h1>
+            <p className="font-ray text-medium text-color-title-on-light text-[14px]">
+              مشتری از سراسر کشور{' '}
+            </p>
           </div>
           <div>
-            <h1 className="font-aria font-extrabold text-[64px] text-color-title-on-light leading-12">۲۰۰+</h1>
-            <p className="font-ray text-medium text-[14px] text-color-title-on-light">محصول سالم و ارگانیک</p>
+            <h1 className="font-aria text-color-title-on-light text-[64px] leading-12 font-extrabold">
+              ۲۰۰+
+            </h1>
+            <p className="font-ray text-medium text-color-title-on-light text-[14px]">
+              محصول سالم و ارگانیک
+            </p>
           </div>
         </div>
       </div>
       {/* Left: Image */}
       <div className="">
-        <Image src="/images/hero.svg" alt="Healthy Lifestyle" width={660} height={100} />
+        <Image
+          src="/images/hero.svg"
+          alt="Healthy Lifestyle"
+          width={660}
+          height={100}
+        />
       </div>
     </div>
   )

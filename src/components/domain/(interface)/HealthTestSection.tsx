@@ -3,26 +3,26 @@ import Image from 'next/image'
 const HealthTestSection = () => {
   return (
     <div>
-      <div className="flex flex-col md:flex-row items-center justify-center p-12 gap-9">
+      <div className="flex flex-col items-center justify-center gap-9 p-12 md:flex-row">
         {/* RIGHT — Title + Paragraph */}
-        <div className="flex flex-col h-[745px] items-center justify-between max-w-xl">
-          <h1 className="font-aria text-6xl font-bold text-color-title-on-light py-4">
+        <div className="flex h-[745px] max-w-xl flex-col items-center justify-between">
+          <h1 className="font-aria text-color-title-on-light py-4 text-6xl font-bold">
             سرمایه‌گذاری روی بدن، سرمایه‌گذاری روی آینده
           </h1>
 
           <div>
-            <p className="font-ray text-lg text-color-body-on-light mb-4">
-              بدن شما شایستهٔ زندگی‌ای پرانرژی و بدون محدودیت است. محصولات ارگانیک ما، ابزار شما
-              برای ساختن فردایی سالم و طولانی است. همین حالا قدم اول را بردار و سرمایه‌گذاری روی
-              سلامتت را آغاز کن.
+            <p className="font-ray text-color-body-on-light mb-4 text-lg">
+              بدن شما شایستهٔ زندگی‌ای پرانرژی و بدون محدودیت است. محصولات
+              ارگانیک ما، ابزار شما برای ساختن فردایی سالم و طولانی است. همین
+              حالا قدم اول را بردار و سرمایه‌گذاری روی سلامتت را آغاز کن.
             </p>
 
-            <button className="bg-black text-white rounded-full flex items-center justify-between h-[54px] min-w-[187px] px-2">
-              <span className="font-ray font-medium text-base text-white whitespace-nowrap mr-2">
+            <button className="flex h-[54px] min-w-[187px] items-center justify-between rounded-full bg-black px-2 text-white">
+              <span className="font-ray mr-2 text-base font-medium whitespace-nowrap text-white">
                 مشاهده محصولات
               </span>
 
-              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white">
                 <Image
                   src="/images/arrow.svg"
                   alt="Arrow"
@@ -36,8 +36,8 @@ const HealthTestSection = () => {
         </div>
 
         {/* LEFT — Card with Image + Circle Icon */}
-        <div className="flex justify-center relative border border-black/25 rounded-2xl">
-          <div className="bg-white rounded-2xl p-5 w-[665px] h-[745px] flex flex-col items-center">
+        <div className="relative flex justify-center rounded-2xl border border-black/25">
+          <div className="flex h-[745px] w-[665px] flex-col items-center rounded-2xl bg-white p-5">
             {/* Image */}
             <Image
               src="/images/health-test-one.png"
@@ -48,33 +48,38 @@ const HealthTestSection = () => {
             />
 
             {/* Circle with Icon */}
-            <div className="absolute top-10 right-10 w-[70px] h-[70px] bg-white rounded-full shadow-lg flex items-center justify-center">
-              <Image src="/image/trust.svg" alt="Icon" width={20} height={20} />
+            <div className="absolute top-10 right-10 flex h-[50px] w-[50px] items-center justify-center rounded-full bg-white shadow-lg">
+              <Image
+                src="/images/trust.svg"
+                alt="Icon"
+                width={32}
+                height={32}
+              />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row-reverse items-center justify-center p-12 gap-9">
+      <div className="flex flex-col items-center justify-center gap-9 p-12 md:flex-row-reverse">
         {/* RIGHT — Title + Paragraph */}
-        <div className="flex flex-col h-[745px] items-center justify-between max-w-xl">
-          <h1 className="font-aria text-6xl font-bold text-color-title-on-light py-4">
+        <div className="flex h-[745px] max-w-xl flex-col items-center justify-between">
+          <h1 className="font-aria text-color-title-on-light py-4 text-6xl font-bold">
             یک تست هوشمند، برای آینده‌ای بدون محدودیت
           </h1>
 
           <div>
-            <p className="font-ray text-lg text-color-body-on-light mb-4">
-              با یک تست هوش مصنوعی ساده، برنامه غذایی و مسیر سلامتی شخصی خود را دریافت کن. ارزش
-              واقعی این ابزار، در سرمایه‌گذاری امروز شما روی انرژی، شفافیت ذهنی و طول عمر فرداست — و
-              کاملاً رایگان هست.
+            <p className="font-ray text-color-body-on-light mb-4 text-lg">
+              با یک تست هوش مصنوعی ساده، برنامه غذایی و مسیر سلامتی شخصی خود را
+              دریافت کن. ارزش واقعی این ابزار، در سرمایه‌گذاری امروز شما روی
+              انرژی، شفافیت ذهنی و طول عمر فرداست — و کاملاً رایگان هست.
             </p>
 
-            <button className="bg-black text-white rounded-full flex items-center justify-between h-[54px] min-w-[187px] px-2">
-              <span className="font-ray font-medium text-base text-white whitespace-nowrap mr-2">
+            <button className="flex h-[54px] min-w-[187px] items-center justify-between rounded-full bg-black px-2 text-white">
+              <span className="font-ray mr-2 text-base font-medium whitespace-nowrap text-white">
                 مشاهده محصولات
               </span>
 
-              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white">
                 <Image
                   src="/images/arrow.svg"
                   alt="Arrow"
@@ -88,8 +93,8 @@ const HealthTestSection = () => {
         </div>
 
         {/* LEFT — Card with Image + Circle Icon */}
-        <div className="flex justify-center relative border border-black/25 rounded-2xl">
-          <div className="bg-white rounded-2xl p-5 w-[665px] h-[745px] flex flex-col items-center">
+        <div className="relative flex justify-center rounded-2xl border border-black/25">
+          <div className="flex h-[745px] w-[665px] flex-col items-center rounded-2xl bg-white p-5">
             {/* Image */}
             <Image
               src="/images/health-test-two.png"
@@ -100,8 +105,8 @@ const HealthTestSection = () => {
             />
 
             {/* Circle with Icon */}
-            <div className="absolute top-10 right-10 w-h-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center">
-              <Image src="/public/images/AI.svg" alt="Icon" width={20} height={20} />
+            <div className="absolute top-10 right-10 flex h-[50px] w-[50px] items-center justify-center rounded-full bg-white shadow-lg">
+              <Image src="/images/AI.svg" alt="Icon" width={32} height={32} />
             </div>
           </div>
         </div>
