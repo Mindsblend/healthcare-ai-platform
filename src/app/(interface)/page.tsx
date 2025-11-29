@@ -5,6 +5,7 @@ import HealthTestSection from '@/components/domain/(interface)/HealthTestSection
 import ServicesSection from '@/components/domain/(interface)/ServicesSection'
 import ReviewSection from '@/components/domain/(interface)/ReviewSection'
 import ProductsSection from '@/components/domain/(interface)/ProductsSection'
+import { products } from '@/features/shop/services/fetchProducts'
 
 export default function Home() {
   return (
@@ -14,7 +15,7 @@ export default function Home() {
       <HealthTestSection />
       <ServicesSection />
       <ReviewSection />
-      <ProductsSection />
+      <ProductsSection products={products} />
     </div>
   )
 }
