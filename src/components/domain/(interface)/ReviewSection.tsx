@@ -10,38 +10,38 @@ interface Review {
 const reviews: Review[] = [
   {
     id: 1,
-    name: 'مرجان رضایی',
+    name: 'سارا رضایی',
     content:
       'از وقتی محصولات شما رو استفاده می‌کنم، انرژی بدنم دو برابر شده. کاملاً حس می‌کنم که روی آینده‌م سرمایه‌گذاری کردم.',
-    imagePath: '/images/reviews/marjan.png',
+    imagePath: '/images/sara.svg',
   },
   {
     id: 2,
-    name: 'سینا مرادی',
+    name: 'آرش مرادی',
     content:
       'تست هوش مصنوعی فوق‌العاده بود. دقیق، سریع و کاملاً کاربردی. بهترین تجربه‌ای بود که از یک برند سلامت داشتم.',
-    imagePath: '/images/reviews/sina.png',
+    imagePath: '/images/arash.svg',
   },
   {
     id: 3,
-    name: 'هستی فرهمند',
+    name: 'نازنین فرهمند',
     content:
       'بسته‌بندی، کیفیت محصول و حس اصالت… همه چیز درجه یک. حس می‌کنم واقعاً برای جامعه‌ی سالم‌تر تلاش می‌کنید.',
-    imagePath: '/images/reviews/hasti.png',
+    imagePath: '/images/nazanin.svg',
   },
   {
     id: 4,
-    name: 'پارسا امیری',
+    name: 'فریبرز امیری',
     content:
       'اینکه یک برند انقدر روی تجربه مشتری تمرکز کنه کم‌نظیره. تست هوشمند به من کمک کرد رژیمم رو اصلاح کنم.',
-    imagePath: '/images/reviews/parsa.png',
+    imagePath: '/images/fariborz.svg',
   },
   {
     id: 5,
-    name: 'الهام کیان',
+    name: 'امیر کیان',
     content:
       'من همیشه دنبال محصولات ارگانیک واقعی بودم. این اولین برندی هست که حس می‌کنم واقعاً قابل اعتماده.',
-    imagePath: '/images/reviews/elham.png',
+    imagePath: '/images/amir.svg',
   },
 ]
 
@@ -67,27 +67,26 @@ const ReviewSection = () => {
             className="flex items-start gap-4 rounded-2xl border border-black/10 bg-white p-6 shadow-lg"
           >
             {/* Circle Image */}
-            <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-gray-100">
-              <Image
-                src={`/images/icon-${review.id}.svg`}
-                alt="icon"
-                width={40}
-                height={40}
-              />
+            <div className="flex w-42 items-center justify-center overflow-hidden rounded-full bg-gray-100">
+              <Image src={review.imagePath} alt="icon" width={72} height={72} />
             </div>
 
             {/* Text */}
             <div className="flex flex-col">
               <div className="flex w-full items-center justify-between">
-                <h3 className="text-xl font-semibold">{review.name}</h3>
-                <Image
-                  src="/images/star.svg"
-                  alt="icon"
-                  width={20}
-                  height={20}
-                />
+                <h3 className="font-aria text-xl font-semibold text-color-title-on-light">
+                  {review.name}
+                </h3>
+                <span className='pl-6'>
+                  <Image
+                    src="/images/quote.svg"
+                    alt="icon"
+                    width={20}
+                    height={20}
+                  />
+                </span>
               </div>
-              <p className="mt-1 text-sm text-gray-600">
+              <p className="font-ray text-color-body-on-light mt-1 text-sm">
                 {review.content}
               </p>
             </div>
@@ -96,32 +95,31 @@ const ReviewSection = () => {
       </div>
 
       {/* Bottom Row (2 Cards) */}
-      <div className="mt-10 grid w-full max-w-4xl grid-cols-1 gap-8 md:grid-cols-2">
+      <div className="mt-10 grid w-full max-w-3xl grid-cols-1 gap-8 md:grid-cols-2">
         {reviews.slice(3, 5).map((review) => (
           <div
             key={review.id}
             className="flex items-start gap-4 rounded-2xl border border-black/10 bg-white p-6 shadow-lg"
           >
-            <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-gray-100">
-              <Image
-                src={`/images/icon-${review.id}.svg`}
-                alt="icon"
-                width={40}
-                height={40}
-              />
+            <div className="flex w-42 items-center justify-center overflow-hidden rounded-full bg-gray-100">
+              <Image src={review.imagePath} alt="icon" width={72} height={72} />
             </div>
 
             <div className="flex flex-col">
               <div className="flex w-full items-center justify-between">
-                <h3 className="text-xl font-semibold">{review.name}</h3>
-                <Image
-                  src="/images/star.svg"
-                  alt="icon"
-                  width={20}
-                  height={20}
-                />
+                <h3 className="font-aria text-xl font-semibold text-color-title-on-light">
+                  {review.name}
+                </h3>
+                <span className='pl-6'>
+                  <Image
+                    src="/images/quote.svg"
+                    alt="icon"
+                    width={20}
+                    height={20}
+                  />
+                </span>
               </div>
-              <p className="mt-1 text-sm text-gray-600">
+              <p className="font-ray text-color-body-on-light mt-1 text-sm">
                 {review.content}
               </p>
             </div>

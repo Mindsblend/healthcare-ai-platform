@@ -17,7 +17,7 @@ const ServicesSection = () => {
         {/* Fast Delivery */}
         <div className="flex h-[337px] flex-col justify-between border-t-2 border-dashed border-black pt-6 pr-8 pb-16">
           <Image
-            src="/images/delivery_truck.png"
+            src="/images/delivery-truck.png"
             alt="delivery_truck"
             width={70}
             height={70}
@@ -70,7 +70,7 @@ const ServicesSection = () => {
         {/* Easy Payment */}
         <div className="flex h-[337px] flex-col justify-between border-t-2 border-r-2 border-dashed border-black pt-6 pr-8 pb-16">
           <Image
-            src="/images/credit_card.png"
+            src="/images/credit-card.png"
             alt="credit_card"
             width={70}
             height={70}

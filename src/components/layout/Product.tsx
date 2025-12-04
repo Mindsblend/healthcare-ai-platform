@@ -15,21 +15,36 @@ const Product = ({ product }: Props) => {
       >
         <div className="bg-page absolute top-3.5 right-4 z-10 h-12 w-12 rounded-full p-2.5">
           <Image
-            src="/images/makeup.png"
+            src="/images/makeup.svg"
             alt="Product icon"
             width={30}
             height={30}
           />
         </div>
 
-        <div className="absolute bottom-4 flex items-center justify-between px-5">
+        <div className="absolute bottom-4 flex w-full items-center justify-between px-5">
           <a
             href="#"
-            className="bg-color-title-on-light font-ray inline-block rounded-3xl px-7 py-2.5 font-medium"
+            className="flex items-center justify-center gap-3 text-color-title-on-light font-ray rounded-full bg-[#F2F2F2] pr-5 pl-2 h-12 font-medium whitespace-nowrap"
           >
-            افزودن
+            افزودن به سبد خرید
+            {/* Circle with icon */}
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white">
+              <Image
+                src="/images/add-to-cart.svg"
+                alt="Arrow"
+                width={20}
+                height={20}
+              />
+            </div>
           </a>
-          <a href="#">افزودن</a>
+          <a
+            href="#"
+            className="flex items-center justify-center text-color-title-on-dark font-ray rounded-3xl bg-black px-7 h-12 font-extrabold"
+          >
+            {product.price.toLocaleString('fa-IR')}
+            <span className="pr-1">تومان</span>
+          </a>
         </div>
       </div>
       <div className="mt-2.5 flex items-center justify-between rounded-3xl bg-[#F2F2F2] px-8 py-4">
@@ -41,7 +56,7 @@ const Product = ({ product }: Props) => {
         </div>
         <Link
           href=""
-          className="text-color-title-on-light font-ray inline-block font-black decoration-black"
+          className="text-color-title-on-light font-ray inline-block font-black underline"
         >
           مشاهده محصول
         </Link>
