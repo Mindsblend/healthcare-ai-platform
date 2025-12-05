@@ -19,7 +19,7 @@ const HeroSection = () => {
         <div className="mt-5 mb-6 flex gap-4">
           <button className="flex h-[54px] w-[210px] cursor-pointer items-center justify-between rounded-full bg-black px-3 text-white">
             {/* Button text */}
-            <span className="font-aria text-base font-medium">
+            <span className="font-aria text-base font-medium pr-4">
               شروع سفر سلامتی
             </span>
 
