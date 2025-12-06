@@ -1,5 +1,7 @@
 'use client'
 
+import Image from 'next/image'
+
 import { ProductType } from '../types/types'
 import Product from './Product'
 
@@ -15,18 +17,39 @@ interface Props {
 }
 
 export default function ProductSwiper({ products }: Props) {
-  const nextRef = useRef<HTMLButtonElement>(null)
-  const prevRef = useRef<HTMLButtonElement>(null)
+  const nextRef = useRef<HTMLDivElement>(null)
+  const prevRef = useRef<HTMLDivElement>(null)
 
   return (
     <div className="mt-2.5 flex w-full max-w-[1450px] flex-col items-center justify-center px-5">
-      <div className="self-start">
-        <button ref={prevRef} className="text-black">
-          prev
-        </button>
-        <button ref={nextRef} className="text-black">
-          next
-        </button>
+      <div className="self-start flex items-center gap-2.5 pr-14 pb-2">
+        {/* PREV REF - Circle with icon */}
+        <div
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-black"
+          ref={prevRef}
+        >
+          <Image
+            src="/images/arrow-white.svg"
+            alt="Top Right Image"
+            width={20}
+            height={20}
+            className='rotate-180'
+          />
+        </div>
+
+        {/* NEXT REF - Circle with icon */}
+        <div
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-[#D9D9D9]"
+          ref={nextRef}
+        >
+          <Image
+            src="/images/arrow-white.svg"
+            alt="Top Right Image"
+            width={20}
+            height={20}
+            className='invert'
+          />
+        </div>
       </div>
 
       <Swiper
