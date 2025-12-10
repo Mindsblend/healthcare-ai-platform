@@ -3,6 +3,7 @@ import localFont from 'next/font/local'
 import '../../../globals.css'
 import Navbar from '@/components/layout/Navbar'
 import CallToAction from '@/components/layout/CallToAction'
+import Footer from '@/components/layout/Footer'
 
 /* ============================
    Headers: Aria Font Family
@@ -135,6 +136,7 @@ export default function RootLayout({
         <Navbar />
         {children}
         <CallToAction />
+        <Footer />
       </body>
     </html>
   )
