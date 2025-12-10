@@ -6,8 +6,10 @@ import ServicesSection from '@/components/domain/(interface)/ServicesSection'
 import ReviewSection from '@/components/domain/(interface)/ReviewSection'
 import ProductsSection from '@/components/domain/(interface)/ProductsSection'
 import { products } from '@/features/shop/services/fetchProducts'
+import { blogs } from '@/features/shop/services/fetchBlogs'
 import NewsletterSection from '@/components/domain/(interface)/NewsletterSection'
 import FeaturesSection from '@/components/domain/(interface)/FeaturesSection'
+import BlogsSection from '@/components/domain/(interface)/BlogsSection'
 
 export default function Home() {
   return (
@@ -19,6 +21,7 @@ export default function Home() {
       <ReviewSection />
       <ProductsSection products={products} />
       <NewsletterSection />
+      <BlogsSection blogs={blogs} />
       <FeaturesSection />
     </div>
   )

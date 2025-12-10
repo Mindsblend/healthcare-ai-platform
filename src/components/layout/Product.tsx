@@ -10,7 +10,7 @@ const Product = ({ product }: Props) => {
   return (
     <div className="bg-page h-[540px] w-[415px] rounded-3xl border border-black/25 px-2 py-3">
       <div
-        className="relative h-[405px]"
+        className="relative w-[398px] h-[404px] rounded-3x"
         style={{ backgroundImage: `url(${product.image})` }}
       >
         <div className="bg-page absolute top-3.5 right-4 z-10 h-12 w-12 rounded-full p-2.5">
