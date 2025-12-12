@@ -57,8 +57,7 @@ const FeaturesSection = () => {
         {items.map((item, i) => (
           <div
             key={i}
-            className="flex items-start gap-4 pb-6 text-right"
-            dir="rtl"
+            className="flex items-start gap-4 pb-6"
           >
             {/* Icon */}
             <img src={item.icon} alt="" className="h-15 w-15 object-contain" />

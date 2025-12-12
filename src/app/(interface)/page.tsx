@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import HeroSection from '@/components/domain/(interface)/HeroSection'
 import HealthInvestmentSection from '@/components/domain/(interface)/HealthInvestmentSection'
 import HealthTestSection from '@/components/domain/(interface)/HealthTestSection'
@@ -10,6 +9,7 @@ import { blogs } from '@/features/shop/services/fetchBlogs'
 import NewsletterSection from '@/components/domain/(interface)/NewsletterSection'
 import FeaturesSection from '@/components/domain/(interface)/FeaturesSection'
 import BlogsSection from '@/components/domain/(interface)/BlogsSection'
+import StepsSection from '@/components/domain/(interface)/StepsSection'
 
 export default function Home() {
   return (
@@ -18,6 +18,7 @@ export default function Home() {
       <HealthInvestmentSection />
       <HealthTestSection />
       <ServicesSection />
+      <StepsSection />
       <ReviewSection />
       <ProductsSection products={products} />
       <NewsletterSection />
