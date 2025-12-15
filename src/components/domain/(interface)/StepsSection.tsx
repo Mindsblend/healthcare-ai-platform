@@ -2,7 +2,7 @@ import Image from 'next/image'
 
 const StepsSection = () => {
   return (
-    <div className="text-color-title-on-light flex-wrap bg-section flex justify-between px-24 py-20">
+    <div className="text-color-title-on-light bg-section flex flex-wrap justify-between px-24 py-20">
       <div>
         <h1 className="font-aria text-color-title-on-dark max-w-2xl text-5xl font-bold">
           راهکار کامل شما برای سلامتی، بدون پیچیدگی و دغدغه
@@ -40,14 +40,14 @@ const StepsSection = () => {
         <div className="flex items-center gap-3">
           <div>
             <h1 className="font-aria text-color-title-on-dark text-left text-5xl font-black">
-              93%
+              ۹۳%
             </h1>
             <p className="font-ray text-color-body-on-dark text-xl">
               رضایت مشتریان
             </p>
           </div>
           <Image
-            src="/images/face.png"
+            src="/images/happy.svg"
             alt="face icon"
             width={32}
             height={32}
@@ -56,14 +56,14 @@ const StepsSection = () => {
         <div className="flex items-center gap-3">
           <div>
             <h1 className="font-aria text-color-title-on-dark text-left text-5xl font-black">
-              5000+
+              ۵۰۰۰+
             </h1>
             <p className="font-ray text-color-body-on-dark text-xl">
               تعداد ارسال ها
             </p>
           </div>
           <Image
-            src="/images/cube.png"
+            src="/images/cube.svg"
             alt="cube icon"
             width={32}
             height={32}
@@ -72,14 +72,14 @@ const StepsSection = () => {
         <div className="flex items-center gap-3">
           <div>
             <h1 className="font-aria text-color-title-on-dark text-left text-5xl font-black">
-              12
+              ۱۲
             </h1>
             <p className="font-ray text-color-body-on-dark text-xl">
               سال ها تجربه
             </p>
           </div>
           <Image
-            src="/images/verified.png"
+            src="/images/verified.svg"
             alt="verified icon"
             width={32}
             height={32}
@@ -88,14 +88,14 @@ const StepsSection = () => {
         <div className="flex items-center gap-3">
           <div>
             <h1 className="font-aria text-color-title-on-dark text-left text-5xl font-black">
-              3000+
+              ۳۰۰۰+
             </h1>
             <p className="font-ray text-color-body-on-dark text-xl">
               تعداد مشتریان
             </p>
           </div>
           <Image
-            src="/images/health.png"
+            src="/images/health.svg"
             alt="health icon"
             width={32}
             height={32}

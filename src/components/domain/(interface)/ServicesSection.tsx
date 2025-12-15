@@ -17,7 +17,7 @@ const ServicesSection = () => {
         {/* Fast Delivery */}
         <div className="flex h-[337px] flex-col justify-between border-t-2 border-dashed border-black pt-6 pr-8 pb-16">
           <Image
-            src="/images/delivery-truck.png"
+            src="/images/delivery.svg"
             alt="delivery_truck"
             width={70}
             height={70}
@@ -34,7 +34,7 @@ const ServicesSection = () => {
         {/* Standard Packaging */}
         <div className="flex h-[337px] flex-col justify-between border-t-2 border-r-2 border-dashed border-black pt-6 pr-8 pb-16">
           <Image
-            src="/images/package.png"
+            src="/images/package.svg"
             alt="package"
             width={70}
             height={70}
@@ -52,7 +52,7 @@ const ServicesSection = () => {
         {/* Customers Support */}
         <div className="flex h-[337px] flex-col justify-between border-t-2 border-r-2 border-dashed border-black pt-6 pr-8 pb-16">
           <Image
-            src="/images/support.png"
+            src="/images/support.svg"
             alt="support"
             width={70}
             height={70}
@@ -70,7 +70,7 @@ const ServicesSection = () => {
         {/* Easy Payment */}
         <div className="flex h-[337px] flex-col justify-between border-t-2 border-r-2 border-dashed border-black pt-6 pr-8 pb-16">
           <Image
-            src="/images/credit-card.png"
+            src="/images/card.svg"
             alt="credit_card"
             width={70}
             height={70}
