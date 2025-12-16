@@ -77,7 +77,7 @@ export default async function Navbar() {
               </Link>
             </div>
           ) : (
-            <div>
+            <div className='flex'>
               <button className="bg-page flex h-[43px] min-w-[187px] items-center justify-between rounded-full px-2 text-white">
                 {/* Button text */}
                 <span className="font-ray text-color-title-on-light mr-3.5 text-[16px] font-medium whitespace-nowrap">
