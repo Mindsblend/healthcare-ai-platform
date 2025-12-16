@@ -1,4 +1,3 @@
-// features/shop/services/productService.ts
 import { prisma } from '@/lib/prisma'
 import { ProductType } from '@/components/types/types'
 

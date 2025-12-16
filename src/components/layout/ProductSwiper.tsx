@@ -2,7 +2,6 @@
 
 import Image from 'next/image'
 
-import { ProductType } from '../types/types'
 import Product from './Product'
 import { useProducts } from '@/features/shop/hooks/useProducts'
 

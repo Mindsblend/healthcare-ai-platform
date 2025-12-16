@@ -9,7 +9,7 @@ const Blog = ({ blog }: Props) => {
   return (
     <div className="bg-page h-[542px] w-[415px] rounded-3xl border border-black/25 px-2 py-3">
       <div
-        className="relative w-[398px] h-[334px] rounded-3xl"
+        className="relative h-[334px] w-[398px] rounded-3xl"
         style={{ backgroundImage: `url(${blog.image})` }}
       >
         <div className="bg-page absolute top-3.5 right-4 z-10 h-12 w-12 rounded-full p-2.5">
@@ -21,7 +21,7 @@ const Blog = ({ blog }: Props) => {
           />
         </div>
       </div>
-      <div className="mt-2 flex items-center justify-between rounded-3xl bg-[#F2F2F2] px-6 py-4 h-[177px]">
+      <div className="mt-2 flex h-[177px] items-center justify-between rounded-3xl bg-[#F2F2F2] px-6 py-4">
         <div className="text-color-title-on-light">
           <h1 className="font-ray text-[24px] font-extrabold">{blog.title}</h1>
           <p className="font-ray max-w-full text-[14px] font-medium">
@@ -45,7 +45,7 @@ const Blog = ({ blog }: Props) => {
             </a>
             <div className="mr-2.5 flex gap-2.5">
               <Image
-                src="/images/arash.svg"
+                src={blog.authorImage}
                 alt="writer image"
                 width={46}
                 height={46}
@@ -53,7 +53,7 @@ const Blog = ({ blog }: Props) => {
               />
               <div className="gap-y-2">
                 <h1 className="font-aria text-[16px] font-extrabold">
-                  سینا توکلی
+                  {blog.author}
                 </h1>
                 <p className="font-ray font-regular text-[14px]">
                   نویسنده و پژوهشگر

@@ -1,11 +1,6 @@
 import BlogSwiper from '@/components/layout/BlogSwiper'
-import { BlogType } from '@/components/types/types'
 
-interface Props {
-  blogs: BlogType[]
-}
-
-const BlogsSection = ({ blogs }: Props) => {
+const BlogsSection = () => {
   return (
     <div className="mt-48 flex w-full flex-col">
       {/* only this block is centered */}
@@ -19,7 +14,7 @@ const BlogsSection = ({ blogs }: Props) => {
 
       {/* slider below, full width */}
       <div className="flex items-center justify-center">
-        <BlogSwiper blogs={blogs} />
+        <BlogSwiper />
       </div>
     </div>
   )

@@ -7,7 +7,6 @@ import HealthTestSection from '@/components/domain/(interface)/HealthTestSection
 import ServicesSection from '@/components/domain/(interface)/ServicesSection'
 import ReviewSection from '@/components/domain/(interface)/ReviewSection'
 import ProductsSection from '@/components/domain/(interface)/ProductsSection'
-import { blogs } from '@/features/shop/services/fetchBlogs'
 import NewsletterSection from '@/components/domain/(interface)/NewsletterSection'
 import FeaturesSection from '@/components/domain/(interface)/FeaturesSection'
 import BlogsSection from '@/components/domain/(interface)/BlogsSection'
@@ -32,7 +31,7 @@ export default async function Home() {
         <ReviewSection />
         <ProductsSection />
         <NewsletterSection />
-        <BlogsSection blogs={blogs} />
+        <BlogsSection />
         <FeaturesSection />
       </div>
     )
