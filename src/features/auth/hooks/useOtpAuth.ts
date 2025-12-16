@@ -13,7 +13,7 @@ export function useOtpAuth() {
     setLoading(true)
     setError(null)
     try {
-      await requestOtp(identifier) // call your action
+      await requestOtp(identifier)
       setStage('sent')
     } catch (e: any) {
       setError(e.message)

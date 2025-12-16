@@ -4,6 +4,7 @@ import Image from 'next/image'
 
 import { ProductType } from '../types/types'
 import Product from './Product'
+import { useProducts } from '@/features/shop/hooks/useProducts'
 
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Navigation } from 'swiper/modules'
@@ -12,17 +13,18 @@ import 'swiper/css'
 import 'swiper/css/navigation'
 import { useRef } from 'react'
 
-interface Props {
-  products: ProductType[]
-}
-
-export default function ProductSwiper({ products }: Props) {
+export default function ProductSwiper() {
   const nextRef = useRef<HTMLDivElement>(null)
   const prevRef = useRef<HTMLDivElement>(null)
 
+  const { products, loading, error } = useProducts()
+
+  if (loading) return <div>در حال بارگذاری محصولات...</div>
+  if (error) return <div>خطا در بارگذاری محصولات: {error}</div>
+
   return (
     <div className="mt-2.5 flex w-full max-w-[1450px] flex-col items-center justify-center px-5">
-      <div className="self-start flex items-center gap-2.5 pr-14 pb-2">
+      <div className="flex items-center gap-2.5 self-start pr-14 pb-2">
         {/* PREV REF - Circle with icon */}
         <div
           className="flex h-12 w-12 items-center justify-center rounded-full bg-black"
@@ -33,7 +35,7 @@ export default function ProductSwiper({ products }: Props) {
             alt="Top Right Image"
             width={20}
             height={20}
-            className='rotate-180'
+            className="rotate-180"
           />
         </div>
 
@@ -47,7 +49,7 @@ export default function ProductSwiper({ products }: Props) {
             alt="Top Right Image"
             width={20}
             height={20}
-            className='invert'
+            className="invert"
           />
         </div>
       </div>

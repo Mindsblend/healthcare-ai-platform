@@ -1,11 +1,7 @@
 import ProductSwiper from '@/components/layout/ProductSwiper'
 import { ProductType } from '@/components/types/types'
 
-interface Props {
-  products: ProductType[]
-}
-
-const ProductsSection = ({ products }: Props) => {
+const ProductsSection = () => {
   return (
     <div className="mt-48 flex w-full flex-col">
       {/* only this block is centered */}
@@ -18,7 +14,8 @@ const ProductsSection = ({ products }: Props) => {
 
       {/* slider below, full width */}
       <div className="flex items-center justify-center">
-        <ProductSwiper products={products} />
+        {}
+        <ProductSwiper />
       </div>
     </div>
   )
