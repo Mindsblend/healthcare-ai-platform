@@ -55,7 +55,7 @@ const Product = ({ product }: Props) => {
           </p>
         </div>
         <Link
-          href=""
+          href={'/products/' + product.slug}
           className="text-color-title-on-light font-ray inline-block font-black underline"
         >
           مشاهده محصول
