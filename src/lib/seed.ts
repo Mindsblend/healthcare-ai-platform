@@ -1,4 +1,5 @@
 import { prisma } from './prisma.ts'
+import generateSlug from './helpers.ts'
 
 /* =======================
    PRODUCTS
@@ -10,37 +11,48 @@ const products = [
     price: 320000,
     image: '/images/product-one.svg',
     description:
-      'کرم‌ها می‌تونن مواد مفیدی مثل ویتامین‌، یا عصاره‌ گیاهی داشته باشن',
+      'کرم آبرسان با ترکیبی از ویتامین‌ها و عصاره‌های گیاهی، رطوبت عمقی پوست را تأمین می‌کند و از خشکی و خستگی پوست جلوگیری می‌کند.',
+    solution: 'خشکی پوست را سریع برطرف می‌کند و نرمی و شادابی می‌بخشد',
   },
   {
     title: 'عرق خونساز',
     price: 543000,
     image: '/images/product-two.svg',
-    description: 'درمان کمخونی با روش ایمن برای سلامت بهتر ',
+    description:
+      'عرق خونساز با فرمولی طبیعی و غنی از عناصر حیاتی، به تقویت خون و بهبود عملکرد سیستم گردش خون کمک می‌کند.',
+    solution: 'کم‌خونی را کاهش می‌دهد و انرژی بدن را سریع افزایش می‌دهد',
   },
   {
     title: 'کرم زالو',
     price: 233000,
     image: '/images/product-three.svg',
-    description: 'جلوگیری از خشکی پوست با تامین آب و رطوبت لازم',
+    description:
+      'کرم زالو با عصاره‌های فعال، رطوبت و نرمی لازم را برای حفظ لطافت و انعطاف‌پذیری پوست فراهم می‌کند.',
+    solution: 'خشکی و خشن بودن پوست را سریع برطرف می‌کند و لطافت می‌بخشد',
   },
   {
     title: 'ماسک مو ترمیمی',
     price: 99000,
     image: '/images/product-four.svg',
-    description: 'بازسازی تارهای آسیب‌دیده و ایجاد نرمی و درخشش طبیعی مو',
+    description:
+      'ماسک مو ترمیمی تارهای آسیب‌دیده را بازسازی کرده و درخشندگی و نرمی طبیعی موها را بازمی‌گرداند.',
+    solution: 'موهای آسیب‌دیده را سریع ترمیم و درخشان می‌کند',
   },
   {
     title: 'سرم ویتامینه',
     price: 420000,
     image: '/images/product-five.svg',
-    description: 'کمک به تقویت پوست با جذب سریع مواد مغذی و ویتامین‌ها',
+    description:
+      'سرم ویتامینه پوست را تغذیه و بازسازی می‌کند، شفافیت و لطافت طبیعی را افزایش می‌دهد.',
+    solution: 'پوست کدر و خسته را سریع شفاف و جوان می‌کند',
   },
   {
     title: 'شامپو گیاهی',
     price: 86000,
     image: '/images/product-six.svg',
-    description: 'پاکسازی ملایم مو بدون آسیب با ترکیبات طبیعی و سالم',
+    description:
+      'شامپو گیاهی موها را پاکسازی کرده و سلامت پوست سر را حفظ می‌کند.',
+    solution: 'موهای ضعیف و خشک را سریع سالم و نرم می‌کند',
   },
 ]
 
@@ -48,8 +60,8 @@ async function seedProducts() {
   for (const product of products) {
     await prisma.product.upsert({
       where: { title: product.title },
-      update: { ...product },
-      create: { ...product },
+      update: { ...product, slug: generateSlug(product.title) },
+      create: { ...product, slug: generateSlug(product.title) },
     })
   }
   console.log('✅ Products seeded')
