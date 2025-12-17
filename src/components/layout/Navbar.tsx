@@ -77,8 +77,11 @@ export default async function Navbar() {
               </Link>
             </div>
           ) : (
-            <div className='flex'>
-              <button className="bg-page flex h-[43px] min-w-[187px] items-center justify-between rounded-full px-2 text-white">
+            <div className="flex">
+              <Link
+                href="/ai"
+                className="bg-page flex h-[43px] min-w-[187px] cursor-pointer items-center justify-between rounded-full px-2 text-white"
+              >
                 {/* Button text */}
                 <span className="font-ray text-color-title-on-light mr-3.5 text-[16px] font-medium whitespace-nowrap">
                   تست هوش مصنوعی
@@ -93,7 +96,7 @@ export default async function Navbar() {
                     height={24}
                   />
                 </div>
-              </button>
+              </Link>
 
               <button className="flex h-[43px] min-w-[187px] cursor-pointer items-center justify-between rounded-full bg-black px-2 text-white">
                 {/* Button text */}

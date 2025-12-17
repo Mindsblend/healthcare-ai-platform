@@ -13,18 +13,19 @@ export default function Auth() {
   const isOtpComplete = otp.length === 6
 
   return (
-    <div className="flex min-h-screen flex-col items-center gap-8 px-4 pt-16 text-center">
+    <div className="flex min-h-screen flex-col items-center gap-4 px-4 pt-16 text-center">
       <Image src="/images/logo.svg" alt="Logo" width={200} height={40} />
 
-      <h1 className="font-aria mt-16 max-w-[474px] text-[40px] font-bold">
+      <h1 className="font-aria mt-16 max-w-[474px] text-[40px] font-extrabold leading-12">
         سفر سلامتی‌ات از همین‌جا ادامه پیدا می‌کند
       </h1>
 
       <p className="font-ray max-w-[565px] text-[22px]">
-        وارد حساب شو و کنترل سلامتی‌ات را در دست بگیر
+        وارد حساب شو و کنترل سلامتی‌ات را در دست بگیر <br />
+        از تحلیل هوش مصنوعی تا محصولاتی که برای کیفیت بی‌نقص انتخاب شده
       </p>
 
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center mt-4">
         {/* Identifier */}
         <input
           type="text"

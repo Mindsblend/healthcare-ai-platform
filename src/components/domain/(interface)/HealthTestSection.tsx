@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import Image from 'next/image'
 
 const HealthTestSection = () => {
@@ -17,21 +18,25 @@ const HealthTestSection = () => {
               حالا قدم اول را بردار و سرمایه‌گذاری روی سلامتت را آغاز کن.
             </p>
 
-            <button className="flex h-[54px] min-w-[187px] items-center justify-between rounded-full bg-black px-2 text-white">
-              <span className="font-ray mr-2 text-base font-medium whitespace-nowrap text-white">
+            <Link
+              href="/auth"
+              className="flex h-[54px] w-[210px] cursor-pointer items-center justify-between rounded-full bg-black px-3 text-white"
+            >
+              {/* Button text */}
+              <span className="font-aria pr-4 text-base font-medium">
                 مشاهده محصولات
               </span>
 
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white">
+              {/* Circle with icon */}
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white">
                 <Image
                   src="/images/arrow.svg"
-                  alt="Arrow"
+                  alt="Top Right Image"
                   width={20}
                   height={20}
-                  className="rotate-45"
                 />
               </div>
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -74,21 +79,25 @@ const HealthTestSection = () => {
               انرژی، شفافیت ذهنی و طول عمر فرداست — و کاملاً رایگان هست.
             </p>
 
-            <button className="flex h-[54px] min-w-[187px] items-center justify-between rounded-full bg-black px-2 text-white">
-              <span className="font-ray mr-2 text-base font-medium whitespace-nowrap text-white">
-                مشاهده محصولات
+            <Link
+              href="/ai"
+              className="flex h-[54px] w-[210px] cursor-pointer items-center justify-between rounded-full bg-black px-3 text-white"
+            >
+              {/* Button text */}
+              <span className="font-aria pr-4 text-base font-medium">
+                تست هوش مصنوعی
               </span>
 
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white">
+              {/* Circle with icon */}
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white">
                 <Image
                   src="/images/arrow.svg"
-                  alt="Arrow"
+                  alt="Top Right Image"
                   width={20}
                   height={20}
-                  className="rotate-45"
                 />
               </div>
-            </button>
+            </Link>
           </div>
         </div>
 
