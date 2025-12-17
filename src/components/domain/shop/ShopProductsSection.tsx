@@ -43,9 +43,9 @@ const ShopProductsSection = ({ title, description }: Props) => {
   if (error) return <div>خطا در بارگذاری محصولات: {error}</div>
 
   return (
-    <div className="mt-28 flex w-full flex-col px-18">
+    <div className="mt-28 flex flex-col px-18 2xl:px-56">
       {/* only this block is centered */}
-      <div className="text-color-title-on-light flex w-full items-center justify-between text-right">
+      <div className="text-color-title-on-light flex w-full flex-wrap items-center justify-between text-right">
         {/* Right: Title & Paragraph */}
         <div className="flex max-w-xl flex-col items-start">
           <h1 className="font-aria text-color-title-on-light mt-3 text-[30px] font-extrabold">
@@ -57,7 +57,7 @@ const ShopProductsSection = ({ title, description }: Props) => {
         </div>
 
         {/* Left: Categories */}
-        <div className="flex gap-4">
+        <div className="flex gap-4 flex-wrap">
           {categories.map((category) => (
             <div
               key={category.id}
@@ -72,7 +72,7 @@ const ShopProductsSection = ({ title, description }: Props) => {
       </div>
 
       {/* slider below, full width */}
-      <div className="mt-8 grid grid-cols-3 items-center justify-center gap-8">
+      <div className="mt-8 grid w-full grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 items-center justify-between gap-8">
         {products.map((product) => (
           <Product key={product.id} product={product} />
         ))}

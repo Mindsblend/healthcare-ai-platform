@@ -2,7 +2,7 @@ import Image from 'next/image'
 
 const CallToAction = () => {
   return (
-    <div className="px-18">
+    <div className="px-18 2xl:px-56">
       <div className="bg-section text-color-title-on-dark flex h-[327px] w-full flex-col items-center justify-center rounded-2xl text-center">
         <h1 className="font-aria mb-2 text-2xl text-[50px] font-bold">
           سلامتی آینده‌ات را امروز بساز

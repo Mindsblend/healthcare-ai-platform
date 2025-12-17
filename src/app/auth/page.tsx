@@ -16,23 +16,23 @@ export default function Auth() {
     <div className="flex min-h-screen flex-col items-center gap-4 px-4 pt-16 text-center">
       <Image src="/images/logo.svg" alt="Logo" width={200} height={40} />
 
-      <h1 className="font-aria mt-16 max-w-[474px] text-[40px] font-extrabold leading-12">
+      <h1 className="font-aria text-color-title-on-light mt-16 max-w-[474px] text-[40px] leading-12 font-extrabold">
         سفر سلامتی‌ات از همین‌جا ادامه پیدا می‌کند
       </h1>
 
-      <p className="font-ray max-w-[565px] text-[22px]">
+      <p className="font-ray text-color-body-on-light max-w-[565px] text-[22px]">
         وارد حساب شو و کنترل سلامتی‌ات را در دست بگیر <br />
         از تحلیل هوش مصنوعی تا محصولاتی که برای کیفیت بی‌نقص انتخاب شده
       </p>
 
-      <div className="flex flex-col items-center mt-4">
+      <div className="mt-4 flex flex-col items-center">
         {/* Identifier */}
         <input
           type="text"
           placeholder="ایمیل یا شماره تلفن"
           value={identifier}
           onChange={(e) => setIdentifier(e.target.value)}
-          className="font-ray h-[60px] w-[458px] rounded-[10px] bg-[#F4F4F4] p-3 text-right text-[22px]"
+          className="font-ray text-color-title-on-light h-[60px] w-[458px] rounded-[10px] bg-[#F4F4F4] p-3 text-right text-[22px]"
         />
 
         {/* OTP appears directly under identifier */}
@@ -58,7 +58,7 @@ export default function Auth() {
         <button
           disabled={loading || (stage === 'sent' && !isOtpComplete)}
           onClick={() => handleOtpButton(identifier, otp)}
-          className={`font-ray mt-4 h-20 w-[458px] rounded-[10px] text-[20px] font-bold text-white transition-colors hover:bg-gray-800 ${
+          className={`font-ray mt-4 h-20 w-[458px] cursor-pointer rounded-[10px] text-[20px] font-bold text-white transition-colors hover:bg-gray-800 ${
             stage === 'sent' && !isOtpComplete
               ? 'cursor-not-allowed bg-gray-400'
               : 'bg-black'

@@ -44,7 +44,7 @@ const ProductCategorySection = () => {
           سالم‌ترین و ارگانیک‌ترین انتخاب‌ها، با دقت برای شما آماده شده‌اند
         </p>
       </div>
-      <div className="flex items-center justify-center gap-16 mt-4">
+      <div className="flex items-center text-color-title-on-light justify-center gap-16 mt-4">
         {categories.map((category) => (
           <div key={category.id} className="h-[107px] w-[86px]">
             <div className="flex h-full w-full flex-col items-center justify-center gap-2 rounded-[10px] border border-[#E9E9E8] text-center">

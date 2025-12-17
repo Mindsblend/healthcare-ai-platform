@@ -2,7 +2,7 @@ import Image from 'next/image'
 
 const Footer = () => {
   return (
-    <footer className="bg-page px-42 pt-20 pb-10 text-color-title-on-light">
+    <footer className="bg-page px-18 2xl:px-80 pt-20 pb-10 text-color-title-on-light">
       <div className="flex justify-between gap-20">
         {/* RIGHT SIDE — Logo + Paragraph + Social Icons + Numbers */}
         <div className="max-w-sm text-right">
