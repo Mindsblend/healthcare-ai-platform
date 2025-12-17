@@ -1,10 +1,12 @@
+'use client'
+
 import Product from '@/components/layout/Product'
+import { useProducts } from '@/features/shop/hooks/useProducts'
 import { ProductType } from '@/components/types/types'
 
 interface Props {
   title: string
   description: string
-  products: ProductType[]
 }
 
 const categories = [
@@ -34,7 +36,12 @@ const categories = [
   },
 ]
 
-const ShopProductsSection = ({ title, description, products }: Props) => {
+const ShopProductsSection = ({ title, description }: Props) => {
+  const { products, loading, error } = useProducts()
+
+  if (loading) return <div>در حال بارگذاری محصولات...</div>
+  if (error) return <div>خطا در بارگذاری محصولات: {error}</div>
+
   return (
     <div className="mt-28 flex w-full flex-col px-18">
       {/* only this block is centered */}

@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 
-import { BlogType } from '../types/types'
+import { useBlogs } from '@/features/shop/hooks/useBlogs'
 import Blog from './Blog'
 
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -12,13 +12,14 @@ import 'swiper/css'
 import 'swiper/css/navigation'
 import { useRef } from 'react'
 
-interface Props {
-  blogs: BlogType[]
-}
-
-export default function BlogSwiper({ blogs }: Props) {
+export default function BlogSwiper() {
   const nextRef = useRef<HTMLDivElement>(null)
   const prevRef = useRef<HTMLDivElement>(null)
+
+  const { blogs, loading, error } = useBlogs()
+
+  if (loading) return <div>در حال بارگذاری محصولات...</div>
+  if (error) return <div>خطا در بارگذاری محصولات: {error}</div>
 
   return (
     <div className="mt-2.5 flex w-full max-w-[1450px] flex-col items-center justify-center px-5">

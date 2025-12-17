@@ -7,8 +7,6 @@ import HealthTestSection from '@/components/domain/(interface)/HealthTestSection
 import ServicesSection from '@/components/domain/(interface)/ServicesSection'
 import ReviewSection from '@/components/domain/(interface)/ReviewSection'
 import ProductsSection from '@/components/domain/(interface)/ProductsSection'
-import { products } from '@/features/shop/services/fetchProducts'
-import { blogs } from '@/features/shop/services/fetchBlogs'
 import NewsletterSection from '@/components/domain/(interface)/NewsletterSection'
 import FeaturesSection from '@/components/domain/(interface)/FeaturesSection'
 import BlogsSection from '@/components/domain/(interface)/BlogsSection'
@@ -31,9 +29,9 @@ export default async function Home() {
         <ServicesSection />
         <StepsSection />
         <ReviewSection />
-        <ProductsSection products={products} />
+        <ProductsSection />
         <NewsletterSection />
-        <BlogsSection blogs={blogs} />
+        <BlogsSection />
         <FeaturesSection />
       </div>
     )
@@ -45,17 +43,14 @@ export default async function Home() {
         <ShopProductsSection
           title="پرفروش ترین محصولات"
           description="برترین و پر فروش ترین محصولات این هفته"
-          products={products}
         />
         <ShopProductsSection
           title="محصولات پیشنهادی برای شما"
           description="محصولاتی که با توجه به نیازها و سبک زندگی شما، بیشترین تاثیر را دارند"
-          products={products}
         />
         <ShopProductsSection
           title="محصولات جدید"
           description="تازه‌ترین محصولات و انتخاب‌های فصلی برای تجربه‌ای نو و به‌روز"
-          products={products}
         />
       </div>
     )

@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import Image from 'next/image'
 
 const HeroSection = () => {
@@ -17,9 +18,12 @@ const HeroSection = () => {
         </p>
 
         <div className="mt-5 mb-6 flex gap-4">
-          <button className="flex h-[54px] w-[210px] cursor-pointer items-center justify-between rounded-full bg-black px-3 text-white">
+          <Link
+            href="/ai"
+            className="flex h-[54px] w-[210px] cursor-pointer items-center justify-between rounded-full bg-black px-3 text-white"
+          >
             {/* Button text */}
-            <span className="font-aria text-base font-medium pr-4">
+            <span className="font-aria pr-4 text-base font-medium">
               شروع سفر سلامتی
             </span>
 
@@ -32,10 +36,13 @@ const HeroSection = () => {
                 height={20}
               />
             </div>
-          </button>
-          <button className="font-ray flex h-[54px] w-[145px] cursor-pointer items-center justify-center rounded-full border border-black px-0 text-base font-medium whitespace-nowrap text-black transition hover:bg-black hover:text-white">
+          </Link>
+          <Link
+            href="/auth"
+            className="font-ray flex h-[54px] w-[145px] cursor-pointer items-center justify-center rounded-full border border-black px-0 text-base font-medium whitespace-nowrap text-black transition hover:bg-black hover:text-white"
+          >
             آشنایی با محصولات
-          </button>
+          </Link>
         </div>
         <div className="mb-6 flex w-full flex-col justify-between">
           {/* Top: Image */}
