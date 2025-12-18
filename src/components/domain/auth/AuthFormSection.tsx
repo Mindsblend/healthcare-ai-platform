@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useOtpAuth } from '@/features/auth/hooks/useOtpAuth'
+import ErrorPopup from '@/components/layout/ErrorPopup'
 
 export default function AuthFormSection() {
   const [identifier, setIdentifier] = useState('')
@@ -12,10 +13,10 @@ export default function AuthFormSection() {
   const isOtpComplete = otp.length === 6
 
   return (
-    <div className="flex min-h-screen flex-col items-center gap-4 px-4 pt-16 text-center">
+    <div className="flex min-h-screen flex-col items-center gap-4 px-4 pt-30 text-center">
       <Image src="/images/logo.svg" alt="Logo" width={200} height={40} />
 
-      <h1 className="font-aria mt-16 max-w-[474px] text-[40px] leading-12 font-extrabold">
+      <h1 className="font-aria mt-8 max-w-[474px] text-[40px] leading-12 font-extrabold">
         سفر سلامتی‌ات از همین‌جا ادامه پیدا می‌کند
       </h1>
 
@@ -66,8 +67,8 @@ export default function AuthFormSection() {
           {getButtonText()}
         </button>
 
-        {/* Optional error message */}
-        {error && <p className="mt-2 text-red-500">{error}</p>}
+        {/* Error Popup in case of facing errors */}
+        <ErrorPopup error={error} />
       </div>
     </div>
   )
