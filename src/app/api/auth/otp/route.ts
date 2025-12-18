@@ -1,27 +1,58 @@
+import { NextResponse } from 'next/server'
 import { sendOtpViaSms } from '@/features/auth/services/sendOtpService'
 import { saveOtp } from '@/features/auth/services/storeOtpService'
+import { createDomainError, ErrorCode } from '@/lib/errors'
+import { validateIdentifier } from '@/lib/helpers'
+
 
 export async function POST(req: Request) {
   try {
     const { identifier } = await req.json()
+    const { type, value } = await validateIdentifier(identifier)
 
-    if (!identifier) {
-      return Response.json({ error: 'Identifier is required' }, { status: 400 })
+    switch (type) {
+      case 'email':
+        // TODO: implement email OTP flow if needed
+        console.log(`[EMAIL] OTP request for: ${value}`)
+        // Example: await sendOtpViaEmail(value)
+        break
+
+      case 'phone':
+        console.log(`[SMS] OTP request for: ${value}`)
+
+        // Send OTP
+        const { code } = await sendOtpViaSms(value)
+        console.log('[SMS] OTP code sent')
+
+        // Store OTP
+        await saveOtp(value, code)
+        console.log('[SMS] OTP code saved')
+        break
+
+      default:
+        // This should never happen if validateIdentifier is robust
+        return NextResponse.json(
+          { error: createDomainError(ErrorCode.UNKNOWN_IDENTIFIER) },
+          { status: 400 },
+        )
     }
 
-    console.log(`OTP request for: ${identifier}`)
-
-    // Send OTP
-    const { code } = await sendOtpViaSms(identifier)
-    console.log("OTP code sent")
-
-    // Store OTP
-    await saveOtp(identifier, code)
-    console.log("OTP code saved")
-
-    return Response.json({ success: true })
+    return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('OTP Send Error:', error)
-    return Response.json({ error: 'Failed to send OTP' }, { status: 500 })
+    console.error('[OTP API] Caught error:', error)
+
+    if (
+      error &&
+      typeof error === 'object' &&
+      'code' in error &&
+      'message' in error
+    ) {
+      return NextResponse.json({ error }, { status: 400 })
+    }
+
+    return NextResponse.json(
+      { error: createDomainError(ErrorCode.UNKNOWN) },
+      { status: 500 },
+    )
   }
 }

@@ -1,26 +1,27 @@
-import { sign } from 'jsonwebtoken'
-import { User } from '@prisma/client'
+import { sign, verify, JwtPayload } from 'jsonwebtoken'
 import { cookies } from 'next/headers'
+import { User } from '@prisma/client'
 import { SessionPayload } from '@/components/types/types'
-import jwt, { JwtPayload } from 'jsonwebtoken'
+import { createDomainError, ErrorCode } from '@/lib/errors'
 
 if (!process.env.JWT_SECRET) {
-  throw new Error('JWT_SECRET is not defined')
+  throw createDomainError(ErrorCode.INTERNAL_ERROR)
 }
 
 const JWT_SECRET = process.env.JWT_SECRET
-const JWT_EXPIRES_IN = '7d' // adjust as needed
+const JWT_EXPIRES_IN = '7d'
 
-export function createJwtSession(user: User) {
-  // Payload can include whatever you need for session
+export function createJwtSession(user: User): string {
   const payload = {
     id: user.id,
     identifier: user.identifier,
   }
 
-  const token = sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN })
-
-  return token
+  try {
+    return sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN })
+  } catch {
+    throw createDomainError(ErrorCode.INTERNAL_ERROR)
+  }
 }
 
 export async function getSession(): Promise<SessionPayload | null> {
@@ -30,7 +31,7 @@ export async function getSession(): Promise<SessionPayload | null> {
   if (!token) return null
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload
+    const decoded = verify(token, JWT_SECRET) as JwtPayload
 
     if (
       typeof decoded === 'object' &&
@@ -44,7 +45,11 @@ export async function getSession(): Promise<SessionPayload | null> {
     }
 
     return null
-  } catch {
-    return null
+  } catch (err: any) {
+    if (err.name === 'TokenExpiredError' || err.name === 'JsonWebTokenError') {
+      return null // token expired or invalid = unauthenticated
+    }
+    // Real server error
+    throw createDomainError(ErrorCode.INTERNAL_ERROR)
   }
 }
