@@ -8,10 +8,16 @@ export async function verifyOtp(identifier: string, code: string) {
   const data = await res.json()
 
   if (!res.ok) {
-    throw new Error(data?.error || 'OTP verification failed')
+    console.error('[verifyOtp] error object:', data?.error)
+    // throw Error using the code from API
+    throw new Error(data?.error?.code || 'UNKNOWN')
   }
 
-  window.location.href = data.redirect || '/'
+  if (data.redirect) {
+    window.location.href = data.redirect
+  } else {
+    window.location.href = '/'
+  }
 
   return data
 }

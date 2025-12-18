@@ -3,11 +3,17 @@
 import { useState } from 'react'
 import { requestOtp } from '@/features/auth/actions/requestOtpAction'
 import { verifyOtp } from '@/features/auth/actions/verifyOtpAction'
+import { ErrorCode } from '@/lib/errors'
 
 export function useOtpAuth() {
   const [loading, setLoading] = useState(false)
   const [stage, setStage] = useState<'idle' | 'sent' | 'verified'>('idle')
   const [error, setError] = useState<string | null>(null)
+
+  const getErrorMessage = (code: string) => {
+    const entry = Object.values(ErrorCode).find((e) => e.code === code)
+    return entry?.message || 'خطایی رخ داده است'
+  }
 
   const sendCode = async (identifier: string) => {
     setLoading(true)
@@ -16,7 +22,7 @@ export function useOtpAuth() {
       await requestOtp(identifier)
       setStage('sent')
     } catch (e: any) {
-      setError(e.message)
+      setError(getErrorMessage(e.message))
     } finally {
       setLoading(false)
     }
@@ -26,12 +32,11 @@ export function useOtpAuth() {
     setLoading(true)
     setError(null)
     try {
-      const success = await verifyOtp(identifier, code) // action verifies OTP
-      if (!success) throw new Error('کد نادرست است')
+      await verifyOtp(identifier, code)
       setStage('verified')
       return true
     } catch (e: any) {
-      setError(e.message)
+      setError(getErrorMessage(e.message))
       return false
     } finally {
       setLoading(false)

@@ -5,9 +5,14 @@ export async function requestOtp(identifier: string) {
     body: JSON.stringify({ identifier }),
   })
 
+  const data = await res.json()
+
   if (!res.ok) {
-    throw new Error('OTP request failed')
+    console.error('[requestOtp] error object:', data?.error)
+
+    // Throw a real JS Error with the service/domain error code
+    throw new Error(data?.error?.code || 'UNKNOWN')
   }
 
-  return res.json()
+  return data
 }
