@@ -179,7 +179,7 @@ export default async function ProductPage(props: { params: any }) {
           </div>
         </div>
       </div>
-      <Questions product={product} />
+      {/* <Questions product={product} /> */}
     </div>
   )
 }

@@ -3,15 +3,15 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ProductType } from '../types/types'
+import { FaqItemType, ProductType } from '../types/types'
 
-interface QuestionsProps {
-  product: ProductType
+interface FaqItemProps {
+  item: FaqItemType
   isOpen: boolean
   onToggle: () => void
 }
 
-const FaqItem = ({ isOpen, onToggle, product }: QuestionsProps) => {
+const FaqItem = ({ item, isOpen, onToggle }: FaqItemProps) => {
   return (
     <div>
       {/* Question */}
@@ -20,15 +20,20 @@ const FaqItem = ({ isOpen, onToggle, product }: QuestionsProps) => {
         onClick={onToggle}
       >
         <h2 className="font-aria text-color-title-on-light text-2xl font-extrabold">
-          {product.}
+          {item.question}
         </h2>
 
         <motion.span
-          className=""
           animate={{ rotate: isOpen ? -90 : 0 }}
           transition={{ duration: 0.3 }}
+          aria-label={isOpen ? 'Collapse answer' : 'Expand answer'}
         >
-          <Image src='/images/arrow.svg' alt='arrow icon' width={20} height={20} />
+          <Image
+            src="/images/arrow.svg"
+            alt="arrow icon"
+            width={20}
+            height={20}
+          />
         </motion.span>
       </div>
 
@@ -43,7 +48,7 @@ const FaqItem = ({ isOpen, onToggle, product }: QuestionsProps) => {
             className="overflow-hidden"
           >
             <p className="font-ray text-color-body-on-light max-w-[596px] pt-2 pb-4 text-lg font-medium">
-              {item.a}
+              {item.answer}
             </p>
           </motion.div>
         )}
@@ -52,15 +57,19 @@ const FaqItem = ({ isOpen, onToggle, product }: QuestionsProps) => {
   )
 }
 
+interface QuestionsProps {
+  product: ProductType
+}
+
 const Questions = ({ product }: QuestionsProps) => {
   const [activeId, setActiveId] = useState<number | null>(null)
 
-  const leftFaqs = product.slice(0, 3)
-  const rightFaqs = product.slice(3, 6)
+  const leftFaqs = product?.faqs ? product.faqs.slice(0, 3) : []
+  const rightFaqs = product?.faqs ? product.faqs.slice(3, 6) : []
 
   return (
-    <div className="flex w-full mt-11 flex-col justify-between gap-10 px-18 lg:flex-row 2xl:px-56">
-      {/* right side */}
+    <div className="mt-11 flex w-full flex-col justify-between gap-10 px-18 lg:flex-row 2xl:px-56">
+      {/* left side */}
       <div className="w-[607px]">
         {leftFaqs.map((item, index) => {
           const isOpen = activeId === item.id
@@ -72,7 +81,6 @@ const Questions = ({ product }: QuestionsProps) => {
                 isOpen={isOpen}
                 onToggle={() => setActiveId(isOpen ? null : item.id)}
               />
-
               {index !== leftFaqs.length - 1 && (
                 <hr className="border-color-title-on-light mt-1 border" />
               )}
@@ -81,7 +89,7 @@ const Questions = ({ product }: QuestionsProps) => {
         })}
       </div>
 
-      {/* left side */}
+      {/* right side */}
       <div className="w-[607px]">
         {rightFaqs.map((item, index) => {
           const isOpen = activeId === item.id
@@ -93,7 +101,6 @@ const Questions = ({ product }: QuestionsProps) => {
                 isOpen={isOpen}
                 onToggle={() => setActiveId(isOpen ? null : item.id)}
               />
-
               {index !== rightFaqs.length - 1 && (
                 <hr className="border-color-title-on-light mt-1 border" />
               )}

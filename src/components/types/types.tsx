@@ -6,8 +6,6 @@ export interface ProductType {
   price: number
   image: string
   description: string
-  solution: string 
-
 }
 
 export interface BlogType {
