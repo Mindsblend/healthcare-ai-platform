@@ -1,4 +1,4 @@
-import { createDomainError, ErrorCode } from './errors'
+import { createDomainError, ErrorCode } from './errors.ts'
 
 export default function generateSlug(name: string) {
   return name
