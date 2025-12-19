@@ -4,8 +4,33 @@ export interface ProductType {
   id: number
   title: string
   price: number
+  category: string
+  slug: string
+  solution: string
   image: string
   description: string
+  icons: iconType[]
+  gains: gainType[]
+  faqs: faqType[]
+}
+
+export interface iconType {
+  id: number
+  title: string
+  iconPath: string
+}
+
+export interface gainType {
+  id: number
+  title: string
+  ingredient: string
+  description: string
+}
+
+export interface faqType {
+  id: number
+  question: string
+  answer: string
 }
 
 export interface BlogType {

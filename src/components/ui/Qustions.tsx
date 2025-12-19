@@ -3,10 +3,10 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FaqItemType, ProductType } from '../types/types'
+import { faqType } from '../types/types'
 
 interface FaqItemProps {
-  item: FaqItemType
+  item: faqType
   isOpen: boolean
   onToggle: () => void
 }
@@ -58,14 +58,14 @@ const FaqItem = ({ item, isOpen, onToggle }: FaqItemProps) => {
 }
 
 interface QuestionsProps {
-  product: ProductType
+  faqs: faqType[]
 }
 
-const Questions = ({ product }: QuestionsProps) => {
+const Questions = ({ faqs }: QuestionsProps) => {
   const [activeId, setActiveId] = useState<number | null>(null)
 
-  const leftFaqs = product?.faqs ? product.faqs.slice(0, 3) : []
-  const rightFaqs = product?.faqs ? product.faqs.slice(3, 6) : []
+  const leftFaqs = faqs ? faqs.slice(0, 3) : []
+  const rightFaqs = faqs ? faqs.slice(3, 6) : []
 
   return (
     <div className="mt-11 flex w-full flex-col justify-between gap-10 px-18 lg:flex-row 2xl:px-56">

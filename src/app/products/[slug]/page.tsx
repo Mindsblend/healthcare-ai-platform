@@ -4,6 +4,7 @@ import {
 } from '@/features/shop/services/fetchProducts'
 import Image from 'next/image'
 import Questions from '@/components/ui/Qustions'
+import { gainType, iconType } from '@/components/types/types'
 
 export async function generateStaticParams() {
   const products = await fetchAllProducts()
@@ -37,46 +38,23 @@ export default async function ProductPage(props: { params: any }) {
             {product.title}
           </h1>
           <div className="mt-5 flex items-center gap-3">
-            <div className="flex gap-1">
-              <Image
-                src="/images/earbuds.svg"
-                alt="earbuds icon"
-                width={13}
-                height={13}
-              />
-              <h1 className="font-ray text-color-title-on-light text-base font-medium">
-                بدون وابستگی مصرف
-              </h1>
-            </div>
-            <div className="flex gap-1">
-              <Image
-                src="/images/routine.svg"
-                alt="routine icon"
-                width={20}
-                height={20}
-              />
-              <h1 className="font-ray text-color-title-on-light text-base font-medium">
-                مناسب برای استفاده روزانه
-              </h1>
-            </div>
-            <div className="flex gap-1">
-              <Image
-                src="/images/more_time.svg"
-                alt="more time icon"
-                width={18}
-                height={18}
-              />
-              <h1 className="font-ray text-color-title-on-light text-base font-medium">
-                اثر تجمعی ملایم
-              </h1>
-            </div>
+            {product.icons?.map(({ id, title, iconPath }: iconType) => (
+              <div key={id} className="flex gap-1">
+                <Image
+                  src="/images/earbuds.svg"
+                  alt="earbuds icon"
+                  width={13}
+                  height={13}
+                />
+                <h1 className="font-ray text-color-title-on-light text-base font-medium">
+                  {title}
+                </h1>
+              </div>
+            ))}
           </div>
           {/* static description! */}
           <p className="font-ray text-color-body-on-light mt-5 max-w-xl text-lg">
-            کرم ویتال‌درم با تمرکز بر بازسازی سد دفاعی پوست و تأمین رطوبت پایدار
-            طراحی شده است. با ترکیبی از عصاره‌های گیاهی فعال، ویتامین‌های ضروری
-            و عوامل آبرسان عمقی، به پوست کمک می‌کند تعادل طبیعی خود را بازیابد و
-            در برابر خشکی، تحریک‌پذیری و عوامل محیطی مقاوم‌تر
+            {product.description}
           </p>
           <div className="bg-section mt-5 rounded-lg px-6 py-[23px]">
             <div className="flex items-center gap-1.5">
@@ -101,42 +79,22 @@ export default async function ProductPage(props: { params: any }) {
             </p>
           </div>
           <div className="mt-7 flex flex-col gap-5">
-            <div className="flex cursor-pointer items-center gap-1.5">
-              <Image
-                src="/images/add_circle.svg"
-                alt="add circle icon"
-                width={19.5}
-                height={19.5}
-              />
-              <h1 className="font-ray text-color-title-on-light text-base font-medium">
-                <span className="font-extrabold">حفظ رطوبت پوست: </span>اسید
-                هیالورونیک — قادر به حفظ رطوبت پوست
-              </h1>
-            </div>
-            <div className="flex cursor-pointer items-center gap-1.5">
-              <Image
-                src="/images/add_circle.svg"
-                alt="add circle icon"
-                width={19.5}
-                height={19.5}
-              />
-              <h1 className="font-ray text-color-title-on-light text-base font-medium">
-                <span className="font-extrabold">افزایش کلاژن: </span>ویتامین C
-                — تحریک تولید کلاژن در پوست
-              </h1>
-            </div>
-            <div className="flex cursor-pointer items-center gap-1.5">
-              <Image
-                src="/images/add_circle.svg"
-                alt="add circle icon"
-                width={19.5}
-                height={19.5}
-              />
-              <h1 className="font-ray text-color-title-on-light text-base font-medium">
-                <span className="font-extrabold">ضد التهاب: </span>نیاسینامید —
-                قرمزی و تحریک پوست را کاهش می‌دهد
-              </h1>
-            </div>
+            {product.gains.map(
+              ({ id, title, ingredient, description }: gainType) => (
+                <div key={id} className="flex items-center gap-1.5">
+                  <Image
+                    src="/images/add_circle.svg"
+                    alt="add circle icon"
+                    width={19.5}
+                    height={19.5}
+                  />
+                  <h1 className="font-ray text-color-title-on-light text-base font-medium">
+                    <span className="font-extrabold">{title}: </span>
+                    {ingredient} — {description}
+                  </h1>
+                </div>
+              ),
+            )}
           </div>
           <div className="mt-5 flex items-center gap-4">
             <a
@@ -179,7 +137,7 @@ export default async function ProductPage(props: { params: any }) {
           </div>
         </div>
       </div>
-      {/* <Questions product={product} /> */}
+      <Questions faqs={product.faqs} />
     </div>
   )
 }
