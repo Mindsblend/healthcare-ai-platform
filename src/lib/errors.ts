@@ -1,5 +1,3 @@
-// src/lib/errors.ts
-
 export type DomainError = {
   code: string
   message: string

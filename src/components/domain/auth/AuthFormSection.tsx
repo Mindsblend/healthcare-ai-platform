@@ -49,7 +49,7 @@ export default function AuthFormSection() {
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
               placeholder="کد تأیید"
-              className="font-ray mt-4 h-[60px] w-[458px] rounded-[10px] bg-[#F4F4F4] p-3 text-center text-[22px] tracking-widest"
+              className="font-ray mt-4 h-[60px] w-[458px] rounded-[10px] text-color-title-on-light bg-[#F4F4F4] p-3 text-center text-[22px] tracking-widest"
             />
           )}
         </AnimatePresence>

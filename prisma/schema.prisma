@@ -8,22 +8,77 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  identifier String  @unique // phone or email
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(cuid())
+  identifier String   @unique // phone or email
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  aiResponses AiResponse[]
 }
 
 model Product {
-  id          Int     @id @default(autoincrement())
-  title       String  @unique
+  id          Int      @id @default(autoincrement())
+  title       String   @unique
+  slug        String   @unique
   solution    String
   description String
-  slug        String  @unique
   price       Int
   image       String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  // Relations
+  categoryId  Int
+  category    Category     @relation(fields: [categoryId], references: [id])
+  icons       Icon[] // Top 3 risk removals or trust signals
+  gains       Gain[] // Top 3 benefits
+  faqs        Faq[] // Frequently asked questions
+  aiResponses AiResponse[] // AI test results or recommendations
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  products Product[]
+}
+
+model Icon {
+  id          Int     @id @default(autoincrement())
+  product     Product @relation(fields: [productId], references: [id])
+  productId   Int
+  title       String // e.g., بدون وابستگی مصرف
+  description String // optional, short explanation
+  iconPath    String?
+}
+
+model Gain {
+  id          Int     @id @default(autoincrement())
+  product     Product @relation(fields: [productId], references: [id])
+  productId   Int
+  title       String // e.g., ضد التهاب
+  ingredient  String // e.g., نیاسینامید
+  description String // e.g., قرمزی و تحریک پوست را کاهش می‌دهد
+}
+
+model Faq {
+  id        Int     @id @default(autoincrement())
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+  question  String
+  answer    String
+}
+
+model AiResponse {
+  id        Int     @id @default(autoincrement())
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  recommendation String
+  explanation    String
+  createdAt      DateTime @default(now())
 }
 
 model Blog {
@@ -36,4 +91,3 @@ model Blog {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
-
