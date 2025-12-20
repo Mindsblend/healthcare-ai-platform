@@ -22,17 +22,22 @@ export default async function ProductPage(props: { params: any }) {
   // unwrap the promise
   const { slug: rawSlug } = await props.params
   const slug = decodeURIComponent(rawSlug)
-
+  
   if (!slug) return <div>محصول پیدا نشد</div>
 
-  let product
+  let product = null
   try {
     product = await fetchProductBySlug(slug)
   } catch (e) {
     return <div>محصول پیدا نشد</div>
   }
 
-  let relatedProducts
+  // ✅ جلوگیری از دسترسی به null
+  if (!product) {
+    return <div>محصول پیدا نشد</div>
+  }
+
+  let relatedProducts = []
   try {
     relatedProducts = await fetchProductsByCategoryId(product.categoryId)
   } catch (e) {
@@ -47,7 +52,7 @@ export default async function ProductPage(props: { params: any }) {
             {product.title}
           </h1>
           <div className="mt-5 flex items-center gap-3">
-            {product.icons?.map(({ id, title, iconPath }: iconType) => (
+            {product.icons?.map(({ id, title }: iconType) => (
               <div key={id} className="flex gap-1">
                 <Image
                   src="/images/earbuds.svg"

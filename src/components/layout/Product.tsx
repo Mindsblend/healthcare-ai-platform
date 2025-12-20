@@ -1,9 +1,9 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { ProductType } from '../types/types'
+import { ProductPreviewType } from '../types/types'
 
 interface Props {
-  product: ProductType
+  product: ProductPreviewType
 }
 
 const Product = ({ product }: Props) => {

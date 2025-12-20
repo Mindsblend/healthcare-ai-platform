@@ -14,10 +14,19 @@ export interface ProductType {
   faqs: faqType[]
 }
 
+export interface ProductPreviewType {
+  id: number
+  title: string
+  price: number
+  solution: string
+  slug: string
+  image: string
+}
+
 export interface iconType {
   id: number
   title: string
-  iconPath: string
+  // iconPath: string
 }
 
 export interface gainType {
