@@ -1,7 +1,9 @@
+import { fetchAllProducts } from '@/features/shop/services/fetchProducts'
 import ProductSwiper from '@/components/layout/ProductSwiper'
-import { ProductType } from '@/components/types/types'
 
-const ProductsSection = () => {
+export default async function ProductsSection() {
+  const products = await fetchAllProducts()
+
   return (
     <div className="mt-48 flex w-full flex-col">
       {/* only this block is centered */}
@@ -14,11 +16,8 @@ const ProductsSection = () => {
 
       {/* slider below, full width */}
       <div className="flex items-center justify-center">
-        {}
-        <ProductSwiper />
+        <ProductSwiper products={products} />
       </div>
     </div>
   )
 }
-
-export default ProductsSection

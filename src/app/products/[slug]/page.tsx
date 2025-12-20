@@ -1,10 +1,12 @@
 import {
   fetchAllProducts,
   fetchProductBySlug,
+  fetchProductsByCategoryId,
 } from '@/features/shop/services/fetchProducts'
 import Image from 'next/image'
 import Questions from '@/components/ui/Qustions'
 import { gainType, iconType } from '@/components/types/types'
+import ProductSwiper from '@/components/layout/ProductSwiper'
 
 export async function generateStaticParams() {
   const products = await fetchAllProducts()
@@ -26,6 +28,13 @@ export default async function ProductPage(props: { params: any }) {
   let product
   try {
     product = await fetchProductBySlug(slug)
+  } catch (e) {
+    return <div>محصول پیدا نشد</div>
+  }
+
+  let relatedProducts
+  try {
+    relatedProducts = await fetchProductsByCategoryId(product.categoryId)
   } catch (e) {
     return <div>محصول پیدا نشد</div>
   }
@@ -138,6 +147,17 @@ export default async function ProductPage(props: { params: any }) {
         </div>
       </div>
       <Questions faqs={product.faqs} />
+      <div className="mt-48 flex w-full flex-col">
+        {/* only this block is centered */}
+        <div className="text-color-title-on-light flex flex-col items-center text-center">
+          <h1 className="font-aria text-[30px] font-extrabold">محصولات مشابه</h1>
+        </div>
+
+        {/* slider below, full width */}
+        <div className="flex items-center justify-center mt-8">
+          <ProductSwiper products={relatedProducts} />
+        </div>
+      </div>
     </div>
   )
 }

@@ -19,3 +19,14 @@ export async function fetchProductBySlug(slug: string) {
 
   return product
 }
+
+export async function fetchProductsByCategoryId(categoryId: number) {
+  return prisma.product.findMany({
+    where: {
+      categoryId,
+    },
+    include: {
+      category: true,
+    },
+  })
+}
