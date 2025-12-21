@@ -1,4 +1,4 @@
-import { fetchAllProducts } from '@/features/shop/services/fetchProducts'
+import { fetchAllProducts } from '@/features/shop/services/fetchProductsService'
 import ProductSwiper from '@/components/layout/ProductSwiper'
 
 export default async function ProductsSection() {

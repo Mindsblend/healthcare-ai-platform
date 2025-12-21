@@ -2,7 +2,7 @@ import {
   fetchAllProducts,
   fetchProductBySlug,
   fetchProductsByCategoryId,
-} from '@/features/shop/services/fetchProducts'
+} from '@/features/shop/services/fetchProductsService'
 import Image from 'next/image'
 import Questions from '@/components/ui/Qustions'
 import { gainType, iconType } from '@/components/types/types'
@@ -22,7 +22,7 @@ export default async function ProductPage(props: { params: any }) {
   // unwrap the promise
   const { slug: rawSlug } = await props.params
   const slug = decodeURIComponent(rawSlug)
-  
+
   if (!slug) return <div>محصول پیدا نشد</div>
 
   let product = null
@@ -155,11 +155,13 @@ export default async function ProductPage(props: { params: any }) {
       <div className="mt-48 flex w-full flex-col">
         {/* only this block is centered */}
         <div className="text-color-title-on-light flex flex-col items-center text-center">
-          <h1 className="font-aria text-[30px] font-extrabold">محصولات مشابه</h1>
+          <h1 className="font-aria text-[30px] font-extrabold">
+            محصولات مشابه
+          </h1>
         </div>
 
         {/* slider below, full width */}
-        <div className="flex items-center justify-center mt-8">
+        <div className="mt-8 flex items-center justify-center">
           <ProductSwiper products={relatedProducts} />
         </div>
       </div>

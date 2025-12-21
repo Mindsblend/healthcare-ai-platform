@@ -1,8 +1,7 @@
 'use client'
 
 import Product from '@/components/layout/Product'
-import { useProducts } from '@/features/shop/hooks/useProducts'
-import { ProductType } from '@/components/types/types'
+import { useProducts } from '@/features/shop/hooks/products/useProducts'
 
 interface Props {
   title: string

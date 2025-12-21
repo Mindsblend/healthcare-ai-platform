@@ -1,5 +1,45 @@
 import { DefaultSession } from 'next-auth'
 
+export interface CartType {
+  id: string
+  userId: string | null
+  status: 'ACTIVE' | 'CHECKED_OUT' | 'ABANDONED'
+  items: CartItemType[]
+}
+
+export interface CartItemType {
+  id: number
+  cartId: string
+  quantity: number
+  price: number
+  product: ProductPreviewType
+}
+
+export interface OrderType {
+  id: string
+
+  user?: UserType
+  userId?: string
+
+  cart: CartType
+  cartId: string
+  totalPrice: number
+
+  status: 'PENDING' | 'PAID' | 'FAILED' | 'CANCELED' | 'REFUNDED'
+  createdAt: string
+}
+
+export interface UserType {
+  id: string
+  identifier: string //phone or email
+  createdAt: string
+  updatedAt: string
+
+  // aiResponses: AiResponse[]
+  carts: CartType[]
+  orders: OrderType[]
+}
+
 export interface ProductType {
   id: number
   title: string

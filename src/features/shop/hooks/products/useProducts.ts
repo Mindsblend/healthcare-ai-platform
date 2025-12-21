@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getProducts } from '../actions/fetchProductsAction'
+import { getProducts } from '../../actions/products/getProductsAction'
 import { ProductType } from '@/components/types/types'
 
 export function useProducts() {

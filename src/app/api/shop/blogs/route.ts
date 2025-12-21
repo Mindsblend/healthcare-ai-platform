@@ -1,4 +1,4 @@
-import { fetchBlogs } from '@/features/shop/services/fetchBlogs'
+import { fetchBlogs } from '@/features/shop/services/fetchBlogsService'
 
 export async function GET() {
   try {
