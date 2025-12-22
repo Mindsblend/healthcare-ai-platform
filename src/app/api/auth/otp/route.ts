@@ -1,27 +1,35 @@
 import { NextResponse } from 'next/server'
-import { sendOtpViaSms } from '@/features/auth/services/sendOtpService'
-import { saveOtp } from '@/features/auth/services/storeOtpService'
+import { sendOtpViaSms } from '@/features/auth/services/sendSmsOtpService'
+import { saveOtp } from '@/features/auth/services/lifeCycleOtpService'
 import { createDomainError, ErrorCode } from '@/lib/errors'
 import { validateIdentifier } from '@/lib/helpers'
-
+import { sendOtpViaEmail } from '@/features/auth/services/sendEmailOtpService'
 
 export async function POST(req: Request) {
   try {
     const { identifier } = await req.json()
     const { type, value } = await validateIdentifier(identifier)
 
+    let code: string
+
     switch (type) {
       case 'email':
-        // TODO: implement email OTP flow if needed
         console.log(`[EMAIL] OTP request for: ${value}`)
-        // Example: await sendOtpViaEmail(value)
+
+        // Send OTP
+        code = await sendOtpViaEmail(value)
+        console.log('[EMAIL] OTP code sent')
+
+        // Store OTP
+        await saveOtp(value, code)
+        console.log('[EMAIL] OTP code saved')
         break
 
       case 'phone':
         console.log(`[SMS] OTP request for: ${value}`)
 
         // Send OTP
-        const { code } = await sendOtpViaSms(value)
+        code = await sendOtpViaSms(value)
         console.log('[SMS] OTP code sent')
 
         // Store OTP

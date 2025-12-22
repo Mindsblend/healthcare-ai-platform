@@ -8,12 +8,12 @@ export default function generateSlug(name: string) {
 }
 
 export async function validateIdentifier(identifier: string) {
-  if (!identifier) throw createDomainError(ErrorCode.MISSING_PHONE_NUMBER)
+  if (!identifier) throw createDomainError(ErrorCode.MISSING_IDENTIFIER)
 
-  // Check if it's an email
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (emailRegex.test(identifier)) {
-    return { type: 'email', value: identifier }
+    const email = identifier.trim().toLowerCase()
+    return { type: 'email', value: email }
   }
 
   // Otherwise treat as phone
@@ -32,4 +32,8 @@ export async function validateIdentifier(identifier: string) {
   }
 
   return { type: 'phone', value: phone }
+}
+
+export function generateOtp() {
+  return Math.floor(100000 + Math.random() * 900000).toString()
 }

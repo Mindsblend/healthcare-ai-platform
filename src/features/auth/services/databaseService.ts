@@ -1,17 +1,16 @@
 import { prisma } from '@/lib/prisma'
-import { createDomainError, ErrorCode } from '@/lib/errors'
 
-export async function authorize(identifier: string) {
-  if (!identifier) createDomainError(ErrorCode.MISSING_PHONE_NUMBER)
-
-  try {
-    let user = await prisma.user.findUnique({ where: { identifier } })
-    if (!user) {
-      user = await prisma.user.create({ data: { identifier } })
-    }
-    return user
-  } catch (err) {
-    console.error('DB error in authorize:', err)
-    throw createDomainError(ErrorCode.INTERNAL_ERROR)
+export async function authorize(identifier: string, type: string) {
+  let user
+  if (type === 'phone') {
+    user = await prisma.user.findUnique({ where: { phone: identifier } })
+  } else {
+    user = await prisma.user.findUnique({ where: { email: identifier } })
   }
+
+  if (!user) {
+    user = await prisma.user.create({ data: { [type]: identifier } })
+  }
+
+  return user
 }
