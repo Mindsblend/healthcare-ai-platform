@@ -37,7 +37,7 @@ export default async function Home() {
     )
   } else {
     return (
-      <div>
+      <div className='flex items-center justify-center flex-col'>
         <ShopHeroSection />
         <ProductCategorySection />
         <ShopProductsSection

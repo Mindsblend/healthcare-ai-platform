@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getBlogs } from '../actions/blogs/getBlogsAction'
+import { getBlogs } from '../../actions/blogs/getBlogsAction'
 import { BlogType } from '@/components/types/types'
 
 export function useBlogs() {

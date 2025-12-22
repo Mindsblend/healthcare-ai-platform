@@ -8,7 +8,7 @@ interface Props {
 
 const Product = ({ product }: Props) => {
   return (
-    <div className="bg-page h-[540px] rounded-3xl border border-black/25 px-2 py-3">
+    <div className="bg-page min-h-[540px] rounded-3xl border border-black/25 px-2 py-3">
       <div
         className="rounded-3xl relative h-[404px] bg-cover bg-no-repeat"
         style={{ backgroundImage: `url(${product.image})` }}
@@ -47,10 +47,10 @@ const Product = ({ product }: Props) => {
           </a>
         </div>
       </div>
-      <div className="mt-2.5 flex items-center justify-between rounded-3xl bg-[#F2F2F2] px-8 py-4">
-        <div className="text-color-title-on-light">
+      <div className="mt-2.5 flex items-center justify-between w-full h-full rounded-3xl bg-[#F2F2F2] px-8 py-4">
+        <div className="text-color-title-on-light flex-1">
           <h1 className="font-ray text-2xl font-extrabold">{product.title}</h1>
-          <p className="font-ray mt-0.5 max-w-[200px] text-sm font-medium">
+          <p className="font-ray mt-0.5 max-w-[250px] text-sm font-medium">
             {product.solution}
           </p>
         </div>

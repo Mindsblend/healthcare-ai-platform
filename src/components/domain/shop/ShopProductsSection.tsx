@@ -42,10 +42,10 @@ const ShopProductsSection = ({ title, description }: Props) => {
   if (error) return <div>خطا در بارگذاری محصولات: {error}</div>
 
   return (
-    <div className="mt-28 flex flex-col px-18 2xl:px-56">
+    <div className="mt-28 flex flex-col">
       {/* only this block is centered */}
       <div className="text-color-title-on-light flex w-full flex-wrap items-center justify-between text-right">
-        {/* Right: Title & Paragraph */}
+        {/* Right: Title & Paragraph */}  
         <div className="flex max-w-xl flex-col items-start">
           <h1 className="font-aria text-color-title-on-light mt-3 text-[30px] font-extrabold">
             {title}

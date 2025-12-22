@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 
-import { useBlogs } from '@/features/shop/hooks/useBlogs'
+import { useBlogs } from '@/features/shop/hooks/blogs/useBlogs'
 import Blog from './Blog'
 
 import { Swiper, SwiperSlide } from 'swiper/react'
