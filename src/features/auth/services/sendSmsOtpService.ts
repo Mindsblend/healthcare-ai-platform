@@ -10,9 +10,13 @@ export async function sendOtpViaSms(phone: string): Promise<string> {
 
   const payload = JSON.stringify({
     mobile: phone,
-    code,
-    template: 'Attari24hVerify',
-    parameters: [{ name: 'code', value: code }],
+    templateId: 137663,
+    parameters: [
+      {
+        name: 'CODE',
+        value: code,
+      },
+    ],
   })
 
   return new Promise((resolve, reject) => {
