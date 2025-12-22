@@ -22,7 +22,7 @@ export async function POST(req: Request) {
         await verifyOtp(value, code)
         console.log('[SMS] OTP verified successfully')
 
-        const user = await authorize(value)
+        const user = await authorize(value, type)
         console.log('[SMS] User fetched/created')
 
         const token = createJwtSession(user)

@@ -9,16 +9,20 @@ export const ErrorCode = {
   // INPUT / CLIENT ERRORS
   UNKNOWN_IDENTIFIER: {
     code: 'UNKNOWN_IDENTIFIER',
-    message: 'کاربر عزیز یا ایمیل یا شماره تلفن وارد کنین ',
+    message: 'کاربر عزیز یا ایمیل یا شماره تلفن وارد کنید ',
+  },
+  MISSING_IDENTIFIER: {
+    code: 'MISSING_IDENTIFIER',
+    message: 'ایمیل یا شماره تلفن وارد نشده',
   },
   INVALID_PHONE_NUMBER: {
     code: 'INVALID_PHONE_NUMBER',
     message:
-      'شماره واردشده معتبر نیست. لطفاً شماره موبایل را به‌درستی وارد کنید.',
+      'شماره واردشده معتبر نیست. در حال حاضر از شماره های ایران پشتیبانی میشود .',
   },
-  MISSING_PHONE_NUMBER: {
-    code: 'MISSING_PHONE_NUMBER',
-    message: 'لطفاً شماره موبایل خود را به‌درستی و کامل وارد کنید.',
+  INVALID_EMAIL: {
+    code: 'INVALID_EMAIL',
+    message: 'ایمیل واردشده معتبر نیست. لطفاً ایمیل را به‌درستی وارد کنید.',
   },
   TOO_MANY_ATTEMPTS: {
     code: 'TOO_MANY_ATTEMPTS',
