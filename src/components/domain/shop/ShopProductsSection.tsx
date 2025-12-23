@@ -1,6 +1,7 @@
 'use client'
 
 import Product from '@/components/layout/Product'
+import { useCategories } from '@/features/shop/hooks/categories/useCategories'
 import { useProducts } from '@/features/shop/hooks/products/useProducts'
 
 interface Props {
@@ -8,35 +9,9 @@ interface Props {
   description: string
 }
 
-const categories = [
-  {
-    id: '0',
-    title: 'پوست و مو',
-  },
-  {
-    id: '1',
-    title: 'مکمل ها',
-  },
-  {
-    id: '2',
-    title: 'مراقبت ذهنی',
-  },
-  {
-    id: '3',
-    title: 'حیوانات',
-  },
-  {
-    id: '4',
-    title: 'موادغذایی',
-  },
-  {
-    id: '5',
-    title: 'لوازم خانه',
-  },
-]
-
 const ShopProductsSection = ({ title, description }: Props) => {
   const { products, loading, error } = useProducts()
+  const { categories } = useCategories()
 
   if (loading) return <div>در حال بارگذاری محصولات...</div>
   if (error) return <div>خطا در بارگذاری محصولات: {error}</div>
@@ -45,7 +20,7 @@ const ShopProductsSection = ({ title, description }: Props) => {
     <div className="mt-28 flex flex-col">
       {/* only this block is centered */}
       <div className="text-color-title-on-light flex w-full flex-wrap items-center justify-between text-right">
-        {/* Right: Title & Paragraph */}  
+        {/* Right: Title & Paragraph */}
         <div className="flex max-w-xl flex-col items-start">
           <h1 className="font-aria text-color-title-on-light mt-3 text-[30px] font-extrabold">
             {title}
@@ -56,14 +31,14 @@ const ShopProductsSection = ({ title, description }: Props) => {
         </div>
 
         {/* Left: Categories */}
-        <div className="flex gap-4 flex-wrap">
+        <div className="flex flex-wrap gap-4">
           {categories.map((category) => (
             <div
               key={category.id}
               className="flex h-[46px] w-[122px] items-center justify-center rounded-full bg-[#D9D9D9] px-4"
             >
               <span className="font-aria text-color-body-on-light text-[16px] font-bold">
-                {category.title}
+                {category.name}
               </span>
             </div>
           ))}
@@ -71,7 +46,7 @@ const ShopProductsSection = ({ title, description }: Props) => {
       </div>
 
       {/* slider below, full width */}
-      <div className="mt-8 grid w-full grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 items-center justify-between gap-8">
+      <div className="mt-8 grid w-full grid-cols-1 items-center justify-between gap-8 sm:grid-cols-2 xl:grid-cols-3">
         {products.map((product) => (
           <Product key={product.id} product={product} />
         ))}
