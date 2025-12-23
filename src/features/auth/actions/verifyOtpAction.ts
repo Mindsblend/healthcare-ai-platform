@@ -3,6 +3,7 @@ export async function verifyOtp(identifier: string, code: string) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ identifier, code }),
+    credentials: 'include',
   })
 
   const data = await res.json()

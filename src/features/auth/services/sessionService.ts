@@ -14,7 +14,8 @@ const JWT_EXPIRES_IN = '7d'
 export function createJwtSession(user: User): string {
   const payload = {
     id: user.id,
-    identifier: user.identifier,
+    email: user.email || null,
+    phone: user.phone || null,
   }
 
   try {
@@ -33,23 +34,19 @@ export async function getSession(): Promise<SessionPayload | null> {
   try {
     const decoded = verify(token, JWT_SECRET) as JwtPayload
 
-    if (
-      typeof decoded === 'object' &&
-      typeof decoded.id === 'string' &&
-      typeof decoded.identifier === 'string'
-    ) {
+    if (typeof decoded === 'object' && typeof decoded.id === 'string') {
       return {
         id: decoded.id,
-        identifier: decoded.identifier,
+        email: typeof decoded.email === 'string' ? decoded.email : null,
+        phone: typeof decoded.phone === 'string' ? decoded.phone : null,
       }
     }
 
     return null
   } catch (err: any) {
     if (err.name === 'TokenExpiredError' || err.name === 'JsonWebTokenError') {
-      return null // token expired or invalid = unauthenticated
+      return null
     }
-    // Real server error
     throw createDomainError(ErrorCode.INTERNAL_ERROR)
   }
 }

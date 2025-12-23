@@ -11,27 +11,44 @@ export async function POST(req: Request) {
     const { identifier, code } = await req.json()
     const { type, value } = await validateIdentifier(identifier)
 
+    let user
+    let token
+    let cookieStore
+
     switch (type) {
       case 'email':
-        // TODO: implement email OTP flow if needed
-        console.log(`[EMAIL] OTP request for: ${value}`)
-        // Example: await sendOtpViaEmail(value)
+        await verifyOtp(value, code)
+        console.log('[SMS] OTP verified successfully')
+
+        user = await authorize(value, type)
+        console.log('[SMS] User fetched/created')
+
+        token = createJwtSession(user)
+        console.log('[SMS] Session created')
+
+        cookieStore = await cookies()
+        cookieStore.set('session', token, {
+          httpOnly: true,
+          secure: false,
+          sameSite: 'lax',
+          path: '/',
+        })
         break
 
       case 'phone':
         await verifyOtp(value, code)
         console.log('[SMS] OTP verified successfully')
 
-        const user = await authorize(value, type)
+        user = await authorize(value, type)
         console.log('[SMS] User fetched/created')
 
-        const token = createJwtSession(user)
+        token = createJwtSession(user)
         console.log('[SMS] Session created')
 
-        const cookieStore = await cookies()
+        cookieStore = await cookies()
         cookieStore.set('session', token, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
+          secure: false,
           sameSite: 'lax',
           path: '/',
         })

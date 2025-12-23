@@ -101,5 +101,6 @@ declare module 'next-auth' {
 
 export interface SessionPayload {
   id: string
-  identifier: string
+  email: string | null
+  phone: string | null
 }
