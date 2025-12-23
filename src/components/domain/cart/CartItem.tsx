@@ -1,14 +1,24 @@
 import Image from 'next/image'
 
 type CartItemProps = {
+  id: number
   title: string
   solution: string
   count: number
   price: number
   image: string
+  onRemove: (id: number) => void
 }
 
-const CartItem = ({ title, solution, count, price, image }: CartItemProps) => {
+const CartItem = ({
+  id,
+  title,
+  solution,
+  count,
+  price,
+  image,
+  onRemove
+}: CartItemProps) => {
   return (
     <div className="grid grid-cols-[2fr_1fr_1fr_40px] items-center border-b px-8 py-3 last:border-b-0">
       <div className="flex items-center">
@@ -52,12 +62,14 @@ const CartItem = ({ title, solution, count, price, image }: CartItemProps) => {
         </h1>
       </div>
       <div className="flex items-center justify-center">
-        <Image
-          src="/images/delete.svg"
-          alt="delete icon"
-          width={24}
-          height={24}
-        />
+        <button onClick={() => onRemove(id)} className="cursor-pointer">
+          <Image
+            src="/images/delete.svg"
+            alt="delete icon"
+            width={24}
+            height={24}
+          />
+        </button>
       </div>
     </div>
   )

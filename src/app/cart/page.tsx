@@ -1,92 +1,106 @@
-'use client'
+import { useState, useEffect } from 'react'
+import Image from 'next/image'
 
-import { useCart } from '@/features/shop/hooks/cart/useCart'
-import CartItem from '@/components/domain/cart/CartItem'
+type CartItemProps = {
+  id: number
+  title: string
+  solution: string
+  count: number
+  price: number
+  image: string
+  onRemove: (id: number) => void
+  onQuantityChange: (id: number, quantity: number) => void
+}
 
-const page = () => {
-  const { getItems, loading: cartLoading } = useCart()
-  const cartItems = getItems()
+const CartItem = ({
+  id,
+  title,
+  solution,
+  count,
+  price,
+  image,
+  onRemove,
+  onQuantityChange,
+}: CartItemProps) => {
+  const [quantity, setQuantity] = useState(count)
 
-  if (cartLoading) {
-    return <div>در حال بارگذاری سبد خرید...</div>
+  // هر بار quantity تغییر کرد، تابع onQuantityChange رو صدا بزن
+  useEffect(() => {
+    if (quantity !== count) {
+      onQuantityChange(id, quantity)
+    }
+  }, [quantity])
+
+  // کم کردن مقدار، ولی کمتر از 1 نشه
+  const handleDecrease = () => {
+    setQuantity((q) => (q > 1 ? q - 1 : q))
+  }
+
+  // زیاد کردن مقدار
+  const handleIncrease = () => {
+    setQuantity((q) => q + 1)
   }
 
   return (
-    <div className="container mt-16">
-      <h1 className="font-aria text-color-title-on-light text-4xl font-extrabold">
-        سبد خرید شما
-      </h1>
-      <div className="mt-10 flex items-center justify-between gap-10">
-        <div className="h-[452px] w-full max-w-7xl overflow-hidden rounded-3xl border-2 border-[#d9d9d9]">
-          <div className="font-aria grid grid-cols-[2fr_1fr_1fr_40px] border-b-2 px-8 py-5 text-xl font-bold">
-            <span className="text-color-title-on-light">نام محصول</span>
-            <span className="text-color-title-on-light text-center">تعداد</span>
-            <span className="text-color-title-on-light">قیمت</span>
-            <span className="text-color-title-on-light">حذف</span>
-          </div>
-
-          <div>
-            {cartItems.map((item) => (
-              <CartItem
-                key={item.id}
-                title={item.product.title}
-                solution={item.product.solution}
-                count={item.quantity}
-                price={item.price}
-                image={item.product.image}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div className="flex h-[452px] w-[367px] flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-9">
-          <h1 className="font-aria text-color-title-on-light mt-9 text-center text-2xl font-extrabold">
-            خلاصه سفارشات
+    <div className="grid grid-cols-[2fr_1fr_1fr_40px] items-center border-b px-8 py-3 last:border-b-0">
+      <div className="flex items-center">
+        <Image
+          src={image}
+          alt="product image"
+          width={95}
+          height={95}
+          className="rounded-3xl"
+        />
+        <div className="mr-6">
+          <h1 className="font-aria text-color-title-on-light text-2xl font-extrabold">
+            {title}
           </h1>
-          <div className="space-y-5">
-            <div className="flex items-center justify-between">
-              <h1 className="font-aria text-color-title-on-light font-extrabold">
-                جمع خرید
-              </h1>
-              <h1 className="font-aria text-color-title-on-light font-extrabold">
-                ۲۲۰ تومان
-              </h1>
-            </div>
-            <div className="flex items-center justify-between">
-              <h1 className="font-aria text-color-title-on-light font-extrabold">
-                هزینه ارسال
-              </h1>
-              <h1 className="font-aria text-color-title-on-light font-extrabold">
-                ۲۲۰ تومان
-              </h1>
-            </div>
-            <div className="flex items-center justify-between">
-              <h1 className="font-aria text-color-title-on-light font-extrabold">
-                مالیات
-              </h1>
-              <h1 className="font-aria text-color-title-on-light font-extrabold">
-                ۲۲۰ تومان
-              </h1>
-            </div>
-            <hr className="border" />
-            <div className="flex items-center justify-between">
-              <h1 className="font-aria text-color-title-on-light font-extrabold">
-                جمع کل
-              </h1>
-              <h1 className="font-aria text-color-title-on-light font-extrabold">
-                ۲۲۰ تومان
-              </h1>
-            </div>
-          </div>
-          <div className="pb-6">
-            <button className="text-color-title-on-dark font-ray h-[54px] w-full rounded-4xl bg-black font-medium">
-              تکمیل سفارش
-            </button>
-          </div>
+          <p className="font-ray text-color-body-on-light mt-1.5 max-w-40 text-sm font-medium">
+            {solution}
+          </p>
         </div>
+      </div>
+      <div className="flex h-10 w-24 items-center justify-between overflow-hidden rounded-3xl bg-[#f2f2f2] text-center">
+        <button
+          onClick={handleIncrease}
+          className="flex h-8 w-8 cursor-pointer items-center justify-center pr-2 text-gray-600 transition hover:bg-gray-100 active:scale-95"
+        >
+          <Image src="/images/add.svg" alt="add icon" width={10} height={10} />
+        </button>
+
+        <span className="text-color-title-on-light font-aria text-center font-extrabold">
+          {quantity}
+        </span>
+
+        <button
+          onClick={handleDecrease}
+          className="flex h-8 w-8 cursor-pointer items-center justify-center pl-2 text-gray-600 transition hover:bg-gray-100 active:scale-95"
+        >
+          <Image
+            src="/images/minimize.svg"
+            alt="minus icon"
+            width={10}
+            height={10}
+          />
+        </button>
+      </div>
+      <div>
+        <h1 className="font-aria text-color-title-on-light text-base font-extrabold">
+          {(price * quantity).toLocaleString('fa-IR')} تومان
+        </h1>
+      </div>
+      <div className="flex items-center justify-center">
+        <button onClick={() => onRemove(id)} className="cursor-pointer">
+          <Image
+            src="/images/delete.svg"
+            alt="delete icon"
+            width={24}
+            height={24}
+          />
+        </button>
       </div>
     </div>
   )
 }
 
-export default page
+export default CartItem
