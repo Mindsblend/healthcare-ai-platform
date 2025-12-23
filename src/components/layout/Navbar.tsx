@@ -7,7 +7,7 @@ export default async function Navbar() {
 
   return (
     <div>
-      <nav className="flex w-full items-center justify-between bg-white px-18 py-4 text-black">
+      <nav className="flex w-full items-center justify-between bg-white container py-4 text-black">
         {/* Navigation + Logo */}
         <div className="font-ray flex items-center gap-8 text-[16px] font-medium text-black">
           {/* Logo */}

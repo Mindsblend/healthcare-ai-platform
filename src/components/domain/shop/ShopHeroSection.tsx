@@ -2,7 +2,7 @@ import Image from 'next/image'
 
 const ShopHeroSection = () => {
   return (
-    <div className="flex items-center justify-between w-full max-w-[1400px]">
+    <div className="flex items-center justify-between w-full container">
       {/* Right: Text + Buttons */}
       <div className="mt-12 flex flex-col justify-center">
         <h1 className="font-aria text-color-title-on-light max-w-[473px] text-[64px] leading-21 font-extrabold">
