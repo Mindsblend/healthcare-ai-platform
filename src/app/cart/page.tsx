@@ -2,9 +2,15 @@
 
 import { useCart } from '@/features/shop/hooks/cart/useCart'
 import CartItem from '@/components/domain/cart/CartItem'
+import Image from 'next/image'
 
 const page = () => {
-  const { cartItems, updateQuantity, removeFromCart, loading: cartLoading } = useCart()
+  const {
+    cartItems,
+    updateQuantity,
+    removeFromCart,
+    loading: cartLoading,
+  } = useCart()
 
   const subtotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -38,19 +44,39 @@ const page = () => {
 
           {/* SCROLL AREA */}
           <div className="flex-1 overflow-y-auto">
-            {cartItems.map((item) => (
-              <CartItem
-                key={item.id}
-                id={item.id}
-                title={item.product.title}
-                solution={item.product.solution}
-                count={item.quantity}
-                price={item.price}
-                image={item.product.image}
-                onUpdateQuantity={updateQuantity}
-                onRemove={removeFromCart}
-              />
-            ))}
+            {cartItems.length === 0 ? (
+              <div className="flex h-full flex-col items-center justify-center text-center">
+                <Image
+                  src="/images/binoculars.svg"
+                  alt="Empty cart"
+                  width={120}
+                  height={120}
+                  className="mb-6 opacity-70"
+                />
+
+                <h2 className="font-aria text-color-title-on-light text-2xl font-extrabold">
+                  سبد خرید شما خالی است
+                </h2>
+
+                <p className="font-ray text-color-body-on-light mt-2 text-sm">
+                  هنوز محصولی به سبد خرید اضافه نکرده‌اید
+                </p>
+              </div>
+            ) : (
+              cartItems.map((item) => (
+                <CartItem
+                  key={item.id}
+                  id={item.id}
+                  title={item.product.title}
+                  solution={item.product.solution}
+                  count={item.quantity}
+                  price={item.price}
+                  image={item.product.image}
+                  onUpdateQuantity={updateQuantity}
+                  onRemove={removeFromCart}
+                />
+              ))
+            )}
           </div>
         </div>
 
