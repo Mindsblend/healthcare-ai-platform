@@ -1,16 +1,25 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { ProductPreviewType } from '../types/types'
+import { useCart } from '@/features/shop/hooks/cart/useCart'
 
 interface Props {
   product: ProductPreviewType
 }
 
 const Product = ({ product }: Props) => {
+  const { addToCart, loading: cartLoading } = useCart()
+
+  const handleAddToCart = async () => {
+    if (cartLoading) return
+    await addToCart(product.id, 1)
+    console.log('[DEBUG] Added item to cart')
+  }
+
   return (
     <div className="bg-page h-[540px] rounded-3xl border border-black/25 px-2 py-3">
       <div
-        className="rounded-3xl relative h-[404px] bg-cover bg-no-repeat"
+        className="relative h-[404px] rounded-3xl bg-cover bg-no-repeat"
         style={{ backgroundImage: `url(${product.image})` }}
       >
         <div className="bg-page absolute top-3.5 right-4 z-10 h-12 w-12 rounded-full p-2.5">
@@ -22,10 +31,11 @@ const Product = ({ product }: Props) => {
           />
         </div>
 
-        <div className="absolute bottom-4 flex-wrap flex w-full items-center justify-between px-5">
-          <a
-            href="#"
-            className="text-color-title-on-light font-ray flex h-12 items-center justify-center gap-3 rounded-full bg-[#F2F2F2] pr-5 pl-2 font-medium whitespace-nowrap"
+        <div className="absolute bottom-4 flex w-full flex-wrap items-center justify-between px-5">
+          <button
+            onClick={handleAddToCart}
+            disabled={cartLoading}
+            className="text-color-title-on-light font-ray flex h-12 cursor-pointer items-center justify-center gap-3 rounded-full bg-[#F2F2F2] pr-5 pl-2 font-medium whitespace-nowrap"
           >
             افزودن به سبد خرید
             {/* Circle with icon */}
@@ -37,17 +47,14 @@ const Product = ({ product }: Props) => {
                 height={20}
               />
             </div>
-          </a>
-          <a
-            href="#"
-            className="text-color-title-on-dark font-ray flex h-12 items-center justify-center rounded-3xl bg-black px-7 font-extrabold"
-          >
+          </button>
+          <div className="text-color-title-on-dark font-ray flex h-12 items-center justify-center rounded-3xl bg-black px-7 font-extrabold">
             {product.price.toLocaleString('fa-IR')}
             <span className="pr-1">تومان</span>
-          </a>
+          </div>
         </div>
       </div>
-      <div className="mt-2.5 flex items-center justify-between w-full h-[106px] rounded-3xl bg-[#F2F2F2] px-8 py-4">
+      <div className="mt-2.5 flex h-[106px] w-full items-center justify-between rounded-3xl bg-[#F2F2F2] px-8 py-4">
         <div className="text-color-title-on-light flex-1">
           <h1 className="font-ray text-2xl font-extrabold">{product.title}</h1>
           <p className="font-ray mt-0.5 max-w-[250px] text-sm font-medium">

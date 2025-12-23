@@ -1,7 +1,7 @@
-export async function get() {
-  const res = await fetch('/api/cart', {
+export async function getCart() {
+  const res = await fetch('/api/shop/cart', {
     method: 'GET',
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json' },
   })
 
   const data = await res.json()

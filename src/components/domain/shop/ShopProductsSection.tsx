@@ -1,6 +1,5 @@
 'use client'
 
-import Product from '@/components/layout/Product'
 import ProductSwiper from '@/components/layout/ProductSwiper'
 import { useCategories } from '@/features/shop/hooks/categories/useCategories'
 import { useProducts } from '@/features/shop/hooks/products/useProducts'

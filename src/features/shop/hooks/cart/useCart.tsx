@@ -1,20 +1,19 @@
-import { useEffect, useState } from 'react'
-import { CartService } from '../../services/CartService'
-import { CartType, CartItemType } from '@/components/types/types'
+import { useState, useEffect } from 'react'
+import { getCart } from '../../actions/cart/getCartAction'
+import { addItem as addItemAction } from '@/features/shop/actions/cart/addItemAction'
+import { removeItem as removeItemAction } from '@/features/shop/actions/cart/removeItemAction'
+import { updateItemQuantity as updateItemAction } from '@/features/shop/actions/cart/updateItemAction'
+import { createCart } from '../../actions/cart/createCartAction'
 
 export function useCart() {
-  const [cart, setCart] = useState<CartType | null>(null)
+  const [cart, setCart] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
       try {
-        let activeCart = await CartService.fetchActiveCart()
-
-        if (!activeCart) {
-          activeCart = await CartService.createCart()
-        }
+        let activeCart = await getCart()
 
         setCart(activeCart)
       } catch (err: any) {
@@ -23,45 +22,47 @@ export function useCart() {
         setLoading(false)
       }
     }
-
     load()
   }, [])
 
-  // توی hook می‌تونی فانکشن‌هایی برای افزودن، حذف و آپدیت آیتم‌ها هم بسازی
-
-  async function addItem(productId: number, quantity = 1) {
-    if (!cart) return
+  const addToCart = async (productId: number, quantity = 1) => {
     try {
-      await CartService.addItem(cart.id, productId, quantity)
-      // دوباره کارت رو بارگذاری کن تا به‌روز بشه
-      const updatedCart = await CartService.fetchActiveCart()
-      setCart(updatedCart)
+      let activeCart = cart
+
+      if (!activeCart) {
+        console.warn('[addToCart] No cart yet, creating one...')
+        activeCart = await createCart()
+        setCart(activeCart)
+      }
+
+      const updated = await addItemAction(activeCart.id, productId, quantity)
+      console.log('[addToCart] Updated cart:', updated)
+      setCart(updated)
     } catch (err: any) {
+      console.error('[addToCart] Failed:', err)
       setError(err.message)
     }
   }
 
-  async function updateItemQuantity(cartItemId: number, quantity: number) {
-    if (!cart) return
-    try {
-      await CartService.updateItemQuantity(cartItemId, quantity)
-      const updatedCart = await CartService.fetchActiveCart()
-      setCart(updatedCart)
-    } catch (err: any) {
-      setError(err.message)
-    }
+  const removeFromCart = async (cartItemId: number) => {
+    const updated = await removeItemAction(cartItemId)
+    setCart(updated)
   }
 
-  async function removeItem(cartItemId: number) {
-    if (!cart) return
-    try {
-      await CartService.removeItem(cartItemId)
-      const updatedCart = await CartService.fetchActiveCart()
-      setCart(updatedCart)
-    } catch (err: any) {
-      setError(err.message)
-    }
+  const updateQuantity = async (cartItemId: number, quantity: number) => {
+    const updated = await updateItemAction(cartItemId, quantity)
+    setCart(updated)
   }
 
-  return { cart, loading, error, addItem, updateItemQuantity, removeItem }
+  const getItems = () => cart?.items ?? []
+
+  return {
+    cart,
+    loading,
+    error,
+    getItems,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+  }
 }

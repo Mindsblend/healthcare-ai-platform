@@ -1,6 +1,16 @@
+'use client'
+
+import { useCart } from '@/features/shop/hooks/cart/useCart'
 import CartItem from '@/components/domain/cart/CartItem'
 
 const page = () => {
+  const { getItems, loading: cartLoading } = useCart()
+  const cartItems = getItems()
+
+  if (cartLoading) {
+    return <div>در حال بارگذاری سبد خرید...</div>
+  }
+
   return (
     <div className="container mt-16">
       <h1 className="font-aria text-color-title-on-light text-4xl font-extrabold">
@@ -16,9 +26,16 @@ const page = () => {
           </div>
 
           <div>
-            <CartItem />
-            <CartItem />
-            <CartItem />
+            {cartItems.map((item) => (
+              <CartItem
+                key={item.id}
+                title={item.product.title}
+                solution={item.product.solution}
+                count={item.quantity}
+                price={item.price}
+                image={item.product.image}
+              />
+            ))}
           </div>
         </div>
 

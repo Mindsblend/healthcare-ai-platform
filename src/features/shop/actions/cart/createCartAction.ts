@@ -1,5 +1,5 @@
 export async function createCart() {
-  const res = await fetch('/api/cart/create', {
+  const res = await fetch('/api/shop/cart/create', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({}),

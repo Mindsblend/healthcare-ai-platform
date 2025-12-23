@@ -1,11 +1,19 @@
-import Image from "next/image"
+import Image from 'next/image'
 
-const CartItem = () => {
+type CartItemProps = {
+  title: string
+  solution: string
+  count: number
+  price: number
+  image: string
+}
+
+const CartItem = ({ title, solution, count, price, image }: CartItemProps) => {
   return (
     <div className="grid grid-cols-[2fr_1fr_1fr_40px] items-center border-b px-8 py-3 last:border-b-0">
       <div className="flex items-center">
         <Image
-          src="/images/product-five.svg"
+          src={image}
           alt="product image"
           width={95}
           height={95}
@@ -13,10 +21,10 @@ const CartItem = () => {
         />
         <div className="mr-6">
           <h1 className="font-aria text-color-title-on-light text-2xl font-extrabold">
-            عرق خونساز
+            {title}
           </h1>
           <p className="font-ray text-color-body-on-light mt-1.5 max-w-40 text-sm font-medium">
-            جلوگیری از خشکی پوست با تامین آب و رطوبت لازم
+            {solution}
           </p>
         </div>
       </div>
@@ -26,7 +34,7 @@ const CartItem = () => {
         </button>
 
         <span className="text-color-title-on-light font-aria text-center font-extrabold">
-          ۵
+          {count}
         </span>
 
         <button className="flex h-8 w-8 cursor-pointer items-center justify-center pl-2 text-gray-600 transition hover:bg-gray-100 active:scale-95">
@@ -40,7 +48,7 @@ const CartItem = () => {
       </div>
       <div>
         <h1 className="font-aria text-color-title-on-light text-base font-extrabold">
-          ۲۲۰ تومان
+          {price.toLocaleString('fa-IR')} تومان
         </h1>
       </div>
       <div className="flex items-center justify-center">
