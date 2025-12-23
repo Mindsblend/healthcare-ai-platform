@@ -65,7 +65,7 @@ export default async function Navbar() {
           {/* Left: Menu button */}
           {user ? (
             <div className="flex justify-center gap-6">
-              <Link href={'/auth'}>
+              <Link href={'/cart'}>
                 <Image
                   src="/images/cart.svg"
                   alt="Arrow"
