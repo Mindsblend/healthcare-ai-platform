@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Navigation } from 'swiper/modules'
 
@@ -23,21 +23,26 @@ export default function ProductSwiper({
   const nextRef = useRef<HTMLDivElement | null>(null)
   const prevRef = useRef<HTMLDivElement | null>(null)
 
-  if (!products?.length) return null
+  const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null)
 
   const hasCategories = Boolean(categories?.length)
+
+  const filteredProducts = useMemo(() => {
+    if (!activeCategoryId) return products
+    return products.filter((product) => product.categoryId === activeCategoryId)
+  }, [products, activeCategoryId])
+
+  if (!filteredProducts.length) return null
 
   return (
     <div
       className={`mt-2.5 flex w-full max-w-[1450px] flex-col ${
-        categories?.length ? 'pl-5' : 'px-5'
+        hasCategories ? 'pl-5' : 'px-5'
       }`}
     >
       {/* HEADER */}
       <div
-        className={`mb-3 flex w-full items-center ${
-          hasCategories ? '' : 'pr-14'
-        }`}
+        className={`mb-3 flex w-full items-center ${hasCategories ? '' : 'pr-14'}`}
       >
         {/* LEFT */}
         <div className="flex flex-1 items-center">
@@ -46,9 +51,18 @@ export default function ProductSwiper({
               {categories!.map((category) => (
                 <div
                   key={category.id}
-                  className="flex h-[46px] w-[122px] items-center justify-center rounded-full bg-[#D9D9D9] px-4"
+                  onClick={() =>
+                    setActiveCategoryId(
+                      activeCategoryId === category.id ? null : category.id,
+                    )
+                  }
+                  className={`flex h-[46px] w-[122px] cursor-pointer items-center justify-center rounded-full px-4 transition ${
+                    activeCategoryId === category.id
+                      ? 'bg-black text-white'
+                      : 'bg-[#D9D9D9] text-black'
+                  } `}
                 >
-                  <span className="font-aria text-color-body-on-light text-[16px] font-bold">
+                  <span className="font-aria text-[16px] font-bold">
                     {category.name}
                   </span>
                 </div>
@@ -59,7 +73,7 @@ export default function ProductSwiper({
           )}
         </div>
 
-        {/* RIGHT (only if categories exist) */}
+        {/* RIGHT */}
         {hasCategories && <NavButtons prevRef={prevRef} nextRef={nextRef} />}
       </div>
 
@@ -83,9 +97,9 @@ export default function ProductSwiper({
             swiper.params.navigation!.nextEl = nextRef.current
           }
         }}
-        className="w-full mt-4"
+        className="mt-4 w-full"
       >
-        {products.map((product) => (
+        {filteredProducts.map((product) => (
           <SwiperSlide key={product.id}>
             <div className="flex justify-center">
               <Product product={product} />

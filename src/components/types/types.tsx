@@ -62,6 +62,7 @@ export interface ProductPreviewType {
   solution: string
   slug: string
   image: string
+  categoryId: number
 }
 
 export interface CategoryType {
