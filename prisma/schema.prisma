@@ -17,6 +17,7 @@ model User {
   carts       Cart[]
   orders      Order[]
 }
+
 model Cart {
   id     String  @id @default(cuid())
   user   User?   @relation(fields: [userId], references: [id])
@@ -102,6 +103,7 @@ model Product {
 model Category {
   id       Int       @id @default(autoincrement())
   name     String    @unique
+  iconPath String
   products Product[]
 }
 

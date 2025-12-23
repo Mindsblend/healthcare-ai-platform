@@ -1,3 +1,4 @@
+import { number } from 'framer-motion'
 import { DefaultSession } from 'next-auth'
 
 export interface CartType {
@@ -44,7 +45,7 @@ export interface ProductType {
   id: number
   title: string
   price: number
-  category: string
+  category: CategoryType[]
   slug: string
   solution: string
   image: string
@@ -61,6 +62,13 @@ export interface ProductPreviewType {
   solution: string
   slug: string
   image: string
+}
+
+export interface CategoryType {
+  id: number
+  name: string
+  iconPath: string
+  products: ProductType
 }
 
 export interface iconType {

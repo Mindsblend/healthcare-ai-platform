@@ -5,12 +5,12 @@ import generateSlug from './helpers.ts'
    CATEGORIES
 ======================= */
 const categories = [
-  { id: 1, name: 'پوست و مو' },
-  { id: 2, name: 'مکمل ها' },
-  { id: 3, name: 'مراقبت ذهنی' },
-  { id: 4, name: 'حیوانات' },
-  { id: 5, name: 'موادغذایی' },
-  { id: 6, name: 'لوازم خانه' },
+  { id: 1, name: 'پوست و مو', iconPath: '/images/clean.svg' },
+  { id: 2, name: 'مکمل ها', iconPath: '/images/medication.svg' },
+  { id: 3, name: 'مراقبت ذهنی', iconPath: '/images/mindfulness.svg' },
+  { id: 4, name: 'حیوانات', iconPath: '/images/pets.svg' },
+  { id: 5, name: 'موادغذایی', iconPath: '/images/spoon.svg' },
+  { id: 6, name: 'لوازم خانه', iconPath: '/images/chair.svg' },
 ]
 
 async function seedCategories() {
@@ -18,7 +18,7 @@ async function seedCategories() {
     await prisma.category.upsert({
       where: { id: category.id },
       update: { name: category.name },
-      create: { id: category.id, name: category.name },
+      create: { id: category.id, name: category.name, iconPath: category.iconPath },
     })
   }
   console.log('✅ Categories seeded')
