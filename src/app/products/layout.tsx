@@ -1,7 +1,8 @@
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import CallToAction from '@/components/layout/CallToAction'
 
-export default function CartLayout({
+export default function ProductsLayout({
   children,
 }: {
   children: React.ReactNode
@@ -10,6 +11,7 @@ export default function CartLayout({
     <>
       <Navbar />
       {children}
+      <CallToAction />
       <Footer />
     </>
   )

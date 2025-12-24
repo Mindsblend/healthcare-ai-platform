@@ -24,6 +24,7 @@
     "postgresql": "^0.0.1",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "react-range": "^1.10.0",
     "redis": "^5.10.0",
     "swiper": "^12.0.3"
   },
