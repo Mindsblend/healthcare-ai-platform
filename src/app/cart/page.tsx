@@ -1,108 +1,130 @@
-'use client'
-
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 
-type CartItemProps = {
-  id: number
-  title: string
-  solution: string
-  count: number
-  price: number
-  image: string
-  onRemove: (id: number) => void
-  onQuantityChange: (id: number, quantity: number) => void
-}
+const page = () => {
+  const {
+    cartItems,
+    updateQuantity,
+    removeFromCart,
+    loading: cartLoading,
+  } = useCart()
 
-const CartItem = ({
-  id,
-  title,
-  solution,
-  count,
-  price,
-  image,
-  onRemove,
-  onQuantityChange,
-}: CartItemProps) => {
-  const [quantity, setQuantity] = useState(count)
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  )
 
-  // هر بار quantity تغییر کرد، تابع onQuantityChange رو صدا بزن
-  useEffect(() => {
-    if (quantity !== count) {
-      onQuantityChange(id, quantity)
-    }
-  }, [quantity])
+  const TAX_RATE = 0.09
 
-  // کم کردن مقدار، ولی کمتر از 1 نشه
-  const handleDecrease = () => {
-    setQuantity((q) => (q > 1 ? q - 1 : q))
-  }
+  const taxAmount = Math.round(subtotal * TAX_RATE)
 
-  // زیاد کردن مقدار
-  const handleIncrease = () => {
-    setQuantity((q) => q + 1)
+  const totalAmount = subtotal + taxAmount
+
+  if (cartLoading) {
+    return <div>در حال بارگذاری سبد خرید...</div>
   }
 
   return (
-    <div className="grid grid-cols-[2fr_1fr_1fr_40px] items-center border-b px-8 py-3 last:border-b-0">
-      <div className="flex items-center">
-        <Image
-          src={image}
-          alt="product image"
-          width={95}
-          height={95}
-          className="rounded-3xl"
-        />
-        <div className="mr-6">
-          <h1 className="font-aria text-color-title-on-light text-2xl font-extrabold">
-            {title}
-          </h1>
-          <p className="font-ray text-color-body-on-light mt-1.5 max-w-40 text-sm font-medium">
-            {solution}
-          </p>
+    <div className="container mt-16">
+      <h1 className="font-aria text-color-title-on-light text-4xl font-extrabold">
+        سبد خرید شما
+      </h1>
+      <div className="mt-10 flex items-center justify-between gap-10">
+        <div className="flex h-[452px] w-full max-w-7xl flex-col rounded-3xl border-2 border-[#d9d9d9]">
+          {/* HEADER (fixed height) */}
+          <div className="font-aria grid shrink-0 grid-cols-[2fr_1fr_1fr_40px] border-b-2 px-8 py-5 text-xl font-bold">
+            <span>نام محصول</span>
+            <span className="text-center">تعداد</span>
+            <span>قیمت</span>
+            <span>حذف</span>
+          </div>
+
+          {/* SCROLL AREA */}
+          <div className="flex-1 overflow-y-auto">
+            {cartItems.length === 0 ? (
+              <div className="flex h-full flex-col items-center justify-center text-center">
+                <Image
+                  src="/images/binoculars.svg"
+                  alt="Empty cart"
+                  width={120}
+                  height={120}
+                  className="mb-6 opacity-70"
+                />
+
+                <h2 className="font-aria text-color-title-on-light text-2xl font-extrabold">
+                  سبد خرید شما خالی است
+                </h2>
+
+                <p className="font-ray text-color-body-on-light mt-2 text-sm">
+                  هنوز محصولی به سبد خرید اضافه نکرده‌اید
+                </p>
+              </div>
+            ) : (
+              cartItems.map((item) => (
+                <CartItem
+                  key={item.id}
+                  id={item.id}
+                  title={item.product.title}
+                  solution={item.product.solution}
+                  count={item.quantity}
+                  price={item.price}
+                  image={item.product.image}
+                  onUpdateQuantity={updateQuantity}
+                  onRemove={removeFromCart}
+                />
+              ))
+            )}
+          </div>
         </div>
-      </div>
-      <div className="flex h-10 w-24 items-center justify-between overflow-hidden rounded-3xl bg-[#f2f2f2] text-center">
-        <button
-          onClick={handleIncrease}
-          className="flex h-8 w-8 cursor-pointer items-center justify-center pr-2 text-gray-600 transition hover:bg-gray-100 active:scale-95"
-        >
-          <Image src="/images/add.svg" alt="add icon" width={10} height={10} />
-        </button>
 
-        <span className="text-color-title-on-light font-aria text-center font-extrabold">
-          {quantity}
-        </span>
-
-        <button
-          onClick={handleDecrease}
-          className="flex h-8 w-8 cursor-pointer items-center justify-center pl-2 text-gray-600 transition hover:bg-gray-100 active:scale-95"
-        >
-          <Image
-            src="/images/minimize.svg"
-            alt="minus icon"
-            width={10}
-            height={10}
-          />
-        </button>
-      </div>
-      <div>
-        <h1 className="font-aria text-color-title-on-light text-base font-extrabold">
-          {(price * quantity).toLocaleString('fa-IR')} تومان
-        </h1>
-      </div>
-      <div className="flex items-center justify-center">
-        <button onClick={() => onRemove(id)} className="cursor-pointer">
-          <Image
-            src="/images/delete.svg"
-            alt="delete icon"
-            width={24}
-            height={24}
-          />
-        </button>
+        <div className="flex h-[452px] w-[367px] flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-9">
+          <h1 className="font-aria text-color-title-on-light mt-9 text-center text-2xl font-extrabold">
+            خلاصه سفارشات
+          </h1>
+          <div className="space-y-5">
+            <div className="flex items-center justify-between">
+              <h1 className="font-aria text-color-title-on-light font-extrabold">
+                جمع خرید
+              </h1>
+              <h1 className="font-aria text-color-title-on-light font-extrabold">
+                {subtotal.toLocaleString('fa-IR')} تومان
+              </h1>
+            </div>
+            <div className="flex items-center justify-between">
+              <h1 className="font-aria text-color-title-on-light font-extrabold">
+                هزینه ارسال
+              </h1>
+              <h1 className="font-aria text-color-title-on-light font-extrabold">
+                --- تومان
+              </h1>
+            </div>
+            <div className="flex items-center justify-between">
+              <h1 className="font-aria text-color-title-on-light font-extrabold">
+                مالیات
+              </h1>
+              <h1 className="font-aria text-color-title-on-light font-extrabold">
+                {taxAmount.toLocaleString('fa-IR')} تومان
+              </h1>
+            </div>
+            <hr className="border" />
+            <div className="flex items-center justify-between">
+              <h1 className="font-aria text-color-title-on-light font-extrabold">
+                جمع کل
+              </h1>
+              <h1 className="font-aria text-color-title-on-light font-extrabold">
+                {totalAmount.toLocaleString('fa-IR')} تومان
+              </h1>
+            </div>
+          </div>
+          <div className="pb-6">
+            <button className="text-color-title-on-dark font-ray h-[54px] w-full rounded-4xl bg-black font-medium">
+              تکمیل سفارش
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   )
 }
 
-export default CartItem
+export default page

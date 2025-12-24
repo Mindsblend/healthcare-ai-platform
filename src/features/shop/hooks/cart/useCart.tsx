@@ -55,8 +55,13 @@ export function useCart() {
   }
 
   const updateQuantity = async (cartItemId: number, quantity: number) => {
-    const updated = await updateItemAction(cartItemId, quantity)
-    setCart(updated)
+    try {
+      await updateItemAction(cartItemId, quantity)
+      const refreshedCart = await getCart()
+      setCart(refreshedCart)
+    } catch (err: any) {
+      setError(err.message)
+    }
   }
 
   useEffect(() => {

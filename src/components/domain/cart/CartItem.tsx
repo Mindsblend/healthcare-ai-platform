@@ -8,6 +8,7 @@ type CartItemProps = {
   count: number
   price: number
   image: string
+  onUpdateQuantity: (id: number, quantity: number) => void
   onRemove: (id: number) => void
 }
 const CartItem = ({
@@ -17,8 +18,17 @@ const CartItem = ({
   count,
   price,
   image,
-  onRemove,
+  onRemove
 }: CartItemProps) => {
+  const handleIncrement = () => {
+    onUpdateQuantity(id, count + 1)
+  }
+
+  const handleDecrement = () => {
+    if (count <= 1) return
+    onUpdateQuantity(id, count - 1)
+  }
+
   return (
     <div className="grid grid-cols-[2fr_1fr_1fr_40px] items-center border-b px-8 py-3 last:border-b-0">
       <div className="flex items-center">
@@ -39,12 +49,18 @@ const CartItem = ({
         </div>
       </div>
       <div className="flex h-10 w-24 items-center justify-between overflow-hidden rounded-3xl bg-[#f2f2f2] text-center">
-        <button className="flex h-8 w-8 cursor-pointer items-center justify-center pr-2 text-gray-600 transition hover:bg-gray-100 active:scale-95">
+
+        <button
+          onClick={handleIncrement}
+          className="flex h-8 w-8 items-center justify-center pr-2 transition hover:bg-gray-100 active:scale-95"
+        >
           <Image src="/images/add.svg" alt="add icon" width={10} height={10} />
         </button>
+
         <span className="text-color-title-on-light font-aria text-center font-extrabold">
           {count}
         </span>
+
         <button className="flex h-8 w-8 cursor-pointer items-center justify-center pl-2 text-gray-600 transition hover:bg-gray-100 active:scale-95">
           <Image
             src="/images/minimize.svg"

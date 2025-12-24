@@ -13,13 +13,13 @@ const Product = ({ product }: Props) => {
   const handleAddToCart = async () => {
     if (cartLoading) return
     await addToCart(product.id, 1)
-    console.log('[DEBUG] Added item to cart')
   }
 
   return (
-    <div className="bg-page h-[540px] rounded-3xl border border-black/25 px-2 py-3">
+    <div className="bg-page flex min-h-[468px] xl:min-h-[550px] w-full max-w-[415px] flex-col rounded-3xl border border-black/25 px-2 py-3">
+      {/* Image Section */}
       <div
-        className="relative h-[404px] rounded-3xl bg-cover bg-no-repeat"
+        className="relative aspect-square w-full rounded-3xl bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${product.image})` }}
       >
         <div className="bg-page absolute top-3.5 right-4 z-10 h-12 w-12 rounded-full p-2.5">
@@ -31,39 +31,45 @@ const Product = ({ product }: Props) => {
           />
         </div>
 
-        <div className="absolute bottom-4 flex w-full flex-wrap items-center justify-between px-5">
+        {/* Bottom Actions */}
+        <div className="absolute bottom-1 flex w-full flex-col gap-y-1 px-1 sm:flex-row sm:items-center sm:justify-between lg:bottom-2 lg:px-2">
           <button
             onClick={handleAddToCart}
             disabled={cartLoading}
-            className="text-color-title-on-light font-ray flex h-12 cursor-pointer items-center justify-center gap-3 rounded-full bg-[#F2F2F2] pr-5 pl-2 font-medium whitespace-nowrap"
+            className="text-color-title-on-light font-ray flex h-10 w-full items-center justify-center gap-3 rounded-full bg-[#F2F2F2] pr-4 pl-1 text-sm font-medium whitespace-nowrap sm:w-auto xl:h-12 xl:pr-5 xl:pl-2 xl:text-base"
           >
             افزودن به سبد خرید
-            {/* Circle with icon */}
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white xl:h-10 xl:w-10">
               <Image
                 src="/images/add-to-cart.svg"
-                alt="Arrow"
+                alt="Add to cart"
                 width={20}
                 height={20}
               />
             </div>
           </button>
-          <div className="text-color-title-on-dark font-ray flex h-12 items-center justify-center rounded-3xl bg-black px-7 font-extrabold">
+
+          <div className="text-color-title-on-dark font-ray flex h-10 w-full items-center justify-center rounded-3xl bg-black px-5 text-sm font-extrabold sm:w-auto xl:h-12 xl:px-7 xl:text-base">
             {product.price.toLocaleString('fa-IR')}
             <span className="pr-1">تومان</span>
           </div>
         </div>
       </div>
-      <div className="mt-2.5 flex h-[106px] w-full items-center justify-between rounded-3xl bg-[#F2F2F2] px-8 py-4">
-        <div className="text-color-title-on-light flex-1">
-          <h1 className="font-ray text-2xl font-extrabold">{product.title}</h1>
-          <p className="font-ray mt-0.5 max-w-[250px] text-sm font-medium">
+
+      {/* Info Section */}
+      <div className="mt-2.5 flex grow flex-col gap-3 rounded-3xl bg-[#F2F2F2] px-6 py-4 xl:flex-row xl:items-center lg:justify-between">
+        <div className="text-color-title-on-light">
+          <h1 className="font-ray text-lg font-extrabold sm:text-xl">
+            {product.title}
+          </h1>
+          <p className="font-ray mt-0.5 text-xs font-medium sm:text-sm sm:max-w-[200px]">
             {product.solution}
           </p>
         </div>
+
         <Link
           href={'/products/' + product.slug}
-          className="text-color-title-on-light font-ray inline-block font-black underline"
+          className="text-color-title-on-light font-ray inline-block shrink-0 self-start font-black underline sm:self-auto"
         >
           مشاهده محصول
         </Link>

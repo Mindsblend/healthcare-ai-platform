@@ -36,9 +36,7 @@ export default function ProductSwiper({
 
   return (
     <div
-      className={`mt-2.5 flex w-full max-w-[1450px] flex-col ${
-        hasCategories ? 'pl-5' : 'px-5'
-      }`}
+      className='mt-2.5 flex w-full flex-col'
     >
       {/* HEADER */}
       <div

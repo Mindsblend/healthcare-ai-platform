@@ -1,3 +1,4 @@
+import CallToAction from '@/components/layout/CallToAction'
 import Image from 'next/image'
 
 export default function AI() {
@@ -57,6 +58,8 @@ export default function AI() {
       <span className="font-ray mt-1 mb-10 text-[12px] font-bold">
         مدت زمان ۳ دقیقه{' '}
       </span>
+
+      <CallToAction />
     </div>
   )
 }
