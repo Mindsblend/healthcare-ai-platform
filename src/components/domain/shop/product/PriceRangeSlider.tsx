@@ -1,48 +1,106 @@
 'use client'
-import { useState } from 'react'
-import { Range, getTrackBackground } from 'react-range'
+import { useRef, useState, useEffect } from 'react'
 
-const PriceRangeSlider = () => {
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000000])
+const PriceRangeSlider = ({
+  min = 0,
+  max = 1000000,
+  step = 10000,
+}: {
+  min?: number
+  max?: number
+  step?: number
+}) => {
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [minValue, setMinValue] = useState(min)
+  const [maxValue, setMaxValue] = useState(max)
+  const [dragging, setDragging] = useState<'max' | 'min' | null>(null)
+
+  const valueToPercent = (value: number) => ((value - min) / (max - min)) * 100
+  const percentToValue = (percent: number) => {
+    const raw = min + ((max - min) * percent) / 100
+    return Math.round(raw / step) * step
+  }
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!trackRef.current || !dragging) return
+    const rect = trackRef.current.getBoundingClientRect()
+    let percent = ((e.clientX - rect.left) / rect.width) * 100
+    percent = Math.max(0, Math.min(100, percent))
+    const newValue = percentToValue(percent)
+
+    if (dragging === 'min') {
+      // Left thumb → minValue
+      setMinValue(Math.min(newValue, maxValue))
+    } else if (dragging === 'max') {
+      // Right thumb → maxValue
+      setMaxValue(Math.max(newValue, minValue))
+    }
+  }
+
+  const handleMouseUp = () => setDragging(null)
+
+  useEffect(() => {
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseup', handleMouseUp)
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseup', handleMouseUp)
+    }
+  })
+
+  const leftPercent = Math.min(
+    valueToPercent(minValue),
+    valueToPercent(maxValue),
+  )
+  const widthPercent = Math.abs(
+    valueToPercent(maxValue) - valueToPercent(minValue),
+  )
 
   return (
-    <div className="w-full space-y-2">
-      <Range
-        values={priceRange}
-        step={10000}
-        min={0}
-        max={1000000}
-        onChange={(values) => setPriceRange([values[0], values[1]])}
-        renderTrack={({ props, children }) => (
-          <div
-            {...props}
-            className="relative h-2 w-full rounded-lg"
-            style={{
-              background: getTrackBackground({
-                values: priceRange,
-                colors: ['#ccc', '#000', '#ccc'],
-                min: 0,
-                max: 1000000,
-              }),
-            }}
-          >
-            {children}
-          </div>
-        )}
-        renderThumb={({ props, index }) => (
-          <div
-            {...props}
-            className="flex h-6 w-6 items-center justify-center rounded-full bg-black shadow-md"
-          >
-            <div className="h-2 w-2 rounded-full bg-white" />
-          </div>
-        )}
-      />
+    <div className="w-full px-2">
+      {/* Track */}
+      <div
+        ref={trackRef}
+        className="relative h-1 w-full rounded-full bg-gray-300"
+      >
+        {/* Highlighted range */}
+        <div
+          className="absolute h-1 rounded-full bg-black"
+          style={{
+            left: `${leftPercent}%`,
+            width: `${widthPercent}%`,
+          }}
+        />
 
-      {/* Display selected range */}
-      <div className="fonr-aria flex justify-between text-[12px] font-bold">
-        <span>{priceRange[0]} تومان</span>
-        <span>{priceRange[1]} تومان</span>
+        {/* Right Thumb → Max Price */}
+        <div
+          onMouseDown={() => setDragging('max')}
+          className="absolute top-1/2 flex h-4 w-4 cursor-pointer items-center justify-center rounded-full bg-black shadow-md"
+          style={{
+            left: `${valueToPercent(maxValue)}%`,
+            transform: 'translate(-50%, -50%)',
+          }}
+        >
+          <div className="h-2.5 w-2.5 rounded-full bg-white" />
+        </div>
+
+        {/* Left Thumb → Min Price */}
+        <div
+          onMouseDown={() => setDragging('min')}
+          className="absolute top-1/2 flex h-4 w-4 cursor-pointer items-center justify-center rounded-full bg-black shadow-md"
+          style={{
+            left: `${valueToPercent(minValue)}%`,
+            transform: 'translate(-50%, -50%)',
+          }}
+        >
+          <div className="h-2.5 w-2.5 rounded-full bg-white" />
+        </div>
+      </div>
+
+      {/* Display values */}
+      <div className="font-aria mt-2 flex justify-between text-[14px] font-bold">
+        <span>{maxValue.toLocaleString('fa-IR')} تومان</span>
+        <span>{minValue.toLocaleString('fa-IR')} تومان</span>
       </div>
     </div>
   )
