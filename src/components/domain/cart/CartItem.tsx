@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { removeItem } from '@/features/shop/actions/cart/removeItemAction'
 
 type CartItemProps = {
   id: number
@@ -9,7 +10,6 @@ type CartItemProps = {
   image: string
   onRemove: (id: number) => void
 }
-
 const CartItem = ({
   id,
   title,
@@ -17,7 +17,7 @@ const CartItem = ({
   count,
   price,
   image,
-  onRemove
+  onRemove,
 }: CartItemProps) => {
   return (
     <div className="grid grid-cols-[2fr_1fr_1fr_40px] items-center border-b px-8 py-3 last:border-b-0">
@@ -42,11 +42,9 @@ const CartItem = ({
         <button className="flex h-8 w-8 cursor-pointer items-center justify-center pr-2 text-gray-600 transition hover:bg-gray-100 active:scale-95">
           <Image src="/images/add.svg" alt="add icon" width={10} height={10} />
         </button>
-
         <span className="text-color-title-on-light font-aria text-center font-extrabold">
           {count}
         </span>
-
         <button className="flex h-8 w-8 cursor-pointer items-center justify-center pl-2 text-gray-600 transition hover:bg-gray-100 active:scale-95">
           <Image
             src="/images/minimize.svg"
@@ -58,7 +56,7 @@ const CartItem = ({
       </div>
       <div>
         <h1 className="font-aria text-color-title-on-light text-base font-extrabold">
-          {price.toLocaleString('fa-IR')} تومان
+          {/* {price.toLocaleString('fa-IR')} تومان */}
         </h1>
       </div>
       <div className="flex items-center justify-center">
@@ -74,5 +72,4 @@ const CartItem = ({
     </div>
   )
 }
-
 export default CartItem
