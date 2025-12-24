@@ -7,7 +7,7 @@ export default async function Navbar() {
 
   return (
     <div>
-      <nav className="flex w-full items-center justify-between bg-white container py-4 text-black">
+      <nav className="container flex w-full items-center justify-between bg-white py-4 text-black">
         {/* Navigation + Logo */}
         <div className="font-ray flex items-center gap-8 text-[16px] font-medium text-black">
           {/* Logo */}
@@ -27,7 +27,7 @@ export default async function Navbar() {
               <ul className="hidden gap-6 font-medium md:flex">
                 <li>
                   <a
-                    href="#home"
+                    href="/"
                     className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black active:text-black"
                   >
                     خانه
@@ -35,7 +35,7 @@ export default async function Navbar() {
                 </li>
                 <li>
                   <a
-                    href="#contact"
+                    href="/ai"
                     className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black active:text-black"
                   >
                     تست هوش مصنوعی
@@ -43,7 +43,7 @@ export default async function Navbar() {
                 </li>
                 <li>
                   <a
-                    href="#blog"
+                    href="/blogs"
                     className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black active:text-black"
                   >
                     وبلاگ
@@ -51,7 +51,7 @@ export default async function Navbar() {
                 </li>
                 <li>
                   <a
-                    href="#features"
+                    href="/products"
                     className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black active:text-black"
                   >
                     محصولات

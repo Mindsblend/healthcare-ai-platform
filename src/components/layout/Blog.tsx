@@ -8,7 +8,7 @@ interface Props {
 const Blog = ({ blog }: Props) => {
   return (
     <div className="bg-page flex min-h-[542px] w-full max-w-[415px] flex-col rounded-3xl border border-black/25 px-2 py-3">
-      {/* تصویر بالا */}
+      {/* top image */}
       <div
         className="relative h-[334px] w-full rounded-3xl bg-cover bg-center"
         style={{ backgroundImage: `url(${blog.image})` }}
@@ -23,8 +23,8 @@ const Blog = ({ blog }: Props) => {
         </div>
       </div>
 
-      {/* محتوا */}
-      <div className="mt-2 flex flex-grow flex-col justify-between rounded-3xl bg-[#F2F2F2] px-6 py-4">
+      {/* content */}
+      <div className="mt-2 flex grow flex-col justify-between rounded-3xl bg-[#F2F2F2] px-6 py-4">
         <div className="text-color-title-on-light">
           <h1 className="font-ray text-[20px] font-extrabold md:text-[24px]">
             {blog.title}

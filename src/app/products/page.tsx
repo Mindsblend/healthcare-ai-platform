@@ -10,8 +10,10 @@ const page = () => {
   const { products, loading, error } = useProducts()
   const [isOpen, setIsOpen] = useState(true)
 
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000000])
-  const [isPriceOpen, setIsPriceOpen] = useState(false)
+  const [isPriceOpen, setIsPriceOpen] = useState(true)
+
+  const [minPrice, setMinPrice] = useState(100)
+  const [maxPrice, setMaxPrice] = useState(1000)
 
   const { categories } = useCategories()
 
@@ -152,15 +154,68 @@ const page = () => {
             </div>
 
             {isPriceOpen && (
-              <div className="space-y-4 rounded-2xl bg-white p-4 shadow-sm">
-                {/* Price Range Labels */}
-                <div className="font-aria text-color-body-on-light flex justify-between text-sm font-bold">
-                  <span>{priceRange[0]} تومان</span>
-                  <span>{priceRange[1]} تومان</span>
+              <div className="space-y-4 bg-white p-4">
+                {/* ===== Slider ===== */}
+                <PriceRangeSlider />
+
+                {/* ===== Min Price Row ===== */}
+                <div className="flex items-center justify-between">
+                  <span className="font-ray text-color-title-on-light text-[14px] font-semibold">
+                    از قیمت:
+                  </span>
+                  <div className="flex h-10 w-42 items-center justify-center rounded-lg bg-[#f2f2f2]">
+                    <input
+                      type="number"
+                      value={minPrice}
+                      onChange={(e) => setMinPrice(Number(e.target.value))}
+                      className="[&::-moz-appearance]:textfield w-20 appearance-none rounded-md bg-transparent py-1 text-center text-sm outline-none focus:border-0 focus:ring-0 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    />
+                    <span className="font-aria text-[12px] font-bold text-black">
+                      هزار تومان
+                    </span>
+                  </div>
                 </div>
 
-                {/* Slider */}
-                <PriceRangeSlider />
+                {/* ===== Max Price Row ===== */}
+                <div className="flex items-center justify-between">
+                  <span className="font-ray text-color-title-on-light text-[14px] font-semibold">
+                    تا قیمت:
+                  </span>
+                  <div className="flex h-10 w-42 items-center justify-center rounded-lg bg-[#f2f2f2]">
+                    <input
+                      type="number"
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(Number(e.target.value))}
+                      className="[&::-moz-appearance]:textfield w-20 appearance-none rounded-md bg-transparent py-1 text-center text-sm outline-none focus:border-0 focus:ring-0 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    />
+                    <span className="font-aria text-[12px] font-bold text-black">
+                      هزار تومان
+                    </span>
+                  </div>
+                </div>
+
+                {/* ===== Filter Buttons ===== */}
+                <div className="mt-4 flex gap-2">
+                  <button
+                    onClick={() => {
+                      // handle apply filter logic here
+                    }}
+                    className="font-aria text-14px h-[37px] w-[129px] flex-1 cursor-pointer rounded-[5px] bg-black py-2 font-bold text-white transition hover:bg-gray-800"
+                  >
+                    اعمال فیلتر
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      // handle delete filter logic here
+                      setMinPrice(100)
+                      setMaxPrice(1000)
+                    }}
+                    className="font-aria h-[37px] w-[129px] flex-1 cursor-pointer rounded-[5px] bg-white py-2 text-[14px] font-bold text-black transition hover:bg-gray-300"
+                  >
+                    حذف فیلترها
+                  </button>
+                </div>
               </div>
             )}
           </div>
