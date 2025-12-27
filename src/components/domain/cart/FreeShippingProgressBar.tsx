@@ -15,11 +15,11 @@ const FreeShippingProgressBar = ({
   const remaining = Math.max(threshold - subtotal, 0)
 
   return (
-    <div className="mt-2 mb-2 w-full">
+    <div className="w-full">
       {/* Progress Bar Background */}
-      <div className="h-4 w-full overflow-hidden rounded-full bg-gray-200">
+      <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
         <motion.div
-          className="bg-section-deep h-4 rounded-full"
+          className="bg-section-deep h-2 rounded-full"
           initial={{ width: 0 }}
           animate={{ width: `${progress * 100}%` }}
           transition={{ duration: 0.5, ease: 'easeInOut' }}

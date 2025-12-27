@@ -24,44 +24,81 @@ const page = () => {
   return (
     <section className="mx-10 py-16">
       {/* ===== Title ===== */}
-      <h1 className="font-aria text-color-title-on-light mb-10 text-right text-3xl font-extrabold">
-        تسویه حساب
+      <h1 className="font-aria text-color-title-on-light mb-10 text-right text-[40px] font-extrabold">
+        تکمیل سفارش
       </h1>
 
       {/* ===== Main Layout ===== */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* ===== RIGHT: Checkout Form ===== */}
         <div className="lg:col-span-2">
-          <div className="rounded-2xl bg-white p-8 shadow-sm">
-            <h2 className="font-aria mb-6 text-right text-xl font-bold">
-              اطلاعات خریدار
+          <div className="rounded-2xl border-2 border-[#d9d9d9] bg-white p-8">
+            <h2 className="font-aria mb-6 text-right text-[24px] font-bold">
+              اطلاعات خرید
             </h2>
 
-            <form className="space-y-4">
+            <form className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {/* Name */}
               <input
                 type="text"
-                placeholder="نام و نام خانوادگی"
-                className="w-full rounded-lg border bg-gray-50 p-3 outline-none focus:ring-2 focus:ring-black"
+                placeholder="نام"
+                className="font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black"
               />
 
+              {/* Last Name */}
+              <input
+                type="text"
+                placeholder="نام خانوادگی"
+                className="font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black"
+              />
+
+              {/* Shahr */}
+              <input
+                type="text"
+                placeholder="شهر"
+                className="font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black"
+              />
+
+              {/* Ostan */}
+              <input
+                type="text"
+                placeholder="استان"
+                className="font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black"
+              />
+
+              {/* Email */}
+              <input
+                type="email"
+                placeholder="ایمیل"
+                className="font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black"
+              />
+
+              {/* Phone */}
               <input
                 type="tel"
                 placeholder="شماره تماس"
-                className="w-full rounded-lg border bg-gray-50 p-3 outline-none focus:ring-2 focus:ring-black"
+                className="font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black"
               />
 
+              {/* Address */}
               <input
                 type="text"
-                placeholder="آدرس"
-                className="w-full rounded-lg border bg-gray-50 p-3 outline-none focus:ring-2 focus:ring-black"
+                placeholder="آدرس کامل"
+                className="font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black"
               />
 
-              <button
-                type="submit"
-                className="mt-6 w-full rounded-xl bg-black py-3 font-bold text-white transition hover:bg-gray-800"
-              >
-                ثبت سفارش
-              </button>
+              {/* Postal Code */}
+              <input
+                type="text"
+                placeholder="کد پستی"
+                className="font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black"
+              />
+
+              {/* Notes */}
+              <textarea
+                placeholder="یادداشت سفارش"
+                className="font-aria text-color-body-on-light col-span-1 w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black md:col-span-2"
+              />
             </form>
           </div>
         </div>
@@ -69,11 +106,11 @@ const page = () => {
         {/* ===== LEFT: Order Summary ===== */}
         <div className="space-y-6">
           {/* Cart Details */}
-          <div className="flex h-[452px] w-[407px] flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-9">
+          <div className="flex h-[370px] w-[407px] flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-9">
             <h1 className="font-aria text-color-title-on-light mt-9 text-center text-2xl font-extrabold">
               لیست سفارشات
             </h1>
-            <div className="flex-1 space-y-5 overflow-y-auto mt-8 mb-8">
+            <div className="mt-8 mb-8 flex-1 space-y-5 overflow-y-auto">
               {cartItems.map((item) => (
                 <div
                   key={item.id}
@@ -104,11 +141,6 @@ const page = () => {
                   </div>
                 </div>
               ))}
-            </div>
-            <div className="pb-6">
-              <button className="text-color-title-on-dark font-ray h-[54px] w-full rounded-4xl bg-black font-medium">
-                تکمیل سفارش
-              </button>
             </div>
           </div>
 
