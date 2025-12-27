@@ -2,6 +2,7 @@
 
 import { useCart } from '@/features/shop/hooks/cart/useCart'
 import CartItem from '@/components/domain/cart/CartItem'
+import FreeShippingProgressBar from '@/components/domain/cart/FreeShippingProgressBar'
 import Image from 'next/image'
 
 const page = () => {
@@ -22,6 +23,8 @@ const page = () => {
   const taxAmount = Math.round(subtotal * TAX_RATE)
 
   const totalAmount = subtotal + taxAmount
+
+  const FREE_SHIPPING_THRESHOLD = 2_000_000
 
   if (cartLoading) {
     return <div>در حال بارگذاری سبد خرید...</div>
@@ -94,12 +97,7 @@ const page = () => {
               </h1>
             </div>
             <div className="flex items-center justify-between">
-              <h1 className="font-aria text-color-title-on-light font-extrabold">
-                هزینه ارسال
-              </h1>
-              <h1 className="font-aria text-color-title-on-light font-extrabold">
-                --- تومان
-              </h1>
+              <FreeShippingProgressBar subtotal={subtotal} threshold={FREE_SHIPPING_THRESHOLD} />
             </div>
             <div className="flex items-center justify-between">
               <h1 className="font-aria text-color-title-on-light font-extrabold">
