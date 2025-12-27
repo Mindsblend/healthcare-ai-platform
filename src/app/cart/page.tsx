@@ -4,6 +4,7 @@ import { useCart } from '@/features/shop/hooks/cart/useCart'
 import CartItem from '@/components/domain/cart/CartItem'
 import FreeShippingProgressBar from '@/components/domain/cart/FreeShippingProgressBar'
 import Image from 'next/image'
+import Link from 'next/link'
 
 const page = () => {
   const {
@@ -122,7 +123,7 @@ const page = () => {
           </div>
           <div className="pb-6">
             <button className="text-color-title-on-dark font-ray h-[54px] w-full rounded-4xl bg-black font-medium">
-              تکمیل سفارش
+              <Link href="/checkout">تکمیل سفارش</Link>
             </button>
           </div>
         </div>
