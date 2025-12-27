@@ -39,10 +39,10 @@ const page = () => {
         <div className="flex h-[452px] w-full max-w-7xl flex-col rounded-3xl border-2 border-[#d9d9d9]">
           {/* HEADER (fixed height) */}
           <div className="font-aria grid shrink-0 grid-cols-[2fr_1fr_1fr_40px] border-b-2 px-8 py-5 text-xl font-bold">
-            <span>نام محصول</span>
-            <span className="text-center">تعداد</span>
-            <span>قیمت</span>
-            <span>حذف</span>
+            <span className="text-color-title-on-light">نام محصول</span>
+            <span className="text-color-title-on-light mr-6">تعداد</span>
+            <span className="text-color-title-on-light">قیمت</span>
+            <span className="text-color-title-on-light">حذف</span>
           </div>
 
           {/* SCROLL AREA */}
@@ -97,15 +97,18 @@ const page = () => {
               </h1>
             </div>
             <div className="flex items-center justify-between">
-              <FreeShippingProgressBar subtotal={subtotal} threshold={FREE_SHIPPING_THRESHOLD} />
-            </div>
-            <div className="flex items-center justify-between">
               <h1 className="font-aria text-color-title-on-light font-extrabold">
                 مالیات
               </h1>
               <h1 className="font-aria text-color-title-on-light font-extrabold">
                 {taxAmount.toLocaleString('fa-IR')} تومان
               </h1>
+            </div>
+            <div className="flex items-center justify-between">
+              <FreeShippingProgressBar
+                subtotal={subtotal}
+                threshold={FREE_SHIPPING_THRESHOLD}
+              />
             </div>
             <hr className="border" />
             <div className="flex items-center justify-between">
@@ -118,7 +121,7 @@ const page = () => {
             </div>
           </div>
           <div className="pb-6">
-            <button className="text-color-title-on-dark font-ray h-[54px] w-full rounded-4xl bg-black font-medium">
+            <button className="text-color-title-on-dark font-ray h-[54px] w-full cursor-pointer rounded-4xl bg-black font-medium">
               تکمیل سفارش
             </button>
           </div>

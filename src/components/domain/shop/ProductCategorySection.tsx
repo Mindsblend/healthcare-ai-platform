@@ -18,7 +18,7 @@ const ProductCategorySection = () => {
       </div>
       <div className="text-color-title-on-light mt-4 flex items-center justify-center gap-16">
         {categories.map((category) => (
-          <div key={category.id} className="h-[107px] w-[86px]">
+          <div key={category.id} className="h-[107px] w-[86px] cursor-pointer">
             <div className="flex h-full w-full flex-col items-center justify-center gap-2 rounded-[10px] border border-[#E9E9E8] text-center">
               <Image
                 src={category.iconPath}

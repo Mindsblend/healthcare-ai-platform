@@ -98,6 +98,8 @@ export interface BlogType {
   author: string
   authorImage: string
   description: string
+  createdAt: string
+  updatedAt: string
 }
 
 declare module 'next-auth' {

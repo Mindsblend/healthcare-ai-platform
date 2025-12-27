@@ -51,7 +51,7 @@ const CartItem = ({
       <div className="flex h-10 w-24 items-center justify-between overflow-hidden rounded-3xl bg-[#f2f2f2] text-center">
         <button
           onClick={handleIncrement}
-          className="flex h-8 w-8 items-center justify-center pr-2 transition hover:bg-gray-100 active:scale-95"
+          className="flex h-8 w-8 cursor-pointer items-center justify-center pr-2 transition hover:bg-gray-100 active:scale-95"
         >
           <Image src="/images/add.svg" alt="add icon" width={10} height={10} />
         </button>
@@ -64,7 +64,7 @@ const CartItem = ({
           disabled={count <= 1}
           aria-disabled={count <= 1}
           onClick={handleDecrement}
-          className={`active:scale-95" flex h-8 w-8 cursor-pointer items-center justify-center pl-2 text-gray-600 transition hover:bg-gray-100 ${
+          className={`flex h-8 w-8 cursor-pointer items-center justify-center pl-2 text-gray-600 transition hover:bg-gray-100 active:scale-95 ${
             count <= 1
               ? 'cursor-not-allowed opacity-40'
               : 'cursor-pointer text-gray-600 hover:bg-gray-100 active:scale-95'
