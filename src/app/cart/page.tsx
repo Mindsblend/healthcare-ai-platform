@@ -84,7 +84,7 @@ const page = () => {
           </div>
         </div>
 
-        <div className="flex h-[452px] w-[367px] flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-9">
+        <div className="flex h-[452px] w-full max-w-[370px] flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-9">
           <h1 className="font-aria text-color-title-on-light mt-9 text-center text-2xl font-extrabold">
             خلاصه سفارشات
           </h1>
