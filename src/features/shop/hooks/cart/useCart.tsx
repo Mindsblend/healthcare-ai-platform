@@ -26,6 +26,10 @@ export function useCart() {
     load()
   }, [])
 
+  // --------------------
+  // STRUCTURAL CHANGES
+  // --------------------
+
   const addToCart = async (productId: number, quantity = 1) => {
     try {
       let activeCart = cart
@@ -54,11 +58,24 @@ export function useCart() {
     }
   }
 
+  // --------------------
+  // VALUE-ONLY CHANGES
+  // --------------------
+
   const updateQuantity = async (cartItemId: number, quantity: number) => {
     try {
+      if (quantity < 1) return
+
+      // Optimistic update: local state first
+      setCartItems((items) =>
+        items.map((item) =>
+          item.id === cartItemId ? { ...item, quantity } : item,
+        ),
+      )
+
+      // Send to backend
       await updateItemAction(cartItemId, quantity)
-      const refreshedCart = await getCart()
-      setCart(refreshedCart)
+      // NO REFRESH needed
     } catch (err: any) {
       setError(err.message)
     }

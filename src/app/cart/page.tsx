@@ -1,4 +1,7 @@
-import { useState, useEffect } from 'react'
+'use client'
+
+import { useCart } from '@/features/shop/hooks/cart/useCart'
+import CartItem from '@/components/domain/cart/CartItem'
 import Image from 'next/image'
 
 const page = () => {

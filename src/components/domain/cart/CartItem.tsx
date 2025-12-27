@@ -1,5 +1,4 @@
 import Image from 'next/image'
-import { removeItem } from '@/features/shop/actions/cart/removeItemAction'
 
 type CartItemProps = {
   id: number
@@ -18,7 +17,8 @@ const CartItem = ({
   count,
   price,
   image,
-  onRemove
+  onUpdateQuantity,
+  onRemove,
 }: CartItemProps) => {
   const handleIncrement = () => {
     onUpdateQuantity(id, count + 1)
@@ -49,7 +49,6 @@ const CartItem = ({
         </div>
       </div>
       <div className="flex h-10 w-24 items-center justify-between overflow-hidden rounded-3xl bg-[#f2f2f2] text-center">
-
         <button
           onClick={handleIncrement}
           className="flex h-8 w-8 items-center justify-center pr-2 transition hover:bg-gray-100 active:scale-95"
@@ -58,10 +57,19 @@ const CartItem = ({
         </button>
 
         <span className="text-color-title-on-light font-aria text-center font-extrabold">
-          {count}
+          {count.toLocaleString('fa-IR')}
         </span>
 
-        <button className="flex h-8 w-8 cursor-pointer items-center justify-center pl-2 text-gray-600 transition hover:bg-gray-100 active:scale-95">
+        <button
+          disabled={count <= 1}
+          aria-disabled={count <= 1}
+          onClick={handleDecrement}
+          className={`active:scale-95" flex h-8 w-8 cursor-pointer items-center justify-center pl-2 text-gray-600 transition hover:bg-gray-100 ${
+            count <= 1
+              ? 'cursor-not-allowed opacity-40'
+              : 'cursor-pointer text-gray-600 hover:bg-gray-100 active:scale-95'
+          }`}
+        >
           <Image
             src="/images/minimize.svg"
             alt="minus icon"
@@ -72,7 +80,7 @@ const CartItem = ({
       </div>
       <div>
         <h1 className="font-aria text-color-title-on-light text-base font-extrabold">
-          {/* {price.toLocaleString('fa-IR')} تومان */}
+          {price.toLocaleString('fa-IR')}
         </h1>
       </div>
       <div className="flex items-center justify-center">

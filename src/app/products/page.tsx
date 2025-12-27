@@ -1,38 +1,37 @@
 'use client'
+
 import { useState } from 'react'
+import Image from 'next/image'
 import { useProducts } from '@/features/shop/hooks/products/useProducts'
 import { useCategories } from '@/features/shop/hooks/categories/useCategories'
 import Product from '@/components/layout/Product'
-import Image from 'next/image'
 import PriceRangeSlider from '@/components/domain/shop/product/PriceRangeSlider'
 
-const page = () => {
+const Page = () => {
   const { products, loading, error } = useProducts()
-  const [isOpen, setIsOpen] = useState(true)
+  const { categories } = useCategories()
 
+  const [isCategoryOpen, setIsCategoryOpen] = useState(true)
   const [isPriceOpen, setIsPriceOpen] = useState(true)
+  const [isFilterOpenMobile, setIsFilterOpenMobile] = useState(false)
 
   const [minPrice, setMinPrice] = useState(100)
   const [maxPrice, setMaxPrice] = useState(1000)
-
-  const { categories } = useCategories()
-
-  const toggleDropdown = () => setIsOpen(!isOpen)
 
   if (loading) return <div>در حال بارگذاری محصولات...</div>
   if (error) return <div>خطا در بارگذاری محصولات: {error}</div>
 
   return (
-    <section className="mx-10 py-20">
+    <section className="mx-4 py-20 sm:mx-10">
       {/* ===== Header ===== */}
       <div className="mb-10 flex flex-col items-center text-center">
-        <h1 className="font-aria text-color-title-on-light max-w-[532px] text-[54px] leading-16 font-extrabold">
+        <h1 className="font-aria text-color-title-on-light max-w-[532px] text-[36px] leading-tight font-extrabold sm:text-[54px]">
           کالای دلخواهت را همین حالا پیدا کن
         </h1>
 
-        {/* Search Bar */}
-        <div className="relative mt-8 w-[469px]">
-          <div className="absolute top-1/2 left-4 flex h-[46px] w-[46px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white shadow-sm">
+        {/* Search */}
+        <div className="relative mt-8 w-full max-w-[469px] px-4 sm:px-0">
+          <div className="absolute top-1/2 left-4 flex h-[46px] w-[46px] -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-sm">
             <Image
               src="/images/search.svg"
               alt="Search"
@@ -44,39 +43,48 @@ const page = () => {
           <input
             type="text"
             placeholder="جستجو هوشمندانه از میان صدها محصول"
-            className="font-ray text-color-body-on-dark focus:ring-color-accent h-[65px] w-full rounded-2xl bg-[#f2f2f2] pr-5 pl-[50px] text-[16px] font-bold transition outline-none focus:bg-white focus:ring-2"
+            className="font-ray h-[65px] w-full rounded-2xl bg-[#f2f2f2] pr-5 pl-[50px] text-[16px] font-bold transition outline-none focus:bg-white focus:ring-2 focus:ring-black"
           />
         </div>
       </div>
 
-      {/* ===== Main Content ===== */}
-      <div className="flex gap-10">
-        {/* ===== Sidebar Filters ===== */}
-        <div className="w-72 shrink-0">
-          <div className="mb-6 flex items-center rounded-2xl py-3">
+      {/* ===== Mobile Filter Button ===== */}
+      <div className="mb-6 flex justify-end lg:hidden">
+        <button
+          onClick={() => setIsFilterOpenMobile((prev) => !prev)}
+          className="flex items-center gap-2 rounded-lg bg-black px-4 py-2 text-sm font-bold text-white"
+        >
+          فیلترها
+          <Image src="/images/filter.svg" alt="Filter" width={16} height={16} />
+        </button>
+      </div>
+
+      {/* ===== Main Layout ===== */}
+      <div className="flex flex-col gap-8 lg:flex-row lg:gap-10">
+        {/* ===== Sidebar ===== */}
+        <aside
+          className={`w-full shrink-0 lg:w-72 ${isFilterOpenMobile ? 'block' : 'hidden'} lg:block`}
+        >
+          {/* Title */}
+          <div className="mb-6 flex items-center">
             <Image
               src="/images/filter.svg"
-              alt="Filter Icon"
+              alt="Filter"
               width={24}
               height={24}
             />
-            <h3 className="font-aria text-color-title-on-light pr-2 text-[20px] font-bold">
-              فیلترها
-            </h3>
+            <h3 className="font-aria pr-2 text-[20px] font-bold">فیلترها</h3>
           </div>
 
-          {/* Future filters (checkboxes, ranges, etc.) */}
+          {/* Categories */}
           <div className="space-y-4">
-            {/* Dropdown Filter */}
             <div
-              onClick={toggleDropdown}
-              className="mb-2 flex cursor-pointer items-center justify-between rounded-[5px] bg-[#f2f2f2f2] px-4 py-3 transition"
+              onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+              className="flex cursor-pointer items-center justify-between rounded-md bg-[#f2f2f2] px-4 py-3"
             >
-              <h3 className="font-aria text-color-title-on-light text-[14px] font-bold">
-                تمام محصولات
-              </h3>
+              <h3 className="font-aria text-sm font-bold">تمام محصولات</h3>
               <div
-                className={`transition-transform ${isOpen ? 'rotate-180' : 'rotate-0'}`}
+                className={`transition ${isCategoryOpen ? 'rotate-180' : ''}`}
               >
                 <Image
                   src="/images/dropdown.svg"
@@ -87,63 +95,37 @@ const page = () => {
               </div>
             </div>
 
-            {/* Checkbox List */}
-            {isOpen && (
-              <div className="space-y-3 rounded-2xl p-4">
+            {isCategoryOpen && (
+              <div className="space-y-3 rounded-xl p-4">
                 {categories.map((category) => (
                   <label
                     key={category.id}
-                    className="flex cursor-pointer items-center justify-between rounded-lg bg-white px-3 py-2 transition hover:bg-gray-50"
+                    className="flex cursor-pointer items-center justify-between rounded-lg bg-white px-3 py-2 hover:bg-gray-50"
                   >
                     <div className="flex items-center gap-2">
                       <Image
                         src={category.iconPath}
-                        alt="Check"
+                        alt=""
                         width={20}
                         height={20}
                       />
-                      <span className="font-aria text-color-body-on-light text-sm font-bold">
-                        {category.name}
-                      </span>
+                      <span className="text-sm font-bold">{category.name}</span>
                     </div>
-
-                    <input
-                      type="checkbox"
-                      className="h-5 w-5 cursor-pointer appearance-none rounded-sm border-2 border-black checked:border-black checked:bg-black"
-                    />
+                    <input type="checkbox" className="h-4 w-4 accent-black" />
                   </label>
                 ))}
               </div>
             )}
           </div>
-          {/* ===== Toggle for In-Stock Items ===== */}
-          <div className="mt-4 flex items-center justify-between rounded-[5px] px-4 py-3">
-            <span className="font-aria text-color-title-on-light text-[14px] font-bold">
-              نمایش کالاهای موجود
-            </span>
 
-            {/* Toggle */}
-            <label className="relative inline-flex h-5 w-10 cursor-pointer">
-              <input type="checkbox" className="peer sr-only" />
-              {/* Track */}
-              <div className="absolute inset-0 rounded-full bg-gray-300 transition peer-checked:bg-black"></div>
-              {/* Knob */}
-              <div className="pointer-events-none absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow-md transition peer-checked:translate-x-[18px]"></div>
-            </label>
-          </div>
-
-          {/* ===== Price Range Dropdown ===== */}
-          <div className="mt-4 space-y-2">
+          {/* Price Filter */}
+          <div className="mt-6">
             <div
               onClick={() => setIsPriceOpen(!isPriceOpen)}
-              className="mb-2 flex cursor-pointer items-center justify-between rounded-[5px] bg-[#f2f2f2] px-4 py-3 transition"
+              className="flex cursor-pointer items-center justify-between rounded-md bg-[#f2f2f2] px-4 py-3"
             >
-              <h3 className="font-aria text-color-title-on-light text-[14px] font-bold">
-                بازه قیمت
-              </h3>
-              <div
-                className={`transition-transform ${isPriceOpen ? 'rotate-180' : 'rotate-0'}`}
-              >
+              <h3 className="text-sm font-bold">بازه قیمت</h3>
+              <div className={`transition ${isPriceOpen ? 'rotate-180' : ''}`}>
                 <Image
                   src="/images/dropdown.svg"
                   alt="Arrow"
@@ -154,78 +136,47 @@ const page = () => {
             </div>
 
             {isPriceOpen && (
-              <div className="space-y-4 bg-white p-4">
-                {/* ===== Slider ===== */}
+              <div className="mt-4 space-y-4 bg-white p-4">
                 <PriceRangeSlider />
 
-                {/* ===== Min Price Row ===== */}
-                <div className="flex items-center justify-between">
-                  <span className="font-ray text-color-title-on-light text-[14px] font-semibold">
-                    از قیمت:
-                  </span>
-                  <div className="flex h-10 w-42 items-center justify-center rounded-lg bg-[#f2f2f2]">
-                    <input
-                      type="number"
-                      value={minPrice}
-                      onChange={(e) => setMinPrice(Number(e.target.value))}
-                      className="[&::-moz-appearance]:textfield w-20 appearance-none rounded-md bg-transparent py-1 text-center text-sm outline-none focus:border-0 focus:ring-0 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                    />
-                    <span className="font-aria text-[12px] font-bold text-black">
-                      هزار تومان
-                    </span>
-                  </div>
+                <div className="flex justify-between">
+                  <input
+                    type="number"
+                    value={minPrice}
+                    onChange={(e) => setMinPrice(+e.target.value)}
+                    className="w-24 rounded-md bg-[#f2f2f2] px-2 py-1 text-center"
+                  />
+                  <input
+                    type="number"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(+e.target.value)}
+                    className="w-24 rounded-md bg-[#f2f2f2] px-2 py-1 text-center"
+                  />
                 </div>
 
-                {/* ===== Max Price Row ===== */}
-                <div className="flex items-center justify-between">
-                  <span className="font-ray text-color-title-on-light text-[14px] font-semibold">
-                    تا قیمت:
-                  </span>
-                  <div className="flex h-10 w-42 items-center justify-center rounded-lg bg-[#f2f2f2]">
-                    <input
-                      type="number"
-                      value={maxPrice}
-                      onChange={(e) => setMaxPrice(Number(e.target.value))}
-                      className="[&::-moz-appearance]:textfield w-20 appearance-none rounded-md bg-transparent py-1 text-center text-sm outline-none focus:border-0 focus:ring-0 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                    />
-                    <span className="font-aria text-[12px] font-bold text-black">
-                      هزار تومان
-                    </span>
-                  </div>
-                </div>
-
-                {/* ===== Filter Buttons ===== */}
-                <div className="mt-4 flex gap-2">
-                  <button
-                    onClick={() => {
-                      // handle apply filter logic here
-                    }}
-                    className="font-aria text-14px h-[37px] w-[129px] flex-1 cursor-pointer rounded-[5px] bg-black py-2 font-bold text-white transition hover:bg-gray-800"
-                  >
+                <div className="flex gap-2">
+                  <button className="flex-1 rounded-md bg-black py-2 text-sm font-bold text-white">
                     اعمال فیلتر
                   </button>
-
                   <button
                     onClick={() => {
-                      // handle delete filter logic here
                       setMinPrice(100)
                       setMaxPrice(1000)
                     }}
-                    className="font-aria h-[37px] w-[129px] flex-1 cursor-pointer rounded-[5px] bg-white py-2 text-[14px] font-bold text-black transition hover:bg-gray-300"
+                    className="flex-1 rounded-md bg-gray-200 py-2 text-sm font-bold"
                   >
-                    حذف فیلترها
+                    حذف
                   </button>
                 </div>
               </div>
             )}
           </div>
-        </div>
+        </aside>
 
-        {/* ===== Product Grid (3 columns) ===== */}
-        <div className="grid flex-1 grid-cols-3 gap-6">
-          {/* Example Product Cards */}
+        {/* ===== Products Grid ===== */}
+        <div className="grid flex-1 grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {products.map((product) => (
-            <Product product={product} />
+            <Product key={product.id} product={product} />
           ))}
         </div>
       </div>
@@ -233,4 +184,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page
