@@ -97,15 +97,18 @@ const page = () => {
               </h1>
             </div>
             <div className="flex items-center justify-between">
-              <FreeShippingProgressBar subtotal={subtotal} threshold={FREE_SHIPPING_THRESHOLD} />
-            </div>
-            <div className="flex items-center justify-between">
               <h1 className="font-aria text-color-title-on-light font-extrabold">
                 مالیات
               </h1>
               <h1 className="font-aria text-color-title-on-light font-extrabold">
                 {taxAmount.toLocaleString('fa-IR')} تومان
               </h1>
+            </div>
+            <div className="flex items-center justify-between">
+              <FreeShippingProgressBar
+                subtotal={subtotal}
+                threshold={FREE_SHIPPING_THRESHOLD}
+              />
             </div>
             <hr className="border" />
             <div className="flex items-center justify-between">
