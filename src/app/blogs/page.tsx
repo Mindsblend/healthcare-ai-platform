@@ -84,7 +84,7 @@ const page = () => {
         </div>
         {/* image */}
         <div
-          className="relative order-1 h-[400px] w-full rounded-3xl bg-cover bg-center lg:order-none lg:h-auto lg:max-w-[740px]"
+          className="relative order-1 h-[400px] w-full rounded-3xl bg-cover bg-center lg:order-0 lg:h-auto lg:max-w-[740px]"
           style={{ backgroundImage: `url(${latestBlog.image})` }}
         >
           <div className="bg-page absolute top-3.5 right-4 z-10 h-12 w-12 rounded-full p-2.5">

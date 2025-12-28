@@ -3,13 +3,13 @@ import Image from 'next/image'
 
 const HeroSection = () => {
   return (
-    <div className="flex items-center justify-between px-24">
+    <div className="flex items-center justify-between container">
       {/* Right: Text + Buttons */}
       <div className="mt-12 flex flex-col justify-center">
-        <h1 className="font-aria text-color-title-on-light max-w-[473px] text-[64px] leading-21 font-extrabold">
+        <h1 className="font-aria text-color-title-on-light max-w-[473px] text-5xl xl:text-6xl font-extrabold">
           سلامتی امروز، پلی به فردایی شادتر
         </h1>
-        <p className="font-ray text-color-body-on-light max-w-[463px] text-[18px] leading-5 font-medium">
+        <p className="font-ray mt-3.5 text-color-body-on-light max-w-[463px] text-base xl:text-lg font-medium">
           سلامتی چیزی نیست که بتوان آن را به فردا موکول کرد. هر تصمیم کوچک
           امروز، یا پلی به سوی تمرکز، انرژی و عمری طولانی‌تر است —یا قدمی خاموش
           به سوی آینده‌ای پر از خستگی و محدودیت. ما اینجا هستیم تا با یک تست
@@ -20,10 +20,10 @@ const HeroSection = () => {
         <div className="mt-5 mb-6 flex gap-4">
           <Link
             href="/ai"
-            className="flex h-[54px] w-[210px] cursor-pointer items-center justify-between rounded-full bg-black px-3 text-white"
+            className="flex h-[54px] w-[195px] xl:w-[210px] cursor-pointer items-center justify-between rounded-full bg-black px-2 text-white"
           >
             {/* Button text */}
-            <span className="font-aria pr-4 text-base font-medium">
+            <span className="font-ray pr-4 text-base font-medium">
               شروع سفر سلامتی
             </span>
 
@@ -59,7 +59,7 @@ const HeroSection = () => {
           </p>
         </div>
 
-        <div className="flex gap-22">
+        <div className="flex gap-10 xl:gap-22">
           <div>
             <h1 className="font-aria text-color-title-on-light text-[64px] leading-12 font-extrabold">
               ۵۰۰۰+

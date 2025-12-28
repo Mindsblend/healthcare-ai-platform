@@ -4,7 +4,7 @@ import Image from 'next/image'
 const HealthTestSection = () => {
   return (
     <div>
-      <div className="flex flex-col items-center justify-center gap-9 p-12 md:flex-row">
+      <div className="flex flex-col items-center justify-center gap-9 xl:flex-row container">
         {/* RIGHT — Title + Paragraph */}
         <div className="flex h-[745px] max-w-xl flex-col items-center justify-between">
           <h1 className="font-aria text-color-title-on-light py-4 text-6xl font-bold">
@@ -65,7 +65,7 @@ const HealthTestSection = () => {
         </div>
       </div>
 
-      <div className="flex flex-col items-center justify-center gap-9 p-12 md:flex-row-reverse">
+      <div className="flex flex-col items-center justify-center gap-9 -12 md:flex-row-reverse">
         {/* RIGHT — Title + Paragraph */}
         <div className="flex h-[745px] max-w-xl flex-col items-center justify-between">
           <h1 className="font-aria text-color-title-on-light py-4 text-6xl font-bold">
