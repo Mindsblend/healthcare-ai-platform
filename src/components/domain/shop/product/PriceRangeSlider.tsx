@@ -1,21 +1,30 @@
 'use client'
 import { useRef, useState, useEffect } from 'react'
 
-const PriceRangeSlider = ({
-  min = 0,
-  max = 1000000,
-  step = 10000,
-}: {
+interface PriceRangeSliderProps {
   min?: number
   max?: number
+  minPrice: number
+  maxPrice: number
   step?: number
-}) => {
+  onChange: (min: number, max: number) => void
+}
+
+const PriceRangeSlider = ({
+  min = 0,
+  max = 1_000_000,
+  minPrice,
+  maxPrice,
+  step = 10_000,
+  onChange,
+}: PriceRangeSliderProps) => {
   const trackRef = useRef<HTMLDivElement>(null)
-  const [minValue, setMinValue] = useState(min)
-  const [maxValue, setMaxValue] = useState(max)
+  const minValue = minPrice
+  const maxValue = maxPrice
   const [dragging, setDragging] = useState<'max' | 'min' | null>(null)
 
   const valueToPercent = (value: number) => ((value - min) / (max - min)) * 100
+
   const percentToValue = (percent: number) => {
     const raw = min + ((max - min) * percent) / 100
     return Math.round(raw / step) * step
@@ -29,11 +38,11 @@ const PriceRangeSlider = ({
     const newValue = percentToValue(percent)
 
     if (dragging === 'min') {
-      // Left thumb → minValue
-      setMinValue(Math.min(newValue, maxValue))
-    } else if (dragging === 'max') {
-      // Right thumb → maxValue
-      setMaxValue(Math.max(newValue, minValue))
+      onChange(Math.min(newValue, maxValue), maxValue)
+    }
+
+    if (dragging === 'max') {
+      onChange(minValue, Math.max(newValue, minValue))
     }
   }
 

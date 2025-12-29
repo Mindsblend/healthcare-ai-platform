@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import Image from 'next/image'
 import { useProducts } from '@/features/shop/hooks/products/useProducts'
 import { useCategories } from '@/features/shop/hooks/categories/useCategories'
@@ -15,8 +15,80 @@ const Page = () => {
   const [isPriceOpen, setIsPriceOpen] = useState(true)
   const [isFilterOpenMobile, setIsFilterOpenMobile] = useState(false)
 
-  const [minPrice, setMinPrice] = useState(100)
-  const [maxPrice, setMaxPrice] = useState(1000)
+  // Draft state (user selections)
+  const [minPrice, setMinPrice] = useState(0)
+  const [maxPrice, setMaxPrice] = useState(1_000_000)
+  const [activeCategoryIds, setActiveCategoryIds] = useState<Set<number>>(
+    () => new Set(),
+  )
+
+  // Applied state (used for filtering)
+  const [appliedMinPrice, setAppliedMinPrice] = useState(0)
+  const [appliedMaxPrice, setAppliedMaxPrice] = useState(1_000_000)
+  const [appliedCategoryIds, setAppliedCategoryIds] = useState<Set<number>>(
+    () => new Set(),
+  )
+
+  // Applied search query (used for filtering)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [appliedSearchQuery, setAppliedSearchQuery] = useState('')
+
+  // Filtered products based on applied filters
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      // Category filter
+      if (
+        appliedCategoryIds.size > 0 &&
+        !appliedCategoryIds.has(product.categoryId)
+      )
+        return false
+
+      // Price filter
+      if (product.price < appliedMinPrice || product.price > appliedMaxPrice)
+        return false
+
+      // Search filter
+      if (
+        appliedSearchQuery &&
+        !product.title?.toLowerCase().includes(appliedSearchQuery.toLowerCase())
+      )
+        return false
+
+      return true
+    })
+  }, [
+    products,
+    appliedCategoryIds,
+    appliedMinPrice,
+    appliedMaxPrice,
+    appliedSearchQuery,
+  ])
+
+  // Toggle category in draft state
+  const toggleCategory = (categoryId: number) => {
+    setActiveCategoryIds((prev) => {
+      const next = new Set(prev)
+      next.has(categoryId) ? next.delete(categoryId) : next.add(categoryId)
+      return next
+    })
+  }
+
+  // Apply filters
+  const applyFilters = () => {
+    setAppliedMinPrice(minPrice)
+    setAppliedMaxPrice(maxPrice)
+    setAppliedCategoryIds(new Set(activeCategoryIds))
+  }
+
+  // Reset filters
+  const resetFilters = () => {
+    setMinPrice(0)
+    setMaxPrice(1_000_000)
+    setActiveCategoryIds(new Set())
+    setAppliedMinPrice(0)
+    setAppliedMaxPrice(1_000_000)
+    setAppliedCategoryIds(new Set())
+  }
 
   if (loading) return <div>در حال بارگذاری محصولات...</div>
   if (error) return <div>خطا در بارگذاری محصولات: {error}</div>
@@ -31,7 +103,10 @@ const Page = () => {
 
         {/* Search */}
         <div className="relative mt-8 w-full max-w-[469px] px-4 sm:px-0">
-          <div className="absolute top-1/2 left-4 flex h-[46px] w-[46px] -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-sm">
+          <div
+            onClick={() => setAppliedSearchQuery(searchQuery)}
+            className="absolute top-1/2 left-4 flex h-[46px] w-[46px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white shadow-sm"
+          >
             <Image
               src="/images/search.svg"
               alt="Search"
@@ -44,6 +119,15 @@ const Page = () => {
             type="text"
             placeholder="جستجو هوشمندانه از میان صدها محصول"
             className="font-ray h-[65px] w-full rounded-2xl bg-[#f2f2f2] pr-5 pl-[50px] text-[16px] font-bold transition outline-none focus:bg-white focus:ring-2 focus:ring-black"
+            value={searchQuery}
+            onChange={(e) => {
+              const value = e.target.value
+              setSearchQuery(value)
+              if (value === '') setAppliedSearchQuery('')
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') setAppliedSearchQuery(searchQuery)
+            }}
           />
         </div>
       </div>
@@ -73,7 +157,9 @@ const Page = () => {
               width={24}
               height={24}
             />
-            <h3 className="font-aria pr-2 text-[20px] font-bold">فیلترها</h3>
+            <h3 className="font-aria text-color-title-on-light pr-2 text-[20px] font-bold">
+              فیلترها
+            </h3>
           </div>
 
           {/* Categories */}
@@ -82,7 +168,9 @@ const Page = () => {
               onClick={() => setIsCategoryOpen(!isCategoryOpen)}
               className="flex cursor-pointer items-center justify-between rounded-md bg-[#f2f2f2] px-4 py-3"
             >
-              <h3 className="font-aria text-sm font-bold">تمام محصولات</h3>
+              <h3 className="font-aria text-color-title-on-light text-sm font-bold">
+                تمام محصولات
+              </h3>
               <div
                 className={`transition ${isCategoryOpen ? 'rotate-180' : ''}`}
               >
@@ -111,7 +199,12 @@ const Page = () => {
                       />
                       <span className="text-sm font-bold">{category.name}</span>
                     </div>
-                    <input type="checkbox" className="h-4 w-4 accent-black" />
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 accent-black"
+                      checked={activeCategoryIds.has(category.id)}
+                      onChange={() => toggleCategory(category.id)}
+                    />
                   </label>
                 ))}
               </div>
@@ -124,7 +217,9 @@ const Page = () => {
               onClick={() => setIsPriceOpen(!isPriceOpen)}
               className="flex cursor-pointer items-center justify-between rounded-md bg-[#f2f2f2] px-4 py-3"
             >
-              <h3 className="text-sm font-bold">بازه قیمت</h3>
+              <h3 className="text-color-title-on-light text-sm font-bold">
+                بازه قیمت
+              </h3>
               <div className={`transition ${isPriceOpen ? 'rotate-180' : ''}`}>
                 <Image
                   src="/images/dropdown.svg"
@@ -137,33 +232,42 @@ const Page = () => {
 
             {isPriceOpen && (
               <div className="mt-4 space-y-4 bg-white p-4">
-                <PriceRangeSlider />
+                <PriceRangeSlider
+                  min={0}
+                  max={1_000_000}
+                  minPrice={minPrice}
+                  maxPrice={maxPrice}
+                  onChange={(min, max) => {
+                    setMinPrice(min)
+                    setMaxPrice(max)
+                  }}
+                />
 
                 <div className="flex justify-between">
-                  <input
-                    type="number"
-                    value={minPrice}
-                    onChange={(e) => setMinPrice(+e.target.value)}
-                    className="w-24 rounded-md bg-[#f2f2f2] px-2 py-1 text-center"
-                  />
                   <input
                     type="number"
                     value={maxPrice}
                     onChange={(e) => setMaxPrice(+e.target.value)}
                     className="w-24 rounded-md bg-[#f2f2f2] px-2 py-1 text-center"
                   />
+                  <input
+                    type="number"
+                    value={minPrice}
+                    onChange={(e) => setMinPrice(+e.target.value)}
+                    className="w-24 rounded-md bg-[#f2f2f2] px-2 py-1 text-center"
+                  />
                 </div>
 
                 <div className="flex gap-2">
-                  <button className="flex-1 rounded-md bg-black py-2 text-sm font-bold text-white">
+                  <button
+                    className="flex-1 rounded-md bg-black py-2 text-sm font-bold text-white"
+                    onClick={applyFilters}
+                  >
                     اعمال فیلتر
                   </button>
                   <button
-                    onClick={() => {
-                      setMinPrice(100)
-                      setMaxPrice(1000)
-                    }}
                     className="flex-1 rounded-md bg-gray-200 py-2 text-sm font-bold"
+                    onClick={resetFilters}
                   >
                     حذف
                   </button>
@@ -175,7 +279,7 @@ const Page = () => {
 
         {/* ===== Products Grid ===== */}
         <div className="grid flex-1 grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
             <Product key={product.id} product={product} />
           ))}
         </div>
