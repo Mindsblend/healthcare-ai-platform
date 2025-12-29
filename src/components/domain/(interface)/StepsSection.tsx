@@ -1,8 +1,9 @@
+import ScrollStepsTimeline from '@/components/domain/(interface)/ScrollStepsTimeline'
 import Image from 'next/image'
 
 const StepsSection = () => {
   return (
-    <div className="text-color-title-on-light bg-section flex flex-wrap justify-between px-24 py-20">
+    <div className="text-color-title-on-light bg-section flex flex-wrap justify-between px-24 pt-20">
       <div>
         <h1 className="font-aria text-color-title-on-dark max-w-2xl text-5xl font-bold">
           راهکار کامل شما برای سلامتی، بدون پیچیدگی و دغدغه
@@ -101,6 +102,9 @@ const StepsSection = () => {
             height={32}
           />
         </div>
+      </div>
+      <div className="w-full">
+        <ScrollStepsTimeline />
       </div>
     </div>
   )
