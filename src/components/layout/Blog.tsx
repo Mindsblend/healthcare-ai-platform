@@ -7,7 +7,7 @@ interface Props {
 
 const Blog = ({ blog }: Props) => {
   return (
-    <div className="bg-page flex min-h-[542px] w-full max-w-[415px] flex-col rounded-3xl border border-black/25 px-2 py-3">
+    <div className="bg-page flex min-h-[570px] w-full max-w-[415px] flex-col rounded-3xl border border-black/25 px-2 py-3">
       {/* top image */}
       <div
         className="relative h-[334px] w-full rounded-3xl bg-cover bg-center"
@@ -26,10 +26,10 @@ const Blog = ({ blog }: Props) => {
       {/* content */}
       <div className="mt-2 flex grow flex-col justify-between rounded-3xl bg-[#F2F2F2] px-6 py-4">
         <div className="text-color-title-on-light">
-          <h1 className="font-ray text-[20px] font-extrabold md:text-[24px]">
+          <h1 className="font-ray text-xl font-extrabold xl:text-2xl">
             {blog.title}
           </h1>
-          <p className="font-ray line-clamp-3 text-[14px] font-medium">
+          <p className="font-ray text-sm font-medium mt-1.5">
             {blog.description}
             <span className="text-color-body-on-light mr-1.5 inline-flex cursor-pointer items-center">
               ادامه مطلب
@@ -44,10 +44,10 @@ const Blog = ({ blog }: Props) => {
         </div>
 
         {/* footer */}
-        <div className="mt-4 flex flex-col-reverse gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="mt-4 flex flex-col-reverse gap-4 xl:flex-row xl:items-center xl:justify-between">
           <a
             href="#"
-            className="text-color-title-on-dark font-ray flex h-12 w-full items-center justify-center rounded-3xl bg-black px-7 lg:w-[165px]"
+            className="text-color-title-on-dark font-ray flex h-12 w-full items-center justify-center rounded-3xl bg-black px-7 xl:w-[165px]"
           >
             مطالعه بیشتر
           </a>

@@ -15,7 +15,7 @@ const ShopHeroSection = () => {
         </p>
 
         <div className="mt-5 mb-6 flex gap-4">
-          <button className="flex h-[54px] w-[210px] cursor-pointer items-center justify-between rounded-full bg-black px-3 text-white">
+          <button className="flex h-[54px] w-[210px] cursor-pointer items-center justify-between rounded-full bg-black px-2 text-white">
             {/* Button text */}
             <span className="font-aria pr-2.5 text-base font-medium">
               تست هوش مصنوعی

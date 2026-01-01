@@ -3,11 +3,11 @@ import Image from 'next/image'
 
 const HealthTestSection = () => {
   return (
-    <div>
-      <div className="flex flex-col items-center justify-center gap-9 xl:flex-row container">
+    <div className='container'>
+      <div className="flex flex-col items-center py-12 justify-center gap-9 xl:flex-row">
         {/* RIGHT — Title + Paragraph */}
         <div className="flex h-[745px] max-w-xl flex-col items-center justify-between">
-          <h1 className="font-aria text-color-title-on-light py-4 text-6xl font-bold">
+          <h1 className="font-aria text-color-title-on-light py-4 text-5xl xl:text-6xl font-bold">
             سرمایه‌گذاری روی بدن، سرمایه‌گذاری روی آینده
           </h1>
 

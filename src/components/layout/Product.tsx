@@ -62,7 +62,7 @@ const Product = ({ product }: Props) => {
           <h1 className="font-ray text-lg font-extrabold sm:text-xl">
             {product.title}
           </h1>
-          <p className="font-ray mt-0.5 text-xs font-medium sm:max-w-[200px] sm:text-sm">
+          <p className="font-ray mt-0.5 text-xs font-medium sm:max-w-[300px] sm:text-sm">
             {product.solution}
           </p>
         </div>

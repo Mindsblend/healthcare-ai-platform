@@ -47,12 +47,12 @@ const reviews: Review[] = [
 
 const ReviewSection = () => {
   return (
-    <section className="flex w-full flex-col items-center justify-center px-6 py-20">
+    <section className="flex w-full container flex-col items-center justify-center py-12">
       {/* Title */}
-      <h2 className="font-aria text-color-title-on-light mb-4 max-w-xl text-center text-[40px] leading-12 font-extrabold">
+      <h2 className="font-aria text-color-title-on-light mb-4 max-w-2xl text-center text-5xl font-extrabold">
         صدای کسانی که سلامتی و زندگی خود را متحول کردند
       </h2>
-      <p className="font-ray text-color-body-on-light mb-16 max-w-xl text-center text-[22px] leading-6">
+      <p className="font-ray text-color-body-on-light mb-16 max-w-xl text-center text-xl">
         هر تجربه‌ای، داستانی از تغییر و انتخاب درست است. کاربران ما با محصولات و
         راهنمایی‌های شخصی، نه تنها سلامتی خود را بهبود داده‌اند، بلکه سبک زندگی
         و کیفیت روزمره خود را نیز متحول کرده‌اند.
@@ -74,10 +74,10 @@ const ReviewSection = () => {
             {/* Text */}
             <div className="flex flex-col">
               <div className="flex w-full items-center justify-between">
-                <h3 className="font-aria text-xl font-semibold text-color-title-on-light">
+                <h3 className="font-aria text-base xl:text-xl font-semibold text-color-title-on-light">
                   {review.name}
                 </h3>
-                <span className='pl-6'>
+                <span className='xl:pl-6'>
                   <Image
                     src="/images/quote.svg"
                     alt="icon"
@@ -86,7 +86,7 @@ const ReviewSection = () => {
                   />
                 </span>
               </div>
-              <p className="font-ray text-color-body-on-light mt-1 text-sm">
+              <p className="font-ray text-color-body-on-light mt-1 text-xs xl:text-sm">
                 {review.content}
               </p>
             </div>
@@ -107,7 +107,7 @@ const ReviewSection = () => {
 
             <div className="flex flex-col">
               <div className="flex w-full items-center justify-between">
-                <h3 className="font-aria text-xl font-semibold text-color-title-on-light">
+                <h3 className="font-aria text-base xl:text-xl font-semibold text-color-title-on-light">
                   {review.name}
                 </h3>
                 <span className='pl-6'>
@@ -119,7 +119,7 @@ const ReviewSection = () => {
                   />
                 </span>
               </div>
-              <p className="font-ray text-color-body-on-light mt-1 text-sm">
+              <p className="font-ray text-color-body-on-light mt-1 text-xs xl:text-sm">
                 {review.content}
               </p>
             </div>

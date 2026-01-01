@@ -39,10 +39,10 @@ const FeaturesSection = () => {
   ]
 
   return (
-    <div className="flex w-full gap-16 px-20 py-32">
+    <div className="flex w-full justify-between gap-16 py-12 container">
       {/* Right side (sticky title + paragraph) */}
       <div className="sticky top-24 h-fit w-1/2">
-        <h2 className="font-aria text-color-title-on-light mb-4 text-[40px] leading-tight font-extrabold">
+        <h2 className="font-aria text-color-title-on-light mb-4 text-4xl xl:text-5xl font-extrabold">
           با هر محصول، یک قدم به زندگی دلخواهت نزدیک‌تر شو
         </h2>
         <p className="font-ray text-color-body-on-light max-w-[508px] text-lg">
@@ -53,21 +53,21 @@ const FeaturesSection = () => {
       </div>
 
       {/* Left side (scrolling items) */}
-      <div className="flex w-1/2 flex-col gap-10">
+      <div className="flex flex-col gap-10">
         {items.map((item, i) => (
           <div
             key={i}
             className="flex items-start gap-4 pb-6"
           >
             {/* Icon */}
-            <img src={item.icon} alt="" className="h-15 w-15 object-contain" />
+            <img src={item.icon} alt="items icons" className="h-15 w-15 object-contain" />
 
             {/* Text */}
             <div>
-              <h3 className="font-aria mb-1 text-[30px] font-extrabold">
+              <h3 className="font-aria mb-1 text-3xl font-extrabold">
                 {item.title}
               </h3>
-              <p className="font-ray max-w-[368px] text-[18px] text-gray-600">
+              <p className="font-ray max-w-[368px] text-lg text-gray-600">
                 {item.description}
               </p>
             </div>

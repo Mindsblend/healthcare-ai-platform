@@ -12,7 +12,7 @@ const HealthInvestmentSection = () => {
 
       <div className="container-narrow mb-16 grid grid-cols-1 gap-y-6 lg:grid-cols-[475px_1fr_1fr] lg:gap-x-8">
         {/* RIGHT COLUMN (tall card) */}
-        <div className="from-accent-purple to-accent-blue flex flex-col justify-center rounded-3xl bg-linear-to-r px-6 py-5">
+        <div className="from-accent-purple to-accent-blue flex flex-col justify-center rounded-3xl bg-linear-to-r px-6 xl:px-6 py-7 xl:py-5">
           {/* Icon Circle */}
           <div className="mb-6 flex">
             <div className="bg-section flex h-[45px] w-[45px] items-center justify-center rounded-full xl:h-[70px] xl:w-[70px]">

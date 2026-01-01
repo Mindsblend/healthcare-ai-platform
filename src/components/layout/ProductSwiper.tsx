@@ -35,9 +35,7 @@ export default function ProductSwiper({
   if (!filteredProducts.length) return null
 
   return (
-    <div
-      className='mt-2.5 flex w-full flex-col'
-    >
+    <div className="mt-2.5 flex w-full flex-col">
       {/* HEADER */}
       <div
         className={`mb-3 flex w-full items-center ${hasCategories ? '' : 'pr-14'}`}
@@ -124,7 +122,7 @@ function NavButtons({
     <div className="flex items-center gap-2.5">
       <div
         ref={prevRef}
-        className="flex h-12 w-12 items-center cursor-pointer justify-center rounded-full bg-black"
+        className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-black"
       >
         <Image
           src="/images/arrow-white.svg"
@@ -137,7 +135,7 @@ function NavButtons({
 
       <div
         ref={nextRef}
-        className="flex h-10 w-10 items-center cursor-pointer justify-center rounded-full bg-[#D9D9D9]"
+        className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-[#D9D9D9]"
       >
         <Image
           src="/images/arrow-white.svg"

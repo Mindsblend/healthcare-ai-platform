@@ -50,6 +50,7 @@ export interface ProductType {
   solution: string
   image: string
   description: string
+  categoryId: number
   icons: iconType[]
   gains: gainType[]
   faqs: faqType[]

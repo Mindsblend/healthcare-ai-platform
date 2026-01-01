@@ -16,11 +16,11 @@ export default function AuthFormSection() {
     <div className="flex min-h-screen flex-col items-center gap-4 px-4 pt-30 text-center">
       <Image src="/images/logo.svg" alt="Logo" width={200} height={40} />
 
-      <h1 className="font-aria mt-8 max-w-[474px] text-color-title-on-light text-[40px] leading-12 font-extrabold">
+      <h1 className="font-aria mt-8 max-w-xl text-color-title-on-light text-5xl font-extrabold">
         سفر سلامتی‌ات از همین‌جا ادامه پیدا می‌کند
       </h1>
 
-      <p className="font-ray max-w-[565px] text-[22px] text-color-body-on-light">
+      <p className="font-ray max-w-xl text-xl text-color-body-on-light">
         وارد حساب شو و کنترل سلامتی‌ات را در دست بگیر <br />
         از تحلیل هوش مصنوعی تا محصولاتی که برای کیفیت بی‌نقص انتخاب شده
       </p>
@@ -32,7 +32,7 @@ export default function AuthFormSection() {
           placeholder="ایمیل یا شماره تلفن"
           value={identifier}
           onChange={(e) => setIdentifier(e.target.value)}
-          className="font-ray h-[60px] w-[458px] rounded-[10px] text-color-title-on-light bg-[#F4F4F4] p-3 text-right text-[22px]"
+          className="font-ray h-[60px] w-[458px] rounded-[10px] text-color-title-on-light bg-[#F4F4F4] p-3 text-right text-xl"
         />
 
         {/* OTP appears directly under identifier */}
@@ -49,7 +49,7 @@ export default function AuthFormSection() {
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
               placeholder="کد تأیید"
-              className="font-ray mt-4 h-[60px] w-[458px] rounded-[10px] text-color-title-on-light bg-[#F4F4F4] p-3 text-center text-[22px] tracking-widest"
+              className="font-ray mt-4 h-[60px] w-[458px] rounded-[10px] text-color-title-on-light bg-[#F4F4F4] p-3 text-center text-xl tracking-widest"
             />
           )}
         </AnimatePresence>
@@ -58,7 +58,7 @@ export default function AuthFormSection() {
         <button
           disabled={loading || (stage === 'sent' && !isOtpComplete)}
           onClick={() => handleOtpButton(identifier, otp)}
-          className={`font-ray mt-4 h-20 w-[458px] rounded-[10px] cursor-pointer text-[20px] font-bold text-white transition-colors hover:bg-gray-800 ${
+          className={`font-ray mt-4 h-20 w-[458px] rounded-[10px] cursor-pointer text-lg font-bold text-white transition-colors hover:bg-gray-800 ${
             stage === 'sent' && !isOtpComplete
               ? 'cursor-not-allowed bg-gray-400'
               : 'bg-black'

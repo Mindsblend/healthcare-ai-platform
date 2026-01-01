@@ -11,8 +11,8 @@ export default async function Navbar() {
         {/* Navigation + Logo */}
         <div className="font-ray flex items-center gap-8 text-[16px] font-medium text-black">
           {/* Logo */}
-          <div className="">
-            <Link href={'/'}>
+          <div>
+            <Link href='/'>
               <Image
                 src="/images/logo.svg"
                 alt="Logo"
@@ -87,7 +87,7 @@ export default async function Navbar() {
             <div className="flex">
               <Link
                 href="/ai"
-                className="bg-page flex h-[43px] min-w-[187px] cursor-pointer items-center justify-between rounded-full px-2 text-white"
+                className="bg-page flex cursor-pointer gap-1 items-center justify-between rounded-full px-4 text-white"
               >
                 {/* Button text */}
                 <span className="font-ray text-color-title-on-light mr-3.5 text-[16px] font-medium whitespace-nowrap">
@@ -97,7 +97,7 @@ export default async function Navbar() {
                 {/* Circle with icon */}
                 <div className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-white">
                   <Image
-                    src="/images/cognition.svg"
+                    src="/images/cognition-black.svg"
                     alt="Arrow"
                     width={24}
                     height={24}

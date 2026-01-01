@@ -15,7 +15,7 @@ const CallToAction = () => {
         </p>
 
         <div className="flex gap-4">
-          <button className="bg-accent-purple flex h-[54px] w-[210px] cursor-pointer items-center justify-between rounded-full px-3 text-white">
+          <button className="bg-accent-purple flex h-[54px] w-[210px] cursor-pointer items-center justify-between rounded-full px-2 text-white">
             {/* Button text */}
             <span className="font-aria text-base font-medium text-black pr-4">
               شروع سفر سلامتی

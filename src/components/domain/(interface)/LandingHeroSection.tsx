@@ -61,18 +61,18 @@ const HeroSection = () => {
 
         <div className="flex gap-10 xl:gap-22">
           <div>
-            <h1 className="font-aria text-color-title-on-light text-[64px] leading-12 font-extrabold">
+            <h1 className="font-aria text-color-title-on-light text-6xl font-extrabold">
               ۵۰۰۰+
             </h1>
-            <p className="font-ray text-medium text-color-title-on-light text-[14px]">
+            <p className="font-ray text-medium text-color-title-on-light text-sm">
               مشتری از سراسر کشور{' '}
             </p>
           </div>
           <div>
-            <h1 className="font-aria text-color-title-on-light text-[64px] leading-12 font-extrabold">
+            <h1 className="font-aria text-color-title-on-light text-6xl font-extrabold">
               ۲۰۰+
             </h1>
-            <p className="font-ray text-medium text-color-title-on-light text-[14px]">
+            <p className="font-ray text-medium text-color-title-on-light text-sm">
               محصول سالم و ارگانیک
             </p>
           </div>

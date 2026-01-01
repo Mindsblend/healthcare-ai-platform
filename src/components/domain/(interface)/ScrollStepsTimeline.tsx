@@ -74,7 +74,7 @@ export default function ScrollStepsTimeline() {
       <div className="sticky top-0 flex h-screen flex-col items-center justify-end overflow-hidden">
         <div className="relative w-full">
           <svg
-            viewBox={`0 0 1000 ${CENTER_Y}`}
+            viewBox={`0 0 1000 530`}
             className="h-full w-full"
             preserveAspectRatio="xMidYMax meet"
           >
@@ -93,7 +93,7 @@ export default function ScrollStepsTimeline() {
               x1={CENTER_X}
               y1={CENTER_Y - ARC_RADIUS + 50} // Starts 50px below the arc path (gap from circle)
               x2={CENTER_X}
-              y2={CENTER_Y - ARC_RADIUS / 2 - 20} // Ends 20px above the text area (gap from text)
+              y2={CENTER_Y - ARC_RADIUS / 2 - 40} // Ends 20px above the text area (gap from text)
               fill="none"
               stroke="white"
               strokeWidth="2"
@@ -144,7 +144,7 @@ export default function ScrollStepsTimeline() {
             {/* Title & description inside the half circle */}
             <foreignObject
               x={CENTER_X - 150}
-              y={CENTER_Y - ARC_RADIUS / 2}
+              y={CENTER_Y - ARC_RADIUS / 2 - 20}
               width={300}
               height={200}
             >
@@ -153,7 +153,7 @@ export default function ScrollStepsTimeline() {
                   key={`title-${currentStep}`}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="font-aria text-[24px] font-bold text-white"
+                  className="font-aria text-2xl font-bold text-white"
                 >
                   {steps[currentStep].title}
                 </motion.h2>
@@ -162,7 +162,7 @@ export default function ScrollStepsTimeline() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
-                  className="font-ray text-color-body-on-dark mt-2 text-[18px] leading-6"
+                  className="font-ray text-color-body-on-dark mt-2 text-base"
                 >
                   {steps[currentStep].description}
                 </motion.p>

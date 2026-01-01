@@ -22,8 +22,8 @@ export default function BlogSwiper() {
   if (error) return <div>خطا در بارگذاری محصولات: {error}</div>
 
   return (
-    <div className="mt-2.5 flex w-full max-w-[1450px] flex-col items-center justify-center px-5">
-      <div className="flex items-center gap-2.5 self-start pr-14 pb-2">
+    <div className="mt-2.5 flex w-full flex-col items-center justify-center">
+      <div className="flex items-center gap-2.5 self-start pr-14 mb-3">
         {/* PREV REF - Circle with icon */}
         <div
           className="flex h-12 w-12 items-center justify-center rounded-full bg-black"
@@ -83,7 +83,7 @@ export default function BlogSwiper() {
       >
         {blogs.map((blog) => (
           <SwiperSlide key={blog.id}>
-            <div className="flex items-center justify-center">
+            <div className="flex items-center mt-4 justify-center">
               <Blog blog={blog} />
             </div>
           </SwiperSlide>

@@ -2,7 +2,7 @@ import BlogSwiper from '@/components/layout/BlogSwiper'
 
 const BlogsSection = () => {
   return (
-    <div className="mt-48 flex w-full flex-col">
+    <div className="container my-12 flex w-full flex-col">
       {/* only this block is centered */}
       <div className="text-color-title-on-light flex flex-col items-center text-center">
         <h1 className="font-aria text-xl font-bold">دانش برای سلامتی</h1>
@@ -13,7 +13,7 @@ const BlogsSection = () => {
       </div>
 
       {/* slider below, full width */}
-      <div className="flex items-center justify-center">
+      <div className="mt-3 flex items-center justify-center">
         <BlogSwiper />
       </div>
     </div>

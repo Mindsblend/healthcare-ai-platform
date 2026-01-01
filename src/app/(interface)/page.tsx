@@ -28,10 +28,10 @@ export default async function Home() {
         <HealthTestSection />
         <ServicesSection />
         <StepsSection />
-        <ReviewSection />
         <ProductsSection />
-        <NewsletterSection />
+        <ReviewSection />
         <BlogsSection />
+        <NewsletterSection />
         <FeaturesSection />
       </div>
     )
