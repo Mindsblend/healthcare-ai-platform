@@ -13,7 +13,7 @@ const Page = () => {
 
   const [isCategoryOpen, setIsCategoryOpen] = useState(true)
   const [isPriceOpen, setIsPriceOpen] = useState(true)
-  const [isFilterOpenMobile, setIsFilterOpenMobile] = useState(false)
+  const [isFilterOpenMobile, setIsFilterOpenMobile] = useState(true)
 
   // Draft state (user selections)
   const [minPrice, setMinPrice] = useState(0)
@@ -94,7 +94,7 @@ const Page = () => {
   if (error) return <div>خطا در بارگذاری محصولات: {error}</div>
 
   return (
-    <section className="mx-4 py-20 sm:mx-10">
+    <section className="container-wide py-20">
       {/* ===== Header ===== */}
       <div className="mb-10 flex flex-col items-center text-center">
         <h1 className="font-aria text-color-title-on-light max-w-[532px] text-[36px] leading-tight font-extrabold sm:text-[54px]">
@@ -118,7 +118,7 @@ const Page = () => {
           <input
             type="text"
             placeholder="جستجو هوشمندانه از میان صدها محصول"
-            className="font-ray h-[65px] w-full rounded-2xl bg-[#f2f2f2] pr-5 pl-[50px] text-[16px] font-bold transition outline-none focus:bg-white focus:ring-2 focus:ring-black"
+            className="font-ray text-color-body-on-light h-[65px] w-full rounded-2xl bg-[#f2f2f2] pr-5 pl-[50px] text-[16px] font-bold transition outline-none focus:bg-white focus:ring-2 focus:ring-black"
             value={searchQuery}
             onChange={(e) => {
               const value = e.target.value
@@ -139,7 +139,13 @@ const Page = () => {
           className="flex items-center gap-2 rounded-lg bg-black px-4 py-2 text-sm font-bold text-white"
         >
           فیلترها
-          <Image src="/images/filter.svg" alt="Filter" width={16} height={16} />
+          <Image
+            src="/images/filter.svg"
+            className="invert"
+            alt="Filter"
+            width={16}
+            height={16}
+          />
         </button>
       </div>
 
@@ -197,7 +203,9 @@ const Page = () => {
                         width={20}
                         height={20}
                       />
-                      <span className="text-sm font-bold">{category.name}</span>
+                      <span className="text-color-title-on-light text-sm font-bold">
+                        {category.name}
+                      </span>
                     </div>
                     <input
                       type="checkbox"
@@ -231,7 +239,7 @@ const Page = () => {
             </div>
 
             {isPriceOpen && (
-              <div className="mt-4 space-y-4 bg-white p-4">
+              <div className="text-color-title-on-light mt-4 space-y-4 bg-white p-4">
                 <PriceRangeSlider
                   min={0}
                   max={1_000_000}
@@ -248,25 +256,25 @@ const Page = () => {
                     type="number"
                     value={maxPrice}
                     onChange={(e) => setMaxPrice(+e.target.value)}
-                    className="w-24 rounded-md bg-[#f2f2f2] px-2 py-1 text-center"
+                    className="font-aria w-24 rounded-md bg-[#f2f2f2] px-2 pt-2 pb-1 text-center font-semibold"
                   />
                   <input
                     type="number"
                     value={minPrice}
                     onChange={(e) => setMinPrice(+e.target.value)}
-                    className="w-24 rounded-md bg-[#f2f2f2] px-2 py-1 text-center"
+                    className="font-aria w-24 rounded-md bg-[#f2f2f2] px-2 pt-2 pb-1 text-center font-semibold"
                   />
                 </div>
 
                 <div className="flex gap-2">
                   <button
-                    className="flex-1 rounded-md bg-black py-2 text-sm font-bold text-white"
+                    className="flex-1 cursor-pointer rounded-md bg-black py-2 text-sm font-bold text-white"
                     onClick={applyFilters}
                   >
                     اعمال فیلتر
                   </button>
                   <button
-                    className="flex-1 rounded-md bg-gray-200 py-2 text-sm font-bold"
+                    className="flex-1 cursor-pointer rounded-md bg-gray-200 py-2 text-sm font-bold"
                     onClick={resetFilters}
                   >
                     حذف
@@ -278,7 +286,7 @@ const Page = () => {
         </aside>
 
         {/* ===== Products Grid ===== */}
-        <div className="grid flex-1 grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+        <div className="grid flex-1 grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
           {filteredProducts.map((product) => (
             <Product key={product.id} product={product} />
           ))}

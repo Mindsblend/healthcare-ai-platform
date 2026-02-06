@@ -16,7 +16,7 @@ const Product = ({ product }: Props) => {
   }
 
   return (
-    <div className="bg-page flex min-h-[468px] w-full max-w-[415px] flex-col rounded-3xl border border-black/25 px-2 py-3 xl:min-h-[550px]">
+    <div className="bg-page flex w-full flex-col rounded-3xl border border-black/25 px-2 py-3">
       {/* Image Section */}
       <div
         className="relative aspect-square w-full rounded-3xl bg-cover bg-center bg-no-repeat"
@@ -36,7 +36,7 @@ const Product = ({ product }: Props) => {
           <button
             onClick={handleAddToCart}
             disabled={cartLoading}
-            className="text-color-title-on-light font-ray flex h-10 w-full cursor-pointer items-center justify-center gap-3 rounded-full bg-[#F2F2F2] pr-4 pl-1 text-sm font-medium whitespace-nowrap sm:w-auto xl:h-12 xl:pr-5 xl:pl-2 xl:text-base"
+            className="text-color-title-on-light font-ray flex h-10 w-full cursor-pointer items-center justify-center gap-3 rounded-full bg-[#F2F2F2] pr-4 pl-1 text-sm font-medium whitespace-nowrap sm:w-auto 2xl:h-12 2xl:pr-5 2xl:pl-2 2xl:text-base"
           >
             افزودن به سبد خرید
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white xl:h-10 xl:w-10">
@@ -49,7 +49,7 @@ const Product = ({ product }: Props) => {
             </div>
           </button>
 
-          <div className="text-color-title-on-dark font-ray flex h-10 w-full items-center justify-center rounded-3xl bg-black px-5 text-sm font-extrabold sm:w-auto xl:h-12 xl:px-7 xl:text-base">
+          <div className="text-color-title-on-dark font-ray flex h-10 w-full items-center justify-center rounded-3xl bg-black px-5 text-sm font-extrabold sm:w-auto 2xl:h-12 2xl:px-7 2xl:text-base">
             {product.price.toLocaleString('fa-IR')}
             <span className="pr-1">تومان</span>
           </div>
@@ -57,7 +57,7 @@ const Product = ({ product }: Props) => {
       </div>
 
       {/* Info Section */}
-      <div className="mt-2.5 flex grow flex-col gap-3 rounded-3xl bg-[#F2F2F2] px-6 py-4 lg:justify-between xl:flex-row xl:items-center">
+      <div className="mt-2.5 flex grow flex-col gap-3 rounded-3xl bg-[#F2F2F2] px-6 py-4 lg:justify-between">
         <div className="text-color-title-on-light">
           <h1 className="font-ray text-lg font-extrabold sm:text-xl">
             {product.title}
