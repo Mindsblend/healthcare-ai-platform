@@ -16,6 +16,7 @@ import StepsSection from '@/components/domain/(interface)/StepsSection'
 import ShopHeroSection from '@/components/domain/shop/ShopHeroSection'
 import ProductCategorySection from '@/components/domain/shop/ProductCategorySection'
 import ShopProductsSection from '@/components/domain/shop/ShopProductsSection'
+import ShopBundle from '@/components/domain/shop/ShopBundle'
 
 export default async function Home() {
   const user = await getSession()
@@ -44,6 +45,7 @@ export default async function Home() {
           title="پرفروش ترین محصولات"
           description="برترین و پر فروش ترین محصولات این هفته"
         />
+        <ShopBundle />
         <ShopProductsSection
           title="محصولات پیشنهادی برای شما"
           description="محصولاتی که با توجه به نیازها و سبک زندگی شما، بیشترین تاثیر را دارند"

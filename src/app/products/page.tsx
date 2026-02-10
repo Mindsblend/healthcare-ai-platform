@@ -132,23 +132,6 @@ const Page = () => {
         </div>
       </div>
 
-      {/* ===== Mobile Filter Button ===== */}
-      <div className="mb-6 flex justify-end lg:hidden">
-        <button
-          onClick={() => setIsFilterOpenMobile((prev) => !prev)}
-          className="flex items-center gap-2 rounded-lg bg-black px-4 py-2 text-sm font-bold text-white"
-        >
-          فیلترها
-          <Image
-            src="/images/filter.svg"
-            className="invert"
-            alt="Filter"
-            width={16}
-            height={16}
-          />
-        </button>
-      </div>
-
       {/* ===== Main Layout ===== */}
       <div className="flex flex-col gap-8 lg:flex-row lg:gap-10">
         {/* ===== Sidebar ===== */}

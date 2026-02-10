@@ -36,7 +36,7 @@ const page = () => {
       <h1 className="font-aria text-color-title-on-light text-4xl font-extrabold">
         سبد خرید شما
       </h1>
-      <div className="mt-10 flex items-center justify-between gap-10">
+      <div className="mt-10 flex flex-col lg:flex-row items-center justify-between gap-10">
         <div className="flex h-[452px] w-full max-w-7xl flex-col rounded-3xl border-2 border-[#d9d9d9]">
           {/* HEADER (fixed height) */}
           <div className="font-aria grid shrink-0 grid-cols-[2fr_1fr_1fr_40px] border-b-2 px-8 py-5 text-xl font-bold">
@@ -84,7 +84,7 @@ const page = () => {
           </div>
         </div>
 
-        <div className="flex h-[452px] w-full max-w-[370px] flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-9">
+        <div className="flex h-[452px] w-full lg:max-w-[370px] flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-9">
           <h1 className="font-aria text-color-title-on-light mt-9 text-center text-2xl font-extrabold">
             خلاصه سفارشات
           </h1>
