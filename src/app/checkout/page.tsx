@@ -185,8 +185,8 @@ const page = () => {
               </div>
             </div>
             <div className="pb-6">
-              <button className="text-color-title-on-dark font-ray h-[54px] w-full rounded-4xl bg-black font-medium">
-                تکمیل سفارش
+              <button className="text-color-title-on-dark font-ray h-[54px] w-full cursor-pointer rounded-4xl bg-black font-medium">
+                 ثبت سفارش و پرداخت 
               </button>
             </div>
           </div>

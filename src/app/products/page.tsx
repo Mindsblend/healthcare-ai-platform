@@ -15,39 +15,32 @@ const Page = () => {
   const [isPriceOpen, setIsPriceOpen] = useState(true)
   const [isFilterOpenMobile, setIsFilterOpenMobile] = useState(true)
 
-  // Draft state (user selections)
   const [minPrice, setMinPrice] = useState(0)
   const [maxPrice, setMaxPrice] = useState(1_000_000)
   const [activeCategoryIds, setActiveCategoryIds] = useState<Set<number>>(
     () => new Set(),
   )
 
-  // Applied state (used for filtering)
   const [appliedMinPrice, setAppliedMinPrice] = useState(0)
   const [appliedMaxPrice, setAppliedMaxPrice] = useState(1_000_000)
   const [appliedCategoryIds, setAppliedCategoryIds] = useState<Set<number>>(
     () => new Set(),
   )
 
-  // Applied search query (used for filtering)
   const [searchQuery, setSearchQuery] = useState('')
   const [appliedSearchQuery, setAppliedSearchQuery] = useState('')
 
-  // Filtered products based on applied filters
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
-      // Category filter
       if (
         appliedCategoryIds.size > 0 &&
         !appliedCategoryIds.has(product.categoryId)
       )
         return false
 
-      // Price filter
       if (product.price < appliedMinPrice || product.price > appliedMaxPrice)
         return false
 
-      // Search filter
       if (
         appliedSearchQuery &&
         !product.title?.toLowerCase().includes(appliedSearchQuery.toLowerCase())
@@ -64,7 +57,6 @@ const Page = () => {
     appliedSearchQuery,
   ])
 
-  // Toggle category in draft state
   const toggleCategory = (categoryId: number) => {
     setActiveCategoryIds((prev) => {
       const next = new Set(prev)
@@ -73,14 +65,12 @@ const Page = () => {
     })
   }
 
-  // Apply filters
   const applyFilters = () => {
     setAppliedMinPrice(minPrice)
     setAppliedMaxPrice(maxPrice)
     setAppliedCategoryIds(new Set(activeCategoryIds))
   }
 
-  // Reset filters
   const resetFilters = () => {
     setMinPrice(0)
     setMaxPrice(1_000_000)
@@ -102,7 +92,7 @@ const Page = () => {
         </h1>
 
         {/* Search */}
-        <div className="relative mt-8 w-full max-w-[469px] px-4 sm:px-0">
+        <div className="relative mx-auto mt-8 w-full max-w-[469px] px-4 sm:px-0">
           <div
             onClick={() => setAppliedSearchQuery(searchQuery)}
             className="absolute top-1/2 left-4 flex h-[46px] w-[46px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white shadow-sm"
@@ -136,7 +126,7 @@ const Page = () => {
       <div className="flex flex-col gap-8 lg:flex-row lg:gap-10">
         {/* ===== Sidebar ===== */}
         <aside
-          className={`w-full shrink-0 lg:w-72 ${isFilterOpenMobile ? 'block' : 'hidden'} lg:block`}
+          className={`w-full shrink-0 transition-all duration-300 ease-in-out lg:w-72 ${isFilterOpenMobile ? 'max-h-screen opacity-100' : 'max-h-0 overflow-hidden opacity-0'} lg:block lg:max-h-full lg:opacity-100`}
         >
           {/* Title */}
           <div className="mb-6 flex items-center">
@@ -234,7 +224,7 @@ const Page = () => {
                   }}
                 />
 
-                <div className="flex justify-between">
+                <div className="flex flex-col justify-between gap-2 sm:flex-row">
                   <input
                     type="number"
                     value={maxPrice}
@@ -249,7 +239,7 @@ const Page = () => {
                   />
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row">
                   <button
                     className="flex-1 cursor-pointer rounded-md bg-black py-2 text-sm font-bold text-white"
                     onClick={applyFilters}
@@ -269,12 +259,11 @@ const Page = () => {
         </aside>
 
         {/* ===== Products Grid ===== */}
-        <div className="grid flex-1 grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+        <div className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4 sm:gap-6 lg:gap-8">
           {filteredProducts.map((product) => (
             <Product key={product.id} product={product} />
           ))}
         </div>
-      </div>
     </section>
   )
 }
