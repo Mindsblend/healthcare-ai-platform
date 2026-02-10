@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import Image from 'next/image'
 import { useCategories } from '@/features/shop/hooks/categories/useCategories'
 import { useProducts } from '@/features/shop/hooks/products/useProducts'
+import BundleSwiper from '@/components/layout/BundleSwiper'
 
 const ShopBundle = () => {
   const { products, loading, error } = useProducts()
@@ -21,7 +22,7 @@ const ShopBundle = () => {
   if (!filteredProducts.length) return null
 
   return (
-    <div className="container mt-20 lg:mt-28">
+    <div className="relative container mt-20 lg:mt-28 pb-52">
       <div className="bg-section relative h-[420px] w-full rounded-3xl px-6 py-12 md:h-[570px] md:px-24">
         <Image
           src="/images/discount.svg"
@@ -40,7 +41,7 @@ const ShopBundle = () => {
         <h1 className="text-color-title-on-dark font-aria text-center text-3xl font-extrabold">
           تخفیفات ویژه
         </h1>
-        <div className="absolute top-[60%] left-1/2 z-50 w-[92%] max-w-[1160px] -translate-x-1/2 rounded-xl bg-white px-5 py-6 outline-10 outline-[#C9C9C94D] sm:w-[90%] sm:px-8 sm:py-9 md:top-32 md:w-full">
+        <div className="absolute top-[60%] left-1/2 z-50 w-[92%] max-w-[1200px] -translate-x-1/2 rounded-3xl bg-white px-5 py-4 outline-10 outline-[#C9C9C94D] sm:w-[95%] sm:px-8 sm:pt-8 sm:pb-4 md:top-32 md:w-full">
           <div className="flex flex-col items-center justify-center px-5">
             <div className="flex flex-wrap space-x-[69px]">
               <h1 className="font-aria text-color-title-on-light text-xl font-bold">
@@ -60,45 +61,15 @@ const ShopBundle = () => {
                       : 'text-color-body-on-light'
                   } `}
                 >
-                  <span className="font-ray text-xl">{category.name}</span>
+                  <span className="font-ray cursor-pointer text-xl">
+                    {category.name}
+                  </span>
                 </div>
               ))}
             </div>
             <hr className="my-7 w-full border border-[#E9E9E8]" />
           </div>
-          <div className="w-full rounded-3xl p-5">
-            <div className="flex items-center justify-center gap-5">
-              <Image
-                src="/images/product-five.svg"
-                width={335}
-                height={347}
-                alt="product image"
-              />
-              <Image
-                src="/images/product-five.svg"
-                width={335}
-                height={347}
-                alt="product image"
-              />
-              <Image
-                src="/images/product-five.svg"
-                width={335}
-                height={347}
-                alt="product image"
-              />
-            </div>
-            <div>
-              <div>
-                <h1 className='text-2xl font-aria font-bold text-color-title-on-light'>کیت روتین ضروری</h1>
-                <p className='font-ray font-medium text-sm text-color-title-on-light mt-2'>
-                  اگر همیشه نمی‌دانید از کجا باید شروع کنید، این کیت ساده‌ترین
-                  مسیر را جلوی پای شما می‌گذارد. ترکیب ضروری‌ترین محصولات روزانه
-                  که هم انتخاب را آسان می‌کند و هم روتین را قابل‌دوام نگه
-                  می‌دارد.
-                </p>
-              </div>
-            </div>
-          </div>
+          <BundleSwiper />
         </div>
       </div>
     </div>

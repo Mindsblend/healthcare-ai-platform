@@ -70,6 +70,19 @@ body {
   color: var(--foreground);
 }
 
+#custom-pagination .swiper-pagination-bullet {
+  background-color: #CBCBCB;
+  width: 10px;
+  transition: 0.3s ease;
+  height: 10px;
+  border-radius: 9999px;
+}
+
+#custom-pagination .swiper-pagination-bullet-active {
+  background-color: #000;
+  width: 20px;
+}
+
 @layer components {
   .container {
     @apply mx-auto max-w-[1440px] px-4 md:px-6 2xl:px-[45px];
