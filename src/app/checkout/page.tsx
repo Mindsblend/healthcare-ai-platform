@@ -1,10 +1,12 @@
 'use client'
 
 import { useCart } from '@/features/shop/hooks/cart/useCart'
-import CartItem from '@/components/domain/cart/CartItem'
+import Image from 'next/image'
+import { useState } from 'react'
 
 const page = () => {
   const { cartItems, loading: cartLoading } = useCart()
+  const [activeBtn, setActiveBtn] = useState<'mellat' | 'zarinpal'>('zarinpal')
 
   const subtotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -22,18 +24,13 @@ const page = () => {
   }
 
   return (
-    <section className="mx-10 py-16">
-      {/* ===== Title ===== */}
-      <h1 className="font-aria text-color-title-on-light mb-10 text-right text-[40px] font-extrabold">
-        تکمیل سفارش
-      </h1>
-
+    <section className="container mt-10">
       {/* ===== Main Layout ===== */}
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 xl:grid-cols-3">
         {/* ===== RIGHT: Checkout Form ===== */}
-        <div className="lg:col-span-2">
+        <div className="col-span-1 xl:col-span-2">
           <div className="rounded-2xl border-2 border-[#d9d9d9] bg-white p-8">
-            <h2 className="font-aria mb-6 text-right text-[24px] font-bold">
+            <h2 className="font-aria text-color-title-on-light mb-6 text-right text-[24px] font-bold">
               اطلاعات خرید
             </h2>
 
@@ -77,6 +74,7 @@ const page = () => {
               <input
                 type="tel"
                 placeholder="شماره تماس"
+                dir="rtl"
                 className="font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black"
               />
 
@@ -100,13 +98,56 @@ const page = () => {
                 className="font-aria text-color-body-on-light col-span-1 w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black md:col-span-2"
               />
             </form>
+            <div className="mt-5 flex-wrap flex items-center justify-between rounded-2xl border-2 border-[#d9d9d9] bg-white px-6 py-3.5">
+              <div>
+                <h1 className="font-aria text-color-title-on-light text-base font-extrabold">
+                  انتخاب درگاه پرداخت
+                </h1>
+                <p className="font-aria text-color-body-on-dark my-1.5 max-w-xs text-sm font-semibold">
+                  شما با انتخاب درگاه پرداخت خود میتوانید خریدی اسوده و مطمعن
+                  داشته باشید.
+                </p>
+              </div>
+              <div className="flex items-center gap-3.5">
+                <div
+                  onClick={() => setActiveBtn('zarinpal')}
+                  className={`flex h-[78px] cursor-pointer items-center justify-center rounded-2xl p-3 ${
+                    activeBtn === 'zarinpal'
+                      ? 'border-2 border-[#d9d9d9] bg-white'
+                      : ''
+                  }`}
+                >
+                  <Image
+                    src="/images/zarinpal.svg"
+                    alt="zarinpal"
+                    width={38}
+                    height={50}
+                  />
+                </div>
+                <div
+                  onClick={() => setActiveBtn('mellat')}
+                  className={`flex h-[78px] cursor-pointer items-center justify-center rounded-2xl px-1 py-[9px] ${
+                    activeBtn === 'mellat'
+                      ? 'border-2 border-[#d9d9d9] bg-white'
+                      : ''
+                  }`}
+                >
+                  <Image
+                    src="/images/bank-mellat.svg"
+                    alt="bank mellat"
+                    width={56}
+                    height={56}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* ===== LEFT: Order Summary ===== */}
         <div className="space-y-6">
           {/* Cart Details */}
-          <div className="flex h-[370px] w-[407px] flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-9">
+          <div className="flex h-[370px] flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-7">
             <h1 className="font-aria text-color-title-on-light mt-9 text-center text-2xl font-extrabold">
               لیست سفارشات
             </h1>
@@ -127,10 +168,10 @@ const page = () => {
 
                   {/* CENTER: Title + Solution */}
                   <div className="flex-1 px-4">
-                    <h3 className="font-aria text-color-title-on-light text-[20px] font-extrabold">
+                    <h3 className="font-aria text-color-title-on-light text-lg font-extrabold">
                       {item.product.title}
                     </h3>
-                    <p className="font-ray text-color-body-on-light mt-1 text-[12px] font-medium">
+                    <p className="font-ray text-color-body-on-light mt-1 text-xs font-medium">
                       {item.product.solution}
                     </p>
                   </div>
@@ -145,7 +186,7 @@ const page = () => {
           </div>
 
           {/* Items */}
-          <div className="flex h-[452px] w-[407px] flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-9">
+          <div className="flex h-[452px] flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-9">
             <h1 className="font-aria text-color-title-on-light mt-9 text-center text-2xl font-extrabold">
               خلاصه سفارشات
             </h1>
@@ -186,7 +227,7 @@ const page = () => {
             </div>
             <div className="pb-6">
               <button className="text-color-title-on-dark font-ray h-[54px] w-full cursor-pointer rounded-4xl bg-black font-medium">
-                 ثبت سفارش و پرداخت 
+                ثبت سفارش و پرداخت
               </button>
             </div>
           </div>
