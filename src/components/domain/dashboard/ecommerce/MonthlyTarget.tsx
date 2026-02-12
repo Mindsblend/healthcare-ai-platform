@@ -79,20 +79,15 @@ export default function MonthlyTarget() {
         <div className="flex justify-between">
           <div>
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-              Monthly Target
+              فروش ماهانه
             </h3>
             <p className="text-theme-sm mt-1 font-normal text-gray-500 dark:text-gray-400">
-              Target you’ve set for each month
+              هدفی که برای هر ماه تعیین کرده‌اید
             </p>
           </div>
           <div className="relative inline-block">
             <button onClick={toggleDropdown} className="dropdown-toggle">
-              <Image
-              src={MoreDotIcon}
-              alt="More"
-              width={20}
-              height={20}
-            />
+              <Image src={MoreDotIcon} alt="More" width={20} height={20} />
             </button>
             <Dropdown
               isOpen={isOpen}
@@ -131,15 +126,15 @@ export default function MonthlyTarget() {
           </span>
         </div>
         <p className="mx-auto mt-10 w-full max-w-[380px] text-center text-sm text-gray-500 sm:text-base">
-          You earn $3287 today, it&apos;s higher than last month. Keep up your
-          good work!
+          شما امروز ۳۲۸۷ دلار درآمد دارید که از ماه گذشته بیشتر است. به کار
+          خوبتان ادامه دهید!
         </p>
       </div>
 
       <div className="flex items-center justify-center gap-5 px-6 py-3.5 sm:gap-8 sm:py-5">
         <div>
           <p className="text-theme-xs mb-1 text-center text-gray-500 sm:text-sm dark:text-gray-400">
-            Target
+            هدف
           </p>
           <p className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 sm:text-lg dark:text-white/90">
             $20K
@@ -164,7 +159,7 @@ export default function MonthlyTarget() {
 
         <div>
           <p className="text-theme-xs mb-1 text-center text-gray-500 sm:text-sm dark:text-gray-400">
-            Revenue
+            درآمد
           </p>
           <p className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 sm:text-lg dark:text-white/90">
             $20K
@@ -189,7 +184,7 @@ export default function MonthlyTarget() {
 
         <div>
           <p className="text-theme-xs mb-1 text-center text-gray-500 sm:text-sm dark:text-gray-400">
-            Today
+            امروز
           </p>
           <p className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 sm:text-lg dark:text-white/90">
             $20K

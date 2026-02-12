@@ -1,157 +1,207 @@
-'use client';
+'use client'
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { usePathname } from 'next/navigation';
-import { useSidebar } from '../context/SidebarContext';
-import SidebarWidget from './SidebarWidget';
+import { useRef, useState, useCallback, useEffect } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
+import { usePathname } from 'next/navigation'
+import { useSidebar } from '../context/SidebarContext'
 
 type NavItem = {
-  name: string;
-  icon: string; // now we store path string
-  path?: string;
-  subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
-};
+  name: string
+  icon: string
+  path?: string
+  subItems?: { name: string; path: string }[]
+}
 
-// Update your navItems with image paths instead of JSX
 const navItems: NavItem[] = [
-  { icon: '/images/grid.svg', name: 'Dashboard', subItems: [{ name: 'Ecommerce', path: '/' }] },
-  { icon: '/images/calendar.svg', name: 'Calendar', path: '/calendar' },
-  { icon: '/images/user-circle.svg', name: 'User Profile', path: '/profile' },
-  { icon: '/images/list.svg', name: 'Forms', subItems: [{ name: 'Form Elements', path: '/form-elements' }] },
-  { icon: '/images/table.svg', name: 'Tables', subItems: [{ name: 'Basic Tables', path: '/basic-tables' }] },
-  { icon: '/images/page.svg', name: 'Pages', subItems: [
-      { name: 'Blank Page', path: '/blank' },
-      { name: '404 Error', path: '/error-404' },
-    ]},
-];
-
-const othersItems: NavItem[] = [
-  { icon: '/images/pie-chart.svg', name: 'Charts', subItems: [
-      { name: 'Line Chart', path: '/line-chart' },
-      { name: 'Bar Chart', path: '/bar-chart' },
-    ]},
-  { icon: '/images/box-cube.svg', name: 'UI Elements', subItems: [
-      { name: 'Alerts', path: '/alerts' },
-      { name: 'Avatar', path: '/avatars' },
-      { name: 'Badge', path: '/badge' },
-      { name: 'Buttons', path: '/buttons' },
-      { name: 'Images', path: '/images' },
-      { name: 'Videos', path: '/videos' },
-    ]},
-  { icon: '/images/plug-in.svg', name: 'Authentication', subItems: [
-      { name: 'Sign In', path: '/signin' },
-      { name: 'Sign Up', path: '/signup' },
-    ]},
-];
+  {
+    icon: '/images/grid.svg',
+    name: 'Dashboard',
+    subItems: [{ name: 'Ecommerce', path: '/' }],
+  },
+  { icon: '/images/products.svg', name: 'محصولات', path: '/products' },
+  { icon: '/images/blogs.svg', name: 'بلاگ ها', path: '/blogs' },
+]
 
 const AppSidebar: React.FC = () => {
-  const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
-  const pathname = usePathname();
+  const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar()
+  const pathname = usePathname()
 
-  const [openSubmenu, setOpenSubmenu] = useState<{ type: 'main' | 'others'; index: number } | null>(null);
-  const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>({});
-  const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [openIndex, setOpenIndex] = useState<number | null>(null)
+  const [subMenuHeight, setSubMenuHeight] = useState<Record<number, number>>({})
 
-  const isActive = useCallback((path: string) => path === pathname, [pathname]);
+  const subMenuRefs = useRef<Record<number, HTMLDivElement | null>>({})
 
-  const handleSubmenuToggle = (index: number, menuType: 'main' | 'others') => {
-    setOpenSubmenu(prev => (prev?.type === menuType && prev?.index === index ? null : { type: menuType, index }));
-  };
+  const isActive = useCallback((path: string) => path === pathname, [pathname])
 
-  const renderMenuItems = (items: NavItem[], menuType: 'main' | 'others') => (
-    <ul className="flex flex-col gap-4">
-      {items.map((nav, index) => (
-        <li key={nav.name}>
-          {nav.subItems ? (
-            <button
-              onClick={() => handleSubmenuToggle(index, menuType)}
-              className={`menu-item group ${openSubmenu?.type === menuType && openSubmenu?.index === index ? 'menu-item-active' : 'menu-item-inactive'} cursor-pointer ${
-                !isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start'
-              }`}
-            >
-              <span className={`${openSubmenu?.type === menuType && openSubmenu?.index === index ? 'menu-item-icon-active' : 'menu-item-icon-inactive'}`}>
-                <Image src={nav.icon} alt={nav.name} width={20} height={20} />
-              </span>
-              {(isExpanded || isHovered || isMobileOpen) && <span className="menu-item-text">{nav.name}</span>}
-            </button>
-          ) : (
-            nav.path && (
-              <Link href={nav.path} className={`menu-item group ${isActive(nav.path) ? 'menu-item-active' : 'menu-item-inactive'}`}>
-                <span className={`${isActive(nav.path) ? 'menu-item-icon-active' : 'menu-item-icon-inactive'}`}>
-                  <Image src={nav.icon} alt={nav.name} width={20} height={20} />
-                </span>
-                {(isExpanded || isHovered || isMobileOpen) && <span className="menu-item-text">{nav.name}</span>}
-              </Link>
-            )
-          )}
-          {nav.subItems && (isExpanded || isHovered || isMobileOpen) && (
-            <div
-              ref={el => { subMenuRefs.current[`${menuType}-${index}`] = el; }}
-              className="overflow-hidden transition-all duration-300"
-              style={{ height: openSubmenu?.type === menuType && openSubmenu?.index === index ? `${subMenuHeight[`${menuType}-${index}`]}px` : '0px' }}
-            >
-              <ul className="mt-2 space-y-1 ml-9">
-                {nav.subItems.map(sub => (
-                  <li key={sub.name}>
-                    <Link href={sub.path} className={`menu-dropdown-item ${isActive(sub.path) ? 'menu-dropdown-item-active' : 'menu-dropdown-item-inactive'}`}>
-                      {sub.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </li>
-      ))}
-    </ul>
-  );
+  const handleToggle = (index: number) => {
+    setOpenIndex((prev) => (prev === index ? null : index))
+  }
 
-  const mainContentMargin = isMobileOpen
-    ? 'ml-0'
-    : isExpanded || isHovered
-      ? 'lg:ml-[290px]'
-      : 'lg:ml-[90px]';
+  /* =====================================
+     Dynamic Height Calculation
+  ===================================== */
+  useEffect(() => {
+    if (openIndex !== null) {
+      const el = subMenuRefs.current[openIndex]
+      if (el) {
+        setSubMenuHeight((prev) => ({
+          ...prev,
+          [openIndex]: el.scrollHeight,
+        }))
+      }
+    }
+  }, [openIndex])
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
-        ${isExpanded || isMobileOpen ? 'w-[290px]' : isHovered ? 'w-[290px]' : 'w-[90px]'}
-        ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
+      className={`fixed top-0 right-0 z-50 mt-16 flex h-screen flex-col border-r border-gray-200 bg-white px-5 transition-all duration-300 ease-in-out lg:mt-0 dark:border-gray-800 dark:bg-gray-900 ${
+        isExpanded || isHovered || isMobileOpen ? 'w-[290px]' : 'w-[90px]'
+      } ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className={`py-8 flex ${!isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start'}`}>
+      {/* Logo */}
+      <div
+        className={`flex py-8 ${
+          !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start'
+        }`}
+      >
         <Link href="/">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
-              <Image className="dark:hidden" src="/images/logo/logo.svg" alt="Logo" width={150} height={40} />
-              <Image className="hidden dark:block" src="/images/logo/logo-dark.svg" alt="Logo" width={150} height={40} />
+              <Image
+                className=""
+                src="/images/logo.svg"
+                alt="Logo"
+                width={150}
+                height={40}
+              />
+              <Image
+                className="hidden dark:block"
+                src="/images/logo.svg"
+                alt="Logo"
+                width={150}
+                height={40}
+              />
             </>
           ) : (
-            <Image src="/images/logo/logo-icon.svg" alt="Logo" width={32} height={32} />
+            <Image src="/images/logo.svg" alt="Logo" width={32} height={32} />
           )}
         </Link>
       </div>
 
-      <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
+      {/* Menu */}
+      <div className="no-scrollbar flex flex-col overflow-y-auto">
         <nav className="mb-6">
-          <h2 className={`mb-4 text-xs uppercase text-gray-400 ${!isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start'}`}>
-            {isExpanded || isHovered || isMobileOpen ? 'Menu' : <Image src="/images/horizontal-dots.svg" alt="More" width={16} height={16} />}
+          <h2 className="mb-4 text-xs text-gray-400 uppercase">
+            {isExpanded || isHovered || isMobileOpen ? (
+              'Menu'
+            ) : (
+              <Image
+                src="/images/horizontal-dots.svg"
+                alt="More"
+                width={16}
+                height={16}
+              />
+            )}
           </h2>
-          {renderMenuItems(navItems, 'main')}
 
-          <h2 className={`mb-4 text-xs uppercase text-gray-400 ${!isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start'}`}>
-            {isExpanded || isHovered || isMobileOpen ? 'Others' : <Image src="/images/horizontal-dots.svg" alt="More" width={16} height={16} />}
-          </h2>
-          {renderMenuItems(othersItems, 'others')}
+          <ul className="flex flex-col gap-4">
+            {navItems.map((nav, index) => (
+              <li key={nav.name}>
+                {/* =========================
+                   Main Item
+                ========================= */}
+                {nav.subItems ? (
+                  <button
+                    onClick={() => handleToggle(index)}
+                    className="menu-item group flex w-full justify-between items-center"
+                  >
+                    <div className='flex items-center gap-3'>
+                    <Image
+                      src={nav.icon}
+                      alt={nav.name}
+                      width={20}
+                      height={20}
+                    />
+                    {(isExpanded || isHovered || isMobileOpen) && (
+                      <span className="menu-item-text text-black">{nav.name}</span>
+                    )}
+
+                    </div>
+                    <Image
+                      src="/images/dropdown.png"
+                      alt="dropdown"
+                      width={15}
+                      height={15}
+                      className={`${openIndex === index ? 'rotate-180' : ''}`}
+                    />
+                  </button>
+                ) : (
+                  nav.path && (
+                    <Link
+                      href={nav.path}
+                      className={`menu-item group flex items-center gap-3 ${
+                        isActive(nav.path)
+                          ? 'menu-item-active'
+                          : 'menu-item-inactive'
+                      }`}
+                    >
+                      <Image
+                        src={nav.icon}
+                        alt={nav.name}
+                        width={20}
+                        height={20}
+                      />
+                      {(isExpanded || isHovered || isMobileOpen) && (
+                        <span className="menu-item-text">{nav.name}</span>
+                      )}
+                    </Link>
+                  )
+                )}
+
+                {/* =========================
+                   Sub Menu
+                ========================= */}
+                {nav.subItems && (isExpanded || isHovered || isMobileOpen) && (
+                  <div
+                    ref={(el) => {
+                      subMenuRefs.current[index] = el
+                    }}
+                    className="overflow-hidden transition-all duration-300"
+                    style={{
+                      height:
+                        openIndex === index
+                          ? `${subMenuHeight[index] || 0}px`
+                          : '0px',
+                    }}
+                  >
+                    <ul className="mt-2 ml-9 space-y-1">
+                      {nav.subItems.map((sub) => (
+                        <li key={sub.name}>
+                          <Link
+                            href={sub.path}
+                            className={`menu-dropdown-item ${
+                              isActive(sub.path)
+                                ? 'menu-dropdown-item-active'
+                                : 'menu-dropdown-item-inactive'
+                            }`}
+                          >
+                            {sub.name}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
         </nav>
-
-        {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
       </div>
     </aside>
-  );
-};
+  )
+}
 
-export default AppSidebar;
+export default AppSidebar

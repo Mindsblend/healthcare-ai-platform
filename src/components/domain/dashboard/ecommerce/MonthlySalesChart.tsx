@@ -16,7 +16,7 @@ export default function MonthlySalesChart() {
   const options: ApexOptions = {
     colors: ['#465fff'],
     chart: {
-      fontFamily: 'Outfit, sans-serif',
+      fontFamily: '',
       type: 'bar',
       height: 180,
       toolbar: {
@@ -41,18 +41,18 @@ export default function MonthlySalesChart() {
     },
     xaxis: {
       categories: [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec',
+        'فروردین',
+        'اردیبهشت',
+        'خرداد',
+        'تیر',
+        'مرداد',
+        'شهریور',
+        'مهر',
+        'آبان',
+        'آذر',
+        'دی',
+        'بهمن',
+        'اسفند',
       ],
       axisBorder: {
         show: false,
@@ -112,7 +112,7 @@ export default function MonthlySalesChart() {
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 sm:px-6 sm:pt-6 dark:border-gray-800 dark:bg-white/[0.03]">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-          Monthly Sales
+          فروش ماهانه
         </h3>
 
         <div className="relative inline-block">

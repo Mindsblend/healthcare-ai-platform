@@ -19,10 +19,10 @@ export const EcommerceMetrics = () => {
         <div className="mt-5 flex items-end justify-between">
           <div>
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              Customers
+              مشتری ها
             </span>
             <h4 className="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">
-              3,782
+              ۳,۷۸۲
             </h4>
           </div>
           <Badge color="success">
@@ -41,15 +41,76 @@ export const EcommerceMetrics = () => {
         <div className="mt-5 flex items-end justify-between">
           <div>
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              Orders
+              فروش
             </span>
             <h4 className="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">
-              5,359
+              ۵٬۳۵۹
             </h4>
           </div>
 
           <Badge color="error">
-            <Image src={ArrowDownIcon} alt="Arrow Down" width={16} height={16} />
+            <Image
+              src={ArrowDownIcon}
+              alt="Arrow Down"
+              width={16}
+              height={16}
+            />
+            9.05%
+          </Badge>
+        </div>
+      </div>
+      {/* Metric Item End */}
+
+      {/* Metric Item Start */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 dark:border-gray-800 dark:bg-white/3">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
+          <Image src={BoxIconLine} alt="Orders" width={24} height={24} />
+        </div>
+        <div className="mt-5 flex items-end justify-between">
+          <div>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              بازدید کنندها
+            </span>
+            <h4 className="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">
+              ۵٬۳۵۹
+            </h4>
+          </div>
+
+          <Badge color="error">
+            <Image
+              src={ArrowDownIcon}
+              alt="Arrow Down"
+              width={16}
+              height={16}
+            />
+            9.05%
+          </Badge>
+        </div>
+      </div>
+      {/* Metric Item End */}
+
+      {/* Metric Item Start */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 dark:border-gray-800 dark:bg-white/3">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
+          <Image src={BoxIconLine} alt="Orders" width={24} height={24} />
+        </div>
+        <div className="mt-5 flex items-end justify-between">
+          <div>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              درآمد کل
+            </span>
+            <h4 className="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">
+              ۵٬۳۵۹
+            </h4>
+          </div>
+
+          <Badge color="error">
+            <Image
+              src={ArrowDownIcon}
+              alt="Arrow Down"
+              width={16}
+              height={16}
+            />
             9.05%
           </Badge>
         </div>
