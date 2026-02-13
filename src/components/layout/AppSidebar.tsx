@@ -19,8 +19,9 @@ const navItems: NavItem[] = [
     name: 'Dashboard',
     subItems: [{ name: 'Ecommerce', path: '/' }],
   },
-  { icon: '/images/products.svg', name: 'محصولات', path: '/products' },
-  { icon: '/images/blogs.svg', name: 'بلاگ ها', path: '/blogs' },
+  { icon: '/images/products.svg', name: 'محصولات', path: '/dashboard/products' },
+  { icon: '/images/products.svg', name: 'سفارشات', path: '/dashboard/orders' },
+  { icon: '/images/blogs.svg', name: 'بلاگ ها', path: '/dashboard/blogs' },
 ]
 
 const AppSidebar: React.FC = () => {

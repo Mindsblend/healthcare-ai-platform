@@ -6,66 +6,54 @@ import {
   TableRow,
 } from '../../../ui/table'
 import Badge from '../../../ui/badge/Badge'
-import Image from 'next/image'
+import { OrderType } from '@/components/types/types'
+import Link from 'next/link'
 
-// Define the TypeScript interface for the table rows
-interface Product {
-  id: number // Unique identifier for each product
-  name: string // Product name
-  variants: string // Number of variants (e.g., "1 Variant", "2 Variants")
-  category: string // Category of the product
-  price: string // Price of the product (as a string with currency symbol)
-  // status: string; // Status of the product
-  image: string // URL or path to the product image
-  status: 'Delivered' | 'Pending' | 'Canceled' // Status of the product
-}
-
-// Define the table data using the interface
-const tableData: Product[] = [
+const tableData: OrderType[] = [
   {
-    id: 1,
-    name: 'MacBook Pro 13”',
+    cartId: 1,
+    customerName: 'حسین علی زاده',
+    email: 'hossein@gmail.com',
+    createdAt: '2026-02-10',
     variants: '2 Variants',
-    category: 'Laptop',
-    price: '$2399.00',
-    status: 'Delivered',
-    image: '/images/product/product-01.jpg', // Replace with actual image URL
+    totalPrice: 2399.0,
+    status: 'PAID',
   },
   {
-    id: 2,
-    name: 'Apple Watch Ultra',
+    cartId: 2,
+    customerName: 'علی ابتکاری',
+    email: 'ali@gmail.com',
+    createdAt: '2026-02-11',
     variants: '1 Variant',
-    category: 'Watch',
-    price: '$879.00',
-    status: 'Pending',
-    image: '/images/product/product-02.jpg', // Replace with actual image URL
+    totalPrice: 879.0,
+    status: 'CANCELED',
   },
   {
-    id: 3,
-    name: 'iPhone 15 Pro Max',
+    cartId: 3,
+    customerName: 'آرمان ابتکاری',
+    email: 'arman@gmail.com',
+    createdAt: '2026-02-12',
     variants: '2 Variants',
-    category: 'SmartPhone',
-    price: '$1869.00',
-    status: 'Delivered',
-    image: '/images/product/product-03.jpg', // Replace with actual image URL
+    totalPrice: 1869.0,
+    status: 'PENDING',
   },
   {
-    id: 4,
-    name: 'iPad Pro 3rd Gen',
+    cartId: 4,
+    customerName: 'اشکان ابتکاری',
+    email: 'ashkan@gmail.com',
+    createdAt: '2026-02-13',
     variants: '2 Variants',
-    category: 'Electronics',
-    price: '$1699.00',
-    status: 'Canceled',
-    image: '/images/product/product-04.jpg', // Replace with actual image URL
+    totalPrice: 1699.0,
+    status: 'REFUNDED',
   },
   {
-    id: 5,
-    name: 'AirPods Pro 2nd Gen',
+    cartId: 5,
+    customerName: 'کیان ابتکاری',
+    email: 'kian@gmail.com',
+    createdAt: '2026-02-13',
     variants: '1 Variant',
-    category: 'Accessories',
-    price: '$240.00',
-    status: 'Delivered',
-    image: '/images/product/product-05.jpg', // Replace with actual image URL
+    totalPrice: 240.0,
+    status: 'PAID',
   },
 ]
 
@@ -73,92 +61,107 @@ export default function RecentOrders() {
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pt-4 pb-3 sm:px-6 dark:border-gray-800 dark:bg-white/[0.03]">
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            Recent Orders
-          </h3>
-        </div>
-        <button className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
-          See all
-        </button>
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+          سفارشات اخیر
+        </h3>
+
+        <Link href='/dashboard/orders' className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
+          مشاهده کامل
+        </Link>
       </div>
+
       <div className="max-w-full overflow-x-auto">
         <Table>
-          {/* Table Header */}
           <TableHeader className="border-y border-gray-100 dark:border-gray-800">
             <TableRow>
               <TableCell
                 isHeader
                 className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
               >
-                Products
+                شماره سفارش
               </TableCell>
               <TableCell
                 isHeader
                 className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
               >
-                Category
+                نام مشتری
               </TableCell>
               <TableCell
                 isHeader
                 className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
               >
-                Price
+                ایمیل
               </TableCell>
               <TableCell
                 isHeader
                 className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
               >
-                Status
+                تاریخ سفارش
+              </TableCell>
+              <TableCell
+                isHeader
+                className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+              >
+                وضعیت
+              </TableCell>
+              <TableCell
+                isHeader
+                className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+              >
+                جمع کل
               </TableCell>
             </TableRow>
           </TableHeader>
 
-          {/* Table Body */}
-
           <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-            {tableData.map((product) => (
-              <TableRow key={product.id} className="">
+            {tableData.map((order) => (
+              <TableRow key={order.cartId}>
+                {/* شماره سفارش */}
+                <TableCell className="text-theme-sm py-3 font-medium text-gray-800 dark:text-white/90">
+                  #{order.cartId}
+                </TableCell>
+
+                {/* نام مشتری */}
                 <TableCell className="py-3">
-                  <div className="flex items-center gap-3">
-                    <div className="h-[50px] w-[50px] overflow-hidden rounded-md">
-                      <Image
-                        width={50}
-                        height={50}
-                        src={product.image}
-                        className="h-[50px] w-[50px]"
-                        alt={product.name}
-                      />
-                    </div>
-                    <div>
-                      <p className="text-theme-sm font-medium text-gray-800 dark:text-white/90">
-                        {product.name}
-                      </p>
-                      <span className="text-theme-xs text-gray-500 dark:text-gray-400">
-                        {product.variants}
-                      </span>
-                    </div>
+                  <div className="flex flex-col">
+                    <span className="text-theme-sm font-medium text-gray-800 dark:text-white/90">
+                      {order.customerName}
+                    </span>
+                    <span className="text-theme-xs text-gray-500 dark:text-gray-400">
+                      {order.variants}
+                    </span>
                   </div>
                 </TableCell>
+
+                {/* ایمیل */}
                 <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
-                  {product.price}
+                  {order.user?.email}
                 </TableCell>
+
+                {/* تاریخ سفارش */}
                 <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
-                  {product.category}
+                  {new Date(order.createdAt).toLocaleDateString('fa-IR')}
                 </TableCell>
-                <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
+
+                {/* وضعیت */}
+                <TableCell className="text-theme-sm py-3">
                   <Badge
                     size="sm"
                     color={
-                      product.status === 'Delivered'
+                      order.status === 'PAID'
                         ? 'success'
-                        : product.status === 'Pending'
+                        : order.status === 'PENDING'
                           ? 'warning'
                           : 'error'
                     }
                   >
-                    {product.status}
+                    {order.status}
                   </Badge>
+                </TableCell>
+
+                {/* جمع کل */}
+                <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
+                  {order.totalPrice.toLocaleString('fa-IR')} تومان
                 </TableCell>
               </TableRow>
             ))}

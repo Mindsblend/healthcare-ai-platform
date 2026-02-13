@@ -1,0 +1,330 @@
+'use client'
+
+import { useState } from 'react'
+import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
+import Image from 'next/image'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from '../../../../components/ui/table'
+import Badge from '../../../../components/ui/badge/Badge'
+import { ProductType } from '@/components/types/types'
+import Pagination from '@/components/domain/dashboard/tables/Pagination'
+import { useProducts } from '@/features/shop/hooks/products/useProducts'
+
+const tableData: ProductType[] = [
+  {
+    id: 1,
+    title: 'عرق خونساز طبیعی ویتال‌درم',
+    productDate: '2026-02-10',
+    stock: 'In Stock',
+    variants: '2 Variants',
+    image: '/images/product-two.svg',
+    price: 2399.0,
+  },
+  {
+    id: 2,
+    title: 'کرم ترمیمی زالو ویتال‌درم',
+    productDate: '2026-02-11',
+    stock: 'In Stock',
+    variants: '1 Variant',
+    image: '/images/product-three.svg',
+    price: 879.0,
+  },
+  {
+    id: 3,
+    title: 'ماسک مو ترمیمی ویتال‌درم',
+    productDate: '2026-02-12',
+    stock: 'Out of Stock',
+    variants: '2 Variants',
+    image: '/images/product-five.svg',
+    price: 1869.0,
+  },
+  {
+    id: 4,
+    title: 'شامپو گیاهی ویتال‌درم',
+    productDate: '2026-02-13',
+    stock: 'Out of Stock',
+    variants: '2 Variants',
+    image: '/images/product-six.svg',
+    price: 1699.0,
+  },
+  {
+    id: 5,
+    title: 'سرم ویتامینه ویتال‌درم',
+    productDate: '2026-02-13',
+    stock: 'Out of Stock',
+    variants: '1 Variant',
+    image: '/images/product-four.svg',
+    price: 240.0,
+  },
+  {
+    id: 6,
+    title: 'کرم ترمیمی زالو ویتال‌درم',
+    productDate: '2026-02-11',
+    stock: 'In Stock',
+    variants: '1 Variant',
+    image: '/images/product-three.svg',
+    price: 879.0,
+  },
+  {
+    id: 7,
+    title: 'ماسک مو ترمیمی ویتال‌درم',
+    productDate: '2026-02-12',
+    stock: 'Out of Stock',
+    variants: '2 Variants',
+    image: '/images/product-five.svg',
+    price: 1869.0,
+  },
+  {
+    id: 8,
+    title: 'عرق خونساز طبیعی ویتال‌درم',
+    productDate: '2026-02-10',
+    stock: 'In Stock',
+    variants: '2 Variants',
+    image: '/images/product-two.svg',
+    price: 2399.0,
+  },
+  {
+    id: 9,
+    title: 'شامپو گیاهی ویتال‌درم',
+    productDate: '2026-02-13',
+    stock: 'Out of Stock',
+    variants: '2 Variants',
+    image: '/images/product-six.svg',
+    price: 1699.0,
+  },
+  {
+    id: 10,
+    title: 'عرق خونساز طبیعی ویتال‌درم',
+    productDate: '2026-02-10',
+    stock: 'In Stock',
+    variants: '2 Variants',
+    image: '/images/product-two.svg',
+    price: 2399.0,
+  },
+  {
+    id: 11,
+    title: 'کرم ترمیمی زالو ویتال‌درم',
+    productDate: '2026-02-11',
+    stock: 'In Stock',
+    variants: '1 Variant',
+    image: '/images/product-three.svg',
+    price: 879.0,
+  },
+  {
+    id: 12,
+    title: 'ماسک مو ترمیمی ویتال‌درم',
+    productDate: '2026-02-12',
+    stock: 'Out of Stock',
+    variants: '2 Variants',
+    image: '/images/product-five.svg',
+    price: 1869.0,
+  },
+  {
+    id: 13,
+    title: 'کرم ترمیمی زالو ویتال‌درم',
+    productDate: '2026-02-11',
+    stock: 'In Stock',
+    variants: '1 Variant',
+    image: '/images/product-three.svg',
+    price: 879.0,
+  },
+  {
+    id: 14,
+    title: 'ماسک مو ترمیمی ویتال‌درم',
+    productDate: '2026-02-12',
+    stock: 'Out of Stock',
+    variants: '2 Variants',
+    image: '/images/product-five.svg',
+    price: 1869.0,
+  },
+  {
+    id: 15,
+    title: 'کرم ترمیمی زالو ویتال‌درم',
+    productDate: '2026-02-11',
+    stock: 'In Stock',
+    variants: '1 Variant',
+    image: '/images/product-three.svg',
+    price: 879.0,
+  },
+  {
+    id: 16,
+    title: 'ماسک مو ترمیمی ویتال‌درم',
+    productDate: '2026-02-12',
+    stock: 'Out of Stock',
+    variants: '2 Variants',
+    image: '/images/product-five.svg',
+    price: 1869.0,
+  },
+]
+
+const Products = () => {
+  const { products, loading, error } = useProducts()
+
+  const [page, setPage] = useState(1)
+  
+  const itemsPerPage = 7
+  const startIndex = (page - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const currentData = tableData.slice(startIndex, endIndex)
+
+  return (
+    <div>
+      <PageBreadcrumb pageTitle="محصولات" />
+
+      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white pt-4 pb-3 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="mb-4 flex flex-col gap-2 px-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+              محصولات
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              تمامی محصولات سایت
+            </p>
+          </div>
+
+          <div className="relative">
+            <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2">
+              <svg
+                className="fill-gray-500 dark:fill-gray-400"
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z"
+                  fill=""
+                />
+              </svg>
+            </span>
+            <input
+              type="text"
+              placeholder="جست و جو کنید..."
+              className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden xl:w-[430px] dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
+            />
+          </div>
+        </div>
+
+        <div className="max-w-full overflow-x-auto">
+          <Table>
+            <TableHeader className="border-y border-gray-100 dark:border-gray-800">
+              <TableRow>
+                <TableCell
+                  isHeader
+                  className="text-theme-xs py-3 pr-4 text-start font-medium text-gray-500 sm:pr-6 dark:text-gray-400"
+                >
+                  شماره
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                >
+                  محصولات
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                >
+                  دسته بندی
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                >
+                  موجودی
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                >
+                  قیمت
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                >
+                  تاریخ سفارش
+                </TableCell>
+              </TableRow>
+            </TableHeader>
+
+            <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
+              {currentData.map((product) => (
+                <TableRow key={product.id}>
+                  {/* شماره سفارش */}
+                  <TableCell className="text-theme-sm py-3 pr-4 font-medium text-gray-800 sm:pr-6 dark:text-white/90">
+                    #{product.id}
+                  </TableCell>
+
+                  {/* نام مشتری */}
+                  <TableCell className="py-3">
+                    <div className="flex items-center gap-3">
+                      <Image
+                        src={product.image}
+                        alt="products image"
+                        width={48}
+                        height={48}
+                      />
+                      <span className="text-sm font-bold text-gray-700 dark:text-gray-400">
+                        {product.title}
+                      </span>
+                    </div>
+                  </TableCell>
+
+                  {/* ایمیل */}
+                  <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
+                    {product.category}
+                  </TableCell>
+
+                  {/* وضعیت */}
+                  <TableCell className="text-theme-sm py-3">
+                    <Badge
+                      size="sm"
+                      color={
+                        product.stock === 'In Stock'
+                          ? 'success'
+                          : product.stock === 'Out of Stock'
+                            ? 'error'
+                            : 'error'
+                      }
+                    >
+                      {product.stock}
+                    </Badge>
+                  </TableCell>
+
+                  {/* جمع کل */}
+                  <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
+                    {product.price.toLocaleString('fa-IR')} تومان
+                  </TableCell>
+
+                  {/* تاریخ سفارش */}
+                  <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
+                    {new Date(product.productDate).toLocaleDateString('fa-IR')}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+        <hr />
+        <div className="pt-3">
+          <Pagination
+            currentPage={page}
+            totalPages={Math.ceil(tableData.length / itemsPerPage)}
+            onPageChange={(newPage) => setPage(newPage)}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default Products
