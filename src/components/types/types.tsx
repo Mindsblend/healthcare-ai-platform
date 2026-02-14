@@ -32,7 +32,8 @@ export interface OrderType {
 
 export interface UserType {
   id: string
-  identifier: string //phone or email
+  email: string
+  phone: string
   createdAt: string
   updatedAt: string
 
@@ -63,7 +64,8 @@ export interface ProductPreviewType {
   solution: string
   slug: string
   image: string
-  categoryId: number
+  categoryId: number 
+  stock?: 'In Stock' | 'Out of Stock'
 }
 
 export interface CategoryType {

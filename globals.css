@@ -70,6 +70,19 @@ body {
   color: var(--foreground);
 }
 
+#custom-pagination .swiper-pagination-bullet {
+  background-color: #cbcbcb;
+  width: 10px;
+  transition: 0.3s ease;
+  height: 10px;
+  border-radius: 9999px;
+}
+
+#custom-pagination .swiper-pagination-bullet-active {
+  background-color: #000;
+  width: 20px;
+}
+
 @layer components {
   .container {
     @apply mx-auto max-w-[1440px] px-4 md:px-6 2xl:px-[45px];
@@ -82,4 +95,62 @@ body {
   .container-narrow {
     @apply mx-auto max-w-[1300px] px-4 md:px-6 2xl:px-[45px];
   }
+}
+
+:root {
+  /* -------------------
+     Backgrounds
+  ------------------- */
+  --bg-page: #ffffff; /* default page background */
+  --bg-section: #161a1d; /* section background */
+  --bg-section-deep: #1b2024; /* nested / deeper section background */
+
+  /* -------------------
+     Text / Foregrounds
+  ------------------- */
+  --text-title-on-light: #000000; /* titles on light bg */
+  --text-title-on-dark: #ffffff; /* titles on dark bg */
+  --text-body-on-light: #555555; /* paragraph on light bg */
+  --text-body-on-dark: #a2a2a2; /* paragraph on dark bg */
+  --accent-purple: #b1c8ff; /* icons/highlights on dark bg */
+  --accent-blue: #b4e4ff; /* icons/highlights on dark bg */
+}
+
+@theme inline {
+  /* -------------------
+     Backgrounds
+  ------------------- */
+  --color-page: var(--bg-page);
+  --color-section: var(--bg-section);
+  --color-section-deep: var(--bg-section-deep);
+
+  /* -------------------
+     Text / Foregrounds
+  ------------------- */
+  --color-color-title-on-light: var(--text-title-on-light);
+  --color-color-title-on-dark: var(--text-title-on-dark);
+  --color-color-body-on-light: var(--text-body-on-light);
+  --color-color-body-on-dark: var(--text-body-on-dark);
+
+  /* -------------------
+     Accent
+  ------------------- */
+  --color-accent-purple: var(--accent-purple);
+  --color-accent-blue: var(--accent-blue);
+
+  /* Fonts */
+  --font-aria: var(--font-aria);
+  --font-ray: var(--font-ray);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #fff;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
 }
