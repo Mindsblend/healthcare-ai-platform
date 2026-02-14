@@ -76,6 +76,10 @@ export const ErrorCode = {
     code: 'INTERNAL_ERROR',
     message: 'خطای داخلی رخ داده است. لطفاً کمی بعد دوباره تلاش کنید.',
   },
+  UNAUTHORIZED: {
+    code: 'UNAUTHORIZED',
+    message: 'دسترسی غیر مجاز',
+  },
   UNKNOWN: {
     code: 'UNKNOWN',
     message: 'خطای غیرمنتظره‌ای رخ داده است. لطفاً دوباره امتحان کنید.',

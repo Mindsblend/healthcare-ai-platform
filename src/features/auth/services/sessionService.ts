@@ -16,6 +16,7 @@ export function createJwtSession(user: User): string {
     id: user.id,
     email: user.email || null,
     phone: user.phone || null,
+    role: user.role,
   }
 
   try {
@@ -39,6 +40,7 @@ export async function getSession(): Promise<SessionPayload | null> {
         id: decoded.id,
         email: typeof decoded.email === 'string' ? decoded.email : null,
         phone: typeof decoded.phone === 'string' ? decoded.phone : null,
+        role: typeof decoded.role === 'string' ? decoded.role : 'USER',
       }
     }
 
@@ -49,4 +51,19 @@ export async function getSession(): Promise<SessionPayload | null> {
     }
     throw createDomainError(ErrorCode.INTERNAL_ERROR)
   }
+}
+
+export async function requireAuthority(
+  requiredRole: 'ADMIN' | 'USER',
+): Promise<SessionPayload> {
+  const session = await getSession()
+  if (!session) {
+    throw createDomainError(ErrorCode.INTERNAL_ERROR)
+  }
+
+  if (session.role !== requiredRole) {
+    throw createDomainError(ErrorCode.UNAUTHORIZED)
+  }
+
+  return session
 }

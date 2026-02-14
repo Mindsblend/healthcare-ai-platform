@@ -10,12 +10,20 @@ model User {
   id         String   @id @default(cuid())
   phone      String? @unique
   email      String? @unique
+
+  role       UserRole @default(USER)
+
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
   aiResponses AiResponse[]
   carts       Cart[]
   orders      Order[]
+}
+
+enum UserRole {
+  USER
+  ADMIN
 }
 
 model Cart {

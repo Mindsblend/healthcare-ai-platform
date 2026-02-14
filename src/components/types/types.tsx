@@ -115,4 +115,5 @@ export interface SessionPayload {
   id: string
   email: string | null
   phone: string | null
+  role: string  | null
 }
