@@ -1,13 +1,45 @@
 'use client'
 
 import Image from 'next/image'
+import { useMemo } from 'react'
+import { useOrders } from '@/features/dashboard/hooks/useOrders'
 import Badge from '../../../ui/badge/Badge'
 import ArrowDownIcon from '../../../../../public/images/arrow-down.svg'
 import ArrowUpIcon from '../../../../../public/images/arrow-up.svg'
 import BoxIconLine from '../../../../../public/images/box-line.svg'
 import GroupIcon from '../../../../../public/images/group.svg'
+import { useUsers } from '@/features/auth/hooks/useUsers'
 
 export const EcommerceMetrics = () => {
+  const { orders } = useOrders()
+  const { users } = useUsers()
+
+  const now = Date.now()
+  const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000
+  const cutoff = now - THIRTY_DAYS
+
+  const monthlyOrdersCount = useMemo(() => {
+    if (!orders?.length) return 0
+
+    return orders.filter((order) => {
+      const created = new Date(order.createdAt).getTime()
+      return created >= cutoff
+    }).length
+  }, [orders])
+
+  const monthlyRevenue = useMemo(() => {
+    if (!orders?.length) return 0
+
+    return orders
+      .filter((order) => {
+        const created = new Date(order.createdAt).getTime()
+        return created >= cutoff && order.status === 'PAID'
+      })
+      .reduce((sum, order) => sum + order.totalPrice, 0)
+  }, [orders])
+
+  const allTimeUsers = users.length
+
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
       {/* Metric Item Start */}
@@ -22,7 +54,7 @@ export const EcommerceMetrics = () => {
               مشتری ها
             </span>
             <h4 className="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">
-              ۳,۷۸۲
+              {allTimeUsers.toLocaleString('fa-IR')}
             </h4>
           </div>
           <Badge color="success">
@@ -44,7 +76,7 @@ export const EcommerceMetrics = () => {
               فروش
             </span>
             <h4 className="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">
-              ۵٬۳۵۹
+              {monthlyOrdersCount.toLocaleString('fa-IR')}
             </h4>
           </div>
 
@@ -100,7 +132,7 @@ export const EcommerceMetrics = () => {
               درآمد کل
             </span>
             <h4 className="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">
-              ۵٬۳۵۹
+              {monthlyRevenue.toLocaleString('fa-IR')}
             </h4>
           </div>
 

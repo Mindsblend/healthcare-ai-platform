@@ -1,0 +1,2 @@
+2026-02-15 00:30:37.791 +0330 [1682] FATAL:  lock file "postmaster.pid" already exists
+2026-02-15 00:30:37.791 +0330 [1682] HINT:  Is another postmaster (PID 1671) running in data directory "/opt/homebrew/var/postgresql@14"?
