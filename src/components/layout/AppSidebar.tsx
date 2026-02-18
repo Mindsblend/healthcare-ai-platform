@@ -14,12 +14,13 @@ type NavItem = {
 }
 
 const navItems: NavItem[] = [
+  { icon: '/images/grid.svg', name: 'Dashboard', path: '/dashboard' },
   {
-    icon: '/images/grid.svg',
-    name: 'Dashboard',
-    subItems: [{ name: 'Ecommerce', path: '/' }],
+    icon: '/images/products.svg',
+    name: 'مدیریت محصولات',
+    path: '/dashboard/products',
+    subItems: [ { name: 'محصولات', path: '/dashboard/products' }, { name: 'ساخت محصول', path: '/dashboard/addproduct' } ],
   },
-  { icon: '/images/products.svg', name: 'محصولات', path: '/dashboard/products' },
   { icon: '/images/products.svg', name: 'سفارشات', path: '/dashboard/orders' },
   { icon: '/images/blogs.svg', name: 'بلاگ ها', path: '/dashboard/blogs' },
 ]
@@ -117,19 +118,20 @@ const AppSidebar: React.FC = () => {
                 {nav.subItems ? (
                   <button
                     onClick={() => handleToggle(index)}
-                    className="menu-item group flex w-full justify-between items-center"
+                    className="menu-item group flex w-full items-center justify-between"
                   >
-                    <div className='flex items-center gap-3'>
-                    <Image
-                      src={nav.icon}
-                      alt={nav.name}
-                      width={20}
-                      height={20}
-                    />
-                    {(isExpanded || isHovered || isMobileOpen) && (
-                      <span className="menu-item-text text-black">{nav.name}</span>
-                    )}
-
+                    <div className="flex items-center gap-3">
+                      <Image
+                        src={nav.icon}
+                        alt={nav.name}
+                        width={20}
+                        height={20}
+                      />
+                      {(isExpanded || isHovered || isMobileOpen) && (
+                        <span className="menu-item-text text-black">
+                          {nav.name}
+                        </span>
+                      )}
                     </div>
                     <Image
                       src="/images/dropdown.png"

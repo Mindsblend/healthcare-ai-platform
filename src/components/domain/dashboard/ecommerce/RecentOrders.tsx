@@ -9,7 +9,6 @@ import {
 } from '../../../ui/table'
 import Badge from '../../../ui/badge/Badge'
 import { useOrders } from '@/features/dashboard/hooks/useOrders'
-import { OrderType } from '@/components/types/types'
 import Link from 'next/link'
 
 export default function RecentOrders() {
@@ -96,7 +95,7 @@ export default function RecentOrders() {
                       </svg>
                     </div>
 
-                    <h3 className="mb-2 text-lg font-semibold">
+                    <h3 className="mb-2 text-color-title-on-light text-lg font-semibold">
                       سفارشی وجود ندارد
                     </h3>
 
