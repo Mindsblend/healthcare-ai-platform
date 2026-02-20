@@ -50,7 +50,7 @@ export interface ProductType {
   slug: string
   solution: string
   image: string
-  description: string
+  description: string 
   categoryId: number
   icons: iconType[]
   gains: gainType[]

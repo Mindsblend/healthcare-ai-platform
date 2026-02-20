@@ -25,7 +25,7 @@ export const ThemeToggleButton: React.FC = () => {
         />
       </svg>
       <svg
-        className="dark:hidden"
+        className="block dark:hidden"
         width="20"
         height="20"
         viewBox="0 0 20 20"

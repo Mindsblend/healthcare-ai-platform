@@ -106,7 +106,7 @@ const Orders = () => {
                       </svg>
                     </div>
 
-                    <h3 className="mb-2 text-lg font-semibold">
+                    <h3 className="mb-2 text-color-title-on-light text-lg font-semibold">
                       سفارشی وجود ندارد
                     </h3>
 

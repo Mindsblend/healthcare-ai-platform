@@ -166,7 +166,7 @@ const Products = () => {
             </p>
           </div>
 
-          <div className='flex gap-3 items-center justify-center'>
+          <div className="flex items-center justify-center gap-3">
             <div className="relative">
               <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2">
                 <svg
