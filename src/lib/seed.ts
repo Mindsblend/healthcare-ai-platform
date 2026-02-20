@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { prisma } from './prisma.ts'
 import generateSlug from './helpers.ts'
 
@@ -13,12 +14,18 @@ const categories = [
   { id: 6, name: 'لوازم خانه', iconPath: '/images/chair.svg' },
 ]
 
+console.log('DATABASE_URL:', process.env.DATABASE_URL)
+
 async function seedCategories() {
   for (const category of categories) {
     await prisma.category.upsert({
       where: { id: category.id },
       update: { name: category.name },
-      create: { id: category.id, name: category.name, iconPath: category.iconPath },
+      create: {
+        id: category.id,
+        name: category.name,
+        iconPath: category.iconPath,
+      },
     })
   }
   console.log('✅ Categories seeded')

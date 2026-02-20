@@ -1,8 +1,8 @@
-import { fetchAllProducts } from '@/features/shop/services/fetchProductsService'
+import { ProductService } from '@/features/shop/services/ProductService'
 
 export async function GET() {
   try {
-    const products = await fetchAllProducts()
+    const products = await ProductService.fetchAllProducts()
     return new Response(JSON.stringify(products), { status: 200 })
   } catch (error) {
     return new Response(JSON.stringify({ error: 'Failed to fetch products' }), {

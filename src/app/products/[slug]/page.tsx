@@ -1,15 +1,11 @@
-import {
-  fetchAllProducts,
-  fetchProductBySlug,
-  fetchProductsByCategoryId,
-} from '@/features/shop/services/fetchProductsService'
+import { ProductService } from '@/features/shop/services/ProductService'
 import Image from 'next/image'
 import Questions from '@/components/ui/Qustions'
 import { gainType, iconType } from '@/components/types/types'
 import ProductSwiper from '@/components/layout/ProductSwiper'
 
 export async function generateStaticParams() {
-  const products = await fetchAllProducts()
+  const products = await ProductService.fetchAllProducts()
 
   return products
     .filter((product) => product.slug)
@@ -27,7 +23,7 @@ export default async function ProductPage(props: { params: any }) {
 
   let product = null
   try {
-    product = await fetchProductBySlug(slug)
+    product = await ProductService.fetchProductBySlug(slug)
   } catch (e) {
     return <div>محصول پیدا نشد</div>
   }
@@ -39,7 +35,9 @@ export default async function ProductPage(props: { params: any }) {
 
   let relatedProducts = []
   try {
-    relatedProducts = await fetchProductsByCategoryId(product.categoryId)
+    relatedProducts = await ProductService.fetchProductsByCategoryId(
+      product.categoryId,
+    )
   } catch (e) {
     return <div>محصول پیدا نشد</div>
   }
@@ -52,10 +50,10 @@ export default async function ProductPage(props: { params: any }) {
             {product.title}
           </h1>
           <div className="mt-5 flex items-center gap-3">
-            {product.icons?.map(({ id, title }: iconType) => (
+            {product.icons?.map(({ id, title, iconPath }: iconType) => (
               <div key={id} className="flex gap-1">
                 <Image
-                  src="/images/earbuds.svg"
+                  src={iconPath ?? '/images/close.svg'}
                   alt="earbuds icon"
                   width={13}
                   height={13}

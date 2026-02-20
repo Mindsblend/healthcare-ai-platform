@@ -64,7 +64,7 @@ export interface ProductPreviewType {
   solution: string
   slug: string
   image: string
-  categoryId: number 
+  categoryId: number
   stock?: 'In Stock' | 'Out of Stock'
 }
 
@@ -76,20 +76,18 @@ export interface CategoryType {
 }
 
 export interface iconType {
-  id: number
   title: string
-  // iconPath: string
+  description: string
+  iconPath: string | null
 }
 
 export interface gainType {
-  id: number
   title: string
   ingredient: string
   description: string
 }
 
 export interface faqType {
-  id: number
   question: string
   answer: string
 }
@@ -117,5 +115,5 @@ export interface SessionPayload {
   id: string
   email: string | null
   phone: string | null
-  role: string  | null
+  role: string | null
 }
