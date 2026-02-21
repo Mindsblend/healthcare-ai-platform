@@ -69,6 +69,28 @@ const AddProduct = () => {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
+  const handleImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    })
+
+    const data = await res.json()
+
+    if (data.url) {
+      setForm((prev) => ({
+        ...prev,
+        image: data.url,
+      }))
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.title || !form.price || !form.categoryId) {
@@ -229,10 +251,7 @@ const AddProduct = () => {
                     type="file"
                     id="product-image"
                     className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0]
-                      if (file) handleChange('image', file.name)
-                    }}
+                    onChange={handleImage}
                   />
                 </label>
               </div>
@@ -273,11 +292,7 @@ const AddProduct = () => {
                       type="file"
                       accept="image/svg+xml,image/png"
                       className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0]
-                        if (file)
-                          handleChange('icons', file.name, idx, 'iconPath')
-                      }}
+                      onChange={handleImage}
                     />
                   </label>
                 </div>
