@@ -219,22 +219,19 @@ const Orders = () => {
                   <TableCell className="py-3">
                     <div className="flex flex-col">
                       <span className="text-theme-sm font-medium text-gray-800 dark:text-white/90">
-                        {order.customerName}
-                      </span>
-                      <span className="text-theme-xs text-gray-500 dark:text-gray-400">
-                        {order.variants}
+                        {order.user?.id}
                       </span>
                     </div>
                   </TableCell>
 
                   {/* ایمیل */}
                   <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
-                    {order.customerEmail}
+                    {order.user?.email}
                   </TableCell>
 
                   {/* تاریخ سفارش */}
                   <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
-                    {new Date(order.orderDate).toLocaleDateString('fa-IR')}
+                    {new Date(order.createdAt).toLocaleDateString('fa-IR')}
                   </TableCell>
 
                   {/* وضعیت */}

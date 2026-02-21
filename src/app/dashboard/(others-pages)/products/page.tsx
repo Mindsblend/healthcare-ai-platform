@@ -206,9 +206,9 @@ const Products = () => {
                 <path
                   d="M5 10.0002H15.0006M10.0002 5V15.0006"
                   stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 ></path>
               </svg>
             </Link>
@@ -270,7 +270,13 @@ const Products = () => {
                   <TableCell className="py-3">
                     <div className="flex items-center gap-3">
                       <Image
-                        src={product.image}
+                        src={
+                          product.image
+                            ? product.image.startsWith('http')
+                              ? product.image
+                              : `/images/${product.image}` // if images are stored in /public/images
+                            : '/images/accessibility.png' // fallback
+                        }
                         alt="products image"
                         width={48}
                         height={48}
@@ -283,7 +289,7 @@ const Products = () => {
 
                   {/* ایمیل */}
                   <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
-                    {product.category}
+                    {product.categoryId}
                   </TableCell>
 
                   {/* وضعیت */}
@@ -309,7 +315,7 @@ const Products = () => {
 
                   {/* تاریخ سفارش */}
                   <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
-                    {new Date(product.productDate).toLocaleDateString('fa-IR')}
+                    {new Date(product.price).toLocaleDateString('fa-IR')}
                   </TableCell>
                 </TableRow>
               ))}

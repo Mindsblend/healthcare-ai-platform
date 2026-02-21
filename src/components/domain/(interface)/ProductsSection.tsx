@@ -1,8 +1,8 @@
-import { fetchAllProducts } from '@/features/shop/services/fetchProductsService'
+import { ProductService } from '@/features/shop/services/ProductService'
 import ProductSwiper from '@/components/layout/ProductSwiper'
 
 export default async function ProductsSection() {
-  const products = await fetchAllProducts()
+  const products = await ProductService.fetchAllProducts()
 
   return (
     <div className="container my-12 flex w-full flex-col">

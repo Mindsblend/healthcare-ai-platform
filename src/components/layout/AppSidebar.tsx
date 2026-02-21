@@ -19,10 +19,21 @@ const navItems: NavItem[] = [
     icon: '/images/products.svg',
     name: 'مدیریت محصولات',
     path: '/dashboard/products',
-    subItems: [ { name: 'محصولات', path: '/dashboard/products' }, { name: 'ساخت محصول', path: '/dashboard/addproduct' } ],
+    subItems: [
+      { name: 'محصولات', path: '/dashboard/products' },
+      { name: 'ساخت محصول', path: '/dashboard/addproduct' },
+    ],
   },
   { icon: '/images/products.svg', name: 'سفارشات', path: '/dashboard/orders' },
-  { icon: '/images/blogs.svg', name: 'بلاگ ها', path: '/dashboard/blogs' },
+  {
+    icon: '/images/products.svg',
+    name: 'مدیریت بلاگ ها',
+    path: '/dashboard/products',
+    subItems: [
+      { name: 'بلاگ', path: '/dashboard/blogs' },
+      { name: 'ساخت بلاگ', path: '/dashboard/addblog' },
+    ],
+  },
 ]
 
 const AppSidebar: React.FC = () => {

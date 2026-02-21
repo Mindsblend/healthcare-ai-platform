@@ -120,7 +120,7 @@ model Icon {
   product     Product @relation(fields: [productId], references: [id])
   productId   Int
   title       String // e.g., بدون وابستگی مصرف
-  description String // optional, short explanation
+  description String // required, short explanation
   iconPath    String?
 }
 
