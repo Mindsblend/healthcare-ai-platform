@@ -3,7 +3,7 @@ import { CartStatus } from '@prisma/client'
 
 export class CartService {
   // fetch Active Cart
-  static async fetchActiveCart(userId?: string) {
+  static async fetchActiveCart(userId: string) {
     return prisma.cart.findFirst({
       where: {
         userId,
@@ -18,7 +18,7 @@ export class CartService {
   }
 
   // Create Cart
-  static async createCart(userId?: string) {
+  static async createCart(userId: string) {
     const cart = await prisma.cart.create({
       data: {
         userId,

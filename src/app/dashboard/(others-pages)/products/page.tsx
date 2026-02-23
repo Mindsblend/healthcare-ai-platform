@@ -270,7 +270,11 @@ const Products = () => {
                   <TableCell className="py-3">
                     <div className="flex items-center gap-3">
                       <Image
-                        src={product.image}
+                        src={
+                          product.image && product.image.startsWith('http')
+                            ? product.image
+                            : '/images/placeholder.png'
+                        }
                         alt="products image"
                         width={48}
                         height={48}

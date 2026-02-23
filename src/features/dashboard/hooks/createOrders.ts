@@ -1,19 +1,18 @@
 'use client'
-
 import { useState } from 'react'
-import { createProductAction, CreateProductInput } from '../../actions/products/createProductAction'
+import { createOrderAction, CreateOrderInput } from '../actions/createOrdersAction'
 
-export function useCreateProduct() {
+export function useCreateOrder() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
   const [data, setData] = useState<unknown>(null)
 
-  async function create(product: CreateProductInput) {
+  async function createOrder(order: CreateOrderInput) {
     setLoading(true)
     setError(null)
 
     try {
-      const result = await createProductAction(product)
+      const result = await createOrderAction(order)
       setData(result)
       return result
     } catch (err) {
@@ -24,5 +23,5 @@ export function useCreateProduct() {
     }
   }
 
-  return { create, loading, error, data }
+  return { createOrder, loading, error, data }
 }

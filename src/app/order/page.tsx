@@ -2,30 +2,60 @@
 
 import { useCart } from '@/features/shop/hooks/cart/useCart'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useState, ChangeEvent } from 'react'
+import { useCreateOrder } from '@/features/dashboard/hooks/createOrders'
+import { ShippingInfo } from '@/components/types/types'
 
-const page = () => {
+const CheckoutPage = () => {
   const { cartItems, loading: cartLoading } = useCart()
   const [activeBtn, setActiveBtn] = useState<'mellat' | 'zarinpal'>('zarinpal')
+
+  const { createOrder, loading: orderLoading } = useCreateOrder()
+
+  const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
+    firstName: '',
+    lastName: '',
+    city: '',
+    province: '',
+    email: '',
+    phone: '',
+    address: '',
+    postalCode: '',
+    notes: '',
+  })
+
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target
+    setShippingInfo((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = async () => {
+    try {
+      await createOrder({
+        shippingInfo,
+        paymentMethod: activeBtn,
+      })
+      alert('سفارش با موفقیت ثبت شد!')
+    } catch (err) {
+      console.error('Order creation error:', err)
+      alert('خطا در ثبت سفارش، لطفا دوباره تلاش کنید.')
+    }
+  }
 
   const subtotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
   )
-
   const TAX_RATE = 0.09
-
   const taxAmount = Math.round(subtotal * TAX_RATE)
-
   const totalAmount = subtotal + taxAmount
 
-  if (cartLoading) {
-    return <div>در حال بارگذاری سبد خرید...</div>
-  }
+  if (cartLoading) return <div>در حال بارگذاری سبد خرید...</div>
 
   return (
     <section className="container mt-10">
-      {/* ===== Main Layout ===== */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 xl:grid-cols-3">
         {/* ===== RIGHT: Checkout Form ===== */}
         <div className="col-span-1 xl:col-span-2">
@@ -34,71 +64,85 @@ const page = () => {
               اطلاعات خرید
             </h2>
 
-            <form className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {/* Name */}
+            <form
+              className="grid grid-cols-1 gap-4 md:grid-cols-2"
+              onSubmit={(e) => e.preventDefault()}
+            >
               <input
+                name="firstName"
                 type="text"
                 placeholder="نام"
+                value={shippingInfo.firstName}
+                onChange={handleChange}
                 className="font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black"
               />
-
-              {/* Last Name */}
               <input
+                name="lastName"
                 type="text"
                 placeholder="نام خانوادگی"
+                value={shippingInfo.lastName}
+                onChange={handleChange}
                 className="font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black"
               />
-
-              {/* Shahr */}
               <input
+                name="city"
                 type="text"
                 placeholder="شهر"
+                value={shippingInfo.city}
+                onChange={handleChange}
                 className="font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black"
               />
-
-              {/* Ostan */}
               <input
+                name="province"
                 type="text"
                 placeholder="استان"
+                value={shippingInfo.province}
+                onChange={handleChange}
                 className="font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black"
               />
-
-              {/* Email */}
               <input
+                name="email"
                 type="email"
                 placeholder="ایمیل"
+                value={shippingInfo.email}
+                onChange={handleChange}
                 className="font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black"
               />
-
-              {/* Phone */}
               <input
+                name="phone"
                 type="tel"
                 placeholder="شماره تماس"
-                dir="rtl"
+                value={shippingInfo.phone}
+                onChange={handleChange}
                 className="font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black"
               />
-
-              {/* Address */}
               <input
+                name="address"
                 type="text"
                 placeholder="آدرس کامل"
+                value={shippingInfo.address}
+                onChange={handleChange}
                 className="font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black"
               />
-
-              {/* Postal Code */}
               <input
+                name="postalCode"
                 type="text"
                 placeholder="کد پستی"
+                value={shippingInfo.postalCode}
+                onChange={handleChange}
                 className="font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black"
               />
-
-              {/* Notes */}
               <textarea
+                name="notes"
                 placeholder="یادداشت سفارش"
+                value={shippingInfo.notes}
+                onChange={handleChange}
                 className="font-aria text-color-body-on-light col-span-1 w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black md:col-span-2"
               />
             </form>
-            <div className="mt-5 flex-wrap flex items-center justify-between rounded-2xl border-2 border-[#d9d9d9] bg-white px-6 py-3.5">
+
+            <div className="mt-5 flex flex-wrap items-center justify-between rounded-2xl border-2 border-[#d9d9d9] bg-white px-6 py-3.5">
+              {/* Payment Method Buttons */}
               <div>
                 <h1 className="font-aria text-color-title-on-light text-base font-extrabold">
                   انتخاب درگاه پرداخت
@@ -141,6 +185,14 @@ const page = () => {
                 </div>
               </div>
             </div>
+
+            <button
+              onClick={handleSubmit}
+              disabled={orderLoading}
+              className="text-color-title-on-dark font-ray mt-6 h-[54px] w-full cursor-pointer rounded-4xl bg-black font-medium"
+            >
+              {orderLoading ? 'در حال ثبت سفارش...' : 'ثبت سفارش و پرداخت'}
+            </button>
           </div>
         </div>
 
@@ -157,7 +209,6 @@ const page = () => {
                   key={item.id}
                   className="flex items-center justify-between rounded-xl"
                 >
-                  {/* RIGHT: Image */}
                   <div className="shrink-0">
                     <img
                       src={item.product.image}
@@ -165,8 +216,6 @@ const page = () => {
                       className="h-20 w-20 rounded-2xl object-cover"
                     />
                   </div>
-
-                  {/* CENTER: Title + Solution */}
                   <div className="flex-1 px-4">
                     <h3 className="font-aria text-color-title-on-light text-lg font-extrabold">
                       {item.product.title}
@@ -175,8 +224,6 @@ const page = () => {
                       {item.product.solution}
                     </p>
                   </div>
-
-                  {/* LEFT: Price */}
                   <div className="font-aria text-color-title-on-light shrink-0 text-base font-extrabold">
                     {item.price.toLocaleString('fa-IR')} تومان
                   </div>
@@ -185,7 +232,7 @@ const page = () => {
             </div>
           </div>
 
-          {/* Items */}
+          {/* Order Summary */}
           <div className="flex h-[452px] flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-9">
             <h1 className="font-aria text-color-title-on-light mt-9 text-center text-2xl font-extrabold">
               خلاصه سفارشات
@@ -197,14 +244,6 @@ const page = () => {
                 </h1>
                 <h1 className="font-aria text-color-title-on-light font-extrabold">
                   {subtotal.toLocaleString('fa-IR')} تومان
-                </h1>
-              </div>
-              <div className="flex items-center justify-between">
-                <h1 className="font-aria text-color-title-on-light font-extrabold">
-                  هزینه ارسال
-                </h1>
-                <h1 className="font-aria text-color-title-on-light font-extrabold">
-                  --- تومان
                 </h1>
               </div>
               <div className="flex items-center justify-between">
@@ -225,11 +264,6 @@ const page = () => {
                 </h1>
               </div>
             </div>
-            <div className="pb-6">
-              <button className="text-color-title-on-dark font-ray h-[54px] w-full cursor-pointer rounded-4xl bg-black font-medium">
-                ثبت سفارش و پرداخت
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -237,4 +271,4 @@ const page = () => {
   )
 }
 
-export default page
+export default CheckoutPage

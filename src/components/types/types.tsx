@@ -30,6 +30,18 @@ export interface OrderType {
   createdAt: string
 }
 
+export type ShippingInfo = {
+  firstName: string
+  lastName: string
+  city: string
+  province: string
+  email: string
+  phone: string
+  address: string
+  postalCode: string
+  notes?: string
+}
+
 export interface UserType {
   id: string
   email: string

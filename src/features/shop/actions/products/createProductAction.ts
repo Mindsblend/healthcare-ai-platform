@@ -1,6 +1,6 @@
-import { faqType, gainType, iconType } from "@/components/types/types"
+import { faqType, gainType, iconType } from '@/components/types/types'
 
-export async function createProduct(product: {
+export interface CreateProductInput {
   title: string
   price: number
   slug: string
@@ -11,19 +11,20 @@ export async function createProduct(product: {
   icons: iconType[]
   gains: gainType[]
   faqs: faqType[]
-}) {
+}
+
+export async function createProductAction(product: CreateProductInput) {
   const res = await fetch('/api/shop/products/create', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(product),
   })
 
-  const data = await res.json()
-
   if (!res.ok) {
-    console.error('[createProduct] error object:', data?.error)
+    const data = await res.json().catch(() => null)
+    console.error('[createProductAction] error object:', data?.error)
     throw new Error(data?.error?.code || 'UNKNOWN')
   }
 
-  return data
+  return res.json()
 }

@@ -76,8 +76,36 @@ model Order {
 
   status OrderStatus @default(PENDING)
 
+  shippingFirstName String
+  shippingLastName  String
+  shippingEmail     String
+  shippingPhone     String
+  shippingCity      String
+  shippingProvince  String
+  shippingAddress   String
+  shippingPostalCode String
+  shippingNotes     String?
+
+  items OrderItem[]
+
   createdAt DateTime @default(now())
 }
+
+model OrderItem {
+  id Int @id @default(autoincrement())
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  orderId String
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+
+  quantity Int
+  price    Int // snapshot of price at purchase
+
+  createdAt DateTime @default(now())
+}
+
 
 enum OrderStatus {
   PENDING
@@ -106,6 +134,7 @@ model Product {
   faqs        Faq[] // Frequently asked questions
   aiResponses AiResponse[] // AI test results or recommendations
   cartItem    CartItem[]
+  orderItems OrderItem[]
 }
 
 model Category {
