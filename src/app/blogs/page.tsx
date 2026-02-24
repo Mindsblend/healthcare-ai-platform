@@ -41,7 +41,9 @@ const page = () => {
             </h1>
 
             <p className="font-ray mt-3 text-sm font-medium lg:mt-3.5 lg:text-base">
-              {latestBlog.description}
+              <div
+                dangerouslySetInnerHTML={{ __html: latestBlog.description }}
+              ></div>
               <span className="text-color-body-on-light mr-1.5 inline-flex cursor-pointer items-center">
                 ادامه مطلب
                 <Image
@@ -65,7 +67,7 @@ const page = () => {
 
             <div className="flex shrink-0 items-center gap-2.5">
               <Image
-                src={latestBlog.authorImage || "/images/default-avatar.png"}
+                src={latestBlog.authorImage || '/images/default-avatar.png'}
                 alt="writer image"
                 width={46}
                 height={46}
@@ -85,7 +87,9 @@ const page = () => {
         {/* image */}
         <div
           className="relative order-1 h-100 w-full rounded-3xl bg-cover bg-center lg:order-0 lg:h-auto lg:max-w-185"
-          style={{ backgroundImage: `url(${latestBlog.image || '/images/default-blog.png'})` }}
+          style={{
+            backgroundImage: `url(${latestBlog.image || '/images/default-blog.png'})`,
+          }}
         >
           <div className="bg-page absolute top-3.5 right-4 z-10 h-12 w-12 rounded-full p-2.5">
             <Image

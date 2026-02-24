@@ -11,7 +11,9 @@ const Blog = ({ blog }: Props) => {
       {/* top image */}
       <div
         className="relative h-[334px] w-full rounded-3xl bg-cover bg-center"
-        style={{ backgroundImage: `url(${blog.image || '/images/default-blog.png'})` }}
+        style={{
+          backgroundImage: `url(${blog.image || '/images/default-blog.png'})`,
+        }}
       >
         <div className="bg-page absolute top-3.5 right-4 z-10 h-12 w-12 rounded-full p-2.5">
           <Image
@@ -29,8 +31,8 @@ const Blog = ({ blog }: Props) => {
           <h1 className="font-ray text-xl font-extrabold xl:text-2xl">
             {blog.title}
           </h1>
-          <p className="font-ray text-sm font-medium mt-1.5">
-            {blog.description}
+          <p className="font-ray mt-1.5 text-sm font-medium">
+            <div dangerouslySetInnerHTML={{ __html: blog.description }}></div>
             <span className="text-color-body-on-light mr-1.5 inline-flex cursor-pointer items-center">
               ادامه مطلب
               <Image
@@ -54,7 +56,7 @@ const Blog = ({ blog }: Props) => {
 
           <div className="flex items-center gap-2.5">
             <Image
-              src={blog.authorImage || "/images/default-avatar.png"}
+              src={blog.authorImage || '/images/default-avatar.png'}
               alt="writer image"
               width={46}
               height={46}

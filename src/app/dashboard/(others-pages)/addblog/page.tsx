@@ -4,6 +4,9 @@ import { useState } from 'react'
 import { useCreateBlog } from '@/features/shop/hooks/blogs/createBlog'
 import { iconType } from '@/components/types/types'
 import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
+import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
+import '../../../../../styles/dashboard.css'
+import '../../../../../styles/_variables.scss'
 
 interface BlogFormState {
   title: string
@@ -163,13 +166,12 @@ const AddBlog = () => {
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                   توضیحات
                 </label>
-                <textarea
-                  placeholder="توضیحات بلاگ"
-                  rows={7}
-                  value={form.description}
-                  onChange={(e) => handleChange('description', e.target.value)}
-                  className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 w-full resize-none rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
-                />
+                <div>
+                  <SimpleEditor
+                    value={form.description}
+                    onChange={(content) => handleChange('description', content)}
+                  />
+                </div>
               </div>
 
               {/* Category
@@ -192,7 +194,9 @@ const AddBlog = () => {
 
               {/* Image Upload */}
               <div className="col-span-full">
-                <label className='mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400'>عکس بلاگ</label>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  عکس بلاگ
+                </label>
                 <label className="shadow-theme-xs group hover:border-brand-500 block cursor-pointer rounded-lg border-2 border-dashed border-gray-300 transition dark:border-gray-800">
                   <div className="flex justify-center p-10">
                     <div className="flex max-w-65 flex-col items-center gap-4">
@@ -218,7 +222,9 @@ const AddBlog = () => {
 
               {/* Author Image Upload */}
               <div className="col-span-full">
-                <label className='mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400'>عکس نویسنده</label>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  عکس نویسنده
+                </label>
                 <label className="shadow-theme-xs group hover:border-brand-500 block cursor-pointer rounded-lg border-2 border-dashed border-gray-300 transition dark:border-gray-800">
                   <div className="flex justify-center p-10">
                     <div className="flex max-w-65 flex-col items-center gap-4">
