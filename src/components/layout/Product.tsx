@@ -36,7 +36,7 @@ const Product = ({ product }: Props) => {
           <button
             onClick={handleAddToCart}
             disabled={cartLoading}
-            className="text-color-title-on-light font-ray flex h-10 w-full cursor-pointer items-center justify-center gap-3 rounded-full bg-[#F2F2F2] pr-4 pl-1 text-sm font-medium whitespace-nowrap sm:w-auto 2xl:h-12 2xl:pr-5 2xl:pl-2 2xl:text-base"
+            className="text-color-title-on-light font-ray flex h-10 w-full cursor-pointer items-center justify-center gap-3 rounded-full bg-[#F2F2F2] pr-4 pl-1 text-sm font-medium whitespace-nowrap sm:w-auto 2xl:h-12 2xl:pr-5 2xl:text-base"
           >
             افزودن به سبد خرید
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white xl:h-10 xl:w-10">
@@ -62,7 +62,7 @@ const Product = ({ product }: Props) => {
           <h1 className="font-ray text-lg font-extrabold sm:text-xl">
             {product.title}
           </h1>
-          <p className="font-ray mt-0.5 text-xs font-medium sm:max-w-[300px] sm:text-sm">
+          <p className="font-ray mt-0.5 text-xs font-medium sm:max-w-75 sm:text-sm">
             {product.solution}
           </p>
         </div>

@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { createBlog } from '../../actions/blogs/createBlogAction'
-import { iconType } from '@/components/types/types'
 
 export interface CreateBlogInput {
   title: string,

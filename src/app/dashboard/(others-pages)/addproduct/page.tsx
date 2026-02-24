@@ -235,7 +235,7 @@ const AddProduct = () => {
               <div className="col-span-full">
                 <label className="shadow-theme-xs group hover:border-brand-500 block cursor-pointer rounded-lg border-2 border-dashed border-gray-300 transition dark:border-gray-800">
                   <div className="flex justify-center p-10">
-                    <div className="flex max-w-[260px] flex-col items-center gap-4">
+                    <div className="flex max-w-65 flex-col items-center gap-4">
                       <div className="inline-flex h-13 w-13 items-center justify-center rounded-full border border-gray-200 text-gray-700 transition dark:border-gray-800 dark:text-gray-400">
                         {/* Upload icon SVG */}
                       </div>

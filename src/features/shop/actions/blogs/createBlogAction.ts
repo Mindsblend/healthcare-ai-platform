@@ -1,4 +1,3 @@
-import { iconType, gainType, faqType } from '@/components/types/types'
 
 export interface CreateBlogPayload {
   title: string,

@@ -31,7 +31,7 @@ const page = () => {
       </div>
 
       {/* Latest Blog */}
-      <div className="bg-page mt-14 flex w-full flex-col gap-4 rounded-3xl border border-black/25 px-2 py-3 lg:min-h-[542px] lg:flex-row lg:gap-7">
+      <div className="bg-page mt-14 flex w-full flex-col gap-4 rounded-3xl border border-black/25 px-2 py-3 lg:min-h-135.5 lg:flex-row lg:gap-7">
         {/* content */}
         <div className="order-2 flex flex-col rounded-3xl bg-[#F2F2F2] px-5 py-4 lg:order-0 lg:grow lg:px-12 lg:py-6">
           {/* text */}
@@ -58,14 +58,14 @@ const page = () => {
           <div className="mt-auto flex flex-col-reverse gap-4 pt-6 lg:flex-row lg:items-center lg:justify-between">
             <a
               href="#"
-              className="text-color-title-on-dark font-ray flex h-12 w-full shrink-0 items-center justify-center rounded-3xl bg-black px-7 whitespace-nowrap lg:w-[165px]"
+              className="text-color-title-on-dark font-ray flex h-12 w-full shrink-0 items-center justify-center rounded-3xl bg-black px-7 whitespace-nowrap lg:w-41.25"
             >
               مطالعه بیشتر
             </a>
 
             <div className="flex shrink-0 items-center gap-2.5">
               <Image
-                src={latestBlog.authorImage}
+                src={latestBlog.authorImage || "/images/default-avatar.png"}
                 alt="writer image"
                 width={46}
                 height={46}
@@ -84,8 +84,8 @@ const page = () => {
         </div>
         {/* image */}
         <div
-          className="relative order-1 h-[400px] w-full rounded-3xl bg-cover bg-center lg:order-0 lg:h-auto lg:max-w-[740px]"
-          style={{ backgroundImage: `url(${latestBlog.image})` }}
+          className="relative order-1 h-100 w-full rounded-3xl bg-cover bg-center lg:order-0 lg:h-auto lg:max-w-185"
+          style={{ backgroundImage: `url(${latestBlog.image || '/images/default-blog.png'})` }}
         >
           <div className="bg-page absolute top-3.5 right-4 z-10 h-12 w-12 rounded-full p-2.5">
             <Image

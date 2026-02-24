@@ -87,15 +87,15 @@ const Page = () => {
     <section className="container-wide py-20">
       {/* ===== Header ===== */}
       <div className="mb-10 flex flex-col items-center text-center">
-        <h1 className="font-aria text-color-title-on-light max-w-[532px] text-[36px] leading-tight font-extrabold sm:text-[54px]">
+        <h1 className="font-aria text-color-title-on-light max-w-133 text-[36px] leading-tight font-extrabold sm:text-[54px]">
           کالای دلخواهت را همین حالا پیدا کن
         </h1>
 
         {/* Search */}
-        <div className="relative mx-auto mt-8 w-full max-w-[469px] px-4 sm:px-0">
+        <div className="relative mx-auto mt-8 w-full max-w-117.25 px-4 sm:px-0">
           <div
             onClick={() => setAppliedSearchQuery(searchQuery)}
-            className="absolute top-1/2 left-4 flex h-[46px] w-[46px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white shadow-sm"
+            className="absolute top-1/2 left-4 flex h-11.5 w-11.5 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white shadow-sm"
           >
             <Image
               src="/images/search.svg"
@@ -108,7 +108,7 @@ const Page = () => {
           <input
             type="text"
             placeholder="جستجو هوشمندانه از میان صدها محصول"
-            className="font-ray text-color-body-on-light h-[65px] w-full rounded-2xl bg-[#f2f2f2] pr-5 pl-[50px] text-[16px] font-bold transition outline-none focus:bg-white focus:ring-2 focus:ring-black"
+            className="font-ray text-color-body-on-light h-16.25 w-full rounded-2xl bg-[#f2f2f2] pr-5 pl-12.5 text-[16px] font-bold transition outline-none focus:bg-white focus:ring-2 focus:ring-black"
             value={searchQuery}
             onChange={(e) => {
               const value = e.target.value
@@ -259,11 +259,12 @@ const Page = () => {
         </aside>
 
         {/* ===== Products Grid ===== */}
-        <div className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4 sm:gap-6 lg:gap-8">
+        <div className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(250px, 1fr))] sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {filteredProducts.map((product) => (
             <Product key={product.id} product={product} />
           ))}
         </div>
+      </div>
     </section>
   )
 }

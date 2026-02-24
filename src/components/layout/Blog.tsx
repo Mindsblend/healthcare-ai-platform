@@ -11,7 +11,7 @@ const Blog = ({ blog }: Props) => {
       {/* top image */}
       <div
         className="relative h-[334px] w-full rounded-3xl bg-cover bg-center"
-        style={{ backgroundImage: `url(${blog.image})` }}
+        style={{ backgroundImage: `url(${blog.image || '/images/default-blog.png'})` }}
       >
         <div className="bg-page absolute top-3.5 right-4 z-10 h-12 w-12 rounded-full p-2.5">
           <Image
@@ -47,14 +47,14 @@ const Blog = ({ blog }: Props) => {
         <div className="mt-4 flex flex-col-reverse gap-4 xl:flex-row xl:items-center xl:justify-between">
           <a
             href="#"
-            className="text-color-title-on-dark font-ray flex h-12 w-full items-center justify-center rounded-3xl bg-black px-7 xl:w-[165px]"
+            className="text-color-title-on-dark font-ray flex h-12 w-full items-center justify-center rounded-3xl bg-black px-7 xl:w-41.25"
           >
             مطالعه بیشتر
           </a>
 
           <div className="flex items-center gap-2.5">
             <Image
-              src={blog.authorImage}
+              src={blog.authorImage || "/images/default-avatar.png"}
               alt="writer image"
               width={46}
               height={46}
