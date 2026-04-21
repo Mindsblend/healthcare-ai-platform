@@ -2,61 +2,85 @@ import Image from 'next/image'
 
 const Footer = () => {
   return (
-    <footer className="bg-page container pt-20 pb-10 text-color-title-on-light">
-      <div className="flex justify-between gap-20">
+    <footer className="bg-page text-color-title-on-light container pt-12 pb-5">
+      <div className="flex flex-col justify-between sm:flex-row">
         {/* RIGHT SIDE — Logo + Paragraph + Social Icons + Numbers */}
-        <div className="max-w-sm text-right">
+        <div className="flex max-w-sm flex-col justify-between">
           {/* Logo */}
           <Image
             src="/images/logo.svg"
             alt="Logo"
             width={200}
-            height={60}
-            className="mb-4"
+            height={70}
+            className="w-43.75 xl:w-50"
           />
 
           {/* Paragraph */}
-          <p className="font-ray text-color-body-on-light mb-6 text-[18px] leading-7">
+          <p className="font-ray text-color-title-on-light mb-2.5 text-wrap sm:max-w-2xs sm:text-sm xl:max-w-lg xl:text-xl">
             انتخاب ارگانیک امروز، یعنی هدیه‌دادن آینده‌ای سالم‌تر به فرزندان؛ با
             عادت‌های درست و بدنی پاک‌تر و محیطی سبزتر.
           </p>
 
           {/* Numbers */}
-          <div className="font-aria text-color-body-on-light flex justify-start gap-6 text-lg font-normal">
+          <div className="font-aria text-color-title-on-light flex justify-start gap-3 text-lg font-normal sm:gap-6">
             {/* Social Media */}
             <div className="flex justify-end gap-4">
               <Image
                 src="/images/whatsapp.svg"
-                width={28}
-                height={28}
+                width={22}
+                height={22}
                 alt="Whatsapp"
               />
               <Image
                 src="/images/telegram.svg"
-                width={28}
-                height={28}
+                width={22}
+                height={22}
                 alt="Telegram"
               />
               <Image
                 src="/images/instagram.svg"
-                width={28}
-                height={28}
+                width={22}
+                height={22}
                 alt="Instagram"
               />
             </div>
-            <span>۰۲۱۶۶۴۳۱۹۵۵</span>
-            <span>۰۹۱۲۸۴۵۵۹۰۷</span>
+            <span className="font-ray sm:text-sm xl:text-xl">۰۲۱۶۶۴۳۱۹۵۵</span>
+            <span className="font-ray sm:text-sm xl:text-xl">۰۹۱۲۸۴۵۵۹۰۷</span>
           </div>
         </div>
 
         {/* LEFT SIDE — 3 Categories */}
-        <div className="flex gap-20">
+        <div className="flex gap-12.5 max-sm:mt-5 max-sm:flex-wrap sm:gap-x-10 xl:gap-x-20">
           {/* Category 1 */}
           <div>
-            <h3 className="font-aria mb-4 text-[20px] font-extrabold">
-              محصولات
+            <h3 className="font-aria mb-2.5 font-extrabold sm:text-base xl:text-xl">
+              صفحه اصلی
             </h3>
-            <ul className="font-ray space-y-4 text-[18px]">
+            <ul className="font-ray space-y-2 sm:text-sm xl:text-lg">
+              <li>
+                <a href="#" className="hover:text-gray-300">
+                  بلاگ
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-gray-300">
+                  تست هوش مصنوعی
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-gray-300">
+                  فروشگاه
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Category 2 */}
+          <div>
+            <h3 className="font-aria mb-2 font-extrabold sm:text-base xl:text-xl">
+              فروشگاه
+            </h3>
+            <ul className="font-ray space-y-2 sm:text-sm xl:text-lg">
               <li>
                 <a href="#" className="hover:text-gray-300">
                   روغن‌ها
@@ -75,34 +99,12 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Category 2 */}
-          <div>
-            <h3 className="font-aria mb-4 text-[20px] font-extrabold">خدمات</h3>
-            <ul className="font-ray space-y-4 text-[18px]">
-              <li>
-                <a href="#" className="hover:text-gray-300">
-                  مشاوره رایگان
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-gray-300">
-                  تست هوش مصنوعی
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-gray-300">
-                  ارسال سریع
-                </a>
-              </li>
-            </ul>
-          </div>
-
           {/* Category 3 */}
           <div>
-            <h3 className="font-aria mb-4 text-[20px] font-extrabold">
+            <h3 className="font-aria mb-2 font-extrabold sm:text-base xl:text-xl">
               ارتباط با ما
             </h3>
-            <ul className="font-ray space-y-4 text-[18px]">
+            <ul className="font-ray space-y-2 sm:text-sm xl:text-lg">
               <li>
                 <a href="#" className="hover:text-gray-300">
                   درباره ما
@@ -124,17 +126,14 @@ const Footer = () => {
       </div>
 
       {/* Separator Line */}
-      <div className="mt-10 mb-6 h-px w-full bg-[#D9D9D9]"></div>
+      <div className="my-2.5 h-px w-full bg-[#D9D9D9]"></div>
 
       {/* Footer Bottom Links */}
-      <div
-        className="font-ray flex justify-between text-[20px] font-extrabold text-black"
-        dir="rtl"
-      >
+      <div className="font-ray flex flex-wrap justify-center font-bold text-black sm:justify-between sm:text-sm xl:text-xl">
         <a href="#" className="hover:text-gray-200">
           © ۲۰۲۵ عطاری ۲۴ ساعته – تمامی حقوق محفوظ است
         </a>
-        <div className="flex gap-9">
+        <div className="flex flex-wrap sm:gap-5 xl:gap-8">
           <a href="#" className="hover:text-gray-200">
             سیاست حریم خصوصی
           </a>

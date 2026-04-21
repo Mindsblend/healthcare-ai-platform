@@ -12,7 +12,7 @@ export default async function Navbar() {
         <div className="font-ray flex items-center gap-8 text-[16px] font-medium text-black">
           {/* Logo */}
           <div>
-            <Link href='/'>
+            <Link href="/">
               <Image
                 src="/images/logo.svg"
                 alt="Logo"
@@ -84,47 +84,47 @@ export default async function Navbar() {
               </Link>
             </div>
           ) : (
-            <div className="flex">
+            <div className="flex gap-3 lg:gap-7.5">
               <Link
                 href="/ai"
-                className="bg-page flex cursor-pointer gap-1 items-center justify-between rounded-full px-4 text-white"
+                className="bg-page flex cursor-pointer items-center justify-between gap-1 rounded-full text-white"
               >
                 {/* Button text */}
-                <span className="font-ray text-color-title-on-light mr-3.5 text-[16px] font-medium whitespace-nowrap">
+                <span className="font-ray text-color-title-on-light mr-3.5 text-xs font-medium whitespace-nowrap lg:text-base">
                   تست هوش مصنوعی
                 </span>
 
                 {/* Circle with icon */}
-                <div className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-white">
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white sm:h-8 sm:w-8">
                   <Image
                     src="/images/cognition-black.svg"
                     alt="Arrow"
                     width={24}
                     height={24}
+                    className="max-sm:h-5 max-sm:w-5"
                   />
                 </div>
               </Link>
 
-              <button className="flex h-[43px] min-w-[187px] cursor-pointer items-center justify-between rounded-full bg-black px-2 text-white">
-                {/* Button text */}
-                <Link
-                  href={'/auth'}
-                  className="font-ray mr-3.5 text-[16px] font-medium whitespace-nowrap text-white"
-                >
+              {/* Button text */}
+              <Link
+                href={'/auth'}
+                className="flex h-10 w-38 cursor-pointer items-center justify-between rounded-full bg-black px-2 whitespace-nowrap sm:h-13.5 sm:w-45 xl:w-48.5"
+              >
+                <span className="font-ray pr-2 text-xs font-medium text-white sm:text-base">
                   ورود به حساب کاربری
-                </Link>
-
+                </span>
                 {/* Circle with icon */}
-                <div className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-white">
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white sm:h-10 sm:w-10">
                   <Image
-                    src="/images/arrow.svg"
-                    alt="Arrow"
-                    width={20}
-                    height={20}
-                    className="rotate-45"
+                    src="/images/right-up.svg"
+                    alt="Top Right Image"
+                    width={35}
+                    height={35}
+                    className="max-sm:h-3.75 max-sm:w-3.75"
                   />
                 </div>
-              </button>
+              </Link>
             </div>
           )}
         </div>

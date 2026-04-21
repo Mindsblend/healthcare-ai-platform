@@ -9,7 +9,7 @@ export default async function ProductsSection() {
       {/* only this block is centered */}
       <div className="text-color-title-on-light flex flex-col items-center text-center">
         <h1 className="font-aria text-xl font-bold">انتخابی سالم</h1>
-        <h1 className="font-aria mt-3 max-w-3xl text-5xl font-bold xl:max-w-5xl">
+        <h1 className="font-aria text-color-title-on-light mt-3 mb-4 max-w-3xl text-center text-2xl font-bold sm:text-4xl xl:max-w-4xl xl:text-5xl">
           محصولات ارگانیکی که بدن شما را تغذیه و آینده شما را بیمه می‌کنند
         </h1>
       </div>

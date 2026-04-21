@@ -10,7 +10,7 @@ const StepsSection = () => {
           <h1 className="font-aria text-color-title-on-dark max-w-lg text-4xl font-bold xl:max-w-2xl xl:text-5xl">
             راهکار کامل شما برای سلامتی، بدون پیچیدگی و دغدغه
           </h1>
-          <p className="font-ray text-color-body-on-dark mt-3.5 max-w-[490px] text-base xl:max-w-xl xl:text-xl">
+          <p className="font-ray text-color-body-on-dark mt-3.5 max-w-122.5 text-xs font-medium sm:text-base xl:max-w-xl xl:text-lg">
             ما بیش از یک دهه است که به خانواده‌ها و افراد در ایران کمک می‌کنیم
             تا زندگی سالم‌تر و پرانرژی‌تری داشته باشند. هر محصول ارگانیک ما از
             کشاورزی پایدار و استانداردهای دقیق انتخاب می‌شود، بسته‌بندی می‌شود و
@@ -20,26 +20,27 @@ const StepsSection = () => {
           <div className="mt-5 mb-6 flex gap-4">
             <Link
               href="/ai"
-              className="bg-accent-purple flex h-[54px] w-[195px] cursor-pointer items-center justify-between rounded-full px-2 text-black xl:w-[210px]"
+              className="flex h-10 w-38 cursor-pointer items-center justify-between rounded-full bg-accent-purple px-2 text-black sm:h-13.5 sm:w-48.75 xl:w-52.5"
             >
               {/* Button text */}
-              <span className="font-ray pr-4 text-base font-medium">
+              <span className="font-ray pr-2 text-xs font-medium sm:pr-4 sm:text-base">
                 تست هوش مصنوعی
               </span>
 
               {/* Circle with icon */}
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-black sm:h-10 sm:w-10">
                 <Image
                   src="/images/arrow-white.svg"
                   alt="Top Right Image"
                   width={20}
                   height={20}
+                  className="max-sm:h-3.75 max-sm:w-3.75"
                 />
               </div>
             </Link>
             <Link
               href="/auth"
-              className="font-ray flex h-[54px] w-[145px] cursor-pointer items-center justify-center rounded-full border border-white px-0 text-base font-medium whitespace-nowrap text-white transition hover:bg-black hover:text-white"
+              className="font-ray flex h-10 w-26 cursor-pointer items-center justify-center rounded-full border border-white px-0 text-xs font-medium whitespace-nowrap text-white transition hover:bg-black hover:text-white sm:h-13.5 sm:w-36.25 sm:text-base"
             >
               آشنایی با محصولات
             </Link>
@@ -48,10 +49,10 @@ const StepsSection = () => {
         <div className="grid grid-cols-2 gap-x-16">
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="font-aria text-color-title-on-dark text-left text-5xl font-black">
+              <h1 className="font-aria text-color-title-on-dark text-left font-black text-4xl xl:max-w-2xl xl:text-5xl">
                 ۹۳%
               </h1>
-              <p className="font-ray text-color-body-on-dark text-xl">
+              <p className="font-ray text-color-body-on-dark text-base xl:text-lg">
                 رضایت مشتریان
               </p>
             </div>
@@ -64,10 +65,10 @@ const StepsSection = () => {
           </div>
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="font-aria text-color-title-on-dark text-left text-5xl font-black">
+              <h1 className="font-aria text-color-title-on-dark text-left font-black text-4xl xl:max-w-2xl xl:text-5xl">
                 ۵۰۰۰+
               </h1>
-              <p className="font-ray text-color-body-on-dark text-xl">
+              <p className="font-ray text-color-body-on-dark text-base xl:text-lg">
                 تعداد ارسال ها
               </p>
             </div>
@@ -80,10 +81,10 @@ const StepsSection = () => {
           </div>
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="font-aria text-color-title-on-dark text-left text-5xl font-black">
+              <h1 className="font-aria text-color-title-on-dark text-left font-black text-4xl xl:max-w-2xl xl:text-5xl">
                 ۱۲
               </h1>
-              <p className="font-ray text-color-body-on-dark text-xl">
+              <p className="font-ray text-color-body-on-dark text-base xl:text-lg">
                 سال ها تجربه
               </p>
             </div>
@@ -96,10 +97,10 @@ const StepsSection = () => {
           </div>
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="font-aria text-color-title-on-dark text-left text-5xl font-black">
+              <h1 className="font-aria text-color-title-on-dark text-left font-black text-4xl xl:max-w-2xl xl:text-5xl">
                 ۳۰۰۰+
               </h1>
-              <p className="font-ray text-color-body-on-dark text-xl">
+              <p className="font-ray text-color-body-on-dark text-base xl:text-lg">
                 تعداد مشتریان
               </p>
             </div>

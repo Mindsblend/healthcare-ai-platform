@@ -47,12 +47,12 @@ const reviews: Review[] = [
 
 const ReviewSection = () => {
   return (
-    <section className="flex w-full container flex-col items-center justify-center py-12">
+    <section className="container flex w-full flex-col items-center justify-center py-12">
       {/* Title */}
-      <h2 className="font-aria text-color-title-on-light mb-4 max-w-2xl text-center text-5xl font-extrabold">
+      <h2 className="font-aria text-color-title-on-light mb-4 max-w-lg text-center text-3xl font-extrabold sm:text-4xl xl:max-w-2xl xl:text-5xl">
         صدای کسانی که سلامتی و زندگی خود را متحول کردند
       </h2>
-      <p className="font-ray text-color-body-on-light mb-16 max-w-xl text-center text-xl">
+      <p className="font-ray text-color-body-on-light mb-16 max-w-lg text-center text-xs font-medium max-sm:max-w-sm sm:text-base xl:text-lg">
         هر تجربه‌ای، داستانی از تغییر و انتخاب درست است. کاربران ما با محصولات و
         راهنمایی‌های شخصی، نه تنها سلامتی خود را بهبود داده‌اند، بلکه سبک زندگی
         و کیفیت روزمره خود را نیز متحول کرده‌اند.
@@ -64,31 +64,30 @@ const ReviewSection = () => {
         {reviews.slice(0, 3).map((review) => (
           <div
             key={review.id}
-            className="flex items-start gap-4 rounded-2xl border border-black/10 bg-white p-6 shadow-lg"
+            className="flex items-center gap-4 rounded-2xl border border-black/10 bg-white p-6 shadow-lg"
           >
+            {/* Text */}
+            <div className="flex flex-col">
+              <span className="xl:pl-6">
+                <Image
+                  src="/images/quote.svg"
+                  alt="icon"
+                  width={20}
+                  height={20}
+                />
+              </span>
+              <p className="font-ray text-color-body-on-light mt-1 py-1.25 text-xs xl:text-sm">
+                {review.content}
+              </p>
+              <div className="flex w-full items-center justify-between">
+                <h3 className="font-aria text-color-title-on-light text-base font-semibold xl:text-xl">
+                  {review.name}
+                </h3>
+              </div>
+            </div>
             {/* Circle Image */}
             <div className="flex w-42 items-center justify-center overflow-hidden rounded-full bg-gray-100">
               <Image src={review.imagePath} alt="icon" width={72} height={72} />
-            </div>
-
-            {/* Text */}
-            <div className="flex flex-col">
-              <div className="flex w-full items-center justify-between">
-                <h3 className="font-aria text-base xl:text-xl font-semibold text-color-title-on-light">
-                  {review.name}
-                </h3>
-                <span className='xl:pl-6'>
-                  <Image
-                    src="/images/quote.svg"
-                    alt="icon"
-                    width={20}
-                    height={20}
-                  />
-                </span>
-              </div>
-              <p className="font-ray text-color-body-on-light mt-1 text-xs xl:text-sm">
-                {review.content}
-              </p>
             </div>
           </div>
         ))}
@@ -99,29 +98,28 @@ const ReviewSection = () => {
         {reviews.slice(3, 5).map((review) => (
           <div
             key={review.id}
-            className="flex items-start gap-4 rounded-2xl border border-black/10 bg-white p-6 shadow-lg"
+            className="flex items-center gap-4 rounded-2xl border border-black/10 bg-white p-6 shadow-lg"
           >
-            <div className="flex w-42 items-center justify-center overflow-hidden rounded-full bg-gray-100">
-              <Image src={review.imagePath} alt="icon" width={72} height={72} />
-            </div>
-
             <div className="flex flex-col">
-              <div className="flex w-full items-center justify-between">
-                <h3 className="font-aria text-base xl:text-xl font-semibold text-color-title-on-light">
-                  {review.name}
-                </h3>
-                <span className='pl-6'>
-                  <Image
-                    src="/images/quote.svg"
-                    alt="icon"
-                    width={20}
-                    height={20}
-                  />
-                </span>
-              </div>
-              <p className="font-ray text-color-body-on-light mt-1 text-xs xl:text-sm">
+              <span className="pl-6">
+                <Image
+                  src="/images/quote.svg"
+                  alt="icon"
+                  width={20}
+                  height={20}
+                />
+              </span>
+              <p className="font-ray text-color-body-on-light mt-1 py-1.25 text-xs xl:text-sm">
                 {review.content}
               </p>
+              <div className="flex w-full items-center justify-between">
+                <h3 className="font-aria text-color-title-on-light text-base font-semibold xl:text-xl">
+                  {review.name}
+                </h3>
+              </div>
+            </div>
+            <div className="flex w-42 items-center justify-center overflow-hidden rounded-full bg-gray-100">
+              <Image src={review.imagePath} alt="icon" width={72} height={72} />
             </div>
           </div>
         ))}

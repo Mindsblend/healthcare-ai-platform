@@ -38,7 +38,7 @@ export default function ProductSwiper({
     <div className="mt-2.5 flex w-full flex-col">
       {/* HEADER */}
       <div
-        className={`mb-3 flex w-full items-center ${hasCategories ? '' : 'pr-14'}`}
+        className={`mb-3 flex w-full items-center ${hasCategories ? '' : 'pr-5 sm:pr-14'}`}
       >
         {/* LEFT */}
         <div className="flex flex-1 items-center">

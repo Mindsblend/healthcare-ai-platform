@@ -68,7 +68,7 @@ const Questions = ({ faqs }: QuestionsProps) => {
   const rightFaqs = faqs ? faqs.slice(3, 6) : []
 
   return (
-    <div className="mt-11 flex w-full flex-col justify-between gap-10 px-18 lg:flex-row 2xl:px-56">
+    <div className="mt-11 flex w-full flex-col justify-between gap-10 lg:flex-row">
       {/* left side */}
       <div className="w-[607px]">
         {leftFaqs.map((item, index) => {

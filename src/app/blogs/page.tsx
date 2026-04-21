@@ -16,12 +16,12 @@ const page = () => {
   )
 
   return (
-    <div className="container mt-28">
+    <div className="container mt-14 xl:mt-28">
       <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="font-aria text-color-title-on-light max-w-3xl text-6xl font-extrabold">
+        <h1 className="font-aria text-color-title-on-light max-w-lg text-3xl font-extrabold sm:text-4xl xl:max-w-3xl xl:text-6xl">
           راهنمای کامل برای زندگی با انرژی و طول عمر بیشتر
         </h1>
-        <p className="font-ray text-color-title-on-light max-w-xl text-lg">
+        <p className="font-ray text-color-title-on-light mt-5 max-w-xl text-xs sm:text-sm xl:text-lg">
           زندگی روزمره پر از فشار، تغذیه ناسالم و استرس‌های پنهان است که اغلب ما
           متوجه اثرات آن بر بدن و ذهن‌مان نمی‌شویم. این صفحه برای شما ساخته شده
           تا با ارائه مقالات علمی، توصیه‌های عملی و راهکارهای شخصی‌سازی‌شده،

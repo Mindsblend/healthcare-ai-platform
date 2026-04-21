@@ -2,12 +2,12 @@ import Image from 'next/image'
 
 const ServicesSection = () => {
   return (
-    <div className="mt-28 flex flex-col items-center justify-center">
-      <div className="flex flex-col items-center justify-center text-center">
-        <h1 className="text-color-title-on-light font-aria max-w-lg text-5xl font-extrabold">
+    <div className="mt-12 flex flex-col items-center justify-center">
+      <div className="container flex flex-col items-center justify-center text-center">
+        <h1 className="text-color-title-on-light font-aria max-w-lg text-3xl font-extrabold max-sm:max-w-xs sm:text-4xl xl:text-5xl">
           راهکاری کامل برای سلامتی و تجربه خرید مطمئن
         </h1>
-        <p className="font-ray text-color-body-on-light mt-7 max-w-lg text-xl">
+        <p className="font-ray text-color-body-on-light mt-7 max-w-lg text-xs font-medium max-sm:max-w-sm sm:text-base xl:text-lg">
           با ما، سلامتی و تجربه خرید شما به بالاترین استانداردها می‌رسد. هر
           محصول ارگانیک ما با دقت انتخاب و بسته‌بندی می‌شود تا کیفیت و تازگی آن
           حفظ شود.

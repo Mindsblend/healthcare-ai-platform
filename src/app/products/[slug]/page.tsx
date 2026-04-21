@@ -43,8 +43,8 @@ export default async function ProductPage(props: { params: any }) {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between px-18 2xl:px-56">
+    <div className="container">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="font-aria text-color-title-on-light text-4xl font-extrabold">
             {product.title}

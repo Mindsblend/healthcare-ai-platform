@@ -39,13 +39,13 @@ const FeaturesSection = () => {
   ]
 
   return (
-    <div className="flex w-full justify-between gap-16 py-12 container">
+    <div className="container flex w-full justify-between gap-5 py-12 max-sm:flex-col max-sm:items-center xl:gap-16">
       {/* Right side (sticky title + paragraph) */}
-      <div className="sticky top-24 h-fit w-1/2">
-        <h2 className="font-aria text-color-title-on-light mb-4 text-4xl xl:text-5xl font-extrabold">
+      <div className="top-24 h-fit max-sm:mb-10 max-sm:max-w-xs max-sm:text-center sm:sticky sm:w-1/2">
+        <h2 className="font-aria text-color-title-on-light mb-4 text-3xl font-extrabold max-sm:font-bold xl:text-5xl">
           با هر محصول، یک قدم به زندگی دلخواهت نزدیک‌تر شو
         </h2>
-        <p className="font-ray text-color-body-on-light max-w-[508px] text-lg">
+        <p className="font-ray text-color-body-on-light max-w-127 text-sm sm:text-base xl:text-lg">
           تصور کن صبح را با انرژی و ذهنی شفاف شروع می‌کنی. غذایی که می‌خوری نه
           پر از افزودنی ناشناخته، بلکه سرشار از مواد مغذی و طبیعی است. خیالت
           راحت است که بدن و خانواده‌ات را از بیماری‌های آینده محافظت کرده‌ای.
@@ -53,21 +53,22 @@ const FeaturesSection = () => {
       </div>
 
       {/* Left side (scrolling items) */}
-      <div className="flex flex-col gap-10">
+      <div className="flex flex-col gap-10 max-lg:max-w-xs">
         {items.map((item, i) => (
-          <div
-            key={i}
-            className="flex items-start gap-4 pb-6"
-          >
+          <div key={i} className="flex items-center gap-2 pb-6 sm:gap-4">
             {/* Icon */}
-            <img src={item.icon} alt="items icons" className="h-15 w-15 object-contain" />
+            <img
+              src={item.icon}
+              alt="items icons"
+              className="h-10 w-10 object-contain xl:h-17.5 xl:w-17.5"
+            />
 
             {/* Text */}
             <div>
-              <h3 className="font-aria mb-1 text-3xl font-extrabold">
+              <h3 className="font-aria text-color-title-on-light mb-1 text-2xl font-extrabold xl:text-3xl">
                 {item.title}
               </h3>
-              <p className="font-ray max-w-[368px] text-lg text-gray-600">
+              <p className="font-ray max-w-92 text-sm text-gray-600 sm:text-base xl:text-lg">
                 {item.description}
               </p>
             </div>

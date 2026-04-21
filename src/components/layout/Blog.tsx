@@ -7,10 +7,10 @@ interface Props {
 
 const Blog = ({ blog }: Props) => {
   return (
-    <div className="bg-page flex min-h-[570px] w-full max-w-[415px] flex-col rounded-3xl border border-black/25 px-2 py-3">
+    <div className="bg-page flex w-full flex-col rounded-3xl border border-black/25 px-2.5 py-2.5">
       {/* top image */}
       <div
-        className="relative h-[334px] w-full rounded-3xl bg-cover bg-center"
+        className="relative aspect-square w-full rounded-3xl bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `url(${blog.image || '/images/default-blog.png'})`,
         }}
@@ -26,7 +26,7 @@ const Blog = ({ blog }: Props) => {
       </div>
 
       {/* content */}
-      <div className="mt-2 flex grow flex-col justify-between rounded-3xl bg-[#F2F2F2] px-6 py-4">
+      <div className="mt-2 flex grow flex-col justify-between rounded-3xl bg-[#F2F2F2] p-4.25">
         <div className="text-color-title-on-light">
           <h1 className="font-ray text-xl font-extrabold xl:text-2xl">
             {blog.title}
@@ -46,7 +46,7 @@ const Blog = ({ blog }: Props) => {
         </div>
 
         {/* footer */}
-        <div className="mt-4 flex flex-col-reverse gap-4 xl:flex-row xl:items-center xl:justify-between">
+        <div className="mt-3.5 flex flex-col-reverse gap-4 xl:flex-row xl:items-center xl:justify-between">
           <a
             href="#"
             className="text-color-title-on-dark font-ray flex h-12 w-full items-center justify-center rounded-3xl bg-black px-7 xl:w-41.25"
@@ -54,7 +54,7 @@ const Blog = ({ blog }: Props) => {
             مطالعه بیشتر
           </a>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 2xl:ml-5">
             <Image
               src={blog.authorImage || '/images/default-avatar.png'}
               alt="writer image"
