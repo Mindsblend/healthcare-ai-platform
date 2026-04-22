@@ -17,7 +17,7 @@ const CallToAction = () => {
 
         <div className="flex gap-4">
           <Link
-            href="/"
+            href="/ai"
             className="primary-btn bg-accent-purple flex items-center justify-between rounded-full text-white"
           >
             {/* Button text */}
@@ -35,9 +35,12 @@ const CallToAction = () => {
               />
             </div>
           </Link>
-          <button className="secondary-btn flex items-center justify-center rounded-full border border-white font-medium whitespace-nowrap text-white transition hover:bg-black hover:text-white">
+          <Link
+            href="auth"
+            className="secondary-btn flex items-center justify-center rounded-full border border-white font-medium whitespace-nowrap text-white transition hover:bg-black hover:text-white"
+          >
             آشنایی با محصولات
-          </button>
+          </Link>
         </div>
       </div>
     </div>

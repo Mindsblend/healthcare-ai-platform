@@ -122,7 +122,7 @@ function NavButtons({
     <div className="flex items-center gap-2.5 self-start pr-5 xl:mb-3 xl:pr-14">
       <div
         ref={prevRef}
-        className="flex h-11.25 w-11.25 items-center justify-center rounded-full bg-black xl:h-15 xl:w-15"
+        className="flex h-11.25 w-11.25 cursor-pointer items-center justify-center rounded-full bg-black xl:h-15 xl:w-15"
       >
         <Image
           src="/images/arrow-white.svg"
@@ -135,7 +135,7 @@ function NavButtons({
 
       <div
         ref={nextRef}
-        className="flex h-10 w-10 items-center justify-center rounded-full bg-[#D9D9D9] xl:h-12.5 xl:w-12.5"
+        className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-[#D9D9D9] xl:h-12.5 xl:w-12.5"
       >
         <Image
           src="/images/arrow-white.svg"
