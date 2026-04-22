@@ -20,27 +20,25 @@ const HeroSection = () => {
         <div className="mt-5 mb-6 flex gap-4">
           <Link
             href="/ai"
-            className="flex h-10 w-34 cursor-pointer items-center justify-between rounded-full bg-black px-2 text-white sm:h-13.5 sm:w-48.75 xl:w-52.5"
+            className="primary-btn flex items-center justify-between rounded-full bg-black text-white"
           >
             {/* Button text */}
-            <span className="font-ray pr-2 text-xs font-medium sm:pr-4 sm:text-base">
-              شروع سفر سلامتی
-            </span>
+            <span className="font-ray pr-2 font-medium">شروع سفر سلامتی</span>
 
             {/* Circle with icon */}
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white sm:h-10 sm:w-10">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white xl:h-10 xl:w-10">
               <Image
                 src="/images/arrow.svg"
                 alt="Top Right Image"
                 width={20}
                 height={20}
-                className="max-sm:h-3.75 max-sm:w-3.75"
+                className="max-xl:h-3.75 max-xl:w-3.75"
               />
             </div>
           </Link>
           <Link
             href="/auth"
-            className="font-ray flex h-10 w-26 cursor-pointer items-center justify-center rounded-full border border-black px-0 text-xs font-medium whitespace-nowrap text-black transition hover:bg-black hover:text-white sm:h-13.5 sm:w-36.25 sm:text-base"
+            className="secondary-btn flex items-center justify-center rounded-full border border-black font-medium whitespace-nowrap text-black transition hover:bg-black hover:text-white"
           >
             آشنایی با محصولات
           </Link>

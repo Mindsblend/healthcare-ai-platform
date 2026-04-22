@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import Link from 'next/link'
 
 const CallToAction = () => {
   return (
@@ -15,14 +16,17 @@ const CallToAction = () => {
         </p>
 
         <div className="flex gap-4">
-          <button className="bg-accent-purple flex h-13.5 w-52.5 cursor-pointer items-center justify-between rounded-full px-2 text-white">
+          <Link
+            href="/"
+            className="primary-btn bg-accent-purple flex items-center justify-between rounded-full text-white"
+          >
             {/* Button text */}
-            <span className="font-aria pr-4 text-base font-medium text-black">
+            <span className="font-ray pr-2 font-medium text-black">
               شروع سفر سلامتی
             </span>
 
             {/* Circle with icon */}
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-black xl:h-10 xl:w-10">
               <Image
                 src="/images/arrow-white.svg"
                 alt="Top Right Image"
@@ -30,8 +34,8 @@ const CallToAction = () => {
                 height={20}
               />
             </div>
-          </button>
-          <button className="font-ray flex h-13.5 w-36.25 cursor-pointer items-center justify-center rounded-full border border-white px-0 text-base font-medium whitespace-nowrap text-white transition hover:bg-black hover:text-white">
+          </Link>
+          <button className="secondary-btn flex items-center justify-center rounded-full border border-white font-medium whitespace-nowrap text-white transition hover:bg-black hover:text-white">
             آشنایی با محصولات
           </button>
         </div>

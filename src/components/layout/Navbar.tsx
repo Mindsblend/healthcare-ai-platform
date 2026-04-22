@@ -109,19 +109,19 @@ export default async function Navbar() {
               {/* Button text */}
               <Link
                 href={'/auth'}
-                className="flex h-10 w-38 cursor-pointer items-center justify-between rounded-full bg-black px-2 whitespace-nowrap sm:h-13.5 sm:w-45 xl:w-48.5"
+                className="primary-btn flex items-center justify-between rounded-full bg-black whitespace-nowrap"
               >
-                <span className="font-ray pr-2 text-xs font-medium text-white sm:text-base">
+                <span className="font-ray pr-2 font-medium text-white">
                   ورود به حساب کاربری
                 </span>
                 {/* Circle with icon */}
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white sm:h-10 sm:w-10">
+                <div className="flex h-7 w-7 rotate-45 items-center justify-center rounded-full bg-white xl:h-10 xl:w-10">
                   <Image
-                    src="/images/right-up.svg"
+                    src="/images/arrow.svg"
                     alt="Top Right Image"
-                    width={35}
-                    height={35}
-                    className="max-sm:h-3.75 max-sm:w-3.75"
+                    width={20}
+                    height={20}
+                    className="max-xl:h-3.75 max-xl:w-3.75"
                   />
                 </div>
               </Link>

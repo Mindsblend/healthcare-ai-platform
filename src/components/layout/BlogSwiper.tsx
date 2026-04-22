@@ -22,25 +22,25 @@ export default function BlogSwiper() {
   if (error) return <div>خطا در بارگذاری محصولات: {error}</div>
 
   return (
-    <div className="mt-2.5 flex w-full flex-col">
-      <div className="mb-3 flex items-center gap-2.5 self-start pr-5 sm:pr-14">
+    <div className="mt-6 flex w-full flex-col">
+      <div className="flex items-center gap-2.5 self-start pr-5 xl:mb-3 xl:pr-14">
         {/* PREV REF - Circle with icon */}
         <div
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-black"
+          className="flex h-11.25 w-11.25 items-center justify-center rounded-full bg-black xl:h-15 xl:w-15"
           ref={prevRef}
         >
           <Image
             src="/images/arrow-white.svg"
             alt="Top Right Image"
-            width={20}
-            height={20}
-            className="rotate-180"
+            width={30}
+            height={30}
+            className="rotate-180 max-xl:h-5 max-xl:w-5"
           />
         </div>
 
         {/* NEXT REF - Circle with icon */}
         <div
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-[#D9D9D9]"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-[#D9D9D9] xl:h-12.5 xl:w-12.5"
           ref={nextRef}
         >
           <Image
@@ -48,7 +48,7 @@ export default function BlogSwiper() {
             alt="Top Right Image"
             width={20}
             height={20}
-            className="invert"
+            className="invert max-xl:h-3.75 max-xl:w-3.75"
           />
         </div>
       </div>

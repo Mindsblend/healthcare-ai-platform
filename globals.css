@@ -95,6 +95,14 @@ body {
   .container-narrow {
     @apply mx-auto max-w-[1300px] px-6.25 sm:px-44 md:px-6 2xl:px-[45px];
   }
+
+  .primary-btn {
+    @apply h-10 w-39 cursor-pointer px-1.75 text-sm sm:w-40 xl:h-13.5 xl:w-47.5 xl:text-base;
+  }
+
+  .secondary-btn {
+    @apply font-ray h-10 w-30 cursor-pointer text-sm xl:h-13.75 xl:w-36.25 xl:text-base;
+  }
 }
 
 :root {

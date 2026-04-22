@@ -39,7 +39,7 @@ const Product = ({ product }: Props) => {
             className="text-color-title-on-light font-ray flex h-10 w-full cursor-pointer items-center justify-center gap-3 rounded-full bg-[#F2F2F2] pr-4 pl-1 text-sm font-medium whitespace-nowrap sm:w-auto 2xl:h-12 2xl:pr-5 2xl:text-base"
           >
             افزودن به سبد خرید
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white xl:h-10 xl:w-10">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white 2xl:h-10 2xl:w-10">
               <Image
                 src="/images/add-to-cart.svg"
                 alt="Add to cart"

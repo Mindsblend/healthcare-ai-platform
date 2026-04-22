@@ -35,10 +35,10 @@ export default function ProductSwiper({
   if (!filteredProducts.length) return null
 
   return (
-    <div className="mt-2.5 flex w-full flex-col">
+    <div className="mt-6 flex w-full flex-col">
       {/* HEADER */}
       <div
-        className={`mb-3 flex w-full items-center ${hasCategories ? '' : 'pr-5 sm:pr-14'}`}
+        className={`mb-3 flex w-full items-center ${hasCategories ? '' : ''}`}
       >
         {/* LEFT */}
         <div className="flex flex-1 items-center">
@@ -119,30 +119,30 @@ function NavButtons({
   nextRef: React.RefObject<HTMLDivElement | null>
 }) {
   return (
-    <div className="flex items-center gap-2.5">
+    <div className="flex items-center gap-2.5 self-start pr-5 xl:mb-3 xl:pr-14">
       <div
         ref={prevRef}
-        className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-black"
+        className="flex h-11.25 w-11.25 items-center justify-center rounded-full bg-black xl:h-15 xl:w-15"
       >
         <Image
           src="/images/arrow-white.svg"
           alt="prev"
-          width={20}
-          height={20}
-          className="rotate-180"
+          width={30}
+          height={30}
+          className="rotate-180 max-xl:h-5 max-xl:w-5"
         />
       </div>
 
       <div
         ref={nextRef}
-        className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-[#D9D9D9]"
+        className="flex h-10 w-10 items-center justify-center rounded-full bg-[#D9D9D9] xl:h-12.5 xl:w-12.5"
       >
         <Image
           src="/images/arrow-white.svg"
           alt="next"
           width={20}
           height={20}
-          className="invert"
+          className="invert max-xl:h-3.75 max-xl:w-3.75"
         />
       </div>
     </div>

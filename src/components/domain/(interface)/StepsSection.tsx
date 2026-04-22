@@ -20,27 +20,25 @@ const StepsSection = () => {
           <div className="mt-5 mb-6 flex gap-4">
             <Link
               href="/ai"
-              className="flex h-10 w-38 cursor-pointer items-center justify-between rounded-full bg-accent-purple px-2 text-black sm:h-13.5 sm:w-48.75 xl:w-52.5"
+              className="primary-btn bg-accent-purple flex items-center justify-between rounded-full text-black"
             >
               {/* Button text */}
-              <span className="font-ray pr-2 text-xs font-medium sm:pr-4 sm:text-base">
-                تست هوش مصنوعی
-              </span>
+              <span className="font-ray pr-2 font-medium">تست هوش مصنوعی</span>
 
               {/* Circle with icon */}
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-black sm:h-10 sm:w-10">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-black xl:h-10 xl:w-10">
                 <Image
                   src="/images/arrow-white.svg"
                   alt="Top Right Image"
                   width={20}
                   height={20}
-                  className="max-sm:h-3.75 max-sm:w-3.75"
+                  className="max-xl:h-3.75 max-xl:w-3.75"
                 />
               </div>
             </Link>
             <Link
               href="/auth"
-              className="font-ray flex h-10 w-26 cursor-pointer items-center justify-center rounded-full border border-white px-0 text-xs font-medium whitespace-nowrap text-white transition hover:bg-black hover:text-white sm:h-13.5 sm:w-36.25 sm:text-base"
+              className="secondary-btn flex items-center justify-center rounded-full border border-white font-medium whitespace-nowrap text-white transition hover:bg-black hover:text-white"
             >
               آشنایی با محصولات
             </Link>
@@ -49,7 +47,7 @@ const StepsSection = () => {
         <div className="grid grid-cols-2 gap-x-16">
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="font-aria text-color-title-on-dark text-left font-black text-4xl xl:max-w-2xl xl:text-5xl">
+              <h1 className="font-aria text-color-title-on-dark text-left text-4xl font-black xl:max-w-2xl xl:text-5xl">
                 ۹۳%
               </h1>
               <p className="font-ray text-color-body-on-dark text-base xl:text-lg">
@@ -65,7 +63,7 @@ const StepsSection = () => {
           </div>
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="font-aria text-color-title-on-dark text-left font-black text-4xl xl:max-w-2xl xl:text-5xl">
+              <h1 className="font-aria text-color-title-on-dark text-left text-4xl font-black xl:max-w-2xl xl:text-5xl">
                 ۵۰۰۰+
               </h1>
               <p className="font-ray text-color-body-on-dark text-base xl:text-lg">
@@ -81,7 +79,7 @@ const StepsSection = () => {
           </div>
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="font-aria text-color-title-on-dark text-left font-black text-4xl xl:max-w-2xl xl:text-5xl">
+              <h1 className="font-aria text-color-title-on-dark text-left text-4xl font-black xl:max-w-2xl xl:text-5xl">
                 ۱۲
               </h1>
               <p className="font-ray text-color-body-on-dark text-base xl:text-lg">
@@ -97,7 +95,7 @@ const StepsSection = () => {
           </div>
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="font-aria text-color-title-on-dark text-left font-black text-4xl xl:max-w-2xl xl:text-5xl">
+              <h1 className="font-aria text-color-title-on-dark text-left text-4xl font-black xl:max-w-2xl xl:text-5xl">
                 ۳۰۰۰+
               </h1>
               <p className="font-ray text-color-body-on-dark text-base xl:text-lg">
