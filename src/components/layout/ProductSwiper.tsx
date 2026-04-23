@@ -35,7 +35,7 @@ export default function ProductSwiper({
   if (!filteredProducts.length) return null
 
   return (
-    <div className="mt-6 flex w-full flex-col">
+    <div className="mt-3 flex w-full flex-col xl:mt-6">
       {/* HEADER */}
       <div
         className={`mb-3 flex w-full items-center ${hasCategories ? '' : ''}`}

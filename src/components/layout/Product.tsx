@@ -16,10 +16,10 @@ const Product = ({ product }: Props) => {
   }
 
   return (
-    <div className="bg-page flex w-full flex-col rounded-3xl border border-black/25 px-2 py-3">
+    <div className="bg-page flex w-full flex-col rounded-[22px] border border-black/25 p-2.5">
       {/* Image Section */}
       <div
-        className="relative aspect-square w-full rounded-3xl bg-cover bg-center bg-no-repeat"
+        className="relative aspect-square w-full rounded-[24px] bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${product.image})` }}
       >
         <div className="bg-page absolute top-3.5 right-4 z-10 h-12 w-12 rounded-full p-2.5">

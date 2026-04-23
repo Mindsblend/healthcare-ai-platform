@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Questions from '@/components/ui/Qustions'
 import { gainType, iconType } from '@/components/types/types'
 import ProductSwiper from '@/components/layout/ProductSwiper'
+import Link from 'next/link'
 
 export async function generateStaticParams() {
   const products = await ProductService.fetchAllProducts()
@@ -44,12 +45,12 @@ export default async function ProductPage(props: { params: any }) {
 
   return (
     <div className="container">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-aria text-color-title-on-light text-4xl font-extrabold">
+      <div className="flex items-center justify-between gap-x-6 max-lg:flex-col">
+        <div className="shrink-2 max-lg:w-full max-lg:pt-5">
+          <h1 className="font-aria text-color-title-on-light text-4xl font-extrabold sm:text-[40px]">
             {product.title}
           </h1>
-          <div className="mt-5 flex items-center gap-3">
+          <div className="mt-5 flex items-center gap-x-3">
             {product.icons?.map(({ id, title, iconPath }: iconType) => (
               <div key={id} className="flex gap-1">
                 <Image
@@ -58,17 +59,17 @@ export default async function ProductPage(props: { params: any }) {
                   width={13}
                   height={13}
                 />
-                <h1 className="font-ray text-color-title-on-light text-base font-medium">
+                <h1 className="font-ray text-color-title-on-light text-xs font-medium xl:text-base">
                   {title}
                 </h1>
               </div>
             ))}
           </div>
           {/* static description! */}
-          <p className="font-ray text-color-body-on-light mt-5 max-w-xl text-lg">
+          <p className="font-ray text-color-body-on-light mt-5 max-w-xl text-xs sm:text-sm xl:text-lg">
             {product.description}
           </p>
-          <div className="bg-section mt-5 rounded-lg px-6 py-[23px]">
+          <div className="bg-section mt-5 max-w-131.25 rounded-lg px-6.25 py-5.5">
             <div className="flex items-center gap-1.5">
               <Image
                 src="/images/cognition.svg"
@@ -80,7 +81,7 @@ export default async function ProductPage(props: { params: any }) {
                 هوش مصنوعی
               </h1>
             </div>
-            <p className="font-ray text-color-title-on-dark mt-2.5 max-w-[525px] text-sm font-medium">
+            <p className="font-ray text-color-title-on-dark mt-2.5 text-xs font-medium xl:text-sm">
               اشکان عزیز، بر اساس اطلاعاتی که ارائه کرده‌ای و وضعیت پوستت، این
               کرم آبرسان دقیقاً همان محصولی است که برای حل مشکل خشکی و کم‌آبی
               پوست- نیاز داری. ترکیبات گیاهی فعال و ویتامین‌های موجود در این
@@ -100,7 +101,7 @@ export default async function ProductPage(props: { params: any }) {
                     width={19.5}
                     height={19.5}
                   />
-                  <h1 className="font-ray text-color-title-on-light text-base font-medium">
+                  <h1 className="font-ray text-color-title-on-light text-xs font-medium sm:text-sm xl:text-base">
                     <span className="font-extrabold">{title}: </span>
                     {ingredient} — {description}
                   </h1>
@@ -108,58 +109,61 @@ export default async function ProductPage(props: { params: any }) {
               ),
             )}
           </div>
-          <div className="mt-5 flex items-center gap-4">
-            <a
-              href="#"
-              className="text-color-title-on-light font-ray flex h-12 items-center justify-center gap-3 rounded-full bg-[#F2F2F2] pr-5 pl-2 font-medium whitespace-nowrap"
+          <div className="mt-5 flex items-center gap-3.5">
+            <Link
+              href="/"
+              className="primary-btn text-color-title-on-light font-ray flex items-center justify-between rounded-full bg-[#F2F2F2] font-medium whitespace-nowrap"
             >
-              افزودن به سبد خرید
+              <span className="pr-2">افزودن به سبد خرید</span>
               {/* Circle with icon */}
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white xl:h-10 xl:w-10">
                 <Image
                   src="/images/add-to-cart.svg"
                   alt="Arrow"
                   width={20}
                   height={20}
+                  className="max-xl:h-3.75 max-xl:w-3.75"
                 />
               </div>
-            </a>
-            <a
-              href="#"
-              className="text-color-title-on-dark font-ray flex h-12 items-center justify-center rounded-3xl bg-black px-7 font-extrabold"
+            </Link>
+            <Link
+              href="/"
+              className="secondary-btn text-color-title-on-dark flex items-center justify-center rounded-full bg-black font-extrabold"
             >
               {product.price.toLocaleString('fa-IR')}
               <span className="pr-1">تومان</span>
-            </a>
+            </Link>
           </div>
         </div>
-        <div className="bg-page h-[631px] w-[632px] rounded-3xl border border-black/25 px-2 py-3">
-          <div
-            className="relative h-full w-full rounded-3xl bg-cover bg-no-repeat"
-            style={{ backgroundImage: `url(${product.image})` }}
-          >
-            <div className="bg-page absolute top-3.5 right-4 z-10 h-12 w-12 rounded-full p-2.5">
-              <Image
-                src="/images/makeup.svg"
-                alt="Product icon"
-                width={30}
-                height={30}
-              />
+        <div className="w-full max-lg:order-first lg:max-w-xl">
+          <div className="bg-page mx-auto w-full rounded-[37px] border border-black/25 p-3.5">
+            <div
+              className="relative aspect-4/3 w-full rounded-[25px] bg-cover bg-center bg-no-repeat sm:aspect-square xl:h-full xl:w-full"
+              style={{ backgroundImage: `url(${product.image})` }}
+            >
+              <div className="bg-page absolute top-4.25 right-4.25 z-10 h-12 w-12 rounded-full p-2.25">
+                <Image
+                  src="/images/makeup.svg"
+                  alt="Product icon"
+                  width={30}
+                  height={30}
+                />
+              </div>
             </div>
           </div>
         </div>
       </div>
       <Questions faqs={product.faqs} />
-      <div className="mt-48 flex w-full flex-col">
+      <div className="mt-11 flex w-full flex-col">
         {/* only this block is centered */}
         <div className="text-color-title-on-light flex flex-col items-center text-center">
-          <h1 className="font-aria text-[30px] font-extrabold">
+          <h1 className="font-aria text-3xl font-extrabold xl:text-4xl">
             محصولات مشابه
           </h1>
         </div>
 
         {/* slider below, full width */}
-        <div className="mt-8 flex items-center justify-center">
+        <div className="flex items-center justify-center pb-10">
           <ProductSwiper products={relatedProducts} />
         </div>
       </div>
