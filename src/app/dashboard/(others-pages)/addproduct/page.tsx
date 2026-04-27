@@ -29,22 +29,22 @@ const AddProduct = () => {
     image: '',
     categoryId: '',
     icons: [
-      { title: '', description: '', iconPath: '' },
-      { title: '', description: '', iconPath: '' },
-      { title: '', description: '', iconPath: '' },
+      { id: 1, title: '', description: '', iconPath: '' },
+      { id: 2, title: '', description: '', iconPath: '' },
+      { id: 3, title: '', description: '', iconPath: '' },
     ],
     gains: [
-      { title: '', ingredient: '', description: '' },
-      { title: '', ingredient: '', description: '' },
-      { title: '', ingredient: '', description: '' },
+      { id: 1, title: '', ingredient: '', description: '' },
+      { id: 2, title: '', ingredient: '', description: '' },
+      { id: 3, title: '', ingredient: '', description: '' },
     ],
     faqs: [
-      { question: '', answer: '' },
-      { question: '', answer: '' },
-      { question: '', answer: '' },
-      { question: '', answer: '' },
-      { question: '', answer: '' },
-      { question: '', answer: '' },
+      { id: 1, question: '', answer: '' },
+      { id: 2, question: '', answer: '' },
+      { id: 3, question: '', answer: '' },
+      { id: 4, question: '', answer: '' },
+      { id: 5, question: '', answer: '' },
+      { id: 6, question: '', answer: '' },
     ],
   })
 
@@ -407,7 +407,7 @@ const AddProduct = () => {
       </div>
 
       <button
-        className="bg-brand-500 mt-3 shadow-theme-xs hover:bg-brand-600 inline-flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-white transition"
+        className="bg-brand-500 shadow-theme-xs hover:bg-brand-600 mt-3 inline-flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-white transition"
         onClick={handleSubmit}
       >
         انتشار محصول

@@ -4,7 +4,6 @@ import { useState } from 'react'
 import Link from 'next/link'
 import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
 import { useBlogs } from '@/features/shop/hooks/blogs/useBlogs'
-import Badge from '../../../../components/ui/badge/Badge'
 import Pagination from '@/components/domain/dashboard/tables/Pagination'
 import {
   Table,

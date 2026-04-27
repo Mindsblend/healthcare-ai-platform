@@ -12,7 +12,6 @@ import {
   TableRow,
 } from '../../../../components/ui/table'
 import Badge from '../../../../components/ui/badge/Badge'
-import { OrderType } from '@/components/types/types'
 import Pagination from '@/components/domain/dashboard/tables/Pagination'
 
 const Orders = () => {
@@ -106,7 +105,7 @@ const Orders = () => {
                       </svg>
                     </div>
 
-                    <h3 className="mb-2 text-color-title-on-light text-lg font-semibold">
+                    <h3 className="text-color-title-on-light mb-2 text-lg font-semibold">
                       سفارشی وجود ندارد
                     </h3>
 
