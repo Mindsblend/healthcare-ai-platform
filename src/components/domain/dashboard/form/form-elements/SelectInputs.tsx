@@ -1,10 +1,10 @@
 'use client'
 import React, { useState } from 'react'
-import ComponentCard from '../../../domain/dashboard/common/ComponentCard'
-import Label from '../../../domain/dashboard/form/Label'
-import Select from '../../../domain/dashboard/form/Select'
-import MultiSelect from '../../../domain/dashboard/form/MultiSelect'
-import { ChevronDownIcon } from '@/icons'
+import ComponentCard from '../../common/ComponentCard'
+import Label from '../Label'
+import Select from '../Select'
+import MultiSelect from '../MultiSelect'
+import { ChevronDownIcon } from '../../../../../../public/images'
 
 export default function SelectInputs() {
   const options = [
