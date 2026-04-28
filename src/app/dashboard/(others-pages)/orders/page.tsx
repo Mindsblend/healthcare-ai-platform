@@ -12,7 +12,6 @@ import {
   TableRow,
 } from '../../../../components/ui/table'
 import Badge from '../../../../components/ui/badge/Badge'
-import { OrderType } from '@/components/types/types'
 import Pagination from '@/components/domain/dashboard/tables/Pagination'
 
 const Orders = () => {

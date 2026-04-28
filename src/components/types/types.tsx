@@ -88,18 +88,21 @@ export interface CategoryType {
 }
 
 export interface iconType {
+  id: number
   title: string
   description: string
   iconPath: string | null
 }
 
 export interface gainType {
+  id: number
   title: string
   ingredient: string
   description: string
 }
 
 export interface faqType {
+  id: number
   question: string
   answer: string
 }
