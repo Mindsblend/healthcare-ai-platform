@@ -46,5 +46,12 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
+      - name: Generate Prisma Client
+        run: |
+          if [ "${{ steps.detect-package-manager.outputs.manager }}" = "yarn" ]; then
+            yarn prisma generate
+          else
+            npx prisma generate
+          fi
       - name: Build with Next.js
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
