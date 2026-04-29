@@ -1,4 +1,4 @@
-import { number } from 'framer-motion'
+import { Prisma } from '@prisma/client'
 import { DefaultSession } from 'next-auth'
 
 export interface CartType {
@@ -44,8 +44,8 @@ export type ShippingInfo = {
 
 export interface UserType {
   id: string
-  email: string
-  phone: string
+  email: string | null
+  phone: string | null
   createdAt: string
   updatedAt: string
 
@@ -54,20 +54,43 @@ export interface UserType {
   orders: OrderType[]
 }
 
-export interface ProductType {
-  id: number
-  title: string
-  price: number
-  category: CategoryType[]
-  slug: string
-  solution: string
-  image: string
-  description: string 
-  categoryId: number
-  icons: iconType[]
-  gains: gainType[]
-  faqs: faqType[]
-}
+export type UserSummary = Prisma.UserGetPayload<{
+  select: {
+    id: true
+    email: true
+    phone: true
+  }
+}>
+
+export type UserWithTimestampsAndRelations = Prisma.UserGetPayload<{
+  select: {
+    id: true
+    email: true
+    phone: true
+    createdAt: true
+    updatedAt: true
+    carts: { select: Prisma.CartSelect }
+    orders: { select: Prisma.OrderSelect }
+    // aiResponses: { select: Prisma.AiResponseSelect };
+  }
+}>
+
+// export interface ProductType {
+//   id: number
+//   title: string
+//   price: number
+//   category: CategoryType
+//   slug: string
+//   solution: string
+//   image: string
+//   description: string
+//   categoryId: number
+//   createdAt: Date
+//   updatedAt: Date
+//   icons: iconType[]
+//   gains: gainType[]
+//   faqs: faqType[]
+// }
 
 export interface ProductPreviewType {
   id: number
@@ -80,12 +103,40 @@ export interface ProductPreviewType {
   stock?: 'In Stock' | 'Out of Stock'
 }
 
-export interface CategoryType {
-  id: number
-  name: string
-  iconPath: string
-  products: ProductType
-}
+export type ProductSummary = Prisma.ProductGetPayload<{
+  select: {
+    id: true
+    title: true
+    price: true
+    solution: true
+    slug: true
+    image: true
+    categoryId: true
+    icons: true
+    gains: true
+    faqs: true
+  }
+}>
+
+export type CategoryWithProducts = Prisma.CategoryGetPayload<{
+  include: {
+    products: {
+      include: {
+        category: true
+        icons: true
+        gains: true
+        faqs: true
+      }
+    }
+  }
+}>
+
+// export interface CategoryType {
+//   id: number
+//   name: string
+//   iconPath: string
+//   products: ProductType[]
+// }
 
 export interface iconType {
   id: number
@@ -114,8 +165,8 @@ export interface BlogType {
   author: string
   authorImage: string
   description: string
-  createdAt: string
-  updatedAt: string
+  createdAt: Date
+  updatedAt: Date
 }
 
 declare module 'next-auth' {
