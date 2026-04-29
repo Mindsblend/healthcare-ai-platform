@@ -75,22 +75,22 @@ export type UserWithTimestampsAndRelations = Prisma.UserGetPayload<{
   }
 }>
 
-// export interface ProductType {
-//   id: number
-//   title: string
-//   price: number
-//   category: CategoryType
-//   slug: string
-//   solution: string
-//   image: string
-//   description: string
-//   categoryId: number
-//   createdAt: Date
-//   updatedAt: Date
-//   icons: iconType[]
-//   gains: gainType[]
-//   faqs: faqType[]
-// }
+export interface ProductType {
+  id: number
+  title: string
+  price: number
+  category: CategoryType
+  slug: string
+  solution: string
+  image: string
+  description: string
+  categoryId: number
+  createdAt: Date
+  updatedAt: Date
+  icons: iconType[]
+  gains: gainType[]
+  faqs: faqType[]
+}
 
 export interface ProductPreviewType {
   id: number
@@ -131,12 +131,12 @@ export type CategoryWithProducts = Prisma.CategoryGetPayload<{
   }
 }>
 
-// export interface CategoryType {
-//   id: number
-//   name: string
-//   iconPath: string
-//   products: ProductType[]
-// }
+export interface CategoryType {
+  id: number
+  name: string
+  iconPath: string
+  products: ProductType[]
+}
 
 export interface iconType {
   id: number
