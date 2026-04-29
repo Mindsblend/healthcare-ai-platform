@@ -30,6 +30,15 @@ export interface OrderType {
   createdAt: string
 }
 
+export type OrderSummary = Prisma.OrderGetPayload<{
+  select: {
+    id: true
+    user: true
+    cart: true
+    totalPrice: true
+  }
+}>
+
 export type ShippingInfo = {
   firstName: string
   lastName: string
