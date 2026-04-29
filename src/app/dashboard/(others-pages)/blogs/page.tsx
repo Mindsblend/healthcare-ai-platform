@@ -262,7 +262,7 @@ const Blogs = () => {
                   </TableCell>
 
                   <TableCell className="text-theme-sm py-7 text-gray-500 dark:text-gray-400">
-                    {blog.createdAt}
+                    {blog.createdAt.toString()}
                   </TableCell>
 
                   <TableCell className="text-theme-sm py-7">
