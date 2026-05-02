@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Image from 'next/image'
+import { useSearchParams } from 'next/navigation'
 import { useProducts } from '@/features/shop/hooks/products/useProducts'
 import { useCategories } from '@/features/shop/hooks/categories/useCategories'
 import Product from '@/components/layout/Product'
@@ -10,6 +11,7 @@ import PriceRangeSlider from '@/components/domain/shop/product/PriceRangeSlider'
 const Page = () => {
   const { products, loading, error } = useProducts()
   const { categories } = useCategories()
+  const searchParams = useSearchParams()
 
   const [isCategoryOpen, setIsCategoryOpen] = useState(true)
   const [isPriceOpen, setIsPriceOpen] = useState(true)
@@ -29,6 +31,19 @@ const Page = () => {
 
   const [searchQuery, setSearchQuery] = useState('')
   const [appliedSearchQuery, setAppliedSearchQuery] = useState('')
+
+  // خواندن categoryId از URL هنگام بارگذاری اولیه
+  useEffect(() => {
+    const categoryIdFromUrl = searchParams.get('categoryId')
+    if (categoryIdFromUrl) {
+      const categoryId = parseInt(categoryIdFromUrl, 10)
+      if (!isNaN(categoryId)) {
+        const newSet = new Set([categoryId])
+        setActiveCategoryIds(newSet)
+        setAppliedCategoryIds(newSet)
+      }
+    }
+  }, [searchParams])
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
@@ -259,7 +274,7 @@ const Page = () => {
         </aside>
 
         {/* ===== Products Grid ===== */}
-        <div className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(250px, 1fr))] sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        <div className="grid-cols-[repeat(auto-fit,minmax(250px, 1fr))] grid flex-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:gap-8 xl:grid-cols-3">
           {filteredProducts.map((product) => (
             <Product key={product.id} product={product} />
           ))}

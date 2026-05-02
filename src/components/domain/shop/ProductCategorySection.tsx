@@ -2,9 +2,15 @@
 
 import { useCategories } from '@/features/shop/hooks/categories/useCategories'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
 const ProductCategorySection = () => {
   const { categories } = useCategories()
+  const router = useRouter()
+
+  const handleCategoryClick = (categoryId: number) => {
+    router.push(`/products?categoryId=${categoryId}`)
+  }
 
   return (
     <div className="container mt-20 mb-12">
@@ -18,7 +24,11 @@ const ProductCategorySection = () => {
       </div>
       <div className="text-color-title-on-light mt-8 flex flex-wrap items-center justify-center gap-17">
         {categories.map((category) => (
-          <div key={category.id} className="h-26.75 w-23 cursor-pointer">
+          <div
+            key={category.id}
+            className="h-26.75 w-23 cursor-pointer"
+            onClick={() => handleCategoryClick(category.id)}
+          >
             <div className="flex h-full w-full flex-col items-center justify-center gap-2 rounded-[10px] border border-[#E9E9E8] text-center">
               <Image
                 src={category.iconPath}
