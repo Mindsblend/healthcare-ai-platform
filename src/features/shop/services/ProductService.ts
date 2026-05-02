@@ -3,7 +3,7 @@ import {
   iconType,
   gainType,
   faqType,
-  ProductType,
+  ProductSummary
 } from '@/components/types/types'
 
 interface CreateProductDTO {
@@ -20,7 +20,7 @@ interface CreateProductDTO {
 }
 
 export class ProductService {
-  static async fetchAllProducts(): Promise<ProductType[]> {
+  static async fetchAllProducts(): Promise<ProductSummary[]> {
     return prisma.product.findMany({
       select: {
         id: true,

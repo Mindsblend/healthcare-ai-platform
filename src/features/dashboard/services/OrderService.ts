@@ -1,8 +1,8 @@
 import { prisma } from '@/lib/prisma'
-import { OrderType, ShippingInfo } from '@/components/types/types'
+import { OrderSummary, ShippingInfo } from '@/components/types/types'
 
 export class OrderService {
-  static async fetchAllOrders(): Promise<OrderType[]> {
+  static async fetchAllOrders(): Promise<OrderSummary[]> {
     return prisma.order.findMany({
       select: {
         id: true,

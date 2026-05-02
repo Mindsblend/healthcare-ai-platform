@@ -2,6 +2,7 @@ import ComponentCard from '@/components/domain/dashboard/common/ComponentCard'
 import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
 import Alert from '@/components/ui/alert/Alert'
 import { Metadata } from 'next'
+import React from 'react'
 
 export const metadata: Metadata = {
   title: 'Next.js Alerts | TailAdmin - Next.js Dashboard Template',

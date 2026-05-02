@@ -46,5 +46,17 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
+      - name: Generate Prisma Client
+        run: |
+          if [ "${{ steps.detect-package-manager.outputs.manager }}" = "yarn" ]; then
+            yarn prisma generate
+          else
+            npx prisma generate
+          fi
+        env:
+          # Explicitly set DATABASE_URL using the GitHub secret
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          # You might also need to ensure NODE_ENV is set if Prisma relies on it
+          NODE_ENV: 'production' # or 'development' depending on your build context
       - name: Build with Next.js
         run: ${{ steps.detect-package-manager.outputs.runner }} next build

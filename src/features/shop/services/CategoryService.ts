@@ -1,11 +1,18 @@
 import { prisma } from '@/lib/prisma'
-import { CategoryType } from '@/components/types/types'
+import { CategoryWithProducts } from '@/components/types/types'
 
 export class CategoryService {
-  static async fetchCategories(): Promise<CategoryType[]> {
+  static async fetchCategories(): Promise<CategoryWithProducts[]> {
     return prisma.category.findMany({
       include: {
-        products: true,
+        products: {
+          include: {
+            category: true,
+            icons: true,
+            gains: true,
+            faqs: true,
+          },
+        },
       },
     })
   }

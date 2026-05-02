@@ -15,7 +15,7 @@ async function main() {
     await prisma.category.upsert({
       where: { id: category.id },
       update: {},
-      create: { id: category.id, name: category.name },
+      create: { id: category.id, name: category.name, iconPath: '' },
     })
   }
 
@@ -33,7 +33,7 @@ async function main() {
 
   // Step 3: Backfill products
   const products = await prisma.product.findMany({
-    where: { categoryId: null }, // only update products without category
+    where: { categoryId: {} }, // only update products without category
   })
 
   for (const product of products) {

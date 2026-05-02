@@ -2,6 +2,7 @@ import BarChartOne from '@/components/domain/dashboard/charts/bar/BarChartOne'
 import ComponentCard from '@/components/domain/dashboard/common/ComponentCard'
 import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
 import { Metadata } from 'next'
+import React from 'react'
 
 export const metadata: Metadata = {
   title: 'Next.js Bar Chart | TailAdmin - Next.js Dashboard Template',
