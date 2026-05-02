@@ -36,8 +36,8 @@ const page = () => {
       <h1 className="font-aria text-color-title-on-light text-4xl font-extrabold">
         سبد خرید شما
       </h1>
-      <div className="mt-10 flex flex-col lg:flex-row items-center justify-between gap-10">
-        <div className="flex h-[452px] w-full max-w-7xl flex-col rounded-3xl border-2 border-[#d9d9d9]">
+      <div className="mt-10 flex flex-col items-center justify-between gap-10 lg:flex-row">
+        <div className="flex h-113 w-full max-w-7xl flex-col rounded-3xl border-2 border-[#d9d9d9]">
           {/* HEADER (fixed height) */}
           <div className="font-aria grid shrink-0 grid-cols-[2fr_1fr_1fr_40px] border-b-2 px-8 py-5 text-xl font-bold">
             <span className="text-color-title-on-light">نام محصول</span>
@@ -84,7 +84,7 @@ const page = () => {
           </div>
         </div>
 
-        <div className="flex h-[452px] w-full lg:max-w-[370px] flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-9">
+        <div className="flex h-113 w-full flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-9 lg:max-w-92.5">
           <h1 className="font-aria text-color-title-on-light mt-9 text-center text-2xl font-extrabold">
             خلاصه سفارشات
           </h1>
@@ -122,9 +122,11 @@ const page = () => {
             </div>
           </div>
           <div className="pb-6">
-            <button className="text-color-title-on-dark font-ray h-[54px] w-full cursor-pointer rounded-4xl bg-black font-medium">
-              <Link href="/checkout">تکمیل سفارش</Link>
-            </button>
+            <Link href="/order">
+              <button className="text-color-title-on-dark font-ray h-13.5 w-full cursor-pointer rounded-4xl bg-black font-medium transition hover:bg-gray-800">
+                تکمیل سفارش
+              </button>
+            </Link>
           </div>
         </div>
       </div>

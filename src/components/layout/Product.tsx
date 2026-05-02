@@ -16,7 +16,7 @@ const Product = ({ product }: Props) => {
   }
 
   return (
-    <div className="bg-page flex w-full flex-col rounded-[22px] border border-black/25 p-2.5">
+    <div className="bg-page flex max-h-min w-full flex-col rounded-[22px] border border-black/25 p-2.5">
       {/* Image Section */}
       <div
         className="relative aspect-square w-full rounded-3xl bg-cover bg-center bg-no-repeat"
@@ -57,7 +57,7 @@ const Product = ({ product }: Props) => {
       </div>
 
       {/* Info Section */}
-      <div className="mt-2.5 flex grow flex-col gap-3 rounded-3xl bg-[#F2F2F2] px-6 py-4 lg:justify-between">
+      <div className="mt-2.5 flex flex-col gap-3 rounded-3xl bg-[#F2F2F2] px-6 py-4 lg:justify-between">
         <div className="text-color-title-on-light">
           <h1 className="font-ray text-lg font-extrabold sm:text-xl">
             {product.title}
