@@ -1,12 +1,12 @@
 import { prisma } from '@/lib/prisma'
-import { UserType } from '@/components/types/types'
+import { UserSummary } from '@/components/types/types'
 
-export async function fetchAllUsers(): Promise<UserType[]> {
+export async function fetchAllUsers(): Promise<UserSummary[]> {
   return prisma.user.findMany({
     select: {
       id: true,
       email: true,
-      phone: true
+      phone: true,
     },
   })
 }
