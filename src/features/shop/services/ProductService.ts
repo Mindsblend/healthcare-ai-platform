@@ -3,7 +3,7 @@ import {
   iconType,
   gainType,
   faqType,
-  ProductSummary
+  ProductSummary,
 } from '@/components/types/types'
 
 interface CreateProductDTO {
@@ -30,6 +30,7 @@ export class ProductService {
         slug: true,
         image: true,
         categoryId: true,
+        category: true,
         icons: true,
         gains: true,
         faqs: true,

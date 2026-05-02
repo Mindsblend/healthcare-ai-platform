@@ -103,7 +103,7 @@ export const EcommerceMetrics = () => {
         <div className="mt-5 flex items-end justify-between">
           <div>
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              بازدید کنندها
+              بازدید کننده ها
             </span>
             {visits.map((visit) => (
               <h4 className="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">

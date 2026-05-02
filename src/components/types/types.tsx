@@ -119,7 +119,7 @@ export interface ProductPreviewType {
   slug: string
   image: string
   categoryId: number
-  stock?: 'In Stock' | 'Out of Stock'
+  // stock?: 'In Stock' | 'Out of Stock'
 }
 
 export type ProductSummary = Prisma.ProductGetPayload<{
@@ -131,6 +131,7 @@ export type ProductSummary = Prisma.ProductGetPayload<{
     slug: true
     image: true
     categoryId: true
+    category: true
     icons: true
     gains: true
     faqs: true

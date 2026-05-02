@@ -14,7 +14,7 @@ type NavItem = {
 }
 
 const navItems: NavItem[] = [
-  { icon: '/images/grid.svg', name: 'Dashboard', path: '/dashboard' },
+  { icon: '/images/grid.svg', name: 'داشبورد', path: '/dashboard' },
   {
     icon: '/images/grid.svg',
     name: 'مدیریت محصولات',
@@ -109,7 +109,7 @@ const AppSidebar: React.FC = () => {
         <nav className="mb-6">
           <h2 className="mb-4 text-xs text-gray-400 uppercase">
             {isExpanded || isHovered || isMobileOpen ? (
-              'Menu'
+              'منو'
             ) : (
               <Image
                 src="/images/horizontal-dots.svg"

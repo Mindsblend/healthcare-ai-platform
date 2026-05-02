@@ -248,7 +248,7 @@ const Blogs = () => {
               {currentData.map((blog) => (
                 <TableRow key={blog.id}>
                   <TableCell className="text-theme-sm py-7 pr-4 font-medium text-gray-800 sm:pr-6 dark:text-white/90">
-                    #{blog.id}
+                    {blog.id}
                   </TableCell>
 
                   <TableCell className="py-7">
@@ -262,7 +262,7 @@ const Blogs = () => {
                   </TableCell>
 
                   <TableCell className="text-theme-sm py-7 text-gray-500 dark:text-gray-400">
-                    {blog.createdAt.toString()}
+                    {new Date(blog.createdAt).toLocaleDateString('fa-IR')}
                   </TableCell>
 
                   <TableCell className="text-theme-sm py-7">
@@ -273,7 +273,7 @@ const Blogs = () => {
                         viewBox="0 0 24 24"
                         strokeWidth="1.5"
                         stroke="currentColor"
-                        className="size-6 text-black"
+                        className="size-5 text-[#687287]"
                       >
                         <path
                           strokeLinecap="round"
