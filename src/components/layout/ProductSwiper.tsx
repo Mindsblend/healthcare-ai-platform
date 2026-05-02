@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState, useEffect } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Navigation } from 'swiper/modules'
 
@@ -24,6 +24,7 @@ export default function ProductSwiper({
   const prevRef = useRef<HTMLDivElement | null>(null)
 
   const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null)
+  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false)
 
   const hasCategories = Boolean(categories?.length)
 
@@ -32,18 +33,41 @@ export default function ProductSwiper({
     return products.filter((product) => product.categoryId === activeCategoryId)
   }, [products, activeCategoryId])
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (isCategoryMenuOpen && !target.closest('.category-menu-container')) {
+        setIsCategoryMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('click', handleClickOutside)
+    return () => document.removeEventListener('click', handleClickOutside)
+  }, [isCategoryMenuOpen])
+
   if (!filteredProducts.length) return null
 
   return (
     <div className="mt-3 flex w-full flex-col xl:mt-6">
       {/* HEADER */}
       <div
-        className={`mb-3 flex w-full items-center ${hasCategories ? '' : ''}`}
+        className={`mb-3 flex w-full items-center justify-between ${hasCategories ? '' : ''}`}
       >
         {/* LEFT */}
-        <div className="flex flex-1 items-center">
+        <div className="hidden flex-1 items-center lg:flex">
           {hasCategories ? (
             <div className="flex flex-wrap gap-4">
+              <div
+                onClick={() => setActiveCategoryId(null)}
+                className={`flex h-11.5 w-30.5 cursor-pointer items-center justify-center rounded-full px-4 transition ${
+                  activeCategoryId === null
+                    ? 'bg-black text-white'
+                    : 'bg-[#D9D9D9] text-black'
+                } `}
+              >
+                <span className="font-aria text-base font-bold">همه</span>
+              </div>
+
               {categories!.map((category) => (
                 <div
                   key={category.id}
@@ -52,7 +76,7 @@ export default function ProductSwiper({
                       activeCategoryId === category.id ? null : category.id,
                     )
                   }
-                  className={`flex h-[46px] w-[122px] cursor-pointer items-center justify-center rounded-full px-4 transition ${
+                  className={`flex h-11.5 w-30.5 cursor-pointer items-center justify-center rounded-full px-4 transition ${
                     activeCategoryId === category.id
                       ? 'bg-black text-white'
                       : 'bg-[#D9D9D9] text-black'
@@ -69,7 +93,77 @@ export default function ProductSwiper({
           )}
         </div>
 
-        {/* RIGHT */}
+        <div className="category-menu-container relative block lg:hidden">
+          <button
+            onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
+            className="secondary-btn flex items-center justify-center gap-1 rounded-full border border-black bg-black px-4 py-2 font-medium whitespace-nowrap text-white"
+          >
+            <Image
+              src="/images/discover_tune.svg"
+              width={15}
+              height={15}
+              alt="discover tune image"
+            />
+            دسته بندی
+            <svg
+              className={`transition-transform duration-200 ${isCategoryMenuOpen ? 'rotate-180' : ''}`}
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M6 9L12 15L18 9"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+
+          {isCategoryMenuOpen && hasCategories && (
+            <div className="absolute top-full right-0 z-50 mt-2 w-64 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg">
+              <div className="py-2">
+                <button
+                  onClick={() => {
+                    setActiveCategoryId(null)
+                    setIsCategoryMenuOpen(false)
+                  }}
+                  className={`w-full px-4 py-3 text-right transition-colors ${
+                    activeCategoryId === null
+                      ? 'bg-black text-white'
+                      : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <span className="block font-medium">همه محصولات</span>
+                </button>
+
+                {categories!.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => {
+                      setActiveCategoryId(
+                        activeCategoryId === category.id ? null : category.id,
+                      )
+                      setIsCategoryMenuOpen(false)
+                    }}
+                    className={`w-full px-4 py-3 text-right transition-colors ${
+                      activeCategoryId === category.id
+                        ? 'bg-black text-white'
+                        : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span className="block font-medium">{category.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* RIGHT - دکمه‌های نویگیشن */}
         {hasCategories && <NavButtons prevRef={prevRef} nextRef={nextRef} />}
       </div>
 
@@ -119,7 +213,7 @@ function NavButtons({
   nextRef: React.RefObject<HTMLDivElement | null>
 }) {
   return (
-    <div className="flex items-center gap-2.5 self-start pr-5 xl:mb-3 xl:pr-14">
+    <div className="flex items-center gap-x-2.5 self-start pr-5 xl:pr-14">
       <div
         ref={prevRef}
         className="flex h-11.25 w-11.25 cursor-pointer items-center justify-center rounded-full bg-black xl:h-15 xl:w-15"
