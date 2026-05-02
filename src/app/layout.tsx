@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import '../../globals.css'
-import Navbar from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
+import PageViewTracker from '@/components/layout/PageViewTracker'
 
 /* ============================
    Headers: Aria Font Family
@@ -132,6 +131,7 @@ export default function RootLayout({
           } as React.CSSProperties
         }
       >
+        <PageViewTracker />
         {children}
       </body>
     </html>

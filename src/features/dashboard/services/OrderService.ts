@@ -9,6 +9,13 @@ export class OrderService {
         user: true,
         cart: true,
         totalPrice: true,
+        status: true,
+        shippingFirstName: true,
+        shippingLastName: true,
+        shippingEmail: true,
+        shippingPhone: true,
+        shippingCity: true,
+        createdAt: true
       },
     })
   }
@@ -24,7 +31,7 @@ export class OrderService {
 
     return order
   }
-  
+
   static async createOrder({
     userId,
     shippingInfo,
@@ -93,4 +100,3 @@ export class OrderService {
     return order
   }
 }
-

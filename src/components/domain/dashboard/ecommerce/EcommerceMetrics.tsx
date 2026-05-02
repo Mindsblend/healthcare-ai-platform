@@ -9,10 +9,12 @@ import ArrowUpIcon from '../../../../../public/images/arrow-up.svg'
 import BoxIconLine from '../../../../../public/images/box-line.svg'
 import GroupIcon from '../../../../../public/images/group.svg'
 import { useUsers } from '@/features/auth/hooks/useUsers'
+import { useTrackedVisit } from '@/features/dashboard/hooks/useTrackedVisits'
 
 export const EcommerceMetrics = () => {
   const { orders } = useOrders()
   const { users } = useUsers()
+  const { visits } = useTrackedVisit()
 
   const now = Date.now()
   const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000
@@ -57,10 +59,10 @@ export const EcommerceMetrics = () => {
               {allTimeUsers.toLocaleString('fa-IR')}
             </h4>
           </div>
-          <Badge color="success">
+          {/* <Badge color="success">
             <Image src={ArrowUpIcon} alt="Arrow Up" width={16} height={16} />
             11.01%
-          </Badge>
+          </Badge> */}
         </div>
       </div>
       {/* Metric Item End */}
@@ -80,7 +82,7 @@ export const EcommerceMetrics = () => {
             </h4>
           </div>
 
-          <Badge color="error">
+          {/* <Badge color="error">
             <Image
               src={ArrowDownIcon}
               alt="Arrow Down"
@@ -88,7 +90,7 @@ export const EcommerceMetrics = () => {
               height={16}
             />
             9.05%
-          </Badge>
+          </Badge> */}
         </div>
       </div>
       {/* Metric Item End */}
@@ -103,12 +105,14 @@ export const EcommerceMetrics = () => {
             <span className="text-sm text-gray-500 dark:text-gray-400">
               بازدید کنندها
             </span>
-            <h4 className="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">
-              ۵٬۳۵۹
-            </h4>
+            {visits.map((visit) => (
+              <h4 className="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">
+                {visit.visits.toLocaleString('fa-IR')}
+              </h4>
+            ))}
           </div>
 
-          <Badge color="error">
+          {/* <Badge color="error">
             <Image
               src={ArrowDownIcon}
               alt="Arrow Down"
@@ -116,7 +120,7 @@ export const EcommerceMetrics = () => {
               height={16}
             />
             9.05%
-          </Badge>
+          </Badge> */}
         </div>
       </div>
       {/* Metric Item End */}
@@ -136,7 +140,7 @@ export const EcommerceMetrics = () => {
             </h4>
           </div>
 
-          <Badge color="error">
+          {/* <Badge color="error">
             <Image
               src={ArrowDownIcon}
               alt="Arrow Down"
@@ -144,7 +148,7 @@ export const EcommerceMetrics = () => {
               height={16}
             />
             9.05%
-          </Badge>
+          </Badge> */}
         </div>
       </div>
       {/* Metric Item End */}

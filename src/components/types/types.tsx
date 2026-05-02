@@ -25,6 +25,11 @@ export interface OrderType {
   cart: CartType
   cartId: string
   totalPrice: number
+  shippingFirstName: true
+  shippingLastName: true
+  shippingEmail: true
+  shippingPhone: true
+  shippingCity: true
 
   status: 'PENDING' | 'PAID' | 'FAILED' | 'CANCELED' | 'REFUNDED'
   createdAt: string
@@ -36,6 +41,11 @@ export type OrderSummary = Prisma.OrderGetPayload<{
     user: true
     cart: true
     totalPrice: true
+    shippingFirstName: true
+    shippingLastName: true
+    shippingEmail: true
+    shippingPhone: true
+    shippingCity: true
   }
 }>
 
@@ -191,4 +201,12 @@ export interface SessionPayload {
   email: string | null
   phone: string | null
   role: string | null
+}
+
+export interface VisitMonth {
+  id: string
+  year: number
+  month: number
+  visits: number
+  updatedAt: Date
 }
