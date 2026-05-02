@@ -32,7 +32,6 @@ const Page = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [appliedSearchQuery, setAppliedSearchQuery] = useState('')
 
-  // خواندن categoryId از URL هنگام بارگذاری اولیه
   useEffect(() => {
     const categoryIdFromUrl = searchParams.get('categoryId')
     if (categoryIdFromUrl) {
@@ -72,6 +71,13 @@ const Page = () => {
     appliedSearchQuery,
   ])
 
+  const appliedCategoryNames = useMemo(() => {
+    if (appliedCategoryIds.size === 0) return []
+    return categories
+      .filter((cat) => appliedCategoryIds.has(cat.id))
+      .map((cat) => cat.name)
+  }, [appliedCategoryIds, categories])
+
   const toggleCategory = (categoryId: number) => {
     setActiveCategoryIds((prev) => {
       const next = new Set(prev)
@@ -93,10 +99,98 @@ const Page = () => {
     setAppliedMinPrice(0)
     setAppliedMaxPrice(1_000_000)
     setAppliedCategoryIds(new Set())
+    setSearchQuery('')
+    setAppliedSearchQuery('')
   }
 
-  if (loading) return <div>در حال بارگذاری محصولات...</div>
-  if (error) return <div>خطا در بارگذاری محصولات: {error}</div>
+  const EmptyState = () => {
+    const hasCategories = appliedCategoryIds.size > 0
+    const hasPrice = appliedMinPrice > 0 || appliedMaxPrice < 1_000_000
+    const hasSearch = appliedSearchQuery !== ''
+
+    let message = ''
+    let suggestion = ''
+
+    if (hasSearch) {
+      message = `نتیجه‌ای برای جستجوی "${appliedSearchQuery}" یافت نشد`
+      suggestion = 'لطفاً عبارت دیگری را جستجو کنید یا فیلترها را حذف کنید.'
+    } else if (hasCategories && appliedCategoryNames.length > 0) {
+      const categoryNames = appliedCategoryNames.join(' و ')
+      message = `محصولی در دسته ${categoryNames} یافت نشد`
+      suggestion =
+        'لطفاً دسته‌بندی دیگری را انتخاب کنید یا فیلترها را حذف کنید.'
+    } else if (hasPrice) {
+      message = `محصولی در بازه قیمتی ${appliedMinPrice.toLocaleString('fa-IR')} تا ${appliedMaxPrice.toLocaleString('fa-IR')} تومان یافت نشد`
+      suggestion =
+        'لطفاً بازه قیمتی دیگری را انتخاب کنید یا فیلترها را حذف کنید.'
+    } else {
+      message = 'محصولی یافت نشد'
+      suggestion = 'لطفاً فیلترهای دیگری را امتحان کنید یا بعداً مراجعه کنید.'
+    }
+
+    return (
+      <div className="col-span-full flex w-full flex-col items-center justify-center py-20 text-center">
+        <div className="mb-6 rounded-full bg-gray-100 p-6">
+          <svg
+            className="h-16 w-16 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        </div>
+        <h3 className="mb-3 text-2xl font-bold text-gray-800">{message}</h3>
+        <p className="mb-8 text-gray-500">{suggestion}</p>
+        <button
+          onClick={resetFilters}
+          className="cursor-pointer rounded-full bg-black px-8 py-3 text-white transition hover:bg-gray-800"
+        >
+          حذف همه فیلترها
+        </button>
+      </div>
+    )
+  }
+
+  if (loading)
+    return (
+      <div className="flex min-h-100 items-center justify-center">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-black"></div>
+          <p className="text-gray-600">در حال بارگذاری محصولات...</p>
+        </div>
+      </div>
+    )
+
+  if (error)
+    return (
+      <div className="flex min-h-100 items-center justify-center">
+        <div className="text-center">
+          <div className="mx-auto mb-4 w-fit rounded-full bg-red-100 p-4">
+            <svg
+              className="h-12 w-12 text-red-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <p className="text-red-600">خطا در بارگذاری محصولات: {error}</p>
+        </div>
+      </div>
+    )
 
   return (
     <section className="container-wide py-20">
@@ -141,7 +235,7 @@ const Page = () => {
       <div className="flex flex-col gap-8 lg:flex-row lg:gap-10">
         {/* ===== Sidebar ===== */}
         <aside
-          className={`w-full shrink-0 transition-all duration-300 ease-in-out lg:w-72 ${isFilterOpenMobile ? 'max-h-screen opacity-100' : 'max-h-0 overflow-hidden opacity-0'} lg:block lg:max-h-full lg:opacity-100`}
+          className={`w-full shrink-0 transition-all duration-300 ease-in-out lg:w-72 ${isFilterOpenMobile ? 'opacity-100' : 'opacity-0'} block max-h-full lg:opacity-100`}
         >
           {/* Title */}
           <div className="mb-6 flex items-center">
@@ -163,7 +257,7 @@ const Page = () => {
               className="flex cursor-pointer items-center justify-between rounded-md bg-[#f2f2f2] px-4 py-3"
             >
               <h3 className="font-aria text-color-title-on-light text-sm font-bold">
-                تمام محصولات
+                دسته‌بندی محصولات
               </h3>
               <div
                 className={`transition ${isCategoryOpen ? 'rotate-180' : ''}`}
@@ -265,7 +359,7 @@ const Page = () => {
                     className="flex-1 cursor-pointer rounded-md bg-gray-200 py-2 text-sm font-bold"
                     onClick={resetFilters}
                   >
-                    حذف
+                    حذف همه
                   </button>
                 </div>
               </div>
@@ -274,11 +368,15 @@ const Page = () => {
         </aside>
 
         {/* ===== Products Grid ===== */}
-        <div className="grid-cols-[repeat(auto-fit,minmax(250px, 1fr))] grid flex-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:gap-8 xl:grid-cols-3">
-          {filteredProducts.map((product) => (
-            <Product key={product.id} product={product} />
-          ))}
-        </div>
+        {filteredProducts.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <div className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4 sm:grid-cols-2 sm:gap-6 lg:gap-8 xl:grid-cols-3">
+            {filteredProducts.map((product) => (
+              <Product key={product.id} product={product} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )

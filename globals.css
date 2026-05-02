@@ -101,7 +101,7 @@ body {
   }
 
   .secondary-btn {
-    @apply font-ray h-10 w-30 cursor-pointer text-sm xl:h-13.75 xl:w-36.25 xl:text-base;
+    @apply font-ray h-10 w-30 cursor-pointer text-sm transition hover:bg-gray-800 xl:h-13.75 xl:w-36.25 xl:text-base;
   }
 }
 
