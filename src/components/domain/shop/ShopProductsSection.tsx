@@ -32,7 +32,7 @@ const ShopProductsSection = ({ title, description }: Props) => {
       </div>
 
       {/* slider below, full width */}
-      <div className="">
+      <div className="flex items-center justify-center">
         <ProductSwiper products={products} categories={categories} />
       </div>
     </div>

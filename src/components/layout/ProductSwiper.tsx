@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState, useEffect } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Navigation } from 'swiper/modules'
 
@@ -22,6 +22,7 @@ export default function ProductSwiper({
 }: ProductSwiperProps) {
   const nextRef = useRef<HTMLDivElement | null>(null)
   const prevRef = useRef<HTMLDivElement | null>(null)
+  const swiperRef = useRef<any>(null)
 
   const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null)
 
@@ -31,6 +32,16 @@ export default function ProductSwiper({
     if (!activeCategoryId) return products
     return products.filter((product) => product.categoryId === activeCategoryId)
   }, [products, activeCategoryId])
+
+  useEffect(() => {
+    if (swiperRef.current && prevRef.current && nextRef.current) {
+      swiperRef.current.params.navigation.prevEl = prevRef.current
+      swiperRef.current.params.navigation.nextEl = nextRef.current
+      swiperRef.current.navigation.destroy()
+      swiperRef.current.navigation.init()
+      swiperRef.current.navigation.update()
+    }
+  }, [products, categories, activeCategoryId])
 
   if (!filteredProducts.length) return null
 
@@ -87,6 +98,9 @@ export default function ProductSwiper({
           prevEl: prevRef.current,
           nextEl: nextRef.current,
         }}
+        onSwiper={(swiper) => {
+          swiperRef.current = swiper
+        }}
         onBeforeInit={(swiper) => {
           if (typeof swiper.params.navigation !== 'boolean') {
             swiper.params.navigation!.prevEl = prevRef.current
@@ -119,7 +133,7 @@ function NavButtons({
   nextRef: React.RefObject<HTMLDivElement | null>
 }) {
   return (
-    <div className="flex items-center gap-2.5 self-start pr-5 xl:mb-3 xl:pr-14">
+    <div className="z-50 flex items-center gap-2.5 self-start pr-5 xl:mb-3 xl:pr-14">
       <div
         ref={prevRef}
         className="flex h-11.25 w-11.25 cursor-pointer items-center justify-center rounded-full bg-black xl:h-15 xl:w-15"
