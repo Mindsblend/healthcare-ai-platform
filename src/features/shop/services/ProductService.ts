@@ -1,9 +1,9 @@
 import { prisma } from '@/lib/prisma'
 import {
+  ProductSummary,
   iconType,
   gainType,
   faqType,
-  ProductSummary,
 } from '@/components/types/types'
 
 interface CreateProductDTO {
@@ -20,7 +20,7 @@ interface CreateProductDTO {
 }
 
 export class ProductService {
-  static async fetchAllProducts(): Promise<ProductSummary[]> {
+  static async fetchPreviewProducts(): Promise<ProductSummary[]> {
     return prisma.product.findMany({
       where: { isActive: true },
       select: {
@@ -31,17 +31,18 @@ export class ProductService {
         slug: true,
         image: true,
         categoryId: true,
-        category: true,
-        icons: true,
-        gains: true,
-        faqs: true,
+        category: {
+          select: {
+            name: true,
+          },
+        },
       },
     })
   }
 
   static async fetchProductBySlug(slug: string) {
-    const product = await prisma.product.findUnique({
-      where: { slug },
+    return prisma.product.findUnique({
+      where: { slug, isActive: true },
       include: {
         icons: true,
         gains: true,
@@ -50,8 +51,6 @@ export class ProductService {
         category: true,
       },
     })
-
-    return product
   }
 
   static async fetchProductsByCategoryId(categoryId: number) {

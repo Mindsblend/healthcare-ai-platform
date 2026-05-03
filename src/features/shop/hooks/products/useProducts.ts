@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { getProducts } from '../../actions/products/getProductsAction'
-import { ProductPreviewType } from '@/components/types/types'
+import { ProductSummary } from '@/components/types/types'
 
 export function useProducts() {
-  const [products, setProducts] = useState<ProductPreviewType[]>([])
+  const [products, setProducts] = useState<ProductSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

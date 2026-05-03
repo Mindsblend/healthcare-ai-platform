@@ -288,7 +288,7 @@ const Products = () => {
 
                   {/* Category */}
                   <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
-                    {product.categoryId}
+                    {product.category.name}
                   </TableCell>
 
                   {/* Price */}

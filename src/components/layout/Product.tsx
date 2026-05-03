@@ -1,10 +1,10 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { ProductPreviewType } from '../types/types'
+import { ProductSummary } from '../types/types'
 import { useCart } from '@/features/shop/hooks/cart/useCart'
 
 interface Props {
-  product: ProductPreviewType
+  product: ProductSummary
 }
 
 const Product = ({ product }: Props) => {
