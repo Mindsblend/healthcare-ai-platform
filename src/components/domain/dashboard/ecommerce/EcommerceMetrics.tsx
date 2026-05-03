@@ -35,7 +35,10 @@ export const EcommerceMetrics = () => {
     return orders
       .filter((order) => {
         const created = new Date(order.createdAt).getTime()
-        return created >= cutoff && order.status === 'PAID'
+        return (
+          created >= cutoff &&
+          (order.status === 'PAID' || order.status == 'PENDING')
+        )
       })
       .reduce((sum, order) => sum + order.totalPrice, 0)
   }, [orders])
@@ -47,38 +50,15 @@ export const EcommerceMetrics = () => {
       {/* Metric Item Start */}
       <div className="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 dark:border-gray-800 dark:bg-white/3">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
-          <Image src={GroupIcon} alt="Customers" width={24} height={24} />
-        </div>
-
-        <div className="mt-5 flex items-end justify-between">
-          <div>
-            <span className="text-sm text-gray-500 dark:text-gray-400">
-              مشتری ها
-            </span>
-            <h4 className="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">
-              {allTimeUsers.toLocaleString('fa-IR')}
-            </h4>
-          </div>
-          {/* <Badge color="success">
-            <Image src={ArrowUpIcon} alt="Arrow Up" width={16} height={16} />
-            11.01%
-          </Badge> */}
-        </div>
-      </div>
-      {/* Metric Item End */}
-
-      {/* Metric Item Start */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 dark:border-gray-800 dark:bg-white/3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
           <Image src={BoxIconLine} alt="Orders" width={24} height={24} />
         </div>
         <div className="mt-5 flex items-end justify-between">
           <div>
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              فروش
+              درآمد کل
             </span>
             <h4 className="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">
-              {monthlyOrdersCount.toLocaleString('fa-IR')}
+              {monthlyRevenue.toLocaleString('fa-IR')}
             </h4>
           </div>
 
@@ -133,10 +113,10 @@ export const EcommerceMetrics = () => {
         <div className="mt-5 flex items-end justify-between">
           <div>
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              درآمد کل
+              فروش
             </span>
             <h4 className="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">
-              {monthlyRevenue.toLocaleString('fa-IR')}
+              {monthlyOrdersCount.toLocaleString('fa-IR')}
             </h4>
           </div>
 
@@ -148,6 +128,29 @@ export const EcommerceMetrics = () => {
               height={16}
             />
             9.05%
+          </Badge> */}
+        </div>
+      </div>
+      {/* Metric Item End */}
+
+      {/* Metric Item Start */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 dark:border-gray-800 dark:bg-white/3">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
+          <Image src={GroupIcon} alt="Customers" width={24} height={24} />
+        </div>
+
+        <div className="mt-5 flex items-end justify-between">
+          <div>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              مشتری ها
+            </span>
+            <h4 className="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">
+              {allTimeUsers.toLocaleString('fa-IR')}
+            </h4>
+          </div>
+          {/* <Badge color="success">
+            <Image src={ArrowUpIcon} alt="Arrow Up" width={16} height={16} />
+            11.01%
           </Badge> */}
         </div>
       </div>

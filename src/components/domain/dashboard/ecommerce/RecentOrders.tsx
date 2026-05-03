@@ -14,6 +14,15 @@ import Link from 'next/link'
 export default function RecentOrders() {
   const { orders, loading, error } = useOrders()
 
+  const lastFiveSortedOrders = [...orders]
+    .sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime()
+      const dateB = new Date(b.createdAt).getTime()
+
+      return dateB - dateA
+    })
+    .slice(0, 5)
+
   if (loading) return <div>در حال بارگذاری سفارشات...</div>
 
   if (error) return <div>خطا در بارگذاری سفارشات: {error}</div>
@@ -95,7 +104,7 @@ export default function RecentOrders() {
                       </svg>
                     </div>
 
-                    <h3 className="mb-2 text-color-title-on-light text-lg font-semibold">
+                    <h3 className="text-color-title-on-light mb-2 text-lg font-semibold">
                       سفارشی وجود ندارد
                     </h3>
 
@@ -171,25 +180,25 @@ export default function RecentOrders() {
           </TableHeader>
 
           <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-            {orders.map((order) => (
+            {lastFiveSortedOrders.map((order) => (
               <TableRow key={order.cartId}>
                 {/* شماره سفارش */}
                 <TableCell className="text-theme-sm py-3 font-medium text-gray-800 dark:text-white/90">
-                  #{order.cartId}
+                  {order.id}
                 </TableCell>
 
                 {/* نام مشتری */}
                 <TableCell className="py-3">
                   <div className="flex flex-col">
                     <span className="text-theme-sm font-medium text-gray-800 dark:text-white/90">
-                      name
+                      {order.shippingFirstName} {order.shippingLastName}
                     </span>
                   </div>
                 </TableCell>
 
                 {/* ایمیل */}
                 <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
-                  {order.user?.email}
+                  {order.shippingEmail}
                 </TableCell>
 
                 {/* تاریخ سفارش */}
