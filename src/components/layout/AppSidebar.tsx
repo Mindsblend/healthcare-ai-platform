@@ -14,9 +14,9 @@ type NavItem = {
 }
 
 const navItems: NavItem[] = [
-  { icon: '/images/grid.svg', name: 'داشبورد', path: '/dashboard' },
+  { icon: '/images/binoculars.svg', name: 'داشبورد', path: '/dashboard' },
   {
-    icon: '/images/grid.svg',
+    icon: '/images/box.svg',
     name: 'مدیریت محصولات',
     path: '/dashboard/products',
     subItems: [
@@ -24,9 +24,9 @@ const navItems: NavItem[] = [
       { name: 'ساخت محصول', path: '/dashboard/addproduct' },
     ],
   },
-  { icon: '/images/grid.svg', name: 'سفارشات', path: '/dashboard/orders' },
+  { icon: '/images/file.svg', name: 'سفارشات', path: '/dashboard/orders' },
   {
-    icon: '/images/grid.svg',
+    icon: '/images/pencil.svg',
     name: 'مدیریت بلاگ ها',
     path: '/dashboard/products',
     subItems: [

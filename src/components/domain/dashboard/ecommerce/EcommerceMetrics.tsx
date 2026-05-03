@@ -6,7 +6,9 @@ import { useOrders } from '@/features/dashboard/hooks/useOrders'
 import Badge from '../../../ui/badge/Badge'
 import ArrowDownIcon from '../../../../../public/images/arrow-down.svg'
 import ArrowUpIcon from '../../../../../public/images/arrow-up.svg'
-import BoxIconLine from '../../../../../public/images/box-line.svg'
+import EyeIcon from '../../../../../public/images/eye.svg'
+import DiamondIcon from '../../../../../public/images/diamond.svg'
+import PaperPlaneIcon from '../../../../../public/images/paper-plane.svg'
 import GroupIcon from '../../../../../public/images/group.svg'
 import { useUsers } from '@/features/auth/hooks/useUsers'
 import { useTrackedVisit } from '@/features/dashboard/hooks/useTrackedVisits'
@@ -50,7 +52,7 @@ export const EcommerceMetrics = () => {
       {/* Metric Item Start */}
       <div className="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 dark:border-gray-800 dark:bg-white/3">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
-          <Image src={BoxIconLine} alt="Orders" width={24} height={24} />
+          <Image src={DiamondIcon} alt="Orders" width={24} height={24} />
         </div>
         <div className="mt-5 flex items-end justify-between">
           <div>
@@ -78,7 +80,7 @@ export const EcommerceMetrics = () => {
       {/* Metric Item Start */}
       <div className="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 dark:border-gray-800 dark:bg-white/3">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
-          <Image src={BoxIconLine} alt="Orders" width={24} height={24} />
+          <Image src={EyeIcon} alt="Orders" width={24} height={24} />
         </div>
         <div className="mt-5 flex items-end justify-between">
           <div>
@@ -108,7 +110,7 @@ export const EcommerceMetrics = () => {
       {/* Metric Item Start */}
       <div className="rounded-2xl border border-gray-200 bg-white p-5 md:p-6 dark:border-gray-800 dark:bg-white/3">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
-          <Image src={BoxIconLine} alt="Orders" width={24} height={24} />
+          <Image src={PaperPlaneIcon} alt="Orders" width={22} height={22} />
         </div>
         <div className="mt-5 flex items-end justify-between">
           <div>
