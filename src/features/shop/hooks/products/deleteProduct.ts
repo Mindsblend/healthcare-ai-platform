@@ -1,17 +1,17 @@
 import { useState } from 'react'
-import { deleteBlogAction } from '../../actions/blogs/deleteBlogAction'
+import { deleteProductAction } from '../../actions/products/deleteProductAction'
 
-export function useDeleteBlog() {
+export function useDeleteProduct() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
   const [data, setData] = useState<unknown>(null)
 
-  async function deleteBlog(id: number) {
+  async function deleteProduct(id: number) {
     setLoading(true)
     setError(null)
 
     try {
-      const result = await deleteBlogAction(id)
+      const result = await deleteProductAction(id)
       setData(result)
       return result
     } catch (err) {
@@ -23,7 +23,7 @@ export function useDeleteBlog() {
   }
 
   return {
-    deleteBlog,
+    deleteProduct,
     loading,
     error,
     data,

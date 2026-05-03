@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useProducts } from '@/features/shop/hooks/products/useProducts'
+import { useDeleteProduct } from '@/features/shop/hooks/products/deleteProduct'
 import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
 import Image from 'next/image'
 import {
@@ -14,9 +15,21 @@ import {
 import Badge from '../../../../components/ui/badge/Badge'
 import Pagination from '@/components/domain/dashboard/tables/Pagination'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 const Products = () => {
   const { products, loading, error } = useProducts()
+  const { deleteProduct } = useDeleteProduct()
+
+  const router = useRouter()
+
+  const handleDelete = async (id: number, title: string) => {
+    const ok = window.confirm(`آیا از حذف "${title}" مطمئن هستید؟`)
+    if (!ok) return
+
+    await deleteProduct(id)
+    router.refresh()
+  }
 
   const [page, setPage] = useState(1)
 
@@ -285,7 +298,11 @@ const Products = () => {
 
                   {/* Management */}
                   <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
-                    <button>
+                    <button
+                      onClick={async () => {
+                        await handleDelete(product.id, product.title)
+                      }}
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"

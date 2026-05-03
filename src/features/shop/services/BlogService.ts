@@ -2,10 +2,10 @@ import { prisma } from '@/lib/prisma'
 import { BlogType } from '@/components/types/types'
 
 export interface CreateBlogDTO {
-  title: string,
-  image: string,
-  description: string,
-  author: string,
+  title: string
+  image: string
+  description: string
+  author: string
   authorImage: string
 }
 
@@ -23,6 +23,12 @@ export class BlogService {
         author: data.author,
         authorImage: data.authorImage,
       },
+    })
+  }
+
+  static async deleteBlog(id: number) {
+    return prisma.blog.delete({
+      where: { id },
     })
   }
 }

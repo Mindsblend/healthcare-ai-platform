@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
 import { useBlogs } from '@/features/shop/hooks/blogs/useBlogs'
+import { useDeleteBlog } from '@/features/shop/hooks/blogs/deleteBlog'
 import Pagination from '@/components/domain/dashboard/tables/Pagination'
 import {
   Table,
@@ -12,9 +13,13 @@ import {
   TableHeader,
   TableRow,
 } from '../../../../components/ui/table'
+import { useRouter } from 'next/navigation'
 
 const Blogs = () => {
   const { blogs, loading, error } = useBlogs()
+  const { deleteBlog } = useDeleteBlog()
+
+  const router = useRouter()
 
   const [page, setPage] = useState(1)
 
@@ -23,6 +28,14 @@ const Blogs = () => {
   const endIndex = startIndex + itemsPerPage
   const currentData = blogs.slice(startIndex, endIndex)
 
+  const handleDelete = async (id: number, title: string) => {
+    const ok = window.confirm(`آیا از حذف "${title}" مطمئن هستید؟`)
+    if (!ok) return
+
+    await deleteBlog(id)
+    router.refresh()
+  }
+
   if (loading) return <div>در حال بارگذاری بلاگ ها...</div>
 
   if (error) return <div>خطا در بارگذاری بلاگ ها: {error}</div>
@@ -30,16 +43,16 @@ const Blogs = () => {
   if (!blogs.length) {
     return (
       <div>
-        <PageBreadcrumb pageTitle="محصولات" />
+        <PageBreadcrumb pageTitle="بلاگ" />
 
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white pt-4 pb-3 dark:border-gray-800 dark:bg-white/3">
           <div className="mb-4 flex flex-col gap-2 px-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <div>
               <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                محصولات
+                بلاگ
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                تمامی محصولات سایت
+                تمامی بلاگ سایت
               </p>
             </div>
 
@@ -125,11 +138,11 @@ const Blogs = () => {
                       </div>
 
                       <h3 className="mb-2 text-lg font-semibold">
-                        محصولی وجود ندارد
+                        بلاگی وجود ندارد
                       </h3>
 
                       <p className="text-sm text-gray-500">
-                        هنوز هیچ محصولی ثبت نشده است.
+                        هنوز هیچ بلاگ ثبت نشده است.
                       </p>
                     </div>
                   </td>
@@ -266,7 +279,12 @@ const Blogs = () => {
                   </TableCell>
 
                   <TableCell className="text-theme-sm py-7">
-                    <button>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await handleDelete(blog.id, blog.title)
+                      }}
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"

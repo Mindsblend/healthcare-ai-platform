@@ -22,6 +22,7 @@ interface CreateProductDTO {
 export class ProductService {
   static async fetchAllProducts(): Promise<ProductSummary[]> {
     return prisma.product.findMany({
+      where: { isActive: true },
       select: {
         id: true,
         title: true,
@@ -103,5 +104,12 @@ export class ProductService {
     })
 
     return product
+  }
+
+  static async deleteProduct(id: number) {
+    return prisma.product.update({
+      where: { id: id },
+      data: { isActive: false },
+    })
   }
 }
