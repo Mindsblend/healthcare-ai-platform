@@ -74,7 +74,7 @@ export default async function Navbar() {
                 />
               </Link>
 
-              <Link href={'/auth'}>
+              <Link href={'/profile'}>
                 <Image
                   src="/images/profile.svg"
                   alt="Arrow"
