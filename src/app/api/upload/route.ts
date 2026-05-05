@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import cloudinary from '@/lib/cloudinary'
+import { requireAuthority } from "@/features/auth/services/sessionService"
 
 export async function POST(req: NextRequest) {
+  await requireAuthority('ADMIN')
   try {
     const formData = await req.formData()
     const file = formData.get('file') as File

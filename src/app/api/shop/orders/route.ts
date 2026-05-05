@@ -1,6 +1,8 @@
 import { OrderService } from '@/features/dashboard/services/OrderService'
+import { requireAuthority } from '@/features/auth/services/sessionService'
 
 export async function GET() {
+  await requireAuthority('USER')
   try {
     const orders = await OrderService.fetchAllOrders()
     return new Response(JSON.stringify(orders), { status: 200 })

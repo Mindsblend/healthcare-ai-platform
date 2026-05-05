@@ -1,15 +1,10 @@
 import { OrderService } from '@/features/dashboard/services/OrderService'
-import { getSession } from '@/features/auth/services/sessionService'
+import { requireAuthority } from '@/features/auth/services/sessionService'
 
 export async function POST(req: Request) {
   try {
-    const session = await getSession()
-    if (!session) {
-      return new Response(JSON.stringify({ error: 'User not authenticated' }), {
-        status: 401,
-      })
-    }
-
+    const session = await requireAuthority('USER')
+    
     const data = await req.json()
     console.log('[createOrder API] input data:', data)
 

@@ -1,14 +1,8 @@
 import { CartService } from '@/features/shop/services/CartService'
-import { getSession } from '@/features/auth/services/sessionService'
+import { requireAuthority } from '@/features/auth/services/sessionService'
 
 export async function POST() {
-  const session = await getSession()
-  if (!session) {
-    return new Response(JSON.stringify({ error: 'User not authenticated' }), {
-      status: 401,
-    })
-  }
-
+  const session = await requireAuthority('USER')
   try {
     const cart = await CartService.createCart(session.id)
     return new Response(JSON.stringify(cart), { status: 200 })
