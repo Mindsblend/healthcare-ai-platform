@@ -116,6 +116,7 @@ const CheckoutPage = () => {
                 placeholder="شماره تماس"
                 value={shippingInfo.phone}
                 onChange={handleChange}
+                dir="rtl"
                 className="font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black"
               />
               <input
@@ -187,14 +188,6 @@ const CheckoutPage = () => {
                 </div>
               </div>
             </div>
-
-            <button
-              onClick={handleSubmit}
-              disabled={orderLoading}
-              className="text-color-title-on-dark font-ray mt-6 h-13.5 w-full cursor-pointer rounded-4xl bg-black font-medium transition hover:bg-gray-800"
-            >
-              {orderLoading ? 'در حال ثبت سفارش...' : 'ثبت سفارش و پرداخت'}
-            </button>
           </div>
         </div>
 
@@ -275,8 +268,12 @@ const CheckoutPage = () => {
               </div>
             </div>
             <Link href="/order">
-              <button className="text-color-title-on-dark font-ray h-13.5 w-full cursor-pointer rounded-4xl bg-black font-medium transition hover:bg-gray-800">
-                تکمیل سفارش
+              <button
+                onClick={handleSubmit}
+                disabled={orderLoading}
+                className="text-color-title-on-dark font-ray h-13.5 w-full cursor-pointer rounded-4xl bg-black font-medium transition hover:bg-gray-800"
+              >
+                {orderLoading ? 'در حال ثبت سفارش...' : 'ثبت سفارش و پرداخت'}
               </button>
             </Link>
           </div>

@@ -123,7 +123,10 @@ const page = () => {
           </div>
           <div className="pb-6">
             <Link href="/order">
-              <button className="text-color-title-on-dark font-ray h-13.5 w-full cursor-pointer rounded-4xl bg-black font-medium transition hover:bg-gray-800">
+              <button
+                disabled={!cartItems?.length}
+                className={`text-color-title-on-dark font-ray h-13.5 w-full cursor-pointer rounded-4xl bg-black font-medium transition hover:bg-gray-800 ${cartItems.length === 0 ? 'bg-gray-800' : ''}`}
+              >
                 تکمیل سفارش
               </button>
             </Link>
