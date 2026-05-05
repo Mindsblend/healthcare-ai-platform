@@ -13,7 +13,7 @@ export interface CartItemType {
   cartId: string
   quantity: number
   price: number
-  product: ProductPreviewType
+  product: ProductSummary
 }
 
 export interface OrderType {
@@ -25,6 +25,11 @@ export interface OrderType {
   cart: CartType
   cartId: string
   totalPrice: number
+  shippingFirstName: true
+  shippingLastName: true
+  shippingEmail: true
+  shippingPhone: true
+  shippingCity: true
 
   status: 'PENDING' | 'PAID' | 'FAILED' | 'CANCELED' | 'REFUNDED'
   createdAt: string
@@ -36,6 +41,11 @@ export type OrderSummary = Prisma.OrderGetPayload<{
     user: true
     cart: true
     totalPrice: true
+    shippingFirstName: true
+    shippingLastName: true
+    shippingEmail: true
+    shippingPhone: true
+    shippingCity: true
   }
 }>
 
@@ -84,34 +94,6 @@ export type UserWithTimestampsAndRelations = Prisma.UserGetPayload<{
   }
 }>
 
-export interface ProductType {
-  id: number
-  title: string
-  price: number
-  category: CategoryType
-  slug: string
-  solution: string
-  image: string
-  description: string
-  categoryId: number
-  createdAt: Date
-  updatedAt: Date
-  icons: iconType[]
-  gains: gainType[]
-  faqs: faqType[]
-}
-
-export interface ProductPreviewType {
-  id: number
-  title: string
-  price: number
-  solution: string
-  slug: string
-  image: string
-  categoryId: number
-  stock?: 'In Stock' | 'Out of Stock'
-}
-
 export type ProductSummary = Prisma.ProductGetPayload<{
   select: {
     id: true
@@ -121,9 +103,20 @@ export type ProductSummary = Prisma.ProductGetPayload<{
     slug: true
     image: true
     categoryId: true
+    category: {
+      select: {
+        name: true
+      }
+    }
+  }
+}>
+
+export type ProductDetail = Prisma.ProductGetPayload<{
+  include: {
     icons: true
     gains: true
     faqs: true
+    category: true
   }
 }>
 
@@ -144,7 +137,7 @@ export interface CategoryType {
   id: number
   name: string
   iconPath: string
-  products: ProductType[]
+  products: ProductSummary[]
 }
 
 export interface iconType {
@@ -191,4 +184,12 @@ export interface SessionPayload {
   email: string | null
   phone: string | null
   role: string | null
+}
+
+export interface VisitMonth {
+  id: string
+  year: number
+  month: number
+  visits: number
+  updatedAt: Date
 }

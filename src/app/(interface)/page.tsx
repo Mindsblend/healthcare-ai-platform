@@ -1,4 +1,5 @@
 import { getSession } from '@/features/auth/services/sessionService'
+import { requireAuthority } from '@/features/auth/services/sessionService'
 
 // Landing Page Components
 import LandingHeroSection from '@/components/domain/(interface)/LandingHeroSection'

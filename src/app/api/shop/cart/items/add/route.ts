@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { CartService } from '@/features/shop/services/CartService'
+import { requireAuthority } from '@/features/auth/services/sessionService'
 
 export async function POST(req: NextRequest) {
+  await requireAuthority('USER')
   try {
     const { cartId, productId, quantity } = await req.json()
     const updatedCartItem = await CartService.addItem(cartId, productId, quantity)

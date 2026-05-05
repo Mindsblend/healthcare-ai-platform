@@ -61,6 +61,12 @@ export async function requireAuthority(
     throw createDomainError(ErrorCode.INTERNAL_ERROR)
   }
 
+  // ADMIN can access USER endpoints
+  if (session.role === 'ADMIN' && requiredRole === 'USER') {
+    return session
+  }
+
+  // For all other cases, exact role match required
   if (session.role !== requiredRole) {
     throw createDomainError(ErrorCode.UNAUTHORIZED)
   }

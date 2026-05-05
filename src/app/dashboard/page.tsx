@@ -1,22 +1,16 @@
-import type { Metadata } from 'next'
 import { EcommerceMetrics } from '@/components/domain/dashboard/ecommerce/EcommerceMetrics'
 import MonthlyTarget from '@/components/domain/dashboard/ecommerce/MonthlyTarget'
 import MonthlySalesChart from '@/components/domain/dashboard/ecommerce/MonthlySalesChart'
 import RecentOrders from '@/components/domain/dashboard/ecommerce/RecentOrders'
+import { requireAuthority } from '@/features/auth/services/sessionService'
 
-export const metadata: Metadata = {
-  title:
-    'Next.js E-commerce Dashboard | TailAdmin - Next.js Dashboard Template',
-  description: 'This is Next.js Home for TailAdmin Dashboard Template',
-}
-
-export default function Ecommerce() {
+export default async function Ecommerce() {
   return (
     <div className="grid grid-cols-12 gap-4 md:gap-6">
       <div className="col-span-12 space-y-6">
         <EcommerceMetrics />
 
-        <MonthlySalesChart />
+        {/* <MonthlySalesChart /> */}
       </div>
 
       {/* <div className="col-span-12 xl:col-span-5">
@@ -25,7 +19,7 @@ export default function Ecommerce() {
 
       <div className="col-span-12">
         <RecentOrders />
-        <MonthlyTarget />
+        {/* <MonthlyTarget /> */}
       </div>
     </div>
   )

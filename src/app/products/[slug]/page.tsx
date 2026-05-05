@@ -6,7 +6,7 @@ import ProductSwiper from '@/components/layout/ProductSwiper'
 import Link from 'next/link'
 
 export async function generateStaticParams() {
-  const products = await ProductService.fetchAllProducts()
+  const products = await ProductService.fetchPreviewProducts()
 
   return products
     .filter((product) => product.slug)

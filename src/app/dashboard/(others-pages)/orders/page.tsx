@@ -17,18 +17,25 @@ import Pagination from '@/components/domain/dashboard/tables/Pagination'
 const Orders = () => {
   const { orders, loading, error } = useOrders()
 
+  const sortedOrders = [...orders].sort((a, b) => {
+    const dateA = new Date(a.createdAt).getTime()
+    const dateB = new Date(b.createdAt).getTime()
+
+    return dateB - dateA
+  })
+
   const [page, setPage] = useState(1)
 
   const itemsPerPage = 7
   const startIndex = (page - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
-  const currentData = orders.slice(startIndex, endIndex)
+  const currentData = sortedOrders.slice(startIndex, endIndex)
 
   if (loading) return <div>در حال بارگذاری سفارشات...</div>
 
   if (error) return <div>خطا در بارگذاری سفارشات: {error}</div>
 
-  if (!orders.length) {
+  if (!sortedOrders.length) {
     return (
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pt-4 pb-3 sm:px-6 dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -208,32 +215,32 @@ const Orders = () => {
 
             <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
               {currentData.map((order) => (
-                <TableRow key={order.cartId}>
-                  {/* شماره سفارش */}
+                <TableRow key={order.id}>
+                  {/* ID */}
                   <TableCell className="text-theme-sm py-3 pr-4 font-medium text-gray-800 sm:pr-6 dark:text-white/90">
-                    #{order.cartId}
+                    {order.id}
                   </TableCell>
 
-                  {/* نام مشتری */}
+                  {/* Full Name */}
                   <TableCell className="py-3">
                     <div className="flex flex-col">
                       <span className="text-theme-sm font-medium text-gray-800 dark:text-white/90">
-                        {order.user?.id}
+                        {order.shippingFirstName} {order.shippingLastName}
                       </span>
                     </div>
                   </TableCell>
 
-                  {/* ایمیل */}
+                  {/* Email */}
                   <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
-                    {order.user?.email}
+                    {order.shippingEmail}
                   </TableCell>
 
-                  {/* تاریخ سفارش */}
+                  {/* Date */}
                   <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
                     {new Date(order.createdAt).toLocaleDateString('fa-IR')}
                   </TableCell>
 
-                  {/* وضعیت */}
+                  {/* Status */}
                   <TableCell className="text-theme-sm py-3">
                     <Badge
                       size="sm"
@@ -262,7 +269,7 @@ const Orders = () => {
         <div className="pt-3">
           <Pagination
             currentPage={page}
-            totalPages={Math.ceil(orders.length / itemsPerPage)}
+            totalPages={Math.ceil(sortedOrders.length / itemsPerPage)}
             onPageChange={(newPage) => setPage(newPage)}
           />
         </div>

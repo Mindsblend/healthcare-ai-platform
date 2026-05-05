@@ -1,7 +1,8 @@
 'use client'
 
-import { useCart } from '@/features/shop/hooks/cart/useCart'
 import Image from 'next/image'
+import Link from 'next/link'
+import { useCart } from '@/features/shop/hooks/cart/useCart'
 import { useState, ChangeEvent } from 'react'
 import { useCreateOrder } from '@/features/dashboard/hooks/createOrders'
 import { ShippingInfo } from '@/components/types/types'
@@ -51,6 +52,7 @@ const CheckoutPage = () => {
   const TAX_RATE = 0.09
   const taxAmount = Math.round(subtotal * TAX_RATE)
   const totalAmount = subtotal + taxAmount
+  const deliveryAmount = 300
 
   if (cartLoading) return <div>در حال بارگذاری سبد خرید...</div>
 
@@ -155,7 +157,7 @@ const CheckoutPage = () => {
               <div className="flex items-center gap-3.5">
                 <div
                   onClick={() => setActiveBtn('zarinpal')}
-                  className={`flex h-[78px] cursor-pointer items-center justify-center rounded-2xl p-3 ${
+                  className={`flex h-19.5 cursor-pointer items-center justify-center rounded-2xl p-3 ${
                     activeBtn === 'zarinpal'
                       ? 'border-2 border-[#d9d9d9] bg-white'
                       : ''
@@ -170,7 +172,7 @@ const CheckoutPage = () => {
                 </div>
                 <div
                   onClick={() => setActiveBtn('mellat')}
-                  className={`flex h-[78px] cursor-pointer items-center justify-center rounded-2xl px-1 py-[9px] ${
+                  className={`flex h-19.5 cursor-pointer items-center justify-center rounded-2xl px-1 py-2.25 ${
                     activeBtn === 'mellat'
                       ? 'border-2 border-[#d9d9d9] bg-white'
                       : ''
@@ -189,7 +191,7 @@ const CheckoutPage = () => {
             <button
               onClick={handleSubmit}
               disabled={orderLoading}
-              className="text-color-title-on-dark font-ray mt-6 h-[54px] w-full cursor-pointer rounded-4xl bg-black font-medium"
+              className="text-color-title-on-dark font-ray mt-6 h-13.5 w-full cursor-pointer rounded-4xl bg-black font-medium transition hover:bg-gray-800"
             >
               {orderLoading ? 'در حال ثبت سفارش...' : 'ثبت سفارش و پرداخت'}
             </button>
@@ -199,7 +201,7 @@ const CheckoutPage = () => {
         {/* ===== LEFT: Order Summary ===== */}
         <div className="space-y-6">
           {/* Cart Details */}
-          <div className="flex h-[370px] flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-7">
+          <div className="flex h-92.5 flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-7">
             <h1 className="font-aria text-color-title-on-light mt-9 text-center text-2xl font-extrabold">
               لیست سفارشات
             </h1>
@@ -207,7 +209,7 @@ const CheckoutPage = () => {
               {cartItems.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between rounded-xl"
+                  className="flex justify-between rounded-xl border-b pb-5 last:border-b-0 max-sm:flex-col max-sm:space-y-3 sm:items-center"
                 >
                   <div className="shrink-0">
                     <img
@@ -216,11 +218,11 @@ const CheckoutPage = () => {
                       className="h-20 w-20 rounded-2xl object-cover"
                     />
                   </div>
-                  <div className="flex-1 px-4">
+                  <div className="flex-1 sm:px-4">
                     <h3 className="font-aria text-color-title-on-light text-lg font-extrabold">
                       {item.product.title}
                     </h3>
-                    <p className="font-ray text-color-body-on-light mt-1 text-xs font-medium">
+                    <p className="font-ray text-color-body-on-light mt-1 line-clamp-2 text-xs font-medium">
                       {item.product.solution}
                     </p>
                   </div>
@@ -233,8 +235,8 @@ const CheckoutPage = () => {
           </div>
 
           {/* Order Summary */}
-          <div className="flex h-[452px] flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-9">
-            <h1 className="font-aria text-color-title-on-light mt-9 text-center text-2xl font-extrabold">
+          <div className="flex h-113 flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-9 py-9">
+            <h1 className="font-aria text-color-title-on-light text-center text-2xl font-extrabold">
               خلاصه سفارشات
             </h1>
             <div className="space-y-5">
@@ -254,6 +256,14 @@ const CheckoutPage = () => {
                   {taxAmount.toLocaleString('fa-IR')} تومان
                 </h1>
               </div>
+              <div className="flex items-center justify-between">
+                <h1 className="font-aria text-color-title-on-light font-extrabold">
+                  هزینه ارسال
+                </h1>
+                <h1 className="font-aria text-color-title-on-light font-extrabold">
+                  {deliveryAmount.toLocaleString('fa-IR')} تومان
+                </h1>
+              </div>
               <hr className="border" />
               <div className="flex items-center justify-between">
                 <h1 className="font-aria text-color-title-on-light font-extrabold">
@@ -264,6 +274,11 @@ const CheckoutPage = () => {
                 </h1>
               </div>
             </div>
+            <Link href="/order">
+              <button className="text-color-title-on-dark font-ray h-13.5 w-full cursor-pointer rounded-4xl bg-black font-medium transition hover:bg-gray-800">
+                تکمیل سفارش
+              </button>
+            </Link>
           </div>
         </div>
       </div>
