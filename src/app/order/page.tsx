@@ -209,7 +209,7 @@ const CheckoutPage = () => {
               {cartItems.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between rounded-xl"
+                  className="flex justify-between rounded-xl border-b pb-5 last:border-b-0 max-sm:flex-col max-sm:space-y-3 sm:items-center"
                 >
                   <div className="shrink-0">
                     <img
@@ -218,11 +218,11 @@ const CheckoutPage = () => {
                       className="h-20 w-20 rounded-2xl object-cover"
                     />
                   </div>
-                  <div className="flex-1 px-4">
+                  <div className="flex-1 sm:px-4">
                     <h3 className="font-aria text-color-title-on-light text-lg font-extrabold">
                       {item.product.title}
                     </h3>
-                    <p className="font-ray text-color-body-on-light mt-1 text-xs font-medium">
+                    <p className="font-ray text-color-body-on-light mt-1 line-clamp-2 text-xs font-medium">
                       {item.product.solution}
                     </p>
                   </div>

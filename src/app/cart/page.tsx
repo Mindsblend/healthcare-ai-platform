@@ -36,10 +36,10 @@ const page = () => {
       <h1 className="font-aria text-color-title-on-light text-4xl font-extrabold">
         سبد خرید شما
       </h1>
-      <div className="mt-10 flex flex-col items-center justify-between gap-10 lg:flex-row">
+      <div className="mt-10 flex flex-col items-center justify-between gap-5 sm:flex-row xl:gap-10">
         <div className="flex h-113 w-full max-w-7xl flex-col rounded-3xl border-2 border-[#d9d9d9]">
           {/* HEADER (fixed height) */}
-          <div className="font-aria grid shrink-0 grid-cols-[2fr_1fr_1fr_40px] border-b-2 px-8 py-5 text-xl font-bold">
+          <div className="font-aria hidden shrink-0 grid-cols-[2fr_1fr_1fr_40px] border-b-2 px-8 py-5 text-xl font-bold lg:grid">
             <span className="text-color-title-on-light">نام محصول</span>
             <span className="text-color-title-on-light mr-6">تعداد</span>
             <span className="text-color-title-on-light">قیمت</span>
