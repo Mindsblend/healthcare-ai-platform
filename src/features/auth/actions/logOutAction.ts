@@ -1,8 +1,7 @@
-export async function logOut(userId: any) {
+export async function logOut() {
   const res = await fetch('/api/auth/logout', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userId }),
     credentials: 'include',
   })
 

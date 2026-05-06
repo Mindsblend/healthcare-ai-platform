@@ -1,26 +1,25 @@
+// src/features/auth/hooks/useLogOut.ts
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { logOut } from '../actions/logOutAction'
-import { getSession } from '../services/sessionService'
 
-export function useUsers() {
-  const [loading, setLoading] = useState(true)
+export function useLogOut() {
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const session = await getSession()
-        await logOut(session?.id)
-      } catch (err: any) {
-        setError(err.message)
-      } finally {
-        setLoading(false)
-      }
+  const logout = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      await logOut()
+    } catch (err: any) {
+      setError(err.message ?? 'Logout failed')
+      throw err
+    } finally {
+      setLoading(false)
     }
-    load()
-  }, [])
+  }
 
-  return { loading, error }
+  return { logout, loading, error }
 }

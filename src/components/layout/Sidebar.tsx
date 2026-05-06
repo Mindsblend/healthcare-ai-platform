@@ -6,12 +6,15 @@ import LogoutPopup from '@/components/layout/LogoutPopup.tsx'
 import { useRouter } from 'next/navigation'
 import { NavItem } from '../types/types.tsx'
 import Link from 'next/link'
+import { useLogOut } from '@/features/auth/hooks/useLogOut.ts'
 
 const Sidebar = () => {
   const [activeItem, setActiveItem] = useState<string>('profile')
 
   const [openIndex, setOpenIndex] = useState(false)
   const router = useRouter()
+
+  const { logout, loading, error } = useLogOut()
 
   const sidebarItems: NavItem[] = [
     {
@@ -33,14 +36,8 @@ const Sidebar = () => {
 
   const handleLogout = async () => {
     try {
-      // API call for logout
-      // await fetch('/api/auth/logout', { method: 'POST' });
-
-      // Clear local storage/cookies
-      // localStorage.removeItem('token');
-
-      // Redirect to login page
-      router.push('/login')
+      await logout()
+      router.push('/')
       router.refresh()
     } catch (error) {
       console.error('Logout failed:', error)
