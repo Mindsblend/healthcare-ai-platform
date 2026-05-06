@@ -193,3 +193,10 @@ export interface VisitMonth {
   visits: number
   updatedAt: Date
 }
+
+export interface NavItem {
+  name: string
+  icon: string
+  path: string
+  subItems?: { name: string; path: string }[]
+}

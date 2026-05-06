@@ -5,13 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useSidebar } from '../context/SidebarContext'
-
-type NavItem = {
-  name: string
-  icon: string
-  path?: string
-  subItems?: { name: string; path: string }[]
-}
+import { NavItem } from '../types/types'
 
 const navItems: NavItem[] = [
   { icon: '/images/binoculars.svg', name: 'داشبورد', path: '/dashboard' },
