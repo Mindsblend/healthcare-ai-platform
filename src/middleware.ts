@@ -1,9 +1,8 @@
-// src/middleware.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken } from '@/features/auth/services/verifyToken'
+import { getSession } from './features/auth/services/sessionService'
 import { getRouteType } from '@/lib/paths'
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) { // Make it async
   const { pathname } = req.nextUrl
   const routeType = getRouteType(pathname)
 
@@ -12,18 +11,10 @@ export function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
-  const token = req.cookies.get('session')?.value
+  // Use getSession which reads cookies properly
+  const session = await getSession()
 
-  // No token - redirect to login
-  if (!token) {
-    const authUrl = new URL('/auth', req.url)
-    authUrl.searchParams.set('from', pathname)
-    return NextResponse.redirect(authUrl)
-  }
-
-  const session = verifyToken(token)
-
-  // Invalid token - redirect to login
+  // No session - redirect to auth
   if (!session) {
     const authUrl = new URL('/auth', req.url)
     authUrl.searchParams.set('from', pathname)

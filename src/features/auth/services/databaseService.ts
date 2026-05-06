@@ -11,22 +11,6 @@ export async function fetchAllUsers(): Promise<UserSummary[]> {
   })
 }
 
-// export async function getCurrentUser(userId: string) {
-//   return await prisma.user.findUnique({
-//     where: { id: userId },
-//     select: {
-//       id: true,
-//       firstName: true,
-//       lastName: true,
-//       email: true,
-//       phone: true,
-//       postalCode: true,
-//       address: true,
-//       // any other profile fields you need
-//     },
-//   })
-// }
-
 export async function authorize(identifier: string, type: string) {
   let user
   if (type === 'phone') {
