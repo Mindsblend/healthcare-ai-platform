@@ -8,7 +8,7 @@ export const routeConfig = {
     '/blogs/[slug]',
     '/auth',
   ],
-  user: [],
+  user: ['/cart', '/order', '/profile/:path*'],
   admin: ['/dashboard/:path*'],
 }
 

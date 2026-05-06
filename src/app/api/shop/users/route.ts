@@ -1,4 +1,4 @@
-import { fetchAllUsers } from '@/features/auth/services/databaseService'
+import { fetchAllUsers } from '@/features/shop/services/UserService'
 import { requireAuthority } from '@/features/auth/services/sessionService'
 
 export async function GET() {

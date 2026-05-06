@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSession } from './features/auth/services/sessionService'
+import { getSessionFromRequest } from './features/auth/services/sessionService'
 import { getRouteType } from '@/lib/paths'
 
-export async function middleware(req: NextRequest) { // Make it async
+export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
   const routeType = getRouteType(pathname)
 
@@ -11,8 +11,8 @@ export async function middleware(req: NextRequest) { // Make it async
     return NextResponse.next()
   }
 
-  // Use getSession which reads cookies properly
-  const session = await getSession()
+  // Use middleware-specific function (sync, no await needed)
+  const session = getSessionFromRequest(req)
 
   // No session - redirect to auth
   if (!session) {

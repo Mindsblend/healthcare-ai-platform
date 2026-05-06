@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server'
 import { verifyOtp } from '@/features/auth/services/verifyOtpService'
-import { authorize } from '@/features/auth/services/databaseService'
-import { createJwtSession } from '@/features/auth/services/sessionService'
-import { cookies } from 'next/headers'
+import { createUser } from '@/features/shop/services/UserService'
+
+import {
+  createJwtSession,
+  setSessionCookie,
+} from '@/features/auth/services/sessionService'
 import { createDomainError, ErrorCode } from '@/lib/errors'
 import { validateIdentifier } from '@/lib/helpers'
 
@@ -13,45 +16,32 @@ export async function POST(req: Request) {
 
     let user
     let token
-    let cookieStore
 
     switch (type) {
       case 'email':
         await verifyOtp(value, code)
-        console.log('[SMS] OTP verified successfully')
+        console.log('[EMAIL] OTP verified successfully')
 
-        user = await authorize(value, type)
-        console.log('[SMS] User fetched/created')
+        user = await createUser(value, type)
+        console.log('[EMAIL] User fetched/created')
 
         token = createJwtSession(user)
-        console.log('[SMS] Session created')
+        console.log('[EMAIL] Session created')
 
-        cookieStore = await cookies()
-        cookieStore.set('session', token, {
-          httpOnly: true,
-          secure: false,
-          sameSite: 'lax',
-          path: '/',
-        })
+        await setSessionCookie(token)
         break
 
       case 'phone':
         await verifyOtp(value, code)
         console.log('[SMS] OTP verified successfully')
 
-        user = await authorize(value, type)
+        user = await createUser(value, type)
         console.log('[SMS] User fetched/created')
 
         token = createJwtSession(user)
         console.log('[SMS] Session created')
 
-        cookieStore = await cookies()
-        cookieStore.set('session', token, {
-          httpOnly: true,
-          secure: false,
-          sameSite: 'lax',
-          path: '/',
-        })
+        await setSessionCookie(token)
         break
 
       default:
@@ -62,7 +52,10 @@ export async function POST(req: Request) {
         )
     }
 
-    return NextResponse.json({ success: true, redirect: '/' })
+    return NextResponse.json({
+      success: true,
+      redirect: '/',
+    })
   } catch (error) {
     console.error('[OTP API] Caught error:', error)
 
