@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { getOrders } from '@/features/dashboard/actions/getOrdersAction'
-import { OrderType } from '@/components/types/types'
+import { OrderSummary } from '@/components/types/types'
 
-export function useOrders() {
-  const [orders, setOrders] = useState<OrderType[]>([])
+export function useOrdersPreview() {
+  const [orders, setOrders] = useState<OrderSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

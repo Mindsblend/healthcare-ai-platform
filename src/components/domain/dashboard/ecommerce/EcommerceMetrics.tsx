@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { useMemo } from 'react'
-import { useOrders } from '@/features/dashboard/hooks/useOrders'
+import { useOrdersPreview } from '@/features/dashboard/hooks/useOrdersPreview'
 import Badge from '../../../ui/badge/Badge'
 import ArrowDownIcon from '../../../../../public/images/arrow-down.svg'
 import ArrowUpIcon from '../../../../../public/images/arrow-up.svg'
@@ -14,7 +14,7 @@ import { useUsers } from '@/features/auth/hooks/useUsers'
 import { useTrackedVisit } from '@/features/dashboard/hooks/useTrackedVisits'
 
 export const EcommerceMetrics = () => {
-  const { orders } = useOrders()
+  const { orders } = useOrdersPreview()
   const { users } = useUsers()
   const { visits } = useTrackedVisit()
 

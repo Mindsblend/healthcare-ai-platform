@@ -1,21 +1,36 @@
 import { prisma } from '@/lib/prisma'
 import { OrderSummary, ShippingInfo } from '@/components/types/types'
+import { OrderStatus } from '@/components/types/types'
 
 export class OrderService {
   static async fetchAllOrders(): Promise<OrderSummary[]> {
     return prisma.order.findMany({
       select: {
         id: true,
-        user: true,
-        cart: true,
         totalPrice: true,
-        status: true,
         shippingFirstName: true,
         shippingLastName: true,
-        shippingEmail: true,
         shippingPhone: true,
-        shippingCity: true,
         createdAt: true,
+        status: true,
+        shippingEmail: true,
+        shippingCity: true,
+        shippingProvince: true,
+        shippingAddress: true,
+        shippingPostalCode: true,
+        shippingNotes: true,
+        items: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                title: true,
+                price: true,
+                image: true,
+              },
+            },
+          },
+        },
       },
     })
   }
@@ -98,5 +113,41 @@ export class OrderService {
     })
 
     return order
+  }
+
+  static async updateOrder(
+    orderId: string,
+    updates: {
+      status?: OrderStatus
+      shippingNotes?: string
+    },
+  ) {
+    // Get current order to check status
+    const currentOrder = await prisma.order.findUnique({
+      where: { id: orderId },
+    })
+
+    if (!currentOrder) {
+      throw new Error('Order not found')
+    }
+
+    // Prevent updates to completed or cancelled orders
+    if (
+      currentOrder.status === 'DELIVERED' ||
+      currentOrder.status === 'CANCELED'
+    ) {
+      throw new Error('Cannot update delivered or canceled orders')
+    }
+
+    // Update the order - only status, trackingNumber, and shippingNotes
+    const updatedOrder = await prisma.order.update({
+      where: { id: orderId },
+      data: {
+        status: updates.status,
+        shippingNotes: updates.shippingNotes,
+      },
+    })
+
+    return updatedOrder
   }
 }

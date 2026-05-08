@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useOrders } from '@/features/dashboard/hooks/useOrders'
+import { useOrdersPreview } from '@/features/dashboard/hooks/useOrdersPreview'
 import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
 import {
   Table,
@@ -18,7 +18,7 @@ import { getStatusLabel, getStatusColor } from '@/lib/helpers'
 import { OrderSummary } from '@/components/types/types'
 
 const Orders = () => {
-  const { orders, loading, error } = useOrders()
+  const { orders, loading, error } = useOrdersPreview()
 
   const sortedOrders = [...orders].sort((a, b) => {
     const dateA = new Date(a.createdAt).getTime()
@@ -275,9 +275,9 @@ const Orders = () => {
                     </div>
                   </TableCell>
 
-                  {/* Email */}
+                  {/* Phone */}
                   <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
-                    {order.shippingEmail}
+                    {order.shippingPhone}
                   </TableCell>
 
                   {/* Date */}

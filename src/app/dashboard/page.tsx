@@ -2,7 +2,6 @@ import { EcommerceMetrics } from '@/components/domain/dashboard/ecommerce/Ecomme
 import MonthlyTarget from '@/components/domain/dashboard/ecommerce/MonthlyTarget'
 import MonthlySalesChart from '@/components/domain/dashboard/ecommerce/MonthlySalesChart'
 import RecentOrders from '@/components/domain/dashboard/ecommerce/RecentOrders'
-import { requireAuthority } from '@/features/auth/services/sessionService'
 
 export default async function Ecommerce() {
   return (

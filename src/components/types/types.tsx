@@ -35,6 +35,36 @@ export interface OrderType {
   createdAt: string
 }
 
+export type OrderSummary = Prisma.OrderGetPayload<{
+  select: {
+    id: true
+    totalPrice: true
+    shippingFirstName: true
+    shippingLastName: true
+    shippingPhone: true
+    createdAt: true
+    status: true
+    shippingEmail: true
+    shippingCity: true
+    shippingProvince: true
+    shippingAddress: true
+    shippingPostalCode: true
+    shippingNotes: true
+    items: {
+      include: {
+        product: {
+          select: {
+            id: true
+            title: true
+            price: true
+            image: true
+          }
+        }
+      }
+    }
+  }
+}>
+
 export type OrderStatus =
   | 'PENDING'
   | 'PAID'
@@ -43,20 +73,6 @@ export type OrderStatus =
   | 'REFUNDED'
   | 'DELIVERING'
   | 'DELIVERED'
-
-export type OrderSummary = Prisma.OrderGetPayload<{
-  select: {
-    id: true
-    user: true
-    cart: true
-    totalPrice: true
-    shippingFirstName: true
-    shippingLastName: true
-    shippingEmail: true
-    shippingPhone: true
-    shippingCity: true
-  }
-}>
 
 export type ShippingInfo = {
   firstName: string
