@@ -42,11 +42,11 @@ const Orders = () => {
   }
 
   const handleUpdateOrder = async (updatedOrder: OrderSummary) => {
-    // Update your local state or refetch orders
-    await updateOrderMutation(updatedOrder)
-    setIsModalOpen(false)
-    // Refresh orders list
-    refetchOrders()
+    // // Update your local state or refetch orders
+    // await updateOrderMutation(updatedOrder)
+    // setIsModalOpen(false)
+    // // Refresh orders list
+    // refetchOrders()
   }
 
   if (loading) return <div>در حال بارگذاری سفارشات...</div>

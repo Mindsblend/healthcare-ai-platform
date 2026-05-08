@@ -1,7 +1,7 @@
-import { BlogService } from "@/features/shop/services/BlogService"
-import { requireAuthority } from "@/features/auth/services/sessionService"
+import { BlogService } from '@/features/shop/services/BlogService'
+import { requireAuthority } from '@/features/auth/services/sessionService'
 
-export async function POST(req: Request) {
+export async function DELETE(req: Request) {
   await requireAuthority('ADMIN')
   try {
     const data = await req.json()
