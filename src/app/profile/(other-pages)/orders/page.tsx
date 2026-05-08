@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from 'react'
 import { useUserOrder } from '@/features/shop/hooks/profile/useUserOrder'
-import { UserOrder, OrderStatus } from '@/components/types/types'
+import { OrderStatus } from '@/components/types/types'
+import { getStatusLabel } from '@/lib/helpers'
 
 const OrdersContent = () => {
   const { userOrder, loading, error } = useUserOrder()
@@ -13,13 +14,29 @@ const OrdersContent = () => {
     {
       id: 'all',
       label: 'همه',
-      statuses: ['PENDING', 'PAID', 'FAILED', 'CANCELED', 'REFUNDED'],
+      statuses: ['PENDING', 'DELIVERING', 'DELIVERED', 'CANCELED', 'REFUNDED'],
     },
-    { id: 'pending', label: 'در انتظار', statuses: ['PENDING'] },
-    { id: 'paid', label: 'پرداخت شده', statuses: ['PAID'] },
-    { id: 'failed', label: 'ناموفق', statuses: ['FAILED'] },
-    { id: 'canceled', label: 'لغو شده', statuses: ['CANCELED'] },
-    { id: 'refunded', label: 'مرجوع شده', statuses: ['REFUNDED'] },
+    { id: 'pending', label: getStatusLabel('PENDING'), statuses: ['PENDING'] },
+    {
+      id: 'delivering',
+      label: getStatusLabel('DELIVERING'),
+      statuses: ['DELIVERING'],
+    },
+    {
+      id: 'delivered',
+      label: getStatusLabel('DELIVERED'),
+      statuses: ['DELIVERED'],
+    },
+    {
+      id: 'canceled',
+      label: getStatusLabel('CANCELED'),
+      statuses: ['CANCELED'],
+    },
+    {
+      id: 'refunded',
+      label: getStatusLabel('REFUNDED'),
+      statuses: ['REFUNDED'],
+    },
   ]
 
   // Get number of orders in each status
@@ -45,18 +62,6 @@ const OrdersContent = () => {
       selectedGroup.statuses.includes(order.status as OrderStatus),
     )
   }, [userOrder, activeStatus])
-
-  // Persian status labels
-  const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = {
-      PENDING: 'در انتظار پرداخت',
-      PAID: 'پرداخت شده',
-      FAILED: 'ناموفق',
-      CANCELED: 'لغو شده',
-      REFUNDED: 'مرجوع شده',
-    }
-    return labels[status] || status
-  }
 
   // Format price
   const formatPrice = (price: number) => {

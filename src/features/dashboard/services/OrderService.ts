@@ -15,7 +15,7 @@ export class OrderService {
         shippingEmail: true,
         shippingPhone: true,
         shippingCity: true,
-        createdAt: true
+        createdAt: true,
       },
     })
   }
@@ -68,7 +68,7 @@ export class OrderService {
           userId,
           cartId: cart.id,
           totalPrice,
-          status: 'PENDING',
+          status: 'PAID',
           shippingFirstName: shippingInfo.firstName,
           shippingLastName: shippingInfo.lastName,
           shippingEmail: shippingInfo.email,

@@ -13,6 +13,7 @@ import {
 } from '../../../../components/ui/table'
 import Badge from '../../../../components/ui/badge/Badge'
 import Pagination from '@/components/domain/dashboard/tables/Pagination'
+import { getStatusLabel, getStatusColor } from '@/lib/helpers'
 
 const Orders = () => {
   const { orders, loading, error } = useOrders()
@@ -242,17 +243,8 @@ const Orders = () => {
 
                   {/* Status */}
                   <TableCell className="text-theme-sm py-3">
-                    <Badge
-                      size="sm"
-                      color={
-                        order.status === 'PAID'
-                          ? 'success'
-                          : order.status === 'PENDING'
-                            ? 'warning'
-                            : 'error'
-                      }
-                    >
-                      {order.status}
+                    <Badge size="sm" color={getStatusColor(order.status)}>
+                      {getStatusLabel(order.status)}
                     </Badge>
                   </TableCell>
 

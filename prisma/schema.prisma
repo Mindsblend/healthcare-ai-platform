@@ -131,13 +131,14 @@ model OrderItem {
   createdAt DateTime @default(now())
 }
 
-
 enum OrderStatus {
-  PENDING
-  PAID
-  FAILED
-  CANCELED
-  REFUNDED
+  PENDING      // Payment pending / not yet paid
+  PAID         // Payment successful, order confirmed
+  DELIVERING   // Shipped and on the way to customer
+  DELIVERED    // Successfully delivered to customer
+  FAILED       // Payment failed
+  CANCELED     // Canceled by customer or admin
+  REFUNDED     // Money returned to customer
 }
 
 model Product {

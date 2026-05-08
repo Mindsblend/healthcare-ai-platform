@@ -41,6 +41,8 @@ export type OrderStatus =
   | 'FAILED'
   | 'CANCELED'
   | 'REFUNDED'
+  | 'DELIVERING'
+  | 'DELIVERED'
 
 export type OrderSummary = Prisma.OrderGetPayload<{
   select: {

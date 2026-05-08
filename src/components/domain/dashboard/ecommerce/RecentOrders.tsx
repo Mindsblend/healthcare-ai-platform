@@ -10,6 +10,7 @@ import {
 import Badge from '../../../ui/badge/Badge'
 import { useOrders } from '@/features/dashboard/hooks/useOrders'
 import Link from 'next/link'
+import { getStatusLabel, getStatusColor } from '@/lib/helpers'
 
 export default function RecentOrders() {
   const { orders, loading, error } = useOrders()
@@ -208,17 +209,8 @@ export default function RecentOrders() {
 
                 {/* وضعیت */}
                 <TableCell className="text-theme-sm py-3">
-                  <Badge
-                    size="sm"
-                    color={
-                      order.status === 'PAID'
-                        ? 'success'
-                        : order.status === 'PENDING'
-                          ? 'warning'
-                          : 'error'
-                    }
-                  >
-                    {order.status}
+                  <Badge size="sm" color={getStatusColor(order.status)}>
+                    {getStatusLabel(order.status)}
                   </Badge>
                 </TableCell>
 

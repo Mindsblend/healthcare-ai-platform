@@ -37,3 +37,43 @@ export async function validateIdentifier(identifier: string) {
 export function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString()
 }
+
+// Status mapping for Persian display
+export const getStatusLabel = (status: string): string => {
+  switch (status) {
+    case 'PENDING':
+      return 'در حال آماده‌سازی'
+    case 'PAID':
+      return 'پرداخت شده'
+    case 'FAILED':
+      return 'ناموفق'
+    case 'CANCELED':
+      return 'لغو شده'
+    case 'REFUNDED':
+      return 'مرجوع شده'
+    case 'DELIVERING':
+      return 'در حال ارسال'
+    case 'DELIVERED':
+      return 'تحویل داده شد'
+    default:
+      return status
+  }
+}
+
+// Status color mapping
+export const getStatusColor = (
+  status: string,
+): 'success' | 'warning' | 'error' => {
+  switch (status) {
+    case 'PAID':
+      return 'success'
+    case 'PENDING':
+      return 'warning'
+    case 'FAILED':
+    case 'CANCELED':
+    case 'REFUNDED':
+      return 'error'
+    default:
+      return 'warning'
+  }
+}
