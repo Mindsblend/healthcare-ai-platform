@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useOrders } from '@/features/dashboard/hooks/useOrders'
 import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
 import {
@@ -14,6 +15,7 @@ import {
 import Badge from '../../../../components/ui/badge/Badge'
 import Pagination from '@/components/domain/dashboard/tables/Pagination'
 import { getStatusLabel, getStatusColor } from '@/lib/helpers'
+import { OrderSummary } from '@/components/types/types'
 
 const Orders = () => {
   const { orders, loading, error } = useOrders()
@@ -25,12 +27,27 @@ const Orders = () => {
     return dateB - dateA
   })
 
+  const [selectedOrder, setSelectedOrder] = useState<OrderSummary | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const [page, setPage] = useState(1)
 
   const itemsPerPage = 7
   const startIndex = (page - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
   const currentData = sortedOrders.slice(startIndex, endIndex)
+
+  const handleViewOrder = (order: OrderSummary) => {
+    setSelectedOrder(order)
+    setIsModalOpen(true)
+  }
+
+  const handleUpdateOrder = async (updatedOrder: OrderSummary) => {
+    // Update your local state or refetch orders
+    await updateOrderMutation(updatedOrder)
+    setIsModalOpen(false)
+    // Refresh orders list
+    refetchOrders()
+  }
 
   if (loading) return <div>در حال بارگذاری سفارشات...</div>
 
@@ -61,6 +78,12 @@ const Orders = () => {
                   className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
                 >
                   شماره سفارش
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="text-theme-xs py-3 font-medium text-gray-500 dark:text-gray-400"
+                >
+                  مشاهده جزئیات
                 </TableCell>
                 <TableCell
                   isHeader
@@ -183,6 +206,12 @@ const Orders = () => {
                 </TableCell>
                 <TableCell
                   isHeader
+                  className="text-theme-xs py-3 font-medium text-gray-500 dark:text-gray-400"
+                >
+                  مشاهده جزئیات
+                </TableCell>
+                <TableCell
+                  isHeader
                   className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
                 >
                   نام مشتری
@@ -220,6 +249,21 @@ const Orders = () => {
                   {/* ID */}
                   <TableCell className="text-theme-sm py-3 pr-4 font-medium text-gray-800 sm:pr-6 dark:text-white/90">
                     {order.id}
+                  </TableCell>
+
+                  {/* Management */}
+                  <TableCell className="text-theme-sm h-24 px-8 py-3 text-center font-medium text-gray-800 dark:text-white/90">
+                    <div className="flex h-full w-full items-center justify-center">
+                      <button>
+                        <Image
+                          src="/images/eye.svg"
+                          alt="Empty cart"
+                          width={24}
+                          height={24}
+                          className="opacity-70"
+                        />
+                      </button>
+                    </div>
                   </TableCell>
 
                   {/* Full Name */}

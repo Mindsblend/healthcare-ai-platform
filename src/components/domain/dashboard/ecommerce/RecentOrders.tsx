@@ -11,6 +11,7 @@ import Badge from '../../../ui/badge/Badge'
 import { useOrders } from '@/features/dashboard/hooks/useOrders'
 import Link from 'next/link'
 import { getStatusLabel, getStatusColor } from '@/lib/helpers'
+import Image from 'next/image'
 
 export default function RecentOrders() {
   const { orders, loading, error } = useOrders()
@@ -53,6 +54,12 @@ export default function RecentOrders() {
                   className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
                 >
                   شماره سفارش
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                >
+                  مشاهده جزئیات
                 </TableCell>
                 <TableCell
                   isHeader
@@ -149,6 +156,12 @@ export default function RecentOrders() {
               </TableCell>
               <TableCell
                 isHeader
+                className="text-theme-xs py-3 font-medium text-gray-500 dark:text-gray-400"
+              >
+                مشاهده جزئیات
+              </TableCell>
+              <TableCell
+                isHeader
                 className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
               >
                 نام مشتری
@@ -183,12 +196,27 @@ export default function RecentOrders() {
           <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
             {lastFiveSortedOrders.map((order) => (
               <TableRow key={order.cartId}>
-                {/* شماره سفارش */}
+                {/* ID */}
                 <TableCell className="text-theme-sm py-3 font-medium text-gray-800 dark:text-white/90">
                   {order.id}
                 </TableCell>
 
-                {/* نام مشتری */}
+                {/* Management */}
+                <TableCell className="text-theme-sm h-24 px-8 py-3 text-center font-medium text-gray-800 dark:text-white/90">
+                  <div className="flex h-full w-full items-center justify-center">
+                    <button>
+                      <Image
+                        src="/images/eye.svg"
+                        alt="Empty cart"
+                        width={24}
+                        height={24}
+                        className="opacity-70"
+                      />
+                    </button>
+                  </div>
+                </TableCell>
+
+                {/* Name */}
                 <TableCell className="py-3">
                   <div className="flex flex-col">
                     <span className="text-theme-sm font-medium text-gray-800 dark:text-white/90">
@@ -197,24 +225,24 @@ export default function RecentOrders() {
                   </div>
                 </TableCell>
 
-                {/* ایمیل */}
+                {/* Email */}
                 <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
                   {order.shippingEmail}
                 </TableCell>
 
-                {/* تاریخ سفارش */}
+                {/* Date */}
                 <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
                   {new Date(order.createdAt).toLocaleDateString('fa-IR')}
                 </TableCell>
 
-                {/* وضعیت */}
+                {/* Status */}
                 <TableCell className="text-theme-sm py-3">
                   <Badge size="sm" color={getStatusColor(order.status)}>
                     {getStatusLabel(order.status)}
                   </Badge>
                 </TableCell>
 
-                {/* جمع کل */}
+                {/* Price */}
                 <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
                   {order.totalPrice.toLocaleString('fa-IR')} تومان
                 </TableCell>
