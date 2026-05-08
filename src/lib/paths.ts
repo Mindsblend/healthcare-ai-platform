@@ -8,16 +8,25 @@ export const routeConfig = {
     '/blogs/[slug]',
     '/auth',
   ],
-  user: ['/cart', '/order', '/profile/:path*'],
-  admin: ['/dashboard/:path*'],
+  user: ['/cart', '/order', '/profile'],
+  admin: ['/dashboard'],
 }
 
 export function getRouteType(pathname: string): 'public' | 'user' | 'admin' {
-  if (routeConfig.admin.some((route) => pathname.startsWith(route))) {
+  const matchesRoute = (route: string) => {
+    // Exact match OR subpath match (with slash)
+    return pathname === route || pathname.startsWith(route + '/')
+  }
+
+  // Check admin first (more restrictive)
+  if (routeConfig.admin.some(matchesRoute)) {
     return 'admin'
   }
-  if (routeConfig.user.some((route) => pathname.startsWith(route))) {
+
+  // Then user routes
+  if (routeConfig.user.some(matchesRoute)) {
     return 'user'
   }
+
   return 'public'
 }
