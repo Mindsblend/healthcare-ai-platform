@@ -1,7 +1,9 @@
-import { UserSummary } from '@/components/types/types'
+import { UserInfo, UserOrder, UserSummary } from '@/components/types/types'
 import { prisma } from '@/lib/prisma'
 
-export async function fetchCurrentUser(userId: string) {
+export async function fetchCurrentUser(
+  userId: string,
+): Promise<UserInfo | null> {
   return await prisma.user.findUnique({
     where: { id: userId },
     select: {
@@ -10,7 +12,6 @@ export async function fetchCurrentUser(userId: string) {
       lastName: true,
       email: true,
       phone: true,
-      addresses: true,
     },
   })
 }
@@ -47,6 +48,17 @@ export async function fetchUserWithAddresses(userId: string) {
       addresses: {
         orderBy: { isDefault: 'desc' },
       },
+    },
+  })
+}
+
+export async function fetchUserWithOrders(
+  userId: string,
+): Promise<UserOrder | null> {
+  return await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      orders: true,
     },
   })
 }

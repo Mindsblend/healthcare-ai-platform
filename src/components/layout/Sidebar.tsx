@@ -1,20 +1,23 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import LogoutPopup from '@/components/layout/LogoutPopup.tsx'
 import { useRouter } from 'next/navigation'
 import { NavItem } from '../types/types.tsx'
 import Link from 'next/link'
 import { useLogOut } from '@/features/auth/hooks/useLogOut.ts'
+import { useUserInfo } from '@/features/shop/hooks/profile/useUserInfo.ts'
 
 const Sidebar = () => {
+  const { userInfo, loading, error } = useUserInfo()
+
   const [activeItem, setActiveItem] = useState<string>('profile')
 
   const [openIndex, setOpenIndex] = useState(false)
   const router = useRouter()
 
-  const { logout, loading, error } = useLogOut()
+  const { logout } = useLogOut()
 
   const sidebarItems: NavItem[] = [
     {
@@ -34,6 +37,53 @@ const Sidebar = () => {
     },
   ]
 
+  // Get display name with smart fallbacks
+  const getDisplayName = useMemo(() => {
+    if (loading) return 'در حال بارگذاری...'
+    if (error || !userInfo) return 'کاربر مهمان'
+
+    const { firstName, lastName, phone, email } = userInfo
+
+    // If we have first and last name
+    if (firstName && lastName) {
+      return `${firstName} ${lastName}`
+    }
+
+    // If no name, show welcome message
+    if (phone) {
+      return 'خوش آمدید'
+    }
+
+    // If no phone, show email username
+    if (email) {
+      return email.split('@')[0]
+    }
+
+    // Ultimate fallback
+    return 'کاربر گرامی'
+  }, [userInfo, loading, error])
+
+  // Get display identifier (phone/email) with priority
+  const getDisplayIdentifier = useMemo(() => {
+    if (loading) return 'در حال بارگذاری...'
+    if (error || !userInfo) return '-----'
+
+    const { phone, email } = userInfo
+
+    // Priority 1: Phone number (if available)
+    if (phone) {
+      return phone
+    }
+
+    // Priority 2: Email (if available)
+    if (email) {
+      return email
+    }
+
+    // Fallback
+    return 'اطلاعات تماس ثبت نشده'
+  }, [userInfo, loading, error])
+
   const handleLogout = async () => {
     try {
       await logout()
@@ -51,10 +101,10 @@ const Sidebar = () => {
         {/* User Info */}
         <div className="px-10 pt-10">
           <h1 className="font-aria mb-2.5 text-lg font-bold text-black">
-            آرمان ابتکاری
+            {getDisplayName}
           </h1>
           <p className="font-ray text-color-body-on-light text-lg font-medium">
-            ۰۹۱۲۹۲۱۲۵۳۸
+            {getDisplayIdentifier}
           </p>
         </div>
 

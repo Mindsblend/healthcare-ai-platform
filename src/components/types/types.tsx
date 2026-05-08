@@ -31,9 +31,16 @@ export interface OrderType {
   shippingPhone: true
   shippingCity: true
 
-  status: 'PENDING' | 'PAID' | 'FAILED' | 'CANCELED' | 'REFUNDED'
+  status: OrderStatus
   createdAt: string
 }
+
+export type OrderStatus =
+  | 'PENDING'
+  | 'PAID'
+  | 'FAILED'
+  | 'CANCELED'
+  | 'REFUNDED'
 
 export type OrderSummary = Prisma.OrderGetPayload<{
   select: {
@@ -78,6 +85,28 @@ export type UserSummary = Prisma.UserGetPayload<{
     id: true
     email: true
     phone: true
+  }
+}>
+
+export type UserInfo = Prisma.UserGetPayload<{
+  select: {
+    id: true
+    firstName: true
+    lastName: true
+    email: true
+    phone: true
+  }
+}>
+
+export type UserOrder = Prisma.UserGetPayload<{
+  include: {
+    orders: true
+  }
+}>
+
+export type UserAddress = Prisma.UserGetPayload<{
+  include: {
+    addresses: true
   }
 }>
 
