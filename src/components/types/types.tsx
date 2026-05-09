@@ -215,6 +215,7 @@ export interface BlogType {
   id: number
   title: string
   image: string
+  slug: string
   author: string
   authorImage: string
   description: string

@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import { BlogType } from '../types/types'
+import Link from 'next/link'
 
 interface Props {
   blog: BlogType
@@ -47,12 +48,12 @@ const Blog = ({ blog }: Props) => {
 
         {/* footer */}
         <div className="mt-3.5 flex flex-col-reverse gap-4 xl:flex-row xl:items-center xl:justify-between">
-          <a
-            href="#"
+          <Link
+            href={'/blogs/' + blog.slug}
             className="text-color-title-on-dark font-ray flex h-12 w-full items-center justify-center rounded-3xl bg-black px-7 xl:w-41.25"
           >
             مطالعه بیشتر
-          </a>
+          </Link>
 
           <div className="flex items-center gap-2.5 2xl:ml-5">
             <Image

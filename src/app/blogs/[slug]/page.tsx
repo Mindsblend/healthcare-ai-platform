@@ -2,6 +2,7 @@
 
 import { useParams } from 'next/navigation'
 import { useBlogBySlug } from '@/features/shop/hooks/blogs/useBlogsBySlug'
+import Link from 'next/link'
 
 export default function ProductPage() {
   const params = useParams()
@@ -23,9 +24,21 @@ export default function ProductPage() {
   if (blogError || !blog) {
     return (
       <div className="container flex min-h-[400px] items-center justify-center">
-        {blog?.title}
-        {blog?.description}
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600">محصول پیدا نشد</h2>
+          <p className="mt-2 text-gray-600">
+            محصول مورد نظر شما موجود نمی‌باشد.
+          </p>
+          <Link
+            href="/"
+            className="mt-4 inline-block text-blue-600 hover:underline"
+          >
+            بازگشت به فروشگاه
+          </Link>
+        </div>
       </div>
     )
   }
+
+  return <div className="text-red-600">{blog.title}</div>
 }
