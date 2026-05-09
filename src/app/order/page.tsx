@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useCart } from '@/features/shop/hooks/cart/useCart'
 import { useState, ChangeEvent } from 'react'
-import { useCreateOrder } from '@/features/dashboard/hooks/createOrders'
+import { useCreateOrder } from '@/features/shop/hooks/orders/createOrders'
 import { ShippingInfo } from '@/components/types/types'
 import { getFreeShippingStatus } from '@/lib/helpers'
 

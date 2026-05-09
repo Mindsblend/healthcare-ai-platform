@@ -1,46 +1,54 @@
-import { ProductService } from '@/features/shop/services/ProductService'
+'use client'
+
+import { useParams } from 'next/navigation'
 import Image from 'next/image'
-import Questions from '@/components/ui/Qustions'
-import { gainType, iconType } from '@/components/types/types'
-import ProductSwiper from '@/components/layout/ProductSwiper'
 import Link from 'next/link'
+import Questions from '@/components/ui/Qustions'
+import ProductSwiper from '@/components/layout/ProductSwiper'
+import { useProductBySlug } from '@/features/shop/hooks/products/useProductBySlug'
+import { useProductsByCategoryId } from '@/features/shop/hooks/products/useProductsByCategoryId'
+import { gainType, iconType } from '@/components/types/types'
 
-export async function generateStaticParams() {
-  const products = await ProductService.fetchPreviewProducts()
+export default function ProductPage() {
+  const params = useParams()
+  const slug = decodeURIComponent(params.slug as string)
 
-  return products
-    .filter((product) => product.slug)
-    .map((product) => ({
-      slug: product.slug!,
-    }))
-}
+  const {
+    product,
+    loading: productLoading,
+    error: productError,
+  } = useProductBySlug(slug)
+  const { productsByCategoryId: relatedProducts, loading: relatedLoading } =
+    useProductsByCategoryId(product?.categoryId || 0)
 
-export default async function ProductPage(props: { params: any }) {
-  // unwrap the promise
-  const { slug: rawSlug } = await props.params
-  const slug = decodeURIComponent(rawSlug)
-
-  if (!slug) return <div>محصول پیدا نشد</div>
-
-  let product = null
-  try {
-    product = await ProductService.fetchProductBySlug(slug)
-  } catch (e) {
-    return <div>محصول پیدا نشد</div>
-  }
-
-  // ✅ جلوگیری از دسترسی به null
-  if (!product) {
-    return <div>محصول پیدا نشد</div>
-  }
-
-  let relatedProducts = []
-  try {
-    relatedProducts = await ProductService.fetchProductsByCategoryId(
-      product.categoryId,
+  if (productLoading) {
+    return (
+      <div className="container flex min-h-[400px] items-center justify-center">
+        <div className="text-center">
+          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-gray-900"></div>
+          <p className="mt-4 text-gray-600">در حال بارگذاری محصول...</p>
+        </div>
+      </div>
     )
-  } catch (e) {
-    return <div>محصول پیدا نشد</div>
+  }
+
+  if (productError || !product) {
+    return (
+      <div className="container flex min-h-[400px] items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600">محصول پیدا نشد</h2>
+          <p className="mt-2 text-gray-600">
+            محصول مورد نظر شما موجود نمی‌باشد.
+          </p>
+          <Link
+            href="/"
+            className="mt-4 inline-block text-blue-600 hover:underline"
+          >
+            بازگشت به فروشگاه
+          </Link>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -65,7 +73,6 @@ export default async function ProductPage(props: { params: any }) {
               </div>
             ))}
           </div>
-          {/* static description! */}
           <p className="font-ray text-color-body-on-light mt-5 max-w-xl text-xs sm:text-sm xl:text-lg">
             {product.description}
           </p>
@@ -84,7 +91,7 @@ export default async function ProductPage(props: { params: any }) {
             <p className="font-ray text-color-title-on-dark mt-2.5 text-xs font-medium xl:text-sm">
               اشکان عزیز، بر اساس اطلاعاتی که ارائه کرده‌ای و وضعیت پوستت، این
               کرم آبرسان دقیقاً همان محصولی است که برای حل مشکل خشکی و کم‌آبی
-              پوست- نیاز داری. ترکیبات گیاهی فعال و ویتامین‌های موجود در این
+              پوست نیاز داری. ترکیبات گیاهی فعال و ویتامین‌های موجود در این
               محصول، به بهبود سد دفاعی پوست و افزایش رطوبت سلولی کمک می‌کنند.
               مطالعات نشان داده‌اند که مصرف منظم چنین ترکیبی باعث کاهش
               التهاب‌های سطحی و افزایش انعطاف‌پذیری پوست می‌شود، که دقیقاً همان
@@ -92,7 +99,7 @@ export default async function ProductPage(props: { params: any }) {
             </p>
           </div>
           <div className="mt-7 flex flex-col gap-5">
-            {product.gains.map(
+            {product.gains?.map(
               ({ id, title, ingredient, description }: gainType) => (
                 <div key={id} className="flex items-center gap-1.5">
                   <Image
@@ -115,7 +122,6 @@ export default async function ProductPage(props: { params: any }) {
               className="primary-btn text-color-title-on-light font-ray flex items-center justify-between rounded-full bg-[#F2F2F2] font-medium whitespace-nowrap"
             >
               <span className="pr-2">افزودن به سبد خرید</span>
-              {/* Circle with icon */}
               <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white xl:h-10 xl:w-10">
                 <Image
                   src="/images/add-to-cart.svg"
@@ -130,7 +136,7 @@ export default async function ProductPage(props: { params: any }) {
               href="/"
               className="secondary-btn text-color-title-on-dark flex items-center justify-center rounded-full bg-black font-extrabold"
             >
-              {product.price.toLocaleString('fa-IR')}
+              {product.price?.toLocaleString('fa-IR')}
               <span className="pr-1">تومان</span>
             </Link>
           </div>
@@ -155,16 +161,19 @@ export default async function ProductPage(props: { params: any }) {
       </div>
       <Questions faqs={product.faqs} />
       <div className="mt-11 flex w-full flex-col">
-        {/* only this block is centered */}
         <div className="text-color-title-on-light flex flex-col items-center text-center">
           <h1 className="font-aria text-3xl font-extrabold xl:text-4xl">
             محصولات مشابه
           </h1>
         </div>
-
-        {/* slider below, full width */}
         <div className="flex items-center justify-center pb-10">
-          <ProductSwiper products={relatedProducts} />
+          {relatedLoading ? (
+            <div className="py-10 text-center">
+              در حال بارگذاری محصولات مشابه...
+            </div>
+          ) : (
+            <ProductSwiper products={relatedProducts} />
+          )}
         </div>
       </div>
     </div>

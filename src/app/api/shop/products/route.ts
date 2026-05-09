@@ -1,12 +1,27 @@
+import { NextRequest, NextResponse } from 'next/server'
 import { ProductService } from '@/features/shop/services/ProductService'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const products = await ProductService.fetchPreviewProducts()
-    return new Response(JSON.stringify(products), { status: 200 })
+    const searchParams = request.nextUrl.searchParams
+    const categoryId = searchParams.get('categoryId')
+
+    // If categoryId is provided, filter products by category
+    if (categoryId) {
+      const products = await ProductService.fetchProductsByCategoryId(
+        Number(categoryId),
+      )
+      return NextResponse.json(products)
+    }
+
+    // Otherwise return all products
+    const products = await ProductService.fetchProductsPreview()
+    return NextResponse.json(products)
   } catch (error) {
-    return new Response(JSON.stringify({ error: 'Failed to fetch products' }), {
-      status: 500,
-    })
+    console.error('Error fetching products:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch products' },
+      { status: 500 },
+    )
   }
 }

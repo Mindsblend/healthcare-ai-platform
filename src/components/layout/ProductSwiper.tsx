@@ -6,14 +6,14 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Navigation } from 'swiper/modules'
 
 import Product from './Product'
-import { CategoryType, ProductSummary } from '../types/types'
+import { CategorySummary, ProductSummary } from '../types/types'
 
 import 'swiper/css'
 import 'swiper/css/navigation'
 
 type ProductSwiperProps = {
   products: ProductSummary[]
-  categories?: CategoryType[]
+  categories?: CategorySummary[]
 }
 
 export default function ProductSwiper({

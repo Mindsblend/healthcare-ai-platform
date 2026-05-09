@@ -1,7 +1,7 @@
 // app/api/shop/orders/update/route.ts
 import { requireAuthority } from '@/features/auth/services/sessionService'
 import { NextRequest, NextResponse } from 'next/server'
-import { OrderService } from '@/features/dashboard/services/OrderService'
+import { OrderService } from '@/features/shop/services/OrderService'
 
 export async function POST(req: NextRequest) {
   try {

@@ -2,7 +2,7 @@
 
 import ProductSwiper from '@/components/layout/ProductSwiper'
 import { useCategories } from '@/features/shop/hooks/categories/useCategories'
-import { useProducts } from '@/features/shop/hooks/products/useProducts'
+import { useProductsPreview } from '@/features/shop/hooks/products/useProductsPreview'
 
 interface Props {
   title: string
@@ -10,7 +10,7 @@ interface Props {
 }
 
 const ShopProductsSection = ({ title, description }: Props) => {
-  const { products, loading, error } = useProducts()
+  const { productsPreview, loading, error } = useProductsPreview()
   const { categories } = useCategories()
 
   if (loading) return <div>در حال بارگذاری محصولات...</div>
@@ -33,7 +33,7 @@ const ShopProductsSection = ({ title, description }: Props) => {
 
       {/* slider below, full width */}
       <div className="flex items-center justify-center">
-        <ProductSwiper products={products} categories={categories} />
+        <ProductSwiper products={productsPreview} categories={categories} />
       </div>
     </div>
   )

@@ -3,11 +3,11 @@
 import { useState, useMemo } from 'react'
 import Image from 'next/image'
 import { useCategories } from '@/features/shop/hooks/categories/useCategories'
-import { useProducts } from '@/features/shop/hooks/products/useProducts'
+import { useProductsPreview } from '@/features/shop/hooks/products/useProductsPreview'
 import BundleSwiper from '@/components/layout/BundleSwiper'
 
 const ShopBundle = () => {
-  const { products, loading, error } = useProducts()
+  const { productsPreview, loading, error } = useProductsPreview()
   const { categories } = useCategories()
 
   const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null)
@@ -15,14 +15,16 @@ const ShopBundle = () => {
   const hasCategories = Boolean(categories?.length)
 
   const filteredProducts = useMemo(() => {
-    if (!activeCategoryId) return products
-    return products.filter((product) => product.categoryId === activeCategoryId)
-  }, [products, activeCategoryId])
+    if (!activeCategoryId) return productsPreview
+    return productsPreview.filter(
+      (product) => product.categoryId === activeCategoryId,
+    )
+  }, [productsPreview, activeCategoryId])
 
   if (!filteredProducts.length) return null
 
   return (
-    <div className="relative container mt-20 lg:mt-28 pb-52">
+    <div className="relative container mt-20 pb-52 lg:mt-28">
       <div className="bg-section relative h-[420px] w-full rounded-3xl px-6 py-12 md:h-[570px] md:px-24">
         <Image
           src="/images/discount.svg"

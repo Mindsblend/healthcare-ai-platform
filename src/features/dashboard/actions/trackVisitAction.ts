@@ -1,7 +1,7 @@
 import { VisitMonth } from '@/components/types/types'
 
 export async function trackVisitAction(): Promise<VisitMonth> {
-  const res = await fetch('/api/analytics/track-visit/track', {
+  const res = await fetch('/api/dashboard/analytics/views/track', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
   })

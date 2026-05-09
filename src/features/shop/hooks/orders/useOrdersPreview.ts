@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getOrders } from '@/features/dashboard/actions/getOrdersAction'
+import { getOrdersPreview } from '@/features/shop/actions/orders/getOrdersPreviewAction'
 import { OrderSummary } from '@/components/types/types'
 
 export function useOrdersPreview() {
@@ -12,7 +12,7 @@ export function useOrdersPreview() {
   useEffect(() => {
     async function load() {
       try {
-        const data = await getOrders()
+        const data = await getOrdersPreview()
         setOrders(data)
       } catch (err: any) {
         setError(err.message)

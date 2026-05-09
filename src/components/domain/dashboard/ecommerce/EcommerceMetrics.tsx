@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { useMemo } from 'react'
-import { useOrdersPreview } from '@/features/dashboard/hooks/useOrdersPreview'
+import { useOrdersPreview } from '@/features/shop/hooks/orders/useOrdersPreview'
 import Badge from '../../../ui/badge/Badge'
 import ArrowDownIcon from '../../../../../public/images/arrow-down.svg'
 import ArrowUpIcon from '../../../../../public/images/arrow-up.svg'

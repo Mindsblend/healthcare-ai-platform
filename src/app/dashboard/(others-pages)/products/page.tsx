@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useProductDetail } from '@/features/shop/hooks/products/useProductDetail'
 import { useDeleteProduct } from '@/features/shop/hooks/products/deleteProduct'
 import { useUpdateProduct } from '@/features/shop/hooks/products/updateProduct'
+import { useProductsPreview } from '@/features/shop/hooks/products/useProductsPreview'
+import { useProductBySlug } from '@/features/shop/hooks/products/useProductBySlug' // Add this
 import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
 import Image from 'next/image'
 import {
@@ -13,22 +14,29 @@ import {
   TableHeader,
   TableRow,
 } from '../../../../components/ui/table'
-import Badge from '../../../../components/ui/badge/Badge'
 import Pagination from '@/components/domain/dashboard/tables/Pagination'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ProductDetail } from '@/components/types/types'
+import { ProductDetail, ProductSummary } from '@/components/types/types'
 
 const Products = () => {
   const router = useRouter()
-  const { products, loading, error } = useProductDetail()
+  const { productsPreview, loading, error } = useProductsPreview()
   const { deleteProduct } = useDeleteProduct()
   const { updateProduct, loading: updating } = useUpdateProduct()
+
+  // Hook to fetch full product details when needed
+  const {
+    product: fetchedProduct,
+    loading: productLoading,
+    getProductBySlug,
+  } = useProductBySlug('') // TODO: implement product slug in admin dashboard and use this method in that page.tsx. we are using the action method in this hook temporary
 
   const [selectedProduct, setSelectedProduct] = useState<ProductDetail | null>(
     null,
   )
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isFetchingProduct, setIsFetchingProduct] = useState(false)
 
   // Form state for editing product
   const [title, setTitle] = useState('')
@@ -47,16 +55,26 @@ const Products = () => {
     router.refresh()
   }
 
-  const handleViewProduct = (product: ProductDetail) => {
-    setSelectedProduct(product)
-    setTitle(product.title)
-    setPrice(product.price.toString())
-    setSlug(product.slug)
-    setSolution(product.solution)
-    setImage(product.image)
-    setDescription(product.description)
-    setCategoryId(product.categoryId)
+  const handleViewProduct = async (product: ProductSummary) => {
+    setIsFetchingProduct(true)
     setIsModalOpen(true)
+
+    try {
+      const fullProduct = await getProductBySlug(product.slug)
+
+      setSelectedProduct(fullProduct)
+      setTitle(fullProduct.title)
+      setPrice(fullProduct.price.toString())
+      setSlug(fullProduct.slug)
+      setSolution(fullProduct.solution)
+      setImage(fullProduct.image)
+      setDescription(fullProduct.description || '')
+      setCategoryId(fullProduct.categoryId)
+    } catch (error) {
+      console.error('Failed to fetch product details:', error)
+    } finally {
+      setIsFetchingProduct(false)
+    }
   }
 
   const handleApplyChanges = async () => {
@@ -84,13 +102,13 @@ const Products = () => {
   const itemsPerPage = 7
   const startIndex = (page - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
-  const currentData = products.slice(startIndex, endIndex)
+  const currentData = productsPreview.slice(startIndex, endIndex)
 
   if (loading) return <div>در حال بارگذاری محصولات...</div>
 
   if (error) return <div>خطا در بارگذاری محصولات: {error}</div>
 
-  if (!products.length) {
+  if (!productsPreview.length) {
     return (
       <div>
         <PageBreadcrumb pageTitle="محصولات" />
@@ -323,12 +341,10 @@ const Products = () => {
               <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
                 {currentData.map((product) => (
                   <TableRow key={product.id}>
-                    {/* ID */}
                     <TableCell className="text-theme-sm py-3 pr-4 font-medium text-gray-800 sm:pr-6 dark:text-white/90">
                       {product.id}
                     </TableCell>
 
-                    {/* Title */}
                     <TableCell className="py-3 text-gray-800">
                       <div className="flex items-center gap-3">
                         <Image
@@ -347,7 +363,6 @@ const Products = () => {
                       </div>
                     </TableCell>
 
-                    {/* View Button */}
                     <TableCell className="text-theme-sm py-3 text-center font-medium text-gray-800 dark:text-white/90">
                       <div className="flex items-center justify-center">
                         <button onClick={() => handleViewProduct(product)}>
@@ -362,17 +377,14 @@ const Products = () => {
                       </div>
                     </TableCell>
 
-                    {/* Category */}
                     <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
                       {product.category.name}
                     </TableCell>
 
-                    {/* Price */}
                     <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
                       {product.price.toLocaleString('fa-IR')} تومان
                     </TableCell>
 
-                    {/* Management */}
                     <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
                       <div className="flex items-center gap-3">
                         <button
@@ -406,7 +418,7 @@ const Products = () => {
           <div className="pt-3">
             <Pagination
               currentPage={page}
-              totalPages={Math.ceil(products.length / itemsPerPage)}
+              totalPages={Math.ceil(productsPreview.length / itemsPerPage)}
               onPageChange={(newPage) => setPage(newPage)}
             />
           </div>
@@ -414,13 +426,15 @@ const Products = () => {
       </div>
 
       {/* Modal Popup for Editing Product */}
-      {isModalOpen && selectedProduct && (
+      {isModalOpen && (
         <div className="fixed inset-0 z-100000 flex items-center justify-center bg-black/50">
           <div className="mx-4 max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white dark:bg-gray-900">
             {/* Header */}
             <div className="flex items-center justify-between border-b p-4">
               <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
-                ویرایش محصول - {selectedProduct.title}
+                {isFetchingProduct
+                  ? 'در حال بارگذاری...'
+                  : `ویرایش محصول - ${selectedProduct?.title}`}
               </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -431,122 +445,135 @@ const Products = () => {
             </div>
 
             {/* Content */}
-            <div className="space-y-6 p-4">
-              {/* Product Image Preview */}
-              <div className="flex justify-center">
-                <Image
-                  src={
-                    image && image.startsWith('http')
-                      ? image
-                      : '/images/placeholder.png'
-                  }
-                  alt={title}
-                  width={120}
-                  height={120}
-                  className="rounded-lg object-cover"
-                />
+            {isFetchingProduct ? (
+              <div className="flex items-center justify-center p-8">
+                <div className="text-center">
+                  <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-gray-900"></div>
+                  <p className="mt-4 text-gray-600">
+                    در حال بارگذاری اطلاعات محصول...
+                  </p>
+                </div>
               </div>
+            ) : (
+              <>
+                <div className="space-y-6 p-4">
+                  {/* Product Image Preview */}
+                  <div className="flex justify-center">
+                    <Image
+                      src={
+                        image && image.startsWith('http')
+                          ? image
+                          : '/images/placeholder.png'
+                      }
+                      alt={title}
+                      width={120}
+                      height={120}
+                      className="rounded-lg object-cover"
+                    />
+                  </div>
 
-              {/* Title */}
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  عنوان محصول
-                </label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:text-white/90"
-                  dir="rtl"
-                />
-              </div>
+                  {/* Title */}
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      عنوان محصول
+                    </label>
+                    <input
+                      type="text"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:text-white/90"
+                      dir="rtl"
+                    />
+                  </div>
 
-              {/* Price */}
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  قیمت (تومان)
-                </label>
-                <input
-                  type="number"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:text-white/90"
-                />
-              </div>
+                  {/* Price */}
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      قیمت (تومان)
+                    </label>
+                    <input
+                      type="number"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                      className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:text-white/90"
+                    />
+                  </div>
 
-              {/* Slug */}
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  اسلاگ
-                </label>
-                <input
-                  type="text"
-                  value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:text-white/90"
-                  dir="ltr"
-                />
-              </div>
+                  {/* Slug */}
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      اسلاگ
+                    </label>
+                    <input
+                      type="text"
+                      value={slug}
+                      onChange={(e) => setSlug(e.target.value)}
+                      className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:text-white/90"
+                      dir="ltr"
+                    />
+                  </div>
 
-              {/* Solution */}
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  راهکار محصول
-                </label>
-                <textarea
-                  value={solution}
-                  onChange={(e) => setSolution(e.target.value)}
-                  rows={3}
-                  className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:text-white/90"
-                  dir="rtl"
-                />
-              </div>
+                  {/* Solution */}
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      راهکار محصول
+                    </label>
+                    <textarea
+                      value={solution}
+                      onChange={(e) => setSolution(e.target.value)}
+                      rows={3}
+                      className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:text-white/90"
+                      dir="rtl"
+                    />
+                  </div>
 
-              {/* Image URL */}
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  آدرس تصویر
-                </label>
-                <input
-                  type="text"
-                  value={image}
-                  onChange={(e) => setImage(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:text-white/90"
-                  dir="ltr"
-                />
-              </div>
+                  {/* Image URL */}
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      آدرس تصویر
+                    </label>
+                    <input
+                      type="text"
+                      value={image}
+                      onChange={(e) => setImage(e.target.value)}
+                      className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:text-white/90"
+                      dir="ltr"
+                    />
+                  </div>
 
-              {/* Description */}
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  توضیحات
-                </label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={4}
-                  className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:text-white/90"
-                  dir="rtl"
-                />
-              </div>
-            </div>
+                  {/* Description */}
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      توضیحات
+                    </label>
+                    <textarea
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      rows={4}
+                      className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:text-white/90"
+                      dir="rtl"
+                    />
+                  </div>
+                </div>
 
-            {/* Footer */}
-            <div className="flex justify-end gap-3 border-t p-4">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-gray-800 hover:bg-gray-50 dark:border-gray-700 dark:text-white/90 dark:hover:bg-gray-800"
-              >
-                انصراف
-              </button>
-              <button
-                onClick={handleApplyChanges}
-                disabled={updating}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
-              >
-                {updating ? 'در حال ذخیره...' : 'اعمال تغییرات'}
-              </button>
-            </div>
+                {/* Footer */}
+                <div className="flex justify-end gap-3 border-t p-4">
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="rounded-lg border border-gray-300 px-4 py-2 text-gray-800 hover:bg-gray-50 dark:border-gray-700 dark:text-white/90 dark:hover:bg-gray-800"
+                  >
+                    انصراف
+                  </button>
+                  <button
+                    onClick={handleApplyChanges}
+                    disabled={updating}
+                    className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {updating ? 'در حال ذخیره...' : 'اعمال تغییرات'}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

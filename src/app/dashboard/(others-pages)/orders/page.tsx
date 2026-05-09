@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useOrdersPreview } from '@/features/dashboard/hooks/useOrdersPreview'
-import { useUpdateOrder } from '@/features/dashboard/hooks/updateOrder'
+import { useOrdersPreview } from '@/features/shop/hooks/orders/useOrdersPreview'
+import { useUpdateOrder } from '@/features/shop/hooks/orders/updateOrder'
 import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
 import {
   Table,

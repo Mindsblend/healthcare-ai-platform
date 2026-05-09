@@ -1,9 +1,13 @@
 import { prisma } from '@/lib/prisma'
-import { OrderSummary, ShippingInfo } from '@/components/types/types'
+import {
+  OrderDetail,
+  OrderSummary,
+  ShippingInfo,
+} from '@/components/types/types'
 import { OrderStatus } from '@/components/types/types'
 
 export class OrderService {
-  static async fetchAllOrders(): Promise<OrderSummary[]> {
+  static async fetchOrdersPreview(): Promise<OrderSummary[]> {
     return prisma.order.findMany({
       select: {
         id: true,
@@ -13,12 +17,15 @@ export class OrderService {
         shippingPhone: true,
         createdAt: true,
         status: true,
-        shippingEmail: true,
-        shippingCity: true,
-        shippingProvince: true,
-        shippingAddress: true,
-        shippingPostalCode: true,
-        shippingNotes: true,
+      },
+    })
+  }
+
+  // For single order with full details
+  static async fetchOrderById(id: string): Promise<OrderDetail | null> {
+    return prisma.order.findUnique({
+      where: { id },
+      include: {
         items: {
           include: {
             product: {
@@ -27,24 +34,13 @@ export class OrderService {
                 title: true,
                 price: true,
                 image: true,
+                slug: true,
               },
             },
           },
         },
       },
     })
-  }
-
-  static async fetchOrderBySlug(id: string) {
-    const order = await prisma.order.findUnique({
-      where: { id },
-      include: {
-        user: true,
-        cart: true,
-      },
-    })
-
-    return order
   }
 
   static async createOrder({
@@ -131,7 +127,7 @@ export class OrderService {
       throw new Error('Order not found')
     }
 
-    // Update the order - only status, trackingNumber, and shippingNotes
+    // Update the order - only status and shippingNotes
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
       data: {

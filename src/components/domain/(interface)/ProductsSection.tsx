@@ -2,7 +2,7 @@ import { ProductService } from '@/features/shop/services/ProductService'
 import ProductSwiper from '@/components/layout/ProductSwiper'
 
 export default async function ProductsSection() {
-  const products = await ProductService.fetchPreviewProducts()
+  const products = await ProductService.fetchProductsPreview()
 
   return (
     <div className="container my-12 flex w-full flex-col">

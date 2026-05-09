@@ -1,4 +1,4 @@
-import { ShippingInfo, OrderType } from '@/components/types/types'
+import { ShippingInfo, OrderDetail } from '@/components/types/types'
 
 export type CreateOrderInput = {
   shippingInfo: ShippingInfo
@@ -7,7 +7,7 @@ export type CreateOrderInput = {
 
 export async function createOrderAction(
   input: CreateOrderInput,
-): Promise<OrderType> {
+): Promise<OrderDetail> {
   const res = await fetch('/api/shop/orders/create', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

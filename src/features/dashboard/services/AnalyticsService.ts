@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { VisitMonth } from '@/components/types/types'
 
 export class AnalyticsService {
-  static async trackVisit(): Promise<VisitMonth[]> {
+  static async trackVisit(): Promise<VisitMonth> {
     const now = new Date()
     const year = now.getFullYear()
     const month = now.getMonth() + 1

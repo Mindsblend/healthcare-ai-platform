@@ -4,6 +4,7 @@ import {
   iconType,
   gainType,
   faqType,
+  ProductDetail,
 } from '@/components/types/types'
 
 interface CreateProductDTO {
@@ -34,7 +35,7 @@ interface UpdateProductDTO {
 }
 
 export class ProductService {
-  static async fetchPreviewProducts(): Promise<ProductSummary[]> {
+  static async fetchProductsPreview(): Promise<ProductSummary[]> {
     return prisma.product.findMany({
       where: { isActive: true },
       select: {
@@ -54,7 +55,7 @@ export class ProductService {
     })
   }
 
-  static async fetchProductBySlug(slug: string) {
+  static async fetchProductBySlug(slug: string): Promise<ProductDetail | null> {
     return prisma.product.findUnique({
       where: { slug, isActive: true },
       include: {

@@ -9,8 +9,9 @@ import {
   TableRow,
 } from '../../../ui/table'
 import Badge from '../../../ui/badge/Badge'
-import { useOrdersPreview } from '@/features/dashboard/hooks/useOrdersPreview'
-import { useUpdateOrder } from '@/features/dashboard/hooks/updateOrder'
+import { useOrdersPreview } from '@/features/shop/hooks/orders/useOrdersPreview'
+import { useOrderById } from '@/features/shop/hooks/orders/useOrderById'
+import { useUpdateOrder } from '@/features/shop/hooks/orders/updateOrder'
 import Link from 'next/link'
 import {
   getStatusLabel,
@@ -19,12 +20,17 @@ import {
 } from '@/lib/helpers'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { OrderStatus } from '@prisma/client'
-import { OrderSummary } from '@/components/types/types'
+import { OrderItem, OrderStatus } from '@prisma/client'
+import { OrderSummary, OrderDetail } from '@/components/types/types'
 
 export default function RecentOrders() {
   const router = useRouter()
   const { orders, loading, error } = useOrdersPreview()
+  const {
+    order: fetchedOrder,
+    loading: orderLoading,
+    getOrderById,
+  } = useOrderById('')
   const { updateOrder, loading: updating } = useUpdateOrder()
 
   const TAX_RATE = 0.09
@@ -34,10 +40,24 @@ export default function RecentOrders() {
   const [orderTaxAmount, setOrderTaxAmount] = useState(0)
   const [orderDeliveryAmount, setOrderDeliveryAmount] = useState(0)
 
-  const [selectedOrder, setSelectedOrder] = useState<OrderSummary | null>(null)
+  const [selectedOrder, setSelectedOrder] = useState<OrderDetail | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isFetchingOrder, setIsFetchingOrder] = useState(false)
+
+  // Form state for editing order
+  const [orderId, setOrderId] = useState('')
+  const [shippingFirstName, setShippingFirstName] = useState('')
+  const [shippingLastName, setShippingLastName] = useState('')
+  const [shippingEmail, setShippingEmail] = useState('')
+  const [shippingPhone, setShippingPhone] = useState('')
+  const [shippingCity, setShippingCity] = useState('')
+  const [shippingProvince, setShippingProvince] = useState('')
+  const [shippingAddress, setShippingAddress] = useState('')
+  const [shippingPostalCode, setShippingPostalCode] = useState('')
   const [selectedStatus, setSelectedStatus] = useState<OrderStatus>('PENDING')
   const [shippingNotes, setShippingNotes] = useState('')
+  const [createdAt, setCreatedAt] = useState<string>(new Date().toISOString())
+  const [items, setItems] = useState<OrderItem[]>([])
 
   const lastFiveSortedOrders = [...orders]
     .sort((a, b) => {
@@ -47,11 +67,42 @@ export default function RecentOrders() {
     })
     .slice(0, 5)
 
-  const handleViewOrder = (order: any) => {
-    setSelectedOrder(order)
-    setSelectedStatus(order.status)
-    setShippingNotes(order.shippingNotes || '')
+  // Effect to update form when fetchedOrder changes
+  useEffect(() => {
+    if (fetchedOrder) {
+      setSelectedOrder(fetchedOrder)
+      setSelectedStatus(fetchedOrder.status)
+      setShippingNotes(fetchedOrder.shippingNotes || '')
+      setIsFetchingOrder(false)
+    }
+  }, [fetchedOrder])
+
+  const handleViewOrder = async (order: OrderSummary) => {
+    setIsFetchingOrder(true)
     setIsModalOpen(true)
+
+    try {
+      const fullOrder = await getOrderById(order.id)
+
+      setSelectedOrder(fullOrder)
+      setOrderId(fullOrder.id)
+      setShippingFirstName(fullOrder.shippingFirstName)
+      setShippingLastName(fullOrder.shippingLastname)
+      setShippingEmail(fullOrder.shippingEmail)
+      setShippingPhone(fullOrder.shippingPhone)
+      setShippingCity(fullOrder.shippingCity)
+      setShippingProvince(fullOrder.shippingProvince)
+      setShippingAddress(fullOrder.shippingAddress)
+      setShippingPostalCode(fullOrder.shippingPostalCode)
+      setSelectedStatus(fullOrder.status)
+      setShippingNotes(fullOrder.shippingNotes)
+      setItems(fullOrder.items)
+      setCreatedAt(fullOrder.createdAt)
+    } catch (error) {
+      console.error('Failed to fetch order details:', error)
+    } finally {
+      setIsFetchingOrder(false)
+    }
   }
 
   useEffect(() => {
@@ -321,238 +372,263 @@ export default function RecentOrders() {
       </div>
 
       {/* Modal Popup */}
-      {isModalOpen && selectedOrder && (
+      {isModalOpen && (
         <div className="fixed inset-0 z-100000 flex items-center justify-center bg-black/50">
-          <div className="mx-4 max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white">
+          <div className="mx-4 max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white dark:bg-gray-900">
             {/* Header */}
             <div className="flex items-center justify-between border-b p-4">
-              <h2 className="text-xl font-semibold text-gray-800">
-                جزئیات سفارش - {selectedOrder.id}
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+                {isFetchingOrder || orderLoading
+                  ? 'در حال بارگذاری...'
+                  : `جزئیات سفارش - ${orderId}`}
               </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
                 ✕
               </button>
             </div>
 
             {/* Content */}
-            <div className="space-y-6 p-4">
-              {/* Customer Information */}
-              <div>
-                <h3 className="mb-3 text-lg font-semibold text-gray-800">
-                  اطلاعات مشتری
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-500">نام و نام خانوادگی</p>
-                    <p className="font-medium text-gray-800">
-                      {selectedOrder.shippingFirstName}{' '}
-                      {selectedOrder.shippingLastName}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">ایمیل</p>
-                    <p className="font-medium text-gray-800">
-                      {selectedOrder.shippingEmail}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">تلفن</p>
-                    <p className="font-medium text-gray-800">
-                      {selectedOrder.shippingPhone}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">تاریخ سفارش</p>
-                    <p className="font-medium text-gray-800">
-                      {new Date(selectedOrder.createdAt).toLocaleDateString(
-                        'fa-IR',
-                      )}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Shipping Address */}
-              <div>
-                <h3 className="mb-3 text-lg font-semibold text-gray-800">
-                  آدرس تحویل
-                </h3>
-                <div className="space-y-2 text-gray-800">
-                  <p>{selectedOrder.shippingAddress}</p>
-                  <p>
-                    {selectedOrder.shippingCity}،{' '}
-                    {selectedOrder.shippingProvince}
+            {isFetchingOrder || orderLoading ? (
+              <div className="flex items-center justify-center p-8">
+                <div className="text-center">
+                  <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-gray-900"></div>
+                  <p className="mt-4 text-gray-600 dark:text-gray-400">
+                    در حال بارگذاری اطلاعات سفارش...
                   </p>
-                  <p>کد پستی: {selectedOrder.shippingPostalCode}</p>
                 </div>
               </div>
-
-              {/* Order Items */}
-              <div>
-                <h3 className="mb-3 text-lg font-semibold text-gray-800">
-                  محصولات
-                </h3>
-                <div className="space-y-3">
-                  {selectedOrder.items && selectedOrder.items.length > 0 ? (
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th className="px-4 py-2 text-right text-sm font-medium text-gray-500">
-                              محصول
-                            </th>
-                            <th className="px-4 py-2 text-center text-sm font-medium text-gray-500">
-                              تعداد
-                            </th>
-                            <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">
-                              قیمت واحد
-                            </th>
-                            <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">
-                              جمع
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200 bg-white">
-                          {selectedOrder.items.map((item, index) => (
-                            <tr key={index}>
-                              <td className="px-4 py-3 text-sm text-gray-800">
-                                {item.product.title}
-                              </td>
-                              <td className="px-4 py-3 text-center text-sm text-gray-800">
-                                {item.quantity}
-                              </td>
-                              <td className="px-4 py-3 text-left text-sm text-gray-800">
-                                {item.price.toLocaleString('fa-IR')} تومان
-                              </td>
-                              <td className="px-4 py-3 text-left text-sm font-medium text-gray-800">
-                                {(item.price * item.quantity).toLocaleString(
-                                  'fa-IR',
-                                )}{' '}
-                                تومان
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                        <tfoot className="bg-gray-50">
-                          <tr>
-                            <td
-                              colSpan={3}
-                              className="px-4 py-3 text-left text-sm font-semibold text-gray-800"
-                            >
-                              مجموعه سفارش:
-                            </td>
-                            <td className="px-4 py-3 text-left text-sm font-semibold text-gray-800">
-                              {orderSubtotal.toLocaleString('fa-IR')} تومان
-                            </td>
-                          </tr>
-                        </tfoot>
-                        <tfoot className="bg-gray-50">
-                          <tr>
-                            <td
-                              colSpan={3}
-                              className="px-4 py-3 text-left text-sm font-semibold text-gray-800"
-                            >
-                              هزینه ارسال:
-                            </td>
-                            <td className="px-4 py-3 text-left text-sm font-semibold text-gray-800">
-                              {orderDeliveryAmount == 0
-                                ? 'ارسال رایگان 🎉'
-                                : orderDeliveryAmount.toLocaleString('fa-IR') +
-                                  ' تومان'}
-                            </td>
-                          </tr>
-                        </tfoot>
-                        <tfoot className="bg-gray-50">
-                          <tr>
-                            <td
-                              colSpan={3}
-                              className="px-4 py-3 text-left text-sm font-semibold text-gray-800"
-                            >
-                              مالیات:
-                            </td>
-                            <td className="px-4 py-3 text-left text-sm font-semibold text-gray-800">
-                              {orderTaxAmount.toLocaleString('fa-IR')} تومان
-                            </td>
-                          </tr>
-                        </tfoot>
-                      </table>
+            ) : (
+              selectedOrder && (
+                <>
+                  <div className="space-y-6 p-4">
+                    {/* Customer Information */}
+                    <div>
+                      <h3 className="mb-3 text-lg font-semibold text-gray-800 dark:text-white/90">
+                        اطلاعات مشتری
+                      </h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            نام و نام خانوادگی
+                          </p>
+                          <p className="font-medium text-gray-800 dark:text-white/90">
+                            {shippingFirstName} {shippingLastName}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            ایمیل
+                          </p>
+                          <p className="font-medium text-gray-800 dark:text-white/90">
+                            {shippingEmail}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            تلفن
+                          </p>
+                          <p className="font-medium text-gray-800 dark:text-white/90">
+                            {shippingPhone}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            تاریخ سفارش
+                          </p>
+                          <p className="font-medium text-gray-800 dark:text-white/90">
+                            {new Date(createdAt).toLocaleDateString('fa-IR')}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                  ) : (
-                    <p className="text-gray-500">
-                      هیچ محصولی برای این سفارش یافت نشد.
-                    </p>
-                  )}
-                </div>
-              </div>
 
-              {/* Status Update */}
-              <div>
-                <h3 className="mb-3 text-lg font-semibold text-gray-800">
-                  تغییر وضعیت
-                </h3>
-                <select
-                  value={selectedStatus}
-                  onChange={(e) =>
-                    setSelectedStatus(e.target.value as OrderStatus)
-                  }
-                  className="w-full rounded-lg border border-gray-300 p-2 text-gray-800"
-                >
-                  <option value="PENDING">در حال آماده‌سازی</option>
-                  <option value="PAID">پرداخت شده</option>
-                  <option value="DELIVERING">در حال ارسال</option>
-                  <option value="DELIVERED">تحویل داده شد</option>
-                  <option value="FAILED">ناموفق</option>
-                  <option value="CANCELED">لغو شده</option>
-                  <option value="REFUNDED">مرجوع شده</option>
-                </select>
-              </div>
+                    {/* Shipping Address */}
+                    <div>
+                      <h3 className="mb-3 text-lg font-semibold text-gray-800 dark:text-white/90">
+                        آدرس تحویل
+                      </h3>
+                      <div className="space-y-2 text-gray-800 dark:text-white/90">
+                        <p>{shippingAddress}</p>
+                        <p>
+                          {shippingCity}، {shippingProvince}
+                        </p>
+                        <p>کد پستی: {shippingPostalCode}</p>
+                      </div>
+                    </div>
 
-              {/* Notes */}
-              <div>
-                <h3 className="mb-3 text-lg font-semibold text-gray-800">
-                  یادداشت سفارش
-                </h3>
-                <textarea
-                  value={shippingNotes}
-                  onChange={(e) => setShippingNotes(e.target.value)}
-                  rows={4}
-                  className="w-full rounded-lg border border-gray-300 p-2 text-gray-800"
-                  placeholder="یادداشت‌های سفارش..."
-                />
-              </div>
+                    {/* Order Items */}
+                    <div>
+                      <h3 className="mb-3 text-lg font-semibold text-gray-800 dark:text-white/90">
+                        محصولات
+                      </h3>
+                      <div className="space-y-3">
+                        {items && items.length > 0 ? (
+                          <div className="overflow-x-auto">
+                            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                              <thead className="bg-gray-50 dark:bg-gray-800">
+                                <tr>
+                                  <th className="px-4 py-2 text-right text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    محصول
+                                  </th>
+                                  <th className="px-4 py-2 text-center text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    تعداد
+                                  </th>
+                                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    قیمت واحد
+                                  </th>
+                                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    جمع
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
+                                {items.map((item, index) => (
+                                  <tr key={index}>
+                                    <td className="px-4 py-3 text-sm text-gray-800 dark:text-white/90">
+                                      {item.price}
+                                    </td>
+                                    <td className="px-4 py-3 text-center text-sm text-gray-800 dark:text-white/90">
+                                      {item.quantity}
+                                    </td>
+                                    <td className="px-4 py-3 text-left text-sm text-gray-800 dark:text-white/90">
+                                      {item.price.toLocaleString('fa-IR')} تومان
+                                    </td>
+                                    <td className="px-4 py-3 text-left text-sm font-medium text-gray-800 dark:text-white/90">
+                                      {(
+                                        item.price * item.quantity
+                                      ).toLocaleString('fa-IR')}{' '}
+                                      تومان
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                              <tfoot className="bg-gray-50 dark:bg-gray-800">
+                                <tr>
+                                  <td
+                                    colSpan={3}
+                                    className="px-4 py-3 text-left text-sm font-semibold text-gray-800 dark:text-white/90"
+                                  >
+                                    مجموعه سفارش:
+                                  </td>
+                                  <td className="px-4 py-3 text-left text-sm font-semibold text-gray-800 dark:text-white/90">
+                                    {orderSubtotal.toLocaleString('fa-IR')}{' '}
+                                    تومان
+                                  </td>
+                                </tr>
+                              </tfoot>
+                              <tfoot className="bg-gray-50 dark:bg-gray-800">
+                                <tr>
+                                  <td
+                                    colSpan={3}
+                                    className="px-4 py-3 text-left text-sm font-semibold text-gray-800 dark:text-white/90"
+                                  >
+                                    هزینه ارسال:
+                                  </td>
+                                  <td className="px-4 py-3 text-left text-sm font-semibold text-gray-800 dark:text-white/90">
+                                    {orderDeliveryAmount == 0
+                                      ? 'ارسال رایگان 🎉'
+                                      : orderDeliveryAmount.toLocaleString(
+                                          'fa-IR',
+                                        ) + ' تومان'}
+                                  </td>
+                                </tr>
+                              </tfoot>
+                              <tfoot className="bg-gray-50 dark:bg-gray-800">
+                                <tr>
+                                  <td
+                                    colSpan={3}
+                                    className="px-4 py-3 text-left text-sm font-semibold text-gray-800 dark:text-white/90"
+                                  >
+                                    مالیات:
+                                  </td>
+                                  <td className="px-4 py-3 text-left text-sm font-semibold text-gray-800 dark:text-white/90">
+                                    {orderTaxAmount.toLocaleString('fa-IR')}{' '}
+                                    تومان
+                                  </td>
+                                </tr>
+                              </tfoot>
+                            </table>
+                          </div>
+                        ) : (
+                          <p className="text-gray-500 dark:text-gray-400">
+                            هیچ محصولی برای این سفارش یافت نشد.
+                          </p>
+                        )}
+                      </div>
+                    </div>
 
-              {/* Total */}
-              <div className="border-t pt-4">
-                <div className="flex justify-between">
-                  <span className="text-lg font-semibold text-gray-800">
-                    جمع کل:
-                  </span>
-                  <span className="text-xl font-bold text-gray-800">
-                    {selectedOrder.totalPrice.toLocaleString('fa-IR')} تومان
-                  </span>
-                </div>
-              </div>
-            </div>
+                    {/* Status Update */}
+                    <div>
+                      <h3 className="mb-3 text-lg font-semibold text-gray-800 dark:text-white/90">
+                        تغییر وضعیت
+                      </h3>
+                      <select
+                        value={selectedStatus}
+                        onChange={(e) =>
+                          setSelectedStatus(e.target.value as OrderStatus)
+                        }
+                        className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90"
+                      >
+                        <option value="PENDING">در حال آماده‌سازی</option>
+                        <option value="PAID">پرداخت شده</option>
+                        <option value="DELIVERING">در حال ارسال</option>
+                        <option value="DELIVERED">تحویل داده شد</option>
+                        <option value="FAILED">ناموفق</option>
+                        <option value="CANCELED">لغو شده</option>
+                        <option value="REFUNDED">مرجوع شده</option>
+                      </select>
+                    </div>
 
-            {/* Footer */}
-            <div className="flex justify-end gap-3 border-t p-4">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-gray-800 hover:bg-gray-50"
-              >
-                انصراف
-              </button>
-              <button
-                onClick={handleApplyChanges}
-                disabled={updating}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
-              >
-                {updating ? 'در حال ذخیره...' : 'اعمال تغییرات'}
-              </button>
-            </div>
+                    {/* Notes */}
+                    <div>
+                      <h3 className="mb-3 text-lg font-semibold text-gray-800 dark:text-white/90">
+                        یادداشت سفارش
+                      </h3>
+                      <textarea
+                        value={shippingNotes}
+                        onChange={(e) => setShippingNotes(e.target.value)}
+                        rows={4}
+                        className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90"
+                        placeholder="یادداشت‌های سفارش..."
+                      />
+                    </div>
+
+                    {/* Total */}
+                    <div className="border-t pt-4 dark:border-gray-700">
+                      <div className="flex justify-between">
+                        <span className="text-lg font-semibold text-gray-800 dark:text-white/90">
+                          جمع کل:
+                        </span>
+                        <span className="text-xl font-bold text-gray-800 dark:text-white/90">
+                          {selectedOrder.totalPrice.toLocaleString('fa-IR')}{' '}
+                          تومان
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="flex justify-end gap-3 border-t p-4 dark:border-gray-700">
+                    <button
+                      onClick={() => setIsModalOpen(false)}
+                      className="rounded-lg border border-gray-300 px-4 py-2 text-gray-800 hover:bg-gray-50 dark:border-gray-700 dark:text-white/90 dark:hover:bg-gray-800"
+                    >
+                      انصراف
+                    </button>
+                    <button
+                      onClick={handleApplyChanges}
+                      disabled={updating}
+                      className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+                    >
+                      {updating ? 'در حال ذخیره...' : 'اعمال تغییرات'}
+                    </button>
+                  </div>
+                </>
+              )
+            )}
           </div>
         </div>
       )}

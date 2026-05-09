@@ -1,4 +1,4 @@
-export async function getProducts() {
+export async function getProductsPreview() {
   const res = await fetch('/api/shop/products')
   if (!res.ok) throw new Error('Failed to get products')
   return res.json()

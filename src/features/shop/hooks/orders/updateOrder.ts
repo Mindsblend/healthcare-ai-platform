@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { updateOrderAction } from '../actions/updateOrderAction'
+import { updateOrderAction } from '@/features/shop/actions/orders/updateOrderAction'
 import { OrderStatus } from '@/components/types/types'
 
 export function useUpdateOrder() {

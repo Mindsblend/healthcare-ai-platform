@@ -3,13 +3,13 @@
 import { useState, useMemo, useEffect } from 'react'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
-import { useProducts } from '@/features/shop/hooks/products/useProducts'
+import { useProductsPreview } from '@/features/shop/hooks/products/useProductsPreview'
 import { useCategories } from '@/features/shop/hooks/categories/useCategories'
 import Product from '@/components/layout/Product'
 import PriceRangeSlider from '@/components/domain/shop/product/PriceRangeSlider'
 
 const Page = () => {
-  const { products, loading, error } = useProducts()
+  const { productsPreview, loading, error } = useProductsPreview()
   const { categories } = useCategories()
   const searchParams = useSearchParams()
 
@@ -45,7 +45,7 @@ const Page = () => {
   }, [searchParams])
 
   const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
+    return productsPreview.filter((product) => {
       if (
         appliedCategoryIds.size > 0 &&
         !appliedCategoryIds.has(product.categoryId)
@@ -64,7 +64,7 @@ const Page = () => {
       return true
     })
   }, [
-    products,
+    productsPreview,
     appliedCategoryIds,
     appliedMinPrice,
     appliedMaxPrice,

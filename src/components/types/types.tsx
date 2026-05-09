@@ -16,25 +16,6 @@ export interface CartItemType {
   product: ProductSummary
 }
 
-export interface OrderType {
-  id: string
-
-  user?: UserType
-  userId?: string
-
-  cart: CartType
-  cartId: string
-  totalPrice: number
-  shippingFirstName: true
-  shippingLastName: true
-  shippingEmail: true
-  shippingPhone: true
-  shippingCity: true
-
-  status: OrderStatus
-  createdAt: string
-}
-
 export type OrderSummary = Prisma.OrderGetPayload<{
   select: {
     id: true
@@ -44,12 +25,11 @@ export type OrderSummary = Prisma.OrderGetPayload<{
     shippingPhone: true
     createdAt: true
     status: true
-    shippingEmail: true
-    shippingCity: true
-    shippingProvince: true
-    shippingAddress: true
-    shippingPostalCode: true
-    shippingNotes: true
+  }
+}>
+
+export type OrderDetail = Prisma.OrderGetPayload<{
+  include: {
     items: {
       include: {
         product: {
@@ -58,6 +38,7 @@ export type OrderSummary = Prisma.OrderGetPayload<{
             title: true
             price: true
             image: true
+            slug: true
           }
         }
       }
@@ -95,7 +76,7 @@ export interface UserType {
 
   // aiResponses: AiResponse[]
   carts: CartType[]
-  orders: OrderType[]
+  orders: OrderDetail[]
 }
 
 export type UserSummary = Prisma.UserGetPayload<{
@@ -159,10 +140,12 @@ export type ProductSummary = Prisma.ProductGetPayload<{
 }>
 
 export type ProductDetail = Prisma.ProductGetPayload<{
+  where: { slug: true; isActive: true }
   include: {
     icons: true
     gains: true
     faqs: true
+    aiResponses: true
     category: true
   }
 }>
@@ -180,12 +163,13 @@ export type CategoryWithProducts = Prisma.CategoryGetPayload<{
   }
 }>
 
-export interface CategoryType {
-  id: number
-  name: string
-  iconPath: string
-  products: ProductSummary[]
-}
+export type CategorySummary = Prisma.CategoryGetPayload<{
+  select: {
+    id: true
+    name: true
+    iconPath: true
+  }
+}>
 
 export interface iconType {
   id: number
