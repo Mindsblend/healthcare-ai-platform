@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 
-import { useBlogs } from '@/features/shop/hooks/blogs/useBlogs'
+import { useBlogsPreview } from '@/features/shop/hooks/blogs/useBlogsPreview'
 import Blog from './Blog'
 
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -16,7 +16,7 @@ export default function BlogSwiper() {
   const nextRef = useRef<HTMLDivElement>(null)
   const prevRef = useRef<HTMLDivElement>(null)
 
-  const { blogs, loading, error } = useBlogs()
+  const { blogs, loading, error } = useBlogsPreview()
 
   if (loading) return <div>در حال بارگذاری محصولات...</div>
   if (error) return <div>خطا در بارگذاری محصولات: {error}</div>

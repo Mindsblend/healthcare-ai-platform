@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { getProductBySlug } from '../../actions/products/getProductBySlugAction'
+import { ProductDetail } from '@/components/types/types'
 
 export function useProductBySlug(slug: string) {
-  const [product, setProduct] = useState<any>(null)
+  const [product, setProduct] = useState<ProductDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

@@ -1,10 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getBlogs } from '../../actions/blogs/getBlogsAction'
+import { getBlogsPreview } from '../../actions/blogs/getBlogsPreviewAction'
 import { BlogType } from '@/components/types/types'
 
-export function useBlogs() {
+export function useBlogsPreview() {
   const [blogs, setBlogs] = useState<BlogType[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -12,7 +12,7 @@ export function useBlogs() {
   useEffect(() => {
     async function load() {
       try {
-        const data = await getBlogs()
+        const data = await getBlogsPreview()
         setBlogs(data)
       } catch (err: any) {
         setError(err.message)

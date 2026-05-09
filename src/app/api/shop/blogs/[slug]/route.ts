@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { ProductService } from '@/features/shop/services/ProductService'
+import { BlogService } from '@/features/shop/services/BlogService'
 
 export async function GET(
   request: NextRequest,
@@ -9,17 +9,17 @@ export async function GET(
     const { slug: rawSlug } = await params
     const slug = decodeURIComponent(rawSlug)
 
-    const product = await ProductService.fetchProductBySlug(slug)
+    const blog = await BlogService.fetchBlogBySlug(slug)
 
-    if (!product) {
-      return new Response(JSON.stringify({ error: 'Product not found' }), {
+    if (!blog) {
+      return new Response(JSON.stringify({ error: 'Blog not found' }), {
         status: 404,
       })
     }
 
-    return new Response(JSON.stringify(product), { status: 200 })
+    return new Response(JSON.stringify(blog), { status: 200 })
   } catch (error) {
-    return new Response(JSON.stringify({ error: 'Failed to fetch product' }), {
+    return new Response(JSON.stringify({ error: 'Failed to fetch blog' }), {
       status: 500,
     })
   }

@@ -1,11 +1,11 @@
 'use client'
 
-import { useBlogs } from '@/features/shop/hooks/blogs/useBlogs'
+import { useBlogsPreview } from '@/features/shop/hooks/blogs/useBlogsPreview'
 import Blog from '@/components/layout/Blog'
 import Image from 'next/image'
 
 const page = () => {
-  const { blogs, loading, error } = useBlogs()
+  const { blogs, loading, error } = useBlogsPreview()
 
   if (!blogs?.length) {
     return null

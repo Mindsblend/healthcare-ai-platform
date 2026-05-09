@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
-import { useBlogs } from '@/features/shop/hooks/blogs/useBlogs'
+import { useBlogsPreview } from '@/features/shop/hooks/blogs/useBlogsPreview'
 import { useDeleteBlog } from '@/features/shop/hooks/blogs/deleteBlog'
 import Pagination from '@/components/domain/dashboard/tables/Pagination'
 import {
@@ -16,7 +16,7 @@ import {
 import { useRouter } from 'next/navigation'
 
 const Blogs = () => {
-  const { blogs, loading, error } = useBlogs()
+  const { blogs, loading, error } = useBlogsPreview()
   const { deleteBlog } = useDeleteBlog()
 
   const router = useRouter()

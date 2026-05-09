@@ -55,6 +55,26 @@ export type OrderStatus =
   | 'DELIVERING'
   | 'DELIVERED'
 
+export type OrderItem = Prisma.OrderItemGetPayload<{
+  select: {
+    id: true
+    orderId: true
+    productId: true
+    quantity: true
+    price: true
+    createdAt: true
+    product: {
+      select: {
+        id: true
+        title: true
+        price: true
+        image: true
+        slug: true
+      }
+    }
+  }
+}>
+
 export type ShippingInfo = {
   firstName: string
   lastName: string
@@ -201,6 +221,36 @@ export interface BlogType {
   createdAt: Date
   updatedAt: Date
 }
+
+export type BlogSummary = Prisma.BlogGetPayload<{
+  select: {
+    id: true
+    title: true
+    image: true
+    author: true
+    authorImage: true
+    description: true
+    createdAt: true
+    updatedAt: true
+  }
+}>
+
+export type BlogDetail = Prisma.BlogGetPayload<{
+  // where: { slug: true } // The payload will change to this after we add a new row for the blog content. Blog content will be included here
+  // include: {
+  //   content: true
+  // }
+  select: {
+    id: true
+    title: true
+    image: true
+    author: true
+    authorImage: true
+    description: true
+    createdAt: true
+    updatedAt: true
+  }
+}>
 
 declare module 'next-auth' {
   interface Session {

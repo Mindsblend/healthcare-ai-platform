@@ -1,16 +1,16 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getOrderById } from '../../actions/orders/getOrderByIdAction'
-import { OrderDetail } from '@/components/types/types'
+import { getBlogBySlug } from '../../actions/blogs/getBlogBySlugAction'
+import { BlogDetail } from '@/components/types/types'
 
-export function useOrderById(id: string) {
-  const [order, setOrder] = useState<OrderDetail | null>(null)
+export function useBlogBySlug(slug: string) {
+  const [blog, setBlog] = useState<BlogDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!id) {
+    if (!slug) {
       setLoading(false)
       return
     }
@@ -19,8 +19,8 @@ export function useOrderById(id: string) {
       setLoading(true)
       setError(null)
       try {
-        const data = await getOrderById(id)
-        setOrder(data)
+        const data = await getBlogBySlug(slug)
+        setBlog(data)
       } catch (err: any) {
         setError(err.message)
       } finally {
@@ -28,7 +28,7 @@ export function useOrderById(id: string) {
       }
     }
     load()
-  }, [id])
+  }, [slug])
 
-  return { order, loading, error, getOrderById }
+  return { blog, loading, error, getBlogBySlug }
 }

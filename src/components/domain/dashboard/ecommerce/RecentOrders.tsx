@@ -20,8 +20,12 @@ import {
 } from '@/lib/helpers'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { OrderItem, OrderStatus } from '@prisma/client'
-import { OrderSummary, OrderDetail } from '@/components/types/types'
+import {
+  OrderSummary,
+  OrderDetail,
+  OrderStatus,
+  OrderItem,
+} from '@/components/types/types'
 
 export default function RecentOrders() {
   const router = useRouter()
@@ -156,7 +160,7 @@ export default function RecentOrders() {
 
           <Link
             href="/dashboard/orders"
-            className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+            className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
           >
             مشاهده کامل
           </Link>
@@ -256,7 +260,7 @@ export default function RecentOrders() {
 
           <Link
             href="/dashboard/orders"
-            className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+            className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
           >
             مشاهده کامل
           </Link>
@@ -468,7 +472,7 @@ export default function RecentOrders() {
                         {items && items.length > 0 ? (
                           <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                              <thead className="bg-gray-50 dark:bg-gray-800">
+                              <thead className="bg-gray-50">
                                 <tr>
                                   <th className="px-4 py-2 text-right text-sm font-medium text-gray-500 dark:text-gray-400">
                                     محصول
@@ -488,7 +492,7 @@ export default function RecentOrders() {
                                 {items.map((item, index) => (
                                   <tr key={index}>
                                     <td className="px-4 py-3 text-sm text-gray-800 dark:text-white/90">
-                                      {item.price}
+                                      {item.product.title}
                                     </td>
                                     <td className="px-4 py-3 text-center text-sm text-gray-800 dark:text-white/90">
                                       {item.quantity}
@@ -505,7 +509,7 @@ export default function RecentOrders() {
                                   </tr>
                                 ))}
                               </tbody>
-                              <tfoot className="bg-gray-50 dark:bg-gray-800">
+                              <tfoot className="bg-gray-50">
                                 <tr>
                                   <td
                                     colSpan={3}
@@ -519,7 +523,7 @@ export default function RecentOrders() {
                                   </td>
                                 </tr>
                               </tfoot>
-                              <tfoot className="bg-gray-50 dark:bg-gray-800">
+                              <tfoot className="bg-gray-50">
                                 <tr>
                                   <td
                                     colSpan={3}
@@ -536,7 +540,7 @@ export default function RecentOrders() {
                                   </td>
                                 </tr>
                               </tfoot>
-                              <tfoot className="bg-gray-50 dark:bg-gray-800">
+                              <tfoot className="bg-gray-50">
                                 <tr>
                                   <td
                                     colSpan={3}
@@ -570,7 +574,7 @@ export default function RecentOrders() {
                         onChange={(e) =>
                           setSelectedStatus(e.target.value as OrderStatus)
                         }
-                        className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90"
+                        className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:text-white/90"
                       >
                         <option value="PENDING">در حال آماده‌سازی</option>
                         <option value="PAID">پرداخت شده</option>
@@ -591,13 +595,13 @@ export default function RecentOrders() {
                         value={shippingNotes}
                         onChange={(e) => setShippingNotes(e.target.value)}
                         rows={4}
-                        className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90"
+                        className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:text-white/90"
                         placeholder="یادداشت‌های سفارش..."
                       />
                     </div>
 
                     {/* Total */}
-                    <div className="border-t pt-4 dark:border-gray-700">
+                    <div className="border-t pt-4">
                       <div className="flex justify-between">
                         <span className="text-lg font-semibold text-gray-800 dark:text-white/90">
                           جمع کل:
@@ -611,7 +615,7 @@ export default function RecentOrders() {
                   </div>
 
                   {/* Footer */}
-                  <div className="flex justify-end gap-3 border-t p-4 dark:border-gray-700">
+                  <div className="flex justify-end gap-3 border-t p-4">
                     <button
                       onClick={() => setIsModalOpen(false)}
                       className="rounded-lg border border-gray-300 px-4 py-2 text-gray-800 hover:bg-gray-50 dark:border-gray-700 dark:text-white/90 dark:hover:bg-gray-800"

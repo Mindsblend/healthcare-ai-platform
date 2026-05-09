@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useOrdersPreview } from '@/features/shop/hooks/orders/useOrdersPreview'
+import { useOrderById } from '@/features/shop/hooks/orders/useOrderById'
 import { useUpdateOrder } from '@/features/shop/hooks/orders/updateOrder'
 import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
 import {
@@ -20,14 +21,23 @@ import {
   getStatusColor,
   getFreeShippingStatus,
 } from '@/lib/helpers'
-import { OrderSummary } from '@/components/types/types'
-import { OrderStatus } from '@prisma/client'
+import {
+  OrderSummary,
+  OrderDetail,
+  OrderStatus,
+  OrderItem,
+} from '@/components/types/types'
 import { useRouter } from 'next/navigation'
 
 const Orders = () => {
   const router = useRouter()
   const { orders, loading, error } = useOrdersPreview()
   const { updateOrder, loading: updating } = useUpdateOrder()
+  const {
+    order: fetchedOrder,
+    loading: orderLoading,
+    getOrderById,
+  } = useOrderById('')
 
   const TAX_RATE = 0.09
   const FREE_SHIPPING_THRESHOLD = 2_000_000
@@ -36,39 +46,72 @@ const Orders = () => {
   const [orderTaxAmount, setOrderTaxAmount] = useState(0)
   const [orderDeliveryAmount, setOrderDeliveryAmount] = useState(0)
 
+  // Form state for editing order
+  const [orderId, setOrderId] = useState('')
+  const [shippingFirstName, setShippingFirstName] = useState('')
+  const [shippingLastName, setShippingLastName] = useState('')
+  const [shippingEmail, setShippingEmail] = useState('')
+  const [shippingPhone, setShippingPhone] = useState('')
+  const [shippingCity, setShippingCity] = useState('')
+  const [shippingProvince, setShippingProvince] = useState('')
+  const [shippingAddress, setShippingAddress] = useState('')
+  const [shippingPostalCode, setShippingPostalCode] = useState('')
+  const [selectedStatus, setSelectedStatus] = useState<OrderStatus>('PENDING')
+  const [shippingNotes, setShippingNotes] = useState('')
+  const [createdAt, setCreatedAt] = useState<string>(new Date().toISOString())
+  const [items, setItems] = useState<OrderItem[]>([])
+
+  const [selectedOrder, setSelectedOrder] = useState<OrderDetail | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isFetchingOrder, setIsFetchingOrder] = useState(false)
+  const [page, setPage] = useState(1)
+
   const sortedOrders = [...orders].sort((a, b) => {
     const dateA = new Date(a.createdAt).getTime()
     const dateB = new Date(b.createdAt).getTime()
     return dateB - dateA
   })
 
-  const [selectedOrder, setSelectedOrder] = useState<OrderSummary | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedStatus, setSelectedStatus] = useState<OrderStatus>('PENDING')
-  const [shippingNotes, setShippingNotes] = useState('')
-  const [page, setPage] = useState(1)
-
   const itemsPerPage = 7
   const startIndex = (page - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
   const currentData = sortedOrders.slice(startIndex, endIndex)
 
-  const handleViewOrder = (order: OrderSummary) => {
-    setSelectedOrder(order)
-    setSelectedStatus(order.status)
-    setShippingNotes(order.shippingNotes || '')
-    setIsModalOpen(true)
-  }
+  // Effect to update form when fetchedOrder changes
+  useEffect(() => {
+    if (fetchedOrder) {
+      setSelectedOrder(fetchedOrder)
+      setSelectedStatus(fetchedOrder.status)
+      setShippingNotes(fetchedOrder.shippingNotes || '')
+      setIsFetchingOrder(false)
+    }
+  }, [fetchedOrder])
 
-  const handleApplyChanges = async () => {
-    if (!selectedOrder) return
+  const handleViewOrder = async (order: OrderSummary) => {
+    setIsFetchingOrder(true)
+    setIsModalOpen(true)
 
     try {
-      await updateOrder(selectedOrder.id, selectedStatus, shippingNotes)
-      setIsModalOpen(false)
-      router.refresh()
+      const fullOrder = await getOrderById(order.id)
+
+      setSelectedOrder(fullOrder)
+      setOrderId(fullOrder.id)
+      setShippingFirstName(fullOrder.shippingFirstName)
+      setShippingLastName(fullOrder.shippingLastname)
+      setShippingEmail(fullOrder.shippingEmail)
+      setShippingPhone(fullOrder.shippingPhone)
+      setShippingCity(fullOrder.shippingCity)
+      setShippingProvince(fullOrder.shippingProvince)
+      setShippingAddress(fullOrder.shippingAddress)
+      setShippingPostalCode(fullOrder.shippingPostalCode)
+      setSelectedStatus(fullOrder.status)
+      setShippingNotes(fullOrder.shippingNotes)
+      setItems(fullOrder.items)
+      setCreatedAt(fullOrder.createdAt)
     } catch (error) {
-      console.error('Failed to update order:', error)
+      console.error('Failed to fetch order details:', error)
+    } finally {
+      setIsFetchingOrder(false)
     }
   }
 
@@ -90,11 +133,24 @@ const Orders = () => {
       const calculatedDeliveryAmount = isFreeShipping ? 0 : 300_000
       setOrderDeliveryAmount(calculatedDeliveryAmount)
     } else {
+      // Reset if no order is selected or items are missing
       setOrderSubtotal(0)
       setOrderTaxAmount(0)
       setOrderDeliveryAmount(0)
     }
   }, [selectedOrder])
+
+  const handleApplyChanges = async () => {
+    if (!selectedOrder) return
+
+    try {
+      await updateOrder(selectedOrder.id, selectedStatus, shippingNotes)
+      setIsModalOpen(false)
+      router.refresh()
+    } catch (error) {
+      console.error('Failed to update order:', error)
+    }
+  }
 
   if (loading) return <div>در حال بارگذاری سفارشات...</div>
 
@@ -360,7 +416,7 @@ const Orders = () => {
             {/* Header */}
             <div className="flex items-center justify-between border-b p-4">
               <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
-                جزئیات سفارش - {selectedOrder.id}
+                جزئیات سفارش - {orderId}
               </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -383,8 +439,7 @@ const Orders = () => {
                       نام و نام خانوادگی
                     </p>
                     <p className="font-medium text-gray-800 dark:text-white/90">
-                      {selectedOrder.shippingFirstName}{' '}
-                      {selectedOrder.shippingLastName}
+                      {shippingFirstName} {shippingLastName}
                     </p>
                   </div>
                   <div>
@@ -392,7 +447,7 @@ const Orders = () => {
                       ایمیل
                     </p>
                     <p className="font-medium text-gray-800 dark:text-white/90">
-                      {selectedOrder.shippingEmail}
+                      {shippingEmail}
                     </p>
                   </div>
                   <div>
@@ -400,7 +455,7 @@ const Orders = () => {
                       تلفن
                     </p>
                     <p className="font-medium text-gray-800 dark:text-white/90">
-                      {selectedOrder.shippingPhone}
+                      {shippingPhone}
                     </p>
                   </div>
                   <div>
@@ -408,9 +463,7 @@ const Orders = () => {
                       تاریخ سفارش
                     </p>
                     <p className="font-medium text-gray-800 dark:text-white/90">
-                      {new Date(selectedOrder.createdAt).toLocaleDateString(
-                        'fa-IR',
-                      )}
+                      {new Date(createdAt).toLocaleDateString('fa-IR')}
                     </p>
                   </div>
                 </div>
@@ -422,12 +475,11 @@ const Orders = () => {
                   آدرس تحویل
                 </h3>
                 <div className="space-y-2 text-gray-800 dark:text-white/90">
-                  <p>{selectedOrder.shippingAddress}</p>
+                  <p>{shippingAddress}</p>
                   <p>
-                    {selectedOrder.shippingCity}،{' '}
-                    {selectedOrder.shippingProvince}
+                    {shippingCity}، {shippingProvince}
                   </p>
-                  <p>کد پستی: {selectedOrder.shippingPostalCode}</p>
+                  <p>کد پستی: {shippingPostalCode}</p>
                 </div>
               </div>
 
@@ -437,7 +489,7 @@ const Orders = () => {
                   محصولات
                 </h3>
                 <div className="space-y-3">
-                  {selectedOrder.items && selectedOrder.items.length > 0 ? (
+                  {items && items.length > 0 ? (
                     <div className="overflow-x-auto">
                       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                         <thead className="bg-gray-50">
@@ -457,7 +509,7 @@ const Orders = () => {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
-                          {selectedOrder.items.map((item, index) => (
+                          {items.map((item, index) => (
                             <tr key={index}>
                               <td className="px-4 py-3 text-sm text-gray-800 dark:text-white/90">
                                 {item.product.title}
