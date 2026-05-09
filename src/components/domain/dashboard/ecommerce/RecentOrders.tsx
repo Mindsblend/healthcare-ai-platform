@@ -137,7 +137,7 @@ export default function RecentOrders() {
                   isHeader
                   className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
                 >
-                  ایمیل
+                  شماره تلفن
                 </TableCell>
                 <TableCell
                   isHeader
@@ -237,7 +237,7 @@ export default function RecentOrders() {
                   isHeader
                   className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
                 >
-                  ایمیل
+                  شماره تلفن
                 </TableCell>
                 <TableCell
                   isHeader
@@ -292,9 +292,9 @@ export default function RecentOrders() {
                     </div>
                   </TableCell>
 
-                  {/* Email */}
+                  {/* Phone */}
                   <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
-                    {order.shippingEmail}
+                    {order.shippingPhone}
                   </TableCell>
 
                   {/* Date */}

@@ -67,19 +67,25 @@ export const getStatusLabel = (status: string): string => {
   }
 }
 
-// Status color mapping
+// Status color mapping with all available badge colors
 export const getStatusColor = (
   status: string,
-): 'success' | 'warning' | 'error' => {
+): 'primary' | 'success' | 'error' | 'warning' | 'info' | 'light' | 'dark' => {
   switch (status) {
     case 'PAID':
       return 'success'
+    case 'DELIVERED':
+      return 'primary'
     case 'PENDING':
       return 'warning'
+    case 'DELIVERING':
+      return 'info'
     case 'FAILED':
+      return 'dark'
     case 'CANCELED':
-    case 'REFUNDED':
       return 'error'
+    case 'REFUNDED':
+      return 'light'
     default:
       return 'warning'
   }
