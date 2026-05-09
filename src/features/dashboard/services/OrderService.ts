@@ -131,14 +131,6 @@ export class OrderService {
       throw new Error('Order not found')
     }
 
-    // Prevent updates to completed or cancelled orders
-    if (
-      currentOrder.status === 'DELIVERED' ||
-      currentOrder.status === 'CANCELED'
-    ) {
-      throw new Error('Cannot update delivered or canceled orders')
-    }
-
     // Update the order - only status, trackingNumber, and shippingNotes
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },

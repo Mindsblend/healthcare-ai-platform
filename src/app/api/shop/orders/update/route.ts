@@ -1,37 +1,50 @@
+// app/api/shop/orders/update/route.ts
 import { requireAuthority } from '@/features/auth/services/sessionService'
 import { NextRequest, NextResponse } from 'next/server'
 import { OrderService } from '@/features/dashboard/services/OrderService'
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { id: string } },
-) {
-  await requireAuthority('ADMIN')
+export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
 
-    // Only allow certain updates based on order status
+    // Get orderId from body instead of params
+    const { orderId, status, shippingNotes } = body
+
+    if (!orderId) {
+      return NextResponse.json(
+        { error: 'orderId is required' },
+        { status: 400 },
+      )
+    }
+
+    // Check authorization
+    await requireAuthority('ADMIN')
+
+    // Only allow certain updates
     const allowedUpdates: any = {}
+    if (status) allowedUpdates.status = status
+    if (shippingNotes) allowedUpdates.shippingNotes = shippingNotes
 
-    // Always allowed updates
-    if (body.status) allowedUpdates.status = body.status
-    if (body.shippingNotes) allowedUpdates.shippingNotes = body.shippingNotes
+    // Check if there's anything to update
+    if (Object.keys(allowedUpdates).length === 0) {
+      return NextResponse.json(
+        { error: 'No valid updates provided' },
+        { status: 400 },
+      )
+    }
 
-    // NEVER allow these to be updated after order creation
-    // - customer name (shippingFirstName, shippingLastName)
-    // - products, quantities, prices
-    // - order total
-    // - address
+    const updatedOrder = await OrderService.updateOrder(orderId, allowedUpdates)
 
-    const updatedOrder = await OrderService.updateOrder(
-      params.id,
-      allowedUpdates,
-    )
     return NextResponse.json(updatedOrder)
   } catch (err) {
-    return NextResponse.json(
-      { error: 'Failed to update order' },
-      { status: 500 },
-    )
+    const errorMessage =
+      err instanceof Error ? err.message : 'Failed to update order'
+    const statusCode = errorMessage.includes('not found')
+      ? 404
+      : errorMessage.includes('Cannot update')
+        ? 400
+        : 500
+
+    return NextResponse.json({ error: errorMessage }, { status: statusCode })
   }
 }
