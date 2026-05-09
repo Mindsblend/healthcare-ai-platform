@@ -1,4 +1,3 @@
-// features/dashboard/actions/orderActions.ts
 import { OrderType, OrderStatus } from '@/components/types/types'
 
 export async function updateOrderAction(
@@ -6,8 +5,8 @@ export async function updateOrderAction(
   status?: OrderStatus,
   shippingNotes?: string,
 ): Promise<OrderType> {
-  const res = await fetch(`/api/dashboard/orders/${orderId}`, {
-    method: 'PATCH',
+  const res = await fetch('/api/shop/orders/update', {
+    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ status, shippingNotes }),
   })

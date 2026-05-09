@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Table,
   TableBody,
@@ -12,7 +12,11 @@ import Badge from '../../../ui/badge/Badge'
 import { useOrdersPreview } from '@/features/dashboard/hooks/useOrdersPreview'
 import { useUpdateOrder } from '@/features/dashboard/hooks/updateOrder'
 import Link from 'next/link'
-import { getStatusLabel, getStatusColor } from '@/lib/helpers'
+import {
+  getStatusLabel,
+  getStatusColor,
+  getFreeShippingStatus,
+} from '@/lib/helpers'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { OrderStatus } from '@prisma/client'
@@ -22,6 +26,13 @@ export default function RecentOrders() {
   const router = useRouter()
   const { orders, loading, error } = useOrdersPreview()
   const { updateOrder, loading: updating } = useUpdateOrder()
+
+  const TAX_RATE = 0.09
+  const FREE_SHIPPING_THRESHOLD = 2_000_000
+
+  const [orderSubtotal, setOrderSubtotal] = useState(0)
+  const [orderTaxAmount, setOrderTaxAmount] = useState(0)
+  const [orderDeliveryAmount, setOrderDeliveryAmount] = useState(0)
 
   const [selectedOrder, setSelectedOrder] = useState<OrderSummary | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -42,6 +53,31 @@ export default function RecentOrders() {
     setShippingNotes(order.shippingNotes || '')
     setIsModalOpen(true)
   }
+
+  useEffect(() => {
+    if (selectedOrder && Array.isArray(selectedOrder.items)) {
+      const calculatedSubtotal = selectedOrder.items.reduce(
+        (itemSum, item) => itemSum + item.price * item.quantity,
+        0,
+      )
+      setOrderSubtotal(calculatedSubtotal)
+
+      const calculatedTax = Math.round(calculatedSubtotal * TAX_RATE)
+      setOrderTaxAmount(calculatedTax)
+
+      const isFreeShipping = getFreeShippingStatus(
+        calculatedSubtotal,
+        FREE_SHIPPING_THRESHOLD,
+      )
+      const calculatedDeliveryAmount = isFreeShipping ? 0 : 300_000
+      setOrderDeliveryAmount(calculatedDeliveryAmount)
+    } else {
+      // Reset if no order is selected or items are missing
+      setOrderSubtotal(0)
+      setOrderTaxAmount(0)
+      setOrderDeliveryAmount(0)
+    }
+  }, [selectedOrder])
 
   const handleApplyChanges = async () => {
     if (!selectedOrder) return
@@ -406,11 +442,39 @@ export default function RecentOrders() {
                               colSpan={3}
                               className="px-4 py-3 text-left text-sm font-semibold text-gray-800"
                             >
-                              مجموع کل:
+                              مجموعه سفارش:
                             </td>
                             <td className="px-4 py-3 text-left text-sm font-semibold text-gray-800">
-                              {selectedOrder.totalPrice.toLocaleString('fa-IR')}{' '}
-                              تومان
+                              {orderSubtotal.toLocaleString('fa-IR')} تومان
+                            </td>
+                          </tr>
+                        </tfoot>
+                        <tfoot className="bg-gray-50">
+                          <tr>
+                            <td
+                              colSpan={3}
+                              className="px-4 py-3 text-left text-sm font-semibold text-gray-800"
+                            >
+                              هزینه ارسال:
+                            </td>
+                            <td className="px-4 py-3 text-left text-sm font-semibold text-gray-800">
+                              {orderDeliveryAmount == 0
+                                ? 'ارسال رایگان 🎉'
+                                : orderDeliveryAmount.toLocaleString('fa-IR') +
+                                  ' تومان'}
+                            </td>
+                          </tr>
+                        </tfoot>
+                        <tfoot className="bg-gray-50">
+                          <tr>
+                            <td
+                              colSpan={3}
+                              className="px-4 py-3 text-left text-sm font-semibold text-gray-800"
+                            >
+                              مالیات:
+                            </td>
+                            <td className="px-4 py-3 text-left text-sm font-semibold text-gray-800">
+                              {orderTaxAmount.toLocaleString('fa-IR')} تومان
                             </td>
                           </tr>
                         </tfoot>

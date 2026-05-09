@@ -6,6 +6,7 @@ import { useCart } from '@/features/shop/hooks/cart/useCart'
 import { useState, ChangeEvent } from 'react'
 import { useCreateOrder } from '@/features/dashboard/hooks/createOrders'
 import { ShippingInfo } from '@/components/types/types'
+import { getFreeShippingStatus } from '@/lib/helpers'
 
 const CheckoutPage = () => {
   const { cartItems, loading: cartLoading } = useCart()
@@ -24,6 +25,20 @@ const CheckoutPage = () => {
     postalCode: '',
     notes: '',
   })
+
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  )
+  const TAX_RATE = 0.09
+  const taxAmount = Math.round(subtotal * TAX_RATE)
+  const totalAmount = subtotal + taxAmount
+  const FREE_SHIPPING_THRESHOLD = 2_000_000
+  const isFreeShipping = getFreeShippingStatus(
+    subtotal,
+    FREE_SHIPPING_THRESHOLD,
+  )
+  const deliveryAmount = isFreeShipping ? 0 : 300_000
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -44,15 +59,6 @@ const CheckoutPage = () => {
       alert('خطا در ثبت سفارش، لطفا دوباره تلاش کنید.')
     }
   }
-
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0,
-  )
-  const TAX_RATE = 0.09
-  const taxAmount = Math.round(subtotal * TAX_RATE)
-  const totalAmount = subtotal + taxAmount
-  const deliveryAmount = 300
 
   if (cartLoading) return <div>در حال بارگذاری سبد خرید...</div>
 
@@ -254,7 +260,9 @@ const CheckoutPage = () => {
                   هزینه ارسال
                 </h1>
                 <h1 className="font-aria text-color-title-on-light font-extrabold">
-                  {deliveryAmount.toLocaleString('fa-IR')} تومان
+                  {isFreeShipping
+                    ? 'ارسال رایگان 🎉'
+                    : deliveryAmount.toLocaleString('fa-IR') + ' تومان'}
                 </h1>
               </div>
               <hr className="border" />

@@ -2,7 +2,7 @@ import { requireAuthority } from '@/features/auth/services/sessionService'
 import { NextRequest, NextResponse } from 'next/server'
 import { OrderService } from '@/features/dashboard/services/OrderService'
 
-export async function PATCH(
+export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } },
 ) {

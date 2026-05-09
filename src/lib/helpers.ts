@@ -38,6 +38,13 @@ export function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString()
 }
 
+// Check Free Shipping Threshold
+export const getFreeShippingStatus = (subtotal: number, threshold: number) => {
+  const isFreeShipping = subtotal >= threshold
+
+  return isFreeShipping
+}
+
 // Status mapping for Persian display
 export const getStatusLabel = (status: string): string => {
   switch (status) {
