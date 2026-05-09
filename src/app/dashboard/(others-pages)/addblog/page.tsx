@@ -12,6 +12,8 @@ interface BlogFormState {
   title: string
   description: string
   image: string
+  slug: string
+  content: string
   author: string
   authorImage: string
 }
@@ -235,6 +237,8 @@ const AddBlog = () => {
     title: '',
     image: '',
     description: '',
+    slug: '',
+    content: '',
     author: '',
     authorImage: '',
   })
@@ -271,6 +275,8 @@ const AddBlog = () => {
         title: form.title,
         image: form.image,
         description: form.description,
+        slug: form.slug,
+        content: form.content,
         author: form.author,
         authorImage: form.authorImage,
       })
@@ -279,6 +285,8 @@ const AddBlog = () => {
         title: '',
         image: '',
         description: '',
+        slug: '',
+        content: '',
         author: '',
         authorImage: '',
       })
@@ -314,6 +322,20 @@ const AddBlog = () => {
                 />
               </div>
 
+              {/* Slug */}
+              <div className="col-span-full md:col-span-2">
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  اسلاگ
+                </label>
+                <input
+                  type="text"
+                  placeholder="اسم اسلاگ را وارد کنید"
+                  value={form.slug}
+                  onChange={(e) => handleChange('slug', e.target.value)}
+                  className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+                />
+              </div>
+
               {/* Author */}
               <div className="col-span-full">
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
@@ -329,14 +351,28 @@ const AddBlog = () => {
               </div>
 
               {/* Description */}
-              <div className="col-span-full">
+              <div className="col-span-full md:col-span-2">
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                   توضیحات
                 </label>
+                <input
+                  type="text"
+                  placeholder="توضیحات را وارد کنید"
+                  value={form.description}
+                  onChange={(e) => handleChange('description', e.target.value)}
+                  className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+                />
+              </div>
+
+              {/* Content */}
+              <div className="col-span-full">
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  محتوا
+                </label>
                 <div>
                   <SimpleEditor
-                    value={form.description}
-                    onChange={(content) => handleChange('description', content)}
+                    value={form.content}
+                    onChange={(content) => handleChange('content', content)}
                   />
                 </div>
               </div>

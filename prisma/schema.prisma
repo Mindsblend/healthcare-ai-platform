@@ -216,6 +216,7 @@ model Blog {
   image       String
   description String
   slug        String   @unique
+  content     String
   author      String
   authorImage String
   createdAt   DateTime @default(now())
