@@ -2,10 +2,12 @@ import { useState } from 'react'
 import { createBlog } from '../../actions/blogs/createBlogAction'
 
 export interface CreateBlogInput {
-  title: string,
-  image: string,
-  description: string,
-  author: string,
+  title: string
+  image: string
+  description: string
+  slug: string
+  content: string
+  author: string
   authorImage: string
 }
 
