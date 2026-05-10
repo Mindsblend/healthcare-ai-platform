@@ -2,6 +2,7 @@
 'use client'
 
 import { useUserAddress } from '@/features/shop/hooks/profile/useUserAddress'
+import { toPersianDigit } from '@/lib/helpers'
 
 const AddressContent = () => {
   const addressStatic = {
@@ -73,13 +74,13 @@ const AddressContent = () => {
                     <span>استان: {address.province}</span>
                   </div>
                   <span className="flex text-black">
-                    کد پستی: {address.postalCode}
+                    کد پستی: {toPersianDigit(address.postalCode)}
                   </span>
                   <div className="flex gap-1 text-black">
                     <span>
                       گیرنده: {address.firstName} {address.lastName}
                     </span>
-                    |<span>{address.phone}</span>
+                    |<span>{toPersianDigit(address.phone)}</span>
                   </div>
                 </div>
               </div>

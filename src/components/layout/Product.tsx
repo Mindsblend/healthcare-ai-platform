@@ -36,7 +36,7 @@ const Product = ({ product }: Props) => {
           <button
             onClick={handleAddToCart}
             disabled={cartLoading}
-            className="text-color-title-on-light font-ray flex h-10 w-full cursor-pointer items-center justify-center gap-3 rounded-full bg-[#F2F2F2] pr-4 pl-1 text-sm font-medium whitespace-nowrap sm:w-auto 2xl:h-12 2xl:pr-5 2xl:text-base"
+            className="text-color-title-on-dark font-ray flex h-10 w-full cursor-pointer items-center justify-center gap-3 rounded-full bg-black pr-4 pl-1 text-sm font-medium whitespace-nowrap sm:w-auto 2xl:h-12 2xl:pr-5 2xl:text-base"
           >
             افزودن به سبد خرید
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white 2xl:h-10 2xl:w-10">
@@ -49,7 +49,7 @@ const Product = ({ product }: Props) => {
             </div>
           </button>
 
-          <div className="text-color-title-on-dark font-ray flex h-10 w-full items-center justify-center rounded-3xl bg-black px-5 text-sm font-extrabold sm:w-auto 2xl:h-12 2xl:px-7 2xl:text-base">
+          <div className="text-color-title-on-light font-ray flex h-10 w-full items-center justify-center rounded-3xl bg-[#F2F2F2] px-5 text-sm font-extrabold sm:w-auto 2xl:h-12 2xl:px-7 2xl:text-base">
             {product.price.toLocaleString('fa-IR')}
             <span className="pr-1">تومان</span>
           </div>

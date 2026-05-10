@@ -16,7 +16,7 @@ export default async function Navbar() {
               <Image
                 src="/images/logo.svg"
                 alt="Logo"
-                width={190}
+                width={140}
                 height={20}
               />
             </Link>

@@ -119,7 +119,23 @@ export type UserInfo = Prisma.UserGetPayload<{
 
 export type UserOrder = Prisma.UserGetPayload<{
   include: {
-    orders: true
+    orders: {
+      include: {
+        items: {
+          include: {
+            product: {
+              select: {
+                id: true
+                title: true
+                price: true
+                image: true
+                slug: true
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }>
 
@@ -282,4 +298,16 @@ export interface NavItem {
   icon: string
   path: string
   subItems?: { name: string; path: string }[]
+}
+
+// lib/types/location.types.ts
+export interface City {
+  id: number
+  name: string
+}
+
+export interface Province {
+  id: number
+  name: string
+  cities: City[]
 }

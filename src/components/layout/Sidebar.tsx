@@ -8,6 +8,7 @@ import { NavItem } from '../types/types.tsx'
 import Link from 'next/link'
 import { useLogOut } from '@/features/auth/hooks/useLogOut.ts'
 import { useUserInfo } from '@/features/shop/hooks/profile/useUserInfo.ts'
+import { toPersianDigit } from '@/lib/helpers.ts'
 
 const Sidebar = () => {
   const { userInfo, loading, error } = useUserInfo()
@@ -72,7 +73,7 @@ const Sidebar = () => {
 
     // Priority 1: Phone number (if available)
     if (phone) {
-      return phone
+      return toPersianDigit(phone)
     }
 
     // Priority 2: Email (if available)

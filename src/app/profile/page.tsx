@@ -3,6 +3,7 @@
 import { useUserInfo } from '@/features/shop/hooks/profile/useUserInfo'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { toPersianDigit } from '@/lib/helpers'
 
 interface FormErrors {
   firstName?: string
@@ -209,13 +210,12 @@ export default function Profile() {
               <input
                 type="tel"
                 name="phone"
-                value={formData.phone}
+                value={toPersianDigit(formData.phone)}
                 onChange={handleChange}
                 placeholder="0912 123 4567"
-                className={`font-aria mt-2.5 h-11.25 w-full rounded-xl bg-[#F2F2F2] p-3.25 text-sm font-semibold text-black placeholder:text-sm placeholder:text-gray-400 ${
+                className={`font-aria mt-2.5 h-11.25 w-full rounded-xl bg-[#F2F2F2] p-3.25 text-right text-sm font-semibold text-black placeholder:text-sm placeholder:text-gray-400 ${
                   errors.phone ? 'border-2 border-red-500' : ''
                 }`}
-                dir="ltr"
               />
               {errors.phone && (
                 <p className="mt-1 text-xs text-red-500">{errors.phone}</p>

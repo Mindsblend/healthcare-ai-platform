@@ -58,7 +58,26 @@ export async function fetchUserWithOrders(
   return await prisma.user.findUnique({
     where: { id: userId },
     include: {
-      orders: true,
+      orders: {
+        include: {
+          items: {
+            include: {
+              product: {
+                select: {
+                  id: true,
+                  title: true,
+                  price: true,
+                  image: true,
+                  slug: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      },
     },
   })
 }

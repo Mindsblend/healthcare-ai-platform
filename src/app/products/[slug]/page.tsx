@@ -19,11 +19,7 @@ export default function ProductPage() {
     useProductsByCategoryId(product?.categoryId || 0)
 
   return (
-    <LoadingBar
-      loadingText="در حال بارگذاری محصول..."
-      loading={loading}
-      error={error}
-    >
+    <LoadingBar loading={loading} error={error}>
       {product && (
         <div className="container">
           <div className="flex items-center justify-between gap-x-6 max-lg:flex-col">
@@ -92,7 +88,7 @@ export default function ProductPage() {
               <div className="mt-5 flex items-center gap-3.5">
                 <Link
                   href="/"
-                  className="primary-btn text-color-title-on-light font-ray flex items-center justify-between rounded-full bg-[#F2F2F2] font-medium whitespace-nowrap"
+                  className="primary-btn text-color-title-on-dark font-ray flex items-center justify-between rounded-full bg-black font-medium whitespace-nowrap"
                 >
                   <span className="pr-2">افزودن به سبد خرید</span>
                   <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white xl:h-10 xl:w-10">
@@ -107,7 +103,7 @@ export default function ProductPage() {
                 </Link>
                 <Link
                   href="/"
-                  className="secondary-btn text-color-title-on-dark flex items-center justify-center rounded-full bg-black font-extrabold"
+                  className="secondary-btn text-color-title-on-light flex items-center justify-center rounded-full bg-[#F2F2F2] font-extrabold"
                 >
                   {product.price?.toLocaleString('fa-IR')}
                   <span className="pr-1">تومان</span>

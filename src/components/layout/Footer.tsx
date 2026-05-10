@@ -10,9 +10,9 @@ const Footer = () => {
           <Image
             src="/images/logo.svg"
             alt="Logo"
-            width={200}
-            height={70}
-            className="w-43.75 xl:w-50"
+            width={140}
+            height={20}
+            className="w-43.75 xl:w-35"
           />
 
           {/* Paragraph */}

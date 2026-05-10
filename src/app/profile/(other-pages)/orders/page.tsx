@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import { useUserOrder } from '@/features/shop/hooks/profile/useUserOrder'
 import { OrderStatus } from '@/components/types/types'
-import { getStatusLabel } from '@/lib/helpers'
+import { getStatusLabel, toPersianDigit } from '@/lib/helpers'
 
 const OrdersContent = () => {
   const { userOrder, loading, error } = useUserOrder()
@@ -42,11 +42,13 @@ const OrdersContent = () => {
   // Get number of orders in each status
   const getStatusCount = (statuses: string[]) => {
     if (statuses[0] === 'all') {
-      return userOrder?.orders.length
+      return userOrder?.orders.length || 0
     }
-    return userOrder?.orders.filter((order) =>
-      statuses.includes(order.status as OrderStatus),
-    ).length
+    return (
+      userOrder?.orders.filter((order) =>
+        statuses.includes(order.status as OrderStatus),
+      ).length || 0
+    )
   }
 
   // Get filtered orders based on active status
@@ -136,7 +138,7 @@ const OrdersContent = () => {
                     : 'bg-[#D9D9D9] text-black'
                 }`}
               >
-                {getStatusCount(group.statuses as OrderStatus[])}
+                {getStatusCount(group.statuses)}
               </div>
             </button>
           ))}
@@ -173,7 +175,7 @@ const OrdersContent = () => {
                     </span>
                   </div>
 
-                  <div className="font-ray mt-3 flex w-full gap-3">
+                  <div className="font-ray mt-3 flex w-full flex-wrap gap-3">
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-gray-500">تاریخ:</span>
                       <span className="text-black">
@@ -196,31 +198,42 @@ const OrdersContent = () => {
                     </div>
                   </div>
 
-                  {/* Products List - در صورت نیاز فعال کنید */}
-                  {/* <div className="mt-4 w-full border-t border-[#D9D9D9] pt-4">
-                    {order.items?.map((item, index) => (
-                      <div key={index} className="flex w-full items-center gap-4 py-2">
-                        {item.image && (
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                            className="h-16 w-16 rounded-md object-cover"
-                          />
-                        )}
-                        <div className="flex-1">
-                          <p className="font-medium text-black">{item.name}</p>
-                          <p className="text-sm text-gray-500">
-                            تعداد: {item.quantity}
-                          </p>
+                  {/* Products List */}
+                  <div className="mt-4 w-full border-t border-[#D9D9D9] pt-4">
+                    {order.items && order.items.length > 0 ? (
+                      order.items.map((item) => (
+                        <div
+                          key={item.id}
+                          className="flex w-full items-center gap-4 py-2"
+                        >
+                          {item.product?.image && (
+                            <img
+                              src={item.product.image}
+                              alt={item.product.title}
+                              className="h-16 w-16 rounded-md object-cover"
+                            />
+                          )}
+                          <div className="flex-1">
+                            <p className="font-medium text-black">
+                              {item.product?.title || 'محصول'}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              تعداد: {toPersianDigit(item.quantity)}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="font-medium text-black">
+                              {formatPrice(item.price * item.quantity)}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-black">
-                            {formatPrice(item.price * item.quantity)}
-                          </p>
-                        </div>
+                      ))
+                    ) : (
+                      <div className="py-2 text-center text-gray-500">
+                        آیتمی برای این سفارش وجود ندارد
                       </div>
-                    ))}
-                  </div> */}
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
