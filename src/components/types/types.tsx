@@ -218,6 +218,7 @@ export interface BlogType {
   slug: string
   author: string
   authorImage: string
+  authorTitle: string
   description: string
   createdAt: Date
   updatedAt: Date

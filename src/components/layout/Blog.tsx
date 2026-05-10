@@ -34,15 +34,18 @@ const Blog = ({ blog }: Props) => {
           </h1>
           <p className="font-ray mt-1.5 text-sm font-medium">
             <div dangerouslySetInnerHTML={{ __html: blog.description }}></div>
-            <span className="text-color-body-on-light mr-1.5 inline-flex cursor-pointer items-center">
-              ادامه مطلب
-              <Image
-                src="/images/left-arrow.svg"
-                alt="read more"
-                width={16}
-                height={16}
-              />
-            </span>
+
+            <Link href={'/blogs/' + blog.slug}>
+              <span className="text-color-body-on-light mr-1.5 inline-flex cursor-pointer items-center">
+                ادامه مطلب
+                <Image
+                  src="/images/left-arrow.svg"
+                  alt="read more"
+                  width={16}
+                  height={16}
+                />
+              </span>
+            </Link>
           </p>
         </div>
 
@@ -68,7 +71,7 @@ const Blog = ({ blog }: Props) => {
                 {blog.author}
               </h1>
               <p className="font-ray text-color-title-on-light text-[14px]">
-                نویسنده و پژوهشگر
+                {blog.authorTitle}
               </p>
             </div>
           </div>

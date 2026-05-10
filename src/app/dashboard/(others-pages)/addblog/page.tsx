@@ -16,6 +16,7 @@ interface BlogFormState {
   content: string
   author: string
   authorImage: string
+  authorTitle: string
 }
 
 // کامپوننت آپلود تصویر با لودر
@@ -241,6 +242,7 @@ const AddBlog = () => {
     content: '',
     author: '',
     authorImage: '',
+    authorTitle: '',
   })
 
   const { create, loading, error } = useCreateBlog()
@@ -289,6 +291,7 @@ const AddBlog = () => {
         content: '',
         author: '',
         authorImage: '',
+        authorTitle: '',
       })
     } catch (err) {
       console.error(err)
@@ -344,6 +347,20 @@ const AddBlog = () => {
                 <input
                   type="text"
                   placeholder="نویسنده بلاگ را وارد کنید"
+                  value={form.author}
+                  onChange={(e) => handleChange('author', e.target.value)}
+                  className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+                />
+              </div>
+
+              {/* Author Title */}
+              <div className="col-span-full">
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  عنوان نویسنده
+                </label>
+                <input
+                  type="text"
+                  placeholder="عنوان نویسنده بلاگ را وارد کنید"
                   value={form.author}
                   onChange={(e) => handleChange('author', e.target.value)}
                   className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"

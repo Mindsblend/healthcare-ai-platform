@@ -36,12 +36,15 @@ const ShopHeroSection = () => {
         </div>
       </div>
       {/* Left: Image */}
-      <div className="max-lg:hidden">
+      <div className="hidden lg:block">
         <Image
           src="/images/basket.svg"
           alt="Healthy Lifestyle"
           width={500}
           height={100}
+          priority
+          fetchPriority="high"
+          loading="eager"
         />
       </div>
     </div>

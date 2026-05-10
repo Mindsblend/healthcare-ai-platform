@@ -1,13 +1,15 @@
 import { prisma } from '@/lib/prisma'
-import { BlogDetail, BlogSummary, BlogType } from '@/components/types/types'
+import { BlogDetail, BlogSummary } from '@/components/types/types'
 
 export interface CreateBlogDTO {
   title: string
   slug: string
+  content: string
   image: string
   description: string
   author: string
   authorImage: string
+  authorTitle: string
 }
 
 export class BlogService {
@@ -26,10 +28,12 @@ export class BlogService {
       data: {
         title: data.title,
         slug: data.slug,
+        content: data.content,
         image: data.image,
         description: data.description,
         author: data.author,
         authorImage: data.authorImage,
+        authorTitle: data.authorTitle,
       },
     })
   }
