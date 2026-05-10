@@ -4,6 +4,22 @@
 import { useUserAddress } from '@/features/shop/hooks/profile/useUserAddress'
 
 const AddressContent = () => {
+  const addressStatic = {
+    addresses: [
+      {
+        id: 1,
+        address: 'آذربایجان حر، خ. آذربایجان، بین خ. سلیمانیه و خ. بهزاد',
+        isDefault: true,
+        city: 'تهران',
+        province: 'تهران',
+        postalCode: 1923774,
+        firstName: 'کیان',
+        lastName: 'ابتکاری',
+        phone: '09129212537',
+      },
+    ],
+  }
+
   const { userAddress, loading, error } = useUserAddress()
 
   if (loading) {
@@ -31,37 +47,39 @@ const AddressContent = () => {
       <h2 className="font-aria mb-6 text-xl font-bold text-black">آدرس ها</h2>
 
       {/* ✅ Fixed: Check if userAddress and addresses exist before accessing length */}
-      {!userAddress ||
-      !userAddress.addresses ||
-      userAddress.addresses.length === 0 ? (
+      {!addressStatic ||
+      !addressStatic.addresses ||
+      addressStatic.addresses.length === 0 ? (
         <div className="py-12 text-center">
-          <p className="text-gray-500">هیچ آدرسی ثبت نشده است</p>
+          <p className="text-black">هیچ آدرسی ثبت نشده است</p>
         </div>
       ) : (
         <div className="space-y-4">
-          {userAddress.addresses.map((address) => (
+          {addressStatic.addresses.map((address) => (
             <div
               key={address.id}
               className="rounded-lg border border-[#D9D9D9] p-5"
             >
-              <div className="flex items-start justify-between">
+              <div className="font-ray flex items-start justify-between text-lg font-medium">
                 <div className="space-y-2">
                   {address.isDefault && (
                     <span className="inline-block rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-600">
                       آدرس پیش‌فرض
                     </span>
                   )}
-                  <p className="text-gray-700">{address.address}</p>
-                  <div className="flex gap-4 text-sm text-gray-500">
-                    <span>{address.city}</span>
-                    <span>{address.province}</span>
-                    <span>{address.postalCode}</span>
+                  <p className="text-black">{address.address}</p>
+                  <div className="flex flex-col space-y-2 text-black">
+                    <span>شهر: {address.city}</span>
+                    <span>استان: {address.province}</span>
                   </div>
-                  <div className="flex gap-4 text-sm text-gray-500">
+                  <span className="flex text-black">
+                    کد پستی: {address.postalCode}
+                  </span>
+                  <div className="flex gap-1 text-black">
                     <span>
-                      {address.firstName} {address.lastName}
+                      گیرنده: {address.firstName} {address.lastName}
                     </span>
-                    <span>{address.phone}</span>
+                    |<span>{address.phone}</span>
                   </div>
                 </div>
               </div>
