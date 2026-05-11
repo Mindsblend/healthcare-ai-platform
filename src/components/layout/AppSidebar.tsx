@@ -81,15 +81,15 @@ const AppSidebar: React.FC = () => {
                 className=""
                 src="/images/logo.svg"
                 alt="Logo"
-                width={150}
-                height={40}
+                width={130}
+                height={20}
               />
               <Image
                 className="hidden dark:block"
                 src="/images/logo.svg"
                 alt="Logo"
-                width={150}
-                height={40}
+                width={130}
+                height={20}
               />
             </>
           ) : (

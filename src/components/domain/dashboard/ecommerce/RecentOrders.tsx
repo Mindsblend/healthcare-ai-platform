@@ -17,6 +17,7 @@ import {
   getStatusLabel,
   getStatusColor,
   getFreeShippingStatus,
+  toPersianDigit,
 } from '@/lib/helpers'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -349,7 +350,7 @@ export default function RecentOrders() {
 
                   {/* Phone */}
                   <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
-                    {order.shippingPhone}
+                    {toPersianDigit(order.shippingPhone)}
                   </TableCell>
 
                   {/* Date */}
@@ -435,7 +436,7 @@ export default function RecentOrders() {
                             تلفن
                           </p>
                           <p className="font-medium text-gray-800 dark:text-white/90">
-                            {shippingPhone}
+                            {toPersianDigit(shippingPhone)}
                           </p>
                         </div>
                         <div>
@@ -459,7 +460,7 @@ export default function RecentOrders() {
                         <p>
                           {shippingCity}، {shippingProvince}
                         </p>
-                        <p>کد پستی: {shippingPostalCode}</p>
+                        <p>کد پستی: {toPersianDigit(shippingPostalCode)}</p>
                       </div>
                     </div>
 

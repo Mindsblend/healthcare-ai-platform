@@ -20,6 +20,7 @@ import {
   getStatusLabel,
   getStatusColor,
   getFreeShippingStatus,
+  toPersianDigit,
 } from '@/lib/helpers'
 import {
   OrderSummary,
@@ -377,7 +378,7 @@ const Orders = () => {
                     </TableCell>
 
                     <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
-                      {order.shippingPhone}
+                      {toPersianDigit(order.shippingPhone)}
                     </TableCell>
 
                     <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
@@ -455,7 +456,7 @@ const Orders = () => {
                       تلفن
                     </p>
                     <p className="font-medium text-gray-800 dark:text-white/90">
-                      {shippingPhone}
+                      {toPersianDigit(shippingPhone)}
                     </p>
                   </div>
                   <div>
@@ -479,7 +480,7 @@ const Orders = () => {
                   <p>
                     {shippingCity}، {shippingProvince}
                   </p>
-                  <p>کد پستی: {shippingPostalCode}</p>
+                  <p>کد پستی: {toPersianDigit(shippingPostalCode)}</p>
                 </div>
               </div>
 
