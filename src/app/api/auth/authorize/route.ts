@@ -1,18 +1,18 @@
 import { NextResponse } from 'next/server'
 import { verifyOtp } from '@/features/auth/services/verifyOtpService'
-import { createUser } from '@/features/shop/services/UserService'
+import { UserService } from '@/features/shop/services/UserService'
 
 import {
   createJwtSession,
   setSessionCookie,
 } from '@/features/auth/services/sessionService'
 import { createDomainError, ErrorCode } from '@/lib/errors'
-import { validateIdentifier } from '@/lib/helpers'
+import { validateAuthenticationIdentifier } from '@/lib/helpers'
 
 export async function POST(req: Request) {
   try {
     const { identifier, code } = await req.json()
-    const { type, value } = await validateIdentifier(identifier)
+    const { type, value } = await validateAuthenticationIdentifier(identifier)
 
     let user
     let token
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
         await verifyOtp(value, code)
         console.log('[EMAIL] OTP verified successfully')
 
-        user = await createUser(value, type)
+        user = await UserService.createUser(value, type)
         console.log('[EMAIL] User fetched/created')
 
         token = createJwtSession(user)
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
         await verifyOtp(value, code)
         console.log('[SMS] OTP verified successfully')
 
-        user = await createUser(value, type)
+        user = await UserService.createUser(value, type)
         console.log('[SMS] User fetched/created')
 
         token = createJwtSession(user)
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
         break
 
       default:
-        // This should never happen if validateIdentifier is robust
+        // This should never happen if validateAuthenticationIdentifier is robust
         return NextResponse.json(
           { error: createDomainError(ErrorCode.UNKNOWN_IDENTIFIER) },
           { status: 400 },

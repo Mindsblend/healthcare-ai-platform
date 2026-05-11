@@ -29,6 +29,7 @@ import {
   OrderItem,
 } from '@/components/types/types'
 import { useRouter } from 'next/navigation'
+import LoadingBar from '@/components/layout/LoadingBar'
 
 const Orders = () => {
   const router = useRouter()
@@ -61,13 +62,30 @@ const Orders = () => {
   const [shippingNotes, setShippingNotes] = useState('')
   const [createdAt, setCreatedAt] = useState<string>(new Date().toISOString())
   const [items, setItems] = useState<OrderItem[]>([])
+  const [searchValue, setSearchValue] = useState<string>('')
 
   const [selectedOrder, setSelectedOrder] = useState<OrderDetail | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isFetchingOrder, setIsFetchingOrder] = useState(false)
   const [page, setPage] = useState(1)
 
-  const sortedOrders = [...orders].sort((a, b) => {
+  // Filter orders based on search value
+  const filteredOrders = orders.filter((order) => {
+    if (!searchValue.trim()) return true
+
+    const searchTerm = searchValue.toLowerCase().trim()
+
+    return (
+      order.id?.toLowerCase().includes(searchTerm) ||
+      order.shippingFirstName?.toLowerCase().includes(searchTerm) ||
+      order.shippingLastName?.toLowerCase().includes(searchTerm) ||
+      order.shippingPhone?.includes(searchTerm) ||
+      getStatusLabel(order.status)?.toLowerCase().includes(searchTerm) ||
+      order.totalPrice?.toString().includes(searchTerm)
+    )
+  })
+
+  const sortedOrders = [...filteredOrders].sort((a, b) => {
     const dateA = new Date(a.createdAt).getTime()
     const dateB = new Date(b.createdAt).getTime()
     return dateB - dateA
@@ -153,107 +171,105 @@ const Orders = () => {
     }
   }
 
-  if (loading) return <div>در حال بارگذاری سفارشات...</div>
-
-  if (error) return <div>خطا در بارگذاری سفارشات: {error}</div>
-
-  if (!sortedOrders.length) {
+  if (!sortedOrders.length && !searchValue) {
     return (
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pt-4 pb-3 sm:px-6 dark:border-gray-800 dark:bg-white/[0.03]">
-        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            سفارشات اخیر
-          </h3>
+      <LoadingBar loading={loading} error={error}>
+        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pt-4 pb-3 sm:px-6 dark:border-gray-800 dark:bg-white/[0.03]">
+          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+              سفارشات اخیر
+            </h3>
 
-          <Link
-            href="/dashboard/orders"
-            className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
-          >
-            مشاهده کامل
-          </Link>
-        </div>
+            <Link
+              href="/dashboard/orders"
+              className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+            >
+              مشاهده کامل
+            </Link>
+          </div>
 
-        <div className="max-w-full overflow-x-auto">
-          <Table>
-            <TableHeader className="border-y border-gray-100 dark:border-gray-800">
-              <TableRow>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  شماره سفارش
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 font-medium text-gray-500 dark:text-gray-400"
-                >
-                  مشاهده جزئیات
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  نام مشتری
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  شماره تلفن
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  تاریخ سفارش
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  وضعیت
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  جمع کل
-                </TableCell>
-              </TableRow>
-            </TableHeader>
+          <div className="max-w-full overflow-x-auto">
+            <Table>
+              <TableHeader className="border-y border-gray-100 dark:border-gray-800">
+                <TableRow>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    شماره سفارش
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    مشاهده جزئیات
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    نام مشتری
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    شماره تلفن
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    تاریخ سفارش
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    وضعیت
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    جمع کل
+                  </TableCell>
+                </TableRow>
+              </TableHeader>
 
-            <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-              <TableRow>
-                <td colSpan={7} className="h-64 text-center">
-                  <div className="flex flex-col items-center justify-center">
-                    <div className="mb-4 text-gray-400">
-                      <svg
-                        width="48"
-                        height="48"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M3 7l9-4 9 4v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
-                        <path d="M3 7l9 6 9-6" />
-                      </svg>
+              <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
+                <TableRow>
+                  <td colSpan={7} className="h-64 text-center">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="mb-4 text-gray-400">
+                        <svg
+                          width="48"
+                          height="48"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M3 7l9-4 9 4v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
+                          <path d="M3 7l9 6 9-6" />
+                        </svg>
+                      </div>
+
+                      <h3 className="text-color-title-on-light mb-2 text-lg font-semibold">
+                        سفارشی وجود ندارد
+                      </h3>
+
+                      <p className="text-sm text-gray-500">
+                        هنوز هیچ سفارشی ثبت نشده است.
+                      </p>
                     </div>
-
-                    <h3 className="text-color-title-on-light mb-2 text-lg font-semibold">
-                      سفارشی وجود ندارد
-                    </h3>
-
-                    <p className="text-sm text-gray-500">
-                      هنوز هیچ سفارشی ثبت نشده است.
-                    </p>
-                  </div>
-                </td>
-              </TableRow>
-            </TableBody>
-          </Table>
+                  </td>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
         </div>
-      </div>
+      </LoadingBar>
     )
   }
 
@@ -294,6 +310,8 @@ const Orders = () => {
               <input
                 type="text"
                 placeholder="جست و جو کنید..."
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
                 className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden xl:w-[430px] dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
               />
             </div>
@@ -349,53 +367,84 @@ const Orders = () => {
               </TableHeader>
 
               <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-                {currentData.map((order) => (
-                  <TableRow key={order.id}>
-                    <TableCell className="text-theme-sm py-3 pr-4 font-medium text-gray-800 sm:pr-6 dark:text-white/90">
-                      {order.id}
-                    </TableCell>
-
-                    <TableCell className="text-theme-sm h-24 px-8 py-3 text-center font-medium text-gray-800 dark:text-white/90">
-                      <div className="flex h-full w-full items-center justify-center">
-                        <button onClick={() => handleViewOrder(order)}>
-                          <Image
-                            src="/images/eye.svg"
-                            alt="مشاهده جزئیات"
-                            width={24}
-                            height={24}
-                            className="opacity-70 transition-opacity hover:opacity-100"
-                          />
-                        </button>
+                {currentData.length === 0 && searchValue ? (
+                  <TableRow>
+                    <td colSpan={7} className="h-64 text-center">
+                      <div className="flex flex-col items-center justify-center">
+                        <div className="mb-4 text-gray-400">
+                          <svg
+                            width="48"
+                            height="48"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              clipRule="evenodd"
+                              d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363Z"
+                            />
+                          </svg>
+                        </div>
+                        <h3 className="text-color-title-on-light mb-2 text-lg font-semibold">
+                          نتیجه‌ای یافت نشد
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          سفارشی با "{searchValue}" پیدا نشد.
+                        </p>
                       </div>
-                    </TableCell>
-
-                    <TableCell className="py-3">
-                      <div className="flex flex-col">
-                        <span className="text-theme-sm font-medium text-gray-800 dark:text-white/90">
-                          {order.shippingFirstName} {order.shippingLastName}
-                        </span>
-                      </div>
-                    </TableCell>
-
-                    <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
-                      {toPersianDigit(order.shippingPhone)}
-                    </TableCell>
-
-                    <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
-                      {new Date(order.createdAt).toLocaleDateString('fa-IR')}
-                    </TableCell>
-
-                    <TableCell className="text-theme-sm py-3">
-                      <Badge size="sm" color={getStatusColor(order.status)}>
-                        {getStatusLabel(order.status)}
-                      </Badge>
-                    </TableCell>
-
-                    <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
-                      {order.totalPrice.toLocaleString('fa-IR')} تومان
-                    </TableCell>
+                    </td>
                   </TableRow>
-                ))}
+                ) : (
+                  currentData.map((order) => (
+                    <TableRow key={order.id}>
+                      <TableCell className="text-theme-sm py-3 pr-4 font-medium text-gray-800 sm:pr-6 dark:text-white/90">
+                        {order.id}
+                      </TableCell>
+
+                      <TableCell className="text-theme-sm h-24 px-8 py-3 text-center font-medium text-gray-800 dark:text-white/90">
+                        <div className="flex h-full w-full items-center justify-center">
+                          <button onClick={() => handleViewOrder(order)}>
+                            <Image
+                              src="/images/eye.svg"
+                              alt="مشاهده جزئیات"
+                              width={24}
+                              height={24}
+                              className="opacity-70 transition-opacity hover:opacity-100"
+                            />
+                          </button>
+                        </div>
+                      </TableCell>
+
+                      <TableCell className="py-3">
+                        <div className="flex flex-col">
+                          <span className="text-theme-sm font-medium text-gray-800 dark:text-white/90">
+                            {order.shippingFirstName} {order.shippingLastName}
+                          </span>
+                        </div>
+                      </TableCell>
+
+                      <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
+                        {toPersianDigit(order.shippingPhone)}
+                      </TableCell>
+
+                      <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
+                        {new Date(order.createdAt).toLocaleDateString('fa-IR')}
+                      </TableCell>
+
+                      <TableCell className="text-theme-sm py-3">
+                        <Badge size="sm" color={getStatusColor(order.status)}>
+                          {getStatusLabel(order.status)}
+                        </Badge>
+                      </TableCell>
+
+                      <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
+                        {order.totalPrice.toLocaleString('fa-IR')} تومان
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>

@@ -8,7 +8,7 @@ export default function generateSlug(name: string) {
     .replace(/[^\p{L}\p{N}-]+/gu, '') // remove symbols
 }
 
-export async function validateIdentifier(identifier: string) {
+export async function validateAuthenticationIdentifier(identifier: string) {
   if (!identifier) throw createDomainError(ErrorCode.MISSING_IDENTIFIER)
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -99,6 +99,13 @@ export const toPersianDigit = (value: string | number): string => {
 
   const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
   return str.replace(/\d/g, (d) => persianDigits[parseInt(d)])
+}
+
+// Helper function to check if string contains only Persian characters
+const isPersianText = (text: string): boolean => {
+  // Persian Unicode range: \u0600-\u06FF, Arabic: \u0750-\u077F, plus Persian specific characters
+  const persianRegex = /^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\s]+$/
+  return persianRegex.test(text)
 }
 
 // City and Provinces Data
@@ -689,4 +696,415 @@ export const getProvinceByCity = (cityName: string): Province | undefined => {
   return provinces.find((province) =>
     province.cities.some((city) => city.name === cityName),
   )
+}
+
+// types/validation.ts or add to your existing types file
+export type ValidationError = {
+  field: string
+  message: string
+  code?: string
+}
+
+export type ValidationResult = {
+  isValid: boolean
+  errors: ValidationError[]
+}
+
+export type FieldValidators = {
+  [key: string]: (
+    value: any,
+  ) => Promise<ValidationError | null> | ValidationError | null
+}
+
+// ============ Individual Field Validators ============
+
+export const validateFirstName = (
+  firstName: string,
+): ValidationError | null => {
+  if (!firstName || firstName.trim().length === 0) {
+    return {
+      field: 'firstName',
+      message: 'نام الزامی است',
+      code: ErrorCode.MISSING_FIELD.code,
+    }
+  }
+
+  const trimmedName = firstName.trim()
+
+  if (trimmedName.length < 2) {
+    return {
+      field: 'firstName',
+      message: 'نام باید حداقل ۲ کاراکتر باشد',
+      code: ErrorCode.INVALID_NAME.code,
+    }
+  }
+
+  if (trimmedName.length > 50) {
+    return {
+      field: 'firstName',
+      message: 'نام باید حداکثر ۵۰ کاراکتر باشد',
+      code: ErrorCode.INVALID_NAME.code,
+    }
+  }
+
+  // Check for Persian characters
+  if (!isPersianText(trimmedName)) {
+    return {
+      field: 'firstName',
+      message: 'نام باید با حروف فارسی وارد شود',
+      code: ErrorCode.INVALID_NAME.code,
+    }
+  }
+
+  return null
+}
+
+export const validateLastName = (lastName: string): ValidationError | null => {
+  if (!lastName || lastName.trim().length === 0) {
+    return {
+      field: 'lastName',
+      message: 'نام خانوادگی الزامی است',
+      code: ErrorCode.MISSING_FIELD.code,
+    }
+  }
+
+  const trimmedName = lastName.trim()
+
+  if (trimmedName.length < 2) {
+    return {
+      field: 'lastName',
+      message: 'نام خانوادگی باید حداقل ۲ کاراکتر باشد',
+      code: ErrorCode.INVALID_NAME.code,
+    }
+  }
+
+  if (trimmedName.length > 50) {
+    return {
+      field: 'lastName',
+      message: 'نام خانوادگی باید حداکثر ۵۰ کاراکتر باشد',
+      code: ErrorCode.INVALID_NAME.code,
+    }
+  }
+
+  // Check for Persian characters
+  if (!isPersianText(trimmedName)) {
+    return {
+      field: 'lastName',
+      message: 'نام خانوادگی باید با حروف فارسی وارد شود',
+      code: ErrorCode.INVALID_NAME.code,
+    }
+  }
+
+  return null
+}
+
+export const validateEmail = (email: string): ValidationError | null => {
+  if (!email || email.trim().length === 0) {
+    return {
+      field: 'email',
+      message: 'ایمیل الزامی است',
+      code: ErrorCode.MISSING_FIELD.code,
+    }
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(email)) {
+    return {
+      field: 'email',
+      message: 'ایمیل معتبر نیست',
+      code: ErrorCode.INVALID_EMAIL.code,
+    }
+  }
+
+  if (email.length > 255) {
+    return {
+      field: 'email',
+      message: 'ایمیل باید حداکثر ۲۵۵ کاراکتر باشد',
+      code: ErrorCode.INVALID_EMAIL.code,
+    }
+  }
+
+  return null
+}
+
+export const validatePhone = (phone: string): ValidationError | null => {
+  if (!phone || phone.trim().length === 0) {
+    return {
+      field: 'phone',
+      message: 'شماره تماس الزامی است',
+      code: ErrorCode.MISSING_FIELD.code,
+    }
+  }
+
+  // Normalize phone
+  let normalizedPhone = phone.replace(/\D/g, '')
+
+  if (normalizedPhone.startsWith('98') && normalizedPhone.length === 12) {
+    normalizedPhone = '0' + normalizedPhone.slice(2)
+  } else if (normalizedPhone.length === 10 && normalizedPhone.startsWith('9')) {
+    normalizedPhone = '0' + normalizedPhone
+  }
+
+  if (!/^09\d{9}$/.test(normalizedPhone)) {
+    return {
+      field: 'phone',
+      message: 'شماره تماس معتبر نیست (مثال: 09123456789)',
+      code: ErrorCode.INVALID_PHONE_NUMBER.code,
+    }
+  }
+
+  return null
+}
+
+export const validateProvince = (
+  province: string,
+  provincesList: any[],
+): ValidationError | null => {
+  if (!province || province.trim().length === 0) {
+    return {
+      field: 'province',
+      message: 'لطفاً استان را انتخاب کنید',
+      code: ErrorCode.MISSING_FIELD.code,
+    }
+  }
+
+  const isValidProvince = provincesList.some((p) => p.name === province)
+  if (!isValidProvince) {
+    return {
+      field: 'province',
+      message: 'استان انتخاب شده معتبر نیست',
+      code: ErrorCode.INVALID_PROVINCE.code,
+    }
+  }
+
+  return null
+}
+
+export const validateCity = (
+  city: string,
+  province: string,
+  getCitiesByProvince: (province: string) => any[],
+): ValidationError | null => {
+  if (!city || city.trim().length === 0) {
+    return {
+      field: 'city',
+      message: 'لطفاً شهر را انتخاب کنید',
+      code: ErrorCode.MISSING_FIELD.code,
+    }
+  }
+
+  // If province is selected, validate city belongs to province
+  if (province) {
+    const cities = getCitiesByProvince(province)
+    const isValidCity = cities.some((c) => c.name === city)
+    if (cities.length > 0 && !isValidCity) {
+      return {
+        field: 'city',
+        message: 'شهر انتخاب شده برای این استان معتبر نیست',
+        code: ErrorCode.INVALID_CITY.code,
+      }
+    }
+  }
+
+  return null
+}
+
+export const validateAddress = (address: string): ValidationError | null => {
+  if (!address || address.trim().length === 0) {
+    return {
+      field: 'address',
+      message: 'آدرس الزامی است',
+      code: ErrorCode.MISSING_FIELD.code,
+    }
+  }
+
+  if (address.trim().length < 10) {
+    return {
+      field: 'address',
+      message: 'آدرس باید حداقل ۱۰ کاراکتر باشد',
+      code: ErrorCode.INVALID_ADDRESS.code,
+    }
+  }
+
+  if (address.trim().length > 500) {
+    return {
+      field: 'address',
+      message: 'آدرس باید حداکثر ۵۰۰ کاراکتر باشد',
+      code: ErrorCode.INVALID_ADDRESS.code,
+    }
+  }
+
+  return null
+}
+
+export const validatePostalCode = (
+  postalCode: string,
+): ValidationError | null => {
+  if (!postalCode || postalCode.trim().length === 0) {
+    return {
+      field: 'postalCode',
+      message: 'کد پستی الزامی است',
+      code: ErrorCode.MISSING_FIELD.code,
+    }
+  }
+
+  // Iranian postal code format: 10 digits, not starting with 0
+  const postalCodeRegex = /^(?!0)\d{10}$/
+  if (!postalCodeRegex.test(postalCode.trim())) {
+    return {
+      field: 'postalCode',
+      message: 'کد پستی معتبر نیست (۱۰ رقم)',
+      code: ErrorCode.INVALID_POSTAL_CODE.code,
+    }
+  }
+
+  return null
+}
+
+// ============ Combined Validators ============
+
+export const validateShippingInfo = async (
+  shippingInfo: any,
+  provincesList: any[],
+  getCitiesByProvince: (province: string) => any[],
+): Promise<ValidationResult> => {
+  const errors: ValidationError[] = []
+
+  // Validate each field
+  const firstNameError = validateFirstName(shippingInfo.firstName)
+  if (firstNameError) errors.push(firstNameError)
+
+  const lastNameError = validateLastName(shippingInfo.lastName)
+  if (lastNameError) errors.push(lastNameError)
+
+  const emailError = validateEmail(shippingInfo.email)
+  if (emailError) errors.push(emailError)
+
+  const phoneError = validatePhone(shippingInfo.phone)
+  if (phoneError) errors.push(phoneError)
+
+  const provinceError = validateProvince(shippingInfo.province, provincesList)
+  if (provinceError) errors.push(provinceError)
+
+  const cityError = validateCity(
+    shippingInfo.city,
+    shippingInfo.province,
+    getCitiesByProvince,
+  )
+  if (cityError) errors.push(cityError)
+
+  const addressError = validateAddress(shippingInfo.address)
+  if (addressError) errors.push(addressError)
+
+  const postalCodeError = validatePostalCode(shippingInfo.postalCode)
+  if (postalCodeError) errors.push(postalCodeError)
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+  }
+}
+
+// ============ Real-time Validation Hook ============
+
+export const getFieldError = (
+  field: string,
+  value: any,
+  provincesList?: any[],
+  getCitiesByProvince?: (province: string) => any[],
+): string | null => {
+  let error: ValidationError | null = null
+
+  switch (field) {
+    case 'firstName':
+      error = validateFirstName(value)
+      break
+    case 'lastName':
+      error = validateLastName(value)
+      break
+    case 'email':
+      error = validateEmail(value)
+      break
+    case 'phone':
+      error = validatePhone(value)
+      break
+    case 'province':
+      error = validateProvince(value, provincesList || [])
+      break
+    case 'city':
+      error = validateCity(value, '', getCitiesByProvince || (() => []))
+      break
+    case 'address':
+      error = validateAddress(value)
+      break
+    case 'postalCode':
+      error = validatePostalCode(value)
+      break
+    default:
+      return null
+  }
+
+  return error?.message || null
+}
+
+// ============ Formatted Error Messages ============
+
+export const getValidationErrorsObject = (
+  errors: ValidationError[],
+): Record<string, string> => {
+  const errorObject: Record<string, string> = {}
+  errors.forEach((error) => {
+    errorObject[error.field] = error.message
+  })
+  return errorObject
+}
+
+// ============ Optional: Helper to validate identifier (email/phone) ============
+
+export async function validateIdentifierField(identifier: string) {
+  if (!identifier) {
+    return { isValid: false, error: 'ایمیل یا شماره تماس الزامی است' }
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (emailRegex.test(identifier)) {
+    if (identifier.length > 255) {
+      return { isValid: false, error: 'ایمیل باید حداکثر ۲۵۵ کاراکتر باشد' }
+    }
+    return {
+      isValid: true,
+      type: 'email',
+      value: identifier.trim().toLowerCase(),
+    }
+  }
+
+  // Validate phone
+  let phone = identifier.replace(/\D/g, '')
+
+  if (phone.startsWith('98') && phone.length === 12) {
+    phone = '0' + phone.slice(2)
+  } else if (phone.length === 10 && phone.startsWith('9')) {
+    phone = '0' + phone
+  }
+
+  if (!/^09\d{9}$/.test(phone)) {
+    return {
+      isValid: false,
+      error: 'شماره تماس معتبر نیست (مثال: 09123456789)',
+    }
+  }
+
+  return { isValid: true, type: 'phone', value: phone }
+}
+
+const testData1 = {
+  firstName: 'محمد',
+  lastName: 'رضایی',
+  province: 'تهران',
+  city: 'تهران',
+  email: 'mohammad.rezaei@example.com',
+  phone: '09123456789',
+  address: 'تهران، خیابان ولیعصر، نبستن خیابان مطهری، پلاک ۱۲۳، واحد ۵',
+  postalCode: '1234567890',
+  notes: 'سفارش را قبل از ظهر ارسال کنید',
 }
