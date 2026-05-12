@@ -117,6 +117,65 @@ export type UserInfo = Prisma.UserGetPayload<{
   }
 }>
 
+// Add FeedCategory types
+export type FeedCategorySummary = Prisma.FeedCategoryGetPayload<{
+  select: {
+    id: true
+    name: true
+    slug: true
+    iconPath: true
+    order: true
+  }
+}>
+
+export type FeedCategoryWithProducts = Prisma.FeedCategoryGetPayload<{
+  include: {
+    products: {
+      where: { isActive: true }
+      select: {
+        id: true
+        title: true
+        price: true
+        solution: true
+        slug: true
+        image: true
+        categoryId: true
+        category: {
+          select: {
+            name: true
+          }
+        }
+      }
+    }
+  }
+}>
+
+// Or if you want more control over the product fields
+export type FeedCategoryWithCustomProducts = Prisma.FeedCategoryGetPayload<{
+  select: {
+    id: true
+    name: true
+    slug: true
+    iconPath: true
+    order: true
+    products: {
+      select: {
+        id: true
+        title: true
+        price: true
+        solution: true
+        slug: true
+        image: true
+        category: {
+          select: {
+            name: true
+          }
+        }
+      }
+    }
+  }
+}>
+
 export type UserOrder = Prisma.UserGetPayload<{
   include: {
     orders: {

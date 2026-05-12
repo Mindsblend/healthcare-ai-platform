@@ -107,7 +107,7 @@ const RayFont = localFont({
 
 /* App Info and Metadata */
 export const metadata: Metadata = {
-  title: 'Attari24h',
+  title: 'زیستیار',
   description: 'An AI integrated healthcare platform',
 }
 

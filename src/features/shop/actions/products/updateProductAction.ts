@@ -27,7 +27,7 @@ export async function updateProductAction(
     }>
   },
 ): Promise<ProductDetail> {
-  const res = await fetch('/api/admin/products/update', {
+  const res = await fetch('/api/shop/products/update', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ productId, ...data }),

@@ -4,6 +4,19 @@ import { getRouteType } from '@/lib/paths'
 
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
+
+  // Handle root redirect for authenticated users to user feed
+  if (pathname === '/') {
+    const session = getSessionFromRequest(req)
+    if (session) {
+      // User is authenticated, redirect to feed
+      return NextResponse.redirect(new URL('/feed', req.url))
+    }
+    // Not authenticated, show landing page
+    return NextResponse.next()
+  }
+
+  // Check route types for other paths
   const routeType = getRouteType(pathname)
 
   // Public routes - no check

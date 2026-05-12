@@ -131,7 +131,7 @@ const Footer = () => {
       {/* Footer Bottom Links */}
       <div className="font-ray flex flex-wrap justify-center font-bold text-black sm:justify-between sm:text-sm xl:text-xl">
         <a href="#" className="hover:text-gray-200">
-          © ۲۰۲۵ عطاری ۲۴ ساعته – تمامی حقوق محفوظ است
+          © ۲۰۲۵ زیستیار – تمامی حقوق محفوظ است
         </a>
         <div className="flex flex-wrap sm:gap-5 xl:gap-8">
           <a href="#" className="hover:text-gray-200">

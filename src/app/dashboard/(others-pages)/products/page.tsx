@@ -448,7 +448,7 @@ const Products = () => {
                             onClick={async () => {
                               await handleDelete(product.id, product.title)
                             }}
-                            className="text-red-500 transition-colors hover:text-red-700"
+                            className="text-gray-500 transition-colors"
                             aria-label="حذف محصول"
                           >
                             <svg

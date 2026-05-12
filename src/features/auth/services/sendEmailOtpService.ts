@@ -15,7 +15,7 @@ export async function sendOtpViaEmail(email: string) {
   const code = generateOtp()
 
   await transporter.sendMail({
-    from: '"Attari24h" <no-reply@support.com>',
+    from: '"زیستیار" <no-reply@support.com>',
     to: email,
     subject: 'Your login code',
     text: `Your verification code is: ${code}`,

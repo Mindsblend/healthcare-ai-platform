@@ -156,6 +156,8 @@ model Product {
   // Relations
   categoryId  Int
   category    Category     @relation(fields: [categoryId], references: [id])
+  feedCategory   FeedCategory? @relation(fields: [feedCategoryId], references: [id])
+  feedCategoryId Int?
   icons       Icon[] // Top 3 risk removals or trust signals
   gains       Gain[] // Top 3 benefits
   faqs        Faq[] // Frequently asked questions
@@ -169,6 +171,18 @@ model Category {
   name     String    @unique
   iconPath String
   products Product[]
+}
+
+model FeedCategory {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique  // e.g., "Trending", "New Arrivals", "Best Sellers"
+  slug     String    @unique
+  order    Int       @default(0) // For sorting in the feed
+  
+  products Product[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Icon {
