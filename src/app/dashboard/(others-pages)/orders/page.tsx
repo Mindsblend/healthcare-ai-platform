@@ -1,6 +1,7 @@
+// features/shop/components/Orders.tsx
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useOrdersPreview } from '@/features/shop/hooks/orders/useOrdersPreview'
@@ -44,36 +45,74 @@ const Orders = () => {
   const TAX_RATE = 0.09
   const FREE_SHIPPING_THRESHOLD = 2_000_000
 
-  const [orderSubtotal, setOrderSubtotal] = useState(0)
-  const [orderTaxAmount, setOrderTaxAmount] = useState(0)
-  const [orderDeliveryAmount, setOrderDeliveryAmount] = useState(0)
+  const [orderSubtotal, setOrderSubtotal] = useState<number>(0)
+  const [orderTaxAmount, setOrderTaxAmount] = useState<number>(0)
+  const [orderDeliveryAmount, setOrderDeliveryAmount] = useState<number>(0)
 
   // Form state for editing order
-  const [orderId, setOrderId] = useState('')
-  const [shippingFirstName, setShippingFirstName] = useState('')
-  const [shippingLastName, setShippingLastName] = useState('')
-  const [shippingEmail, setShippingEmail] = useState('')
-  const [shippingPhone, setShippingPhone] = useState('')
-  const [shippingCity, setShippingCity] = useState('')
-  const [shippingProvince, setShippingProvince] = useState('')
-  const [shippingAddress, setShippingAddress] = useState('')
-  const [shippingPostalCode, setShippingPostalCode] = useState('')
+  const [orderId, setOrderId] = useState<string>('')
+  const [shippingFirstName, setShippingFirstName] = useState<string>('')
+  const [shippingLastName, setShippingLastName] = useState<string>('')
+  const [shippingEmail, setShippingEmail] = useState<string>('')
+  const [shippingPhone, setShippingPhone] = useState<string>('')
+  const [shippingCity, setShippingCity] = useState<string>('')
+  const [shippingProvince, setShippingProvince] = useState<string>('')
+  const [shippingAddress, setShippingAddress] = useState<string>('')
+  const [shippingPostalCode, setShippingPostalCode] = useState<string>('')
   const [selectedStatus, setSelectedStatus] = useState<OrderStatus>('PENDING')
-  const [shippingNotes, setShippingNotes] = useState('')
+  const [shippingNotes, setShippingNotes] = useState<string>('')
   const [createdAt, setCreatedAt] = useState<string>(new Date().toISOString())
   const [items, setItems] = useState<OrderItem[]>([])
+
+  // Search state
   const [searchValue, setSearchValue] = useState<string>('')
+  const [debouncedSearchValue, setDebouncedSearchValue] = useState<string>('')
+
+  // Pagination state
+  const [page, setPage] = useState<number>(1)
+
+  // Ref for debounce timer
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   const [selectedOrder, setSelectedOrder] = useState<OrderDetail | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isFetchingOrder, setIsFetchingOrder] = useState(false)
-  const [page, setPage] = useState(1)
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [isFetchingOrder, setIsFetchingOrder] = useState<boolean>(false)
 
-  // Filter orders based on search value
-  const filteredOrders = orders.filter((order) => {
-    if (!searchValue.trim()) return true
+  // Debounce search input
+  const handleSearchChange = useCallback((value: string) => {
+    // Clear previous timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+    }
 
-    const searchTerm = searchValue.toLowerCase().trim()
+    // Set new timer
+    debounceTimerRef.current = setTimeout(() => {
+      setDebouncedSearchValue(value)
+      setPage(1) // Reset to first page when search changes
+    }, 500)
+  }, [])
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+    }
+  }, [])
+
+  // Update search value when debounced value changes
+  const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setSearchValue(value)
+    handleSearchChange(value)
+  }
+
+  // Filter orders based on debounced search value
+  const filteredOrders = orders.filter((order: OrderSummary) => {
+    if (!debouncedSearchValue.trim()) return true
+
+    const searchTerm = debouncedSearchValue.toLowerCase().trim()
 
     return (
       order.id?.toLowerCase().includes(searchTerm) ||
@@ -85,11 +124,13 @@ const Orders = () => {
     )
   })
 
-  const sortedOrders = [...filteredOrders].sort((a, b) => {
-    const dateA = new Date(a.createdAt).getTime()
-    const dateB = new Date(b.createdAt).getTime()
-    return dateB - dateA
-  })
+  const sortedOrders = [...filteredOrders].sort(
+    (a: OrderSummary, b: OrderSummary) => {
+      const dateA = new Date(a.createdAt).getTime()
+      const dateB = new Date(b.createdAt).getTime()
+      return dateB - dateA
+    },
+  )
 
   const itemsPerPage = 7
   const startIndex = (page - 1) * itemsPerPage
@@ -152,7 +193,6 @@ const Orders = () => {
       const calculatedDeliveryAmount = isFreeShipping ? 0 : 300_000
       setOrderDeliveryAmount(calculatedDeliveryAmount)
     } else {
-      // Reset if no order is selected or items are missing
       setOrderSubtotal(0)
       setOrderTaxAmount(0)
       setOrderDeliveryAmount(0)
@@ -171,7 +211,14 @@ const Orders = () => {
     }
   }
 
-  if (!sortedOrders.length && !searchValue) {
+  // Clear search
+  const clearSearch = () => {
+    setSearchValue('')
+    setDebouncedSearchValue('')
+    setPage(1)
+  }
+
+  if (!sortedOrders.length && !debouncedSearchValue) {
     return (
       <LoadingBar loading={loading} error={error}>
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pt-4 pb-3 sm:px-6 dark:border-gray-800 dark:bg-white/[0.03]">
@@ -289,31 +336,58 @@ const Orders = () => {
               </p>
             </div>
 
-            <div className="relative">
-              <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2">
-                <svg
-                  className="fill-gray-500 dark:fill-gray-400"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
+            <div className="relative flex gap-2">
+              <div className="relative flex-1">
+                <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2">
+                  <svg
+                    className="fill-gray-500 dark:fill-gray-400"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z"
+                      fill=""
+                    />
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  placeholder="جست و جو کنید..."
+                  value={searchValue}
+                  onChange={handleSearchInput}
+                  className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden xl:w-[430px] dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
+                />
+              </div>
+
+              {/* Clear search button */}
+              {searchValue && (
+                <button
+                  onClick={clearSearch}
+                  className="flex h-11 items-center justify-center rounded-lg border border-gray-200 bg-white px-3 text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
+                  aria-label="پاک کردن جستجو"
                 >
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z"
-                    fill=""
-                  />
-                </svg>
-              </span>
-              <input
-                type="text"
-                placeholder="جست و جو کنید..."
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden xl:w-[430px] dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
-              />
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M18 6L6 18M6 6L18 18"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+              )}
             </div>
           </div>
 
@@ -367,7 +441,7 @@ const Orders = () => {
               </TableHeader>
 
               <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-                {currentData.length === 0 && searchValue ? (
+                {currentData.length === 0 && debouncedSearchValue ? (
                   <TableRow>
                     <td colSpan={7} className="h-64 text-center">
                       <div className="flex flex-col items-center justify-center">
@@ -391,7 +465,7 @@ const Orders = () => {
                           نتیجه‌ای یافت نشد
                         </h3>
                         <p className="text-sm text-gray-500">
-                          سفارشی با "{searchValue}" پیدا نشد.
+                          سفارشی با "{debouncedSearchValue}" پیدا نشد.
                         </p>
                       </div>
                     </td>
@@ -448,18 +522,20 @@ const Orders = () => {
               </TableBody>
             </Table>
           </div>
+
           <hr />
+
           <div className="pt-3">
             <Pagination
               currentPage={page}
               totalPages={Math.ceil(sortedOrders.length / itemsPerPage)}
-              onPageChange={(newPage) => setPage(newPage)}
+              onPageChange={(newPage: number) => setPage(newPage)}
             />
           </div>
         </div>
       </div>
 
-      {/* Modal Popup */}
+      {/* Modal Popup - same as before */}
       {isModalOpen && selectedOrder && (
         <div className="fixed inset-0 z-100000 flex items-center justify-center bg-black/50">
           <div className="mx-4 max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white dark:bg-gray-900">
@@ -476,7 +552,7 @@ const Orders = () => {
               </button>
             </div>
 
-            {/* Content */}
+            {/* Content - same as before */}
             <div className="space-y-6 p-4">
               {/* Customer Information */}
               <div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useDeleteProduct } from '@/features/shop/hooks/products/deleteProduct'
 import { useUpdateProduct } from '@/features/shop/hooks/products/updateProduct'
 import { useProductsPreview } from '@/features/shop/hooks/products/useProductsPreview'
@@ -35,25 +35,83 @@ const Products = () => {
   const [selectedProduct, setSelectedProduct] = useState<ProductDetail | null>(
     null,
   )
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isFetchingProduct, setIsFetchingProduct] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [isFetchingProduct, setIsFetchingProduct] = useState<boolean>(false)
 
   // Form state for editing product
-  const [title, setTitle] = useState('')
-  const [price, setPrice] = useState('')
-  const [slug, setSlug] = useState('')
-  const [solution, setSolution] = useState('')
-  const [image, setImage] = useState('')
-  const [description, setDescription] = useState('')
+  const [title, setTitle] = useState<string>('')
+  const [price, setPrice] = useState<string>('')
+  const [slug, setSlug] = useState<string>('')
+  const [solution, setSolution] = useState<string>('')
+  const [image, setImage] = useState<string>('')
+  const [description, setDescription] = useState<string>('')
   const [categoryId, setCategoryId] = useState<number | null>(null)
+
+  // Search and pagination state
   const [searchValue, setSearchValue] = useState<string>('')
-  const [page, setPage] = useState(1)
+  const [debouncedSearchValue, setDebouncedSearchValue] = useState<string>('')
+  const [page, setPage] = useState<number>(1)
 
-  // Filter products based on search value
-  const filteredProducts = productsPreview.filter((product) => {
-    if (!searchValue.trim()) return true
+  // Ref for debounce timer
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-    const searchTerm = searchValue.toLowerCase().trim()
+  // Effect to update form when fetchedProduct changes
+  useEffect(() => {
+    if (fetchedProduct) {
+      setSelectedProduct(fetchedProduct)
+      setTitle(fetchedProduct.title)
+      setPrice(fetchedProduct.price.toString())
+      setSlug(fetchedProduct.slug)
+      setSolution(fetchedProduct.solution)
+      setImage(fetchedProduct.image)
+      setDescription(fetchedProduct.description || '')
+      setCategoryId(fetchedProduct.categoryId)
+      setIsFetchingProduct(false)
+    }
+  }, [fetchedProduct])
+
+  // Debounce search input
+  const handleSearchChange = useCallback((value: string) => {
+    // Clear previous timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+    }
+
+    // Set new timer
+    debounceTimerRef.current = setTimeout(() => {
+      setDebouncedSearchValue(value)
+      setPage(1) // Reset to first page when search changes
+    }, 500)
+  }, [])
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+    }
+  }, [])
+
+  // Handle search input
+  const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setSearchValue(value)
+    handleSearchChange(value)
+  }
+
+  // Clear search
+  const clearSearch = () => {
+    setSearchValue('')
+    setDebouncedSearchValue('')
+    setPage(1)
+  }
+
+  // Filter products based on debounced search value
+  const filteredProducts = productsPreview.filter((product: ProductSummary) => {
+    if (!debouncedSearchValue.trim()) return true
+
+    const searchTerm = debouncedSearchValue.toLowerCase().trim()
 
     return (
       product.id?.toString().includes(searchTerm) ||
@@ -67,6 +125,7 @@ const Products = () => {
   const itemsPerPage = 7
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage)
 
+  // Safe page calculation
   const safePage = totalPages === 0 ? 1 : Math.min(page, totalPages)
 
   const startIndex = (safePage - 1) * itemsPerPage
@@ -74,16 +133,7 @@ const Products = () => {
   const currentData = filteredProducts.slice(startIndex, endIndex)
 
   const showEmptyState =
-    !loading && !error && !productsPreview.length && !searchValue
-
-  const handleSearch = (value: string) => {
-    setSearchValue(value)
-    setPage(1)
-  }
-
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage)
-  }
+    !loading && !error && !productsPreview.length && !debouncedSearchValue
 
   const handleDelete = async (id: number, title: string) => {
     const ok = window.confirm(`آیا از حذف "${title}" مطمئن هستید؟`)
@@ -99,7 +149,6 @@ const Products = () => {
 
     try {
       const fullProduct = await getProductBySlug(product.slug)
-
       setSelectedProduct(fullProduct)
       setTitle(fullProduct.title)
       setPrice(fullProduct.price.toString())
@@ -135,6 +184,10 @@ const Products = () => {
     }
   }
 
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage)
+  }
+
   return (
     <LoadingBar loading={loading} error={error}>
       <div>
@@ -151,33 +204,61 @@ const Products = () => {
               </p>
             </div>
 
-            <div className="flex items-center justify-center gap-3">
-              <div className="relative">
-                <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2">
-                  <svg
-                    className="fill-gray-500 dark:fill-gray-400"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="relative flex gap-2">
+                <div className="relative">
+                  <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2">
+                    <svg
+                      className="fill-gray-500 dark:fill-gray-400"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        clipRule="evenodd"
+                        d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z"
+                        fill=""
+                      />
+                    </svg>
+                  </span>
+                  <input
+                    type="text"
+                    value={searchValue}
+                    onChange={handleSearchInput}
+                    placeholder="جست و جو کنید..."
+                    className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden xl:w-[430px] dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
+                  />
+                </div>
+
+                {/* Clear search button */}
+                {searchValue && (
+                  <button
+                    onClick={clearSearch}
+                    className="flex h-11 w-11 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700"
+                    aria-label="پاک کردن جستجو"
                   >
-                    <path
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                      d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z"
-                      fill=""
-                    />
-                  </svg>
-                </span>
-                <input
-                  type="text"
-                  value={searchValue}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  placeholder="جست و جو کنید..."
-                  className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden xl:w-[430px] dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
-                />
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M18 6L6 18M6 6L18 18"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                )}
               </div>
+
               <Link
                 href="/dashboard/addproduct"
                 className="bg-brand-500 shadow-theme-xs hover:bg-brand-600 inline-flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-white transition"
@@ -264,7 +345,7 @@ const Products = () => {
                           </svg>
                         </div>
 
-                        <h3 className="mb-2 text-lg font-semibold">
+                        <h3 className="text-color-title-on-light mb-2 text-lg font-semibold">
                           محصولی وجود ندارد
                         </h3>
 
@@ -274,7 +355,7 @@ const Products = () => {
                       </div>
                     </td>
                   </TableRow>
-                ) : currentData.length === 0 && searchValue ? (
+                ) : currentData.length === 0 && debouncedSearchValue ? (
                   <TableRow>
                     <td colSpan={6} className="h-64 text-center">
                       <div className="flex flex-col items-center justify-center">
@@ -294,12 +375,18 @@ const Products = () => {
                             />
                           </svg>
                         </div>
-                        <h3 className="mb-2 text-lg font-semibold text-black">
+                        <h3 className="text-color-title-on-light mb-2 text-lg font-semibold">
                           نتیجه‌ای یافت نشد
                         </h3>
                         <p className="text-sm text-gray-500">
-                          محصولی با "{searchValue}" پیدا نشد.
+                          محصولی با "{debouncedSearchValue}" پیدا نشد.
                         </p>
+                        <button
+                          onClick={clearSearch}
+                          className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+                        >
+                          پاک کردن جستجو
+                        </button>
                       </div>
                     </td>
                   </TableRow>
@@ -318,19 +405,24 @@ const Products = () => {
                                 ? product.image
                                 : '/images/placeholder.png'
                             }
-                            alt="products image"
+                            alt={product.title}
                             width={48}
                             height={48}
-                            className="cursor-pointer rounded"
+                            className="cursor-pointer rounded object-cover"
                             onClick={() => handleViewProduct(product)}
                           />
-                          {product.title}
+                          <span className="font-medium text-gray-800 dark:text-white/90">
+                            {product.title}
+                          </span>
                         </div>
                       </TableCell>
 
                       <TableCell className="text-theme-sm py-3 text-center font-medium text-gray-800 dark:text-white/90">
                         <div className="flex items-center justify-center">
-                          <button onClick={() => handleViewProduct(product)}>
+                          <button
+                            onClick={() => handleViewProduct(product)}
+                            className="transition-opacity hover:opacity-80"
+                          >
                             <Image
                               src="/images/eye.svg"
                               alt="مشاهده جزئیات"
@@ -343,7 +435,7 @@ const Products = () => {
                       </TableCell>
 
                       <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
-                        {product.category.name}
+                        {product.category?.name || 'دسته‌بندی نشده'}
                       </TableCell>
 
                       <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
@@ -356,6 +448,8 @@ const Products = () => {
                             onClick={async () => {
                               await handleDelete(product.id, product.title)
                             }}
+                            className="text-red-500 transition-colors hover:text-red-700"
+                            aria-label="حذف محصول"
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -363,7 +457,7 @@ const Products = () => {
                               viewBox="0 0 24 24"
                               strokeWidth="1.5"
                               stroke="currentColor"
-                              className="size-5 text-[#687287]"
+                              className="h-5 w-5"
                             >
                               <path
                                 strokeLinecap="round"
@@ -383,7 +477,7 @@ const Products = () => {
 
           {filteredProducts.length > 0 && (
             <>
-              <hr />
+              <hr className="my-2" />
               <div className="pt-3">
                 <Pagination
                   currentPage={safePage}
@@ -398,10 +492,10 @@ const Products = () => {
 
       {/* Modal Popup for Editing Product */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-100000 flex items-center justify-center bg-black/50">
-          <div className="mx-4 max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white dark:bg-gray-900">
+        <div className="fixed inset-0 z-100000 flex items-center justify-center bg-black/50 p-4">
+          <div className="mx-auto max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white dark:bg-gray-900">
             {/* Header */}
-            <div className="flex items-center justify-between border-b p-4">
+            <div className="sticky top-0 flex items-center justify-between border-b bg-white p-4 dark:bg-gray-900">
               <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
                 {isFetchingProduct
                   ? 'در حال بارگذاری...'
@@ -409,7 +503,7 @@ const Products = () => {
               </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                className="rounded-lg p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
               >
                 ✕
               </button>
@@ -419,8 +513,8 @@ const Products = () => {
             {isFetchingProduct ? (
               <div className="flex items-center justify-center p-8">
                 <div className="text-center">
-                  <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-gray-900"></div>
-                  <p className="mt-4 text-gray-600">
+                  <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-gray-900 dark:border-white"></div>
+                  <p className="mt-4 text-gray-600 dark:text-gray-400">
                     در حال بارگذاری اطلاعات محصول...
                   </p>
                 </div>
@@ -430,17 +524,18 @@ const Products = () => {
                 <div className="space-y-6 p-4">
                   {/* Product Image Preview */}
                   <div className="flex justify-center">
-                    <Image
-                      src={
-                        image && image.startsWith('http')
-                          ? image
-                          : '/images/placeholder.png'
-                      }
-                      alt={title}
-                      width={120}
-                      height={120}
-                      className="rounded-lg object-cover"
-                    />
+                    <div className="relative h-32 w-32 overflow-hidden rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700">
+                      <Image
+                        src={
+                          image && image.startsWith('http')
+                            ? image
+                            : '/images/placeholder.png'
+                        }
+                        alt={title || 'Product image'}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
                   </div>
 
                   {/* Title */}
@@ -452,7 +547,7 @@ const Products = () => {
                       type="text"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
-                      className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:text-white/90"
+                      className="w-full rounded-lg border border-gray-300 p-2.5 text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:text-white/90"
                       dir="rtl"
                     />
                   </div>
@@ -466,20 +561,20 @@ const Products = () => {
                       type="number"
                       value={price}
                       onChange={(e) => setPrice(e.target.value)}
-                      className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:text-white/90"
+                      className="w-full rounded-lg border border-gray-300 p-2.5 text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:text-white/90"
                     />
                   </div>
 
                   {/* Slug */}
                   <div>
                     <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      اسلاگ
+                      اسلاگ (slug)
                     </label>
                     <input
                       type="text"
                       value={slug}
                       onChange={(e) => setSlug(e.target.value)}
-                      className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:text-white/90"
+                      className="w-full rounded-lg border border-gray-300 p-2.5 font-mono text-sm text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:text-white/90"
                       dir="ltr"
                     />
                   </div>
@@ -493,7 +588,7 @@ const Products = () => {
                       value={solution}
                       onChange={(e) => setSolution(e.target.value)}
                       rows={3}
-                      className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:text-white/90"
+                      className="w-full rounded-lg border border-gray-300 p-2.5 text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:text-white/90"
                       dir="rtl"
                     />
                   </div>
@@ -507,8 +602,9 @@ const Products = () => {
                       type="text"
                       value={image}
                       onChange={(e) => setImage(e.target.value)}
-                      className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:text-white/90"
+                      className="w-full rounded-lg border border-gray-300 p-2.5 font-mono text-sm text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:text-white/90"
                       dir="ltr"
+                      placeholder="https://example.com/image.jpg"
                     />
                   </div>
 
@@ -521,24 +617,24 @@ const Products = () => {
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       rows={4}
-                      className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:border-gray-700 dark:text-white/90"
+                      className="w-full rounded-lg border border-gray-300 p-2.5 text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:text-white/90"
                       dir="rtl"
                     />
                   </div>
                 </div>
 
                 {/* Footer */}
-                <div className="flex justify-end gap-3 border-t p-4">
+                <div className="sticky bottom-0 flex justify-end gap-3 border-t bg-white p-4 dark:bg-gray-900">
                   <button
                     onClick={() => setIsModalOpen(false)}
-                    className="rounded-lg border border-gray-300 px-4 py-2 text-gray-800 hover:bg-gray-50 dark:border-gray-700 dark:text-white/90 dark:hover:bg-gray-800"
+                    className="rounded-lg border border-gray-300 px-4 py-2 text-gray-800 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-white/90 dark:hover:bg-gray-800"
                   >
                     انصراف
                   </button>
                   <button
                     onClick={handleApplyChanges}
                     disabled={updating}
-                    className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+                    className="rounded-lg bg-blue-600 px-6 py-2 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {updating ? 'در حال ذخیره...' : 'اعمال تغییرات'}
                   </button>

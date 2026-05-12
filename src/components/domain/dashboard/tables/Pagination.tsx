@@ -1,6 +1,7 @@
+// components/domain/dashboard/tables/Pagination.tsx
 'use client'
 
-type PaginationProps = {
+interface PaginationProps {
   currentPage: number
   totalPages: number
   onPageChange: (page: number) => void
@@ -11,43 +12,90 @@ const Pagination: React.FC<PaginationProps> = ({
   totalPages,
   onPageChange,
 }) => {
-  const pagesAroundCurrent = Array.from(
-    { length: Math.min(3, totalPages) },
-    (_, i) => i + Math.max(currentPage - 1, 1),
-  )
+  const safeCurrentPage = Math.min(Math.max(currentPage, 1), totalPages || 1)
+
+  if (totalPages <= 1) return null
+
+  const getPageNumbers = (): (number | string)[] => {
+    const delta = 2
+    const range: number[] = []
+    const rangeWithDots: (number | string)[] = []
+    let l: number
+
+    for (let i = 1; i <= totalPages; i++) {
+      if (
+        i === 1 ||
+        i === totalPages ||
+        (i >= safeCurrentPage - delta && i <= safeCurrentPage + delta)
+      ) {
+        range.push(i)
+      }
+    }
+
+    range.forEach((i) => {
+      if (l) {
+        if (i - l === 2) {
+          rangeWithDots.push(l + 1)
+        } else if (i - l !== 1) {
+          rangeWithDots.push('...')
+        }
+      }
+      rangeWithDots.push(i)
+      l = i
+    })
+
+    return rangeWithDots
+  }
+
+  const handlePageChange = (page: number | string) => {
+    if (
+      typeof page === 'number' &&
+      page !== safeCurrentPage &&
+      page >= 1 &&
+      page <= totalPages
+    ) {
+      onPageChange(page)
+    }
+  }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center justify-center gap-2 py-4">
       <button
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        className="shadow-theme-xs mr-2.5 flex h-10 items-center justify-center rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
+        onClick={() => handlePageChange(safeCurrentPage - 1)}
+        disabled={safeCurrentPage === 1}
+        className="flex h-10 items-center justify-center rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
+        aria-label="صفحه قبلی"
       >
-        Previous
+        قبلی
       </button>
+
       <div className="flex items-center gap-2">
-        {currentPage > 3 && <span className="px-2">...</span>}
-        {pagesAroundCurrent.map((page) => (
+        {getPageNumbers().map((page, index) => (
           <button
-            key={page}
-            onClick={() => onPageChange(page)}
-            className={`rounded px-4 py-2 ${
-              currentPage === page
-                ? 'bg-brand-500 text-white'
-                : 'text-gray-700 dark:text-gray-400'
-            } hover:text-brand-500 dark:hover:text-brand-500 flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium hover:bg-blue-500/8`}
+            key={index}
+            onClick={() => handlePageChange(page)}
+            disabled={page === '...'}
+            className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+              safeCurrentPage === page
+                ? 'bg-brand-500 text-white shadow-md'
+                : page === '...'
+                  ? 'cursor-default text-gray-400 dark:text-gray-600'
+                  : 'text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
+            }`}
+            aria-label={typeof page === 'number' ? `صفحه ${page}` : '...'}
           >
             {page}
           </button>
         ))}
-        {currentPage < totalPages - 2 && <span className="px-2">...</span>}
       </div>
+
       <button
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className="shadow-theme-xs ml-2.5 flex h-10 items-center justify-center rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
+        onClick={() => handlePageChange(safeCurrentPage + 1)}
+        disabled={safeCurrentPage === totalPages}
+        className="flex h-10 items-center justify-center rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
+        aria-label="صفحه بعدی"
       >
-        Next
+        بعدی
       </button>
     </div>
   )
