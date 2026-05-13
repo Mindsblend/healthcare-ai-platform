@@ -15,6 +15,9 @@ const Product = ({ product }: Props) => {
     await addToCart(product.id, 1)
   }
 
+  // Get the category icon path, fallback to default
+  const categoryIcon = product.category?.iconPath || '/images/makeup.svg'
+
   return (
     <div className="bg-page flex max-h-min w-full flex-col rounded-[22px] border border-black/25 p-2.5">
       {/* Image Section */}
@@ -22,13 +25,8 @@ const Product = ({ product }: Props) => {
         className="relative aspect-square w-full rounded-3xl bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${product.image})` }}
       >
-        <div className="bg-page absolute top-3.5 right-4 z-10 h-12 w-12 rounded-full p-2.5">
-          <Image
-            src="/images/makeup.svg"
-            alt="Product icon"
-            width={30}
-            height={30}
-          />
+        <div className="bg-page absolute top-3.5 right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full p-2.5">
+          <Image src={categoryIcon} alt="Product icon" width={20} height={20} />
         </div>
 
         {/* Bottom Actions */}

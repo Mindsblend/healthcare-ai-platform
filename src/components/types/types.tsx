@@ -143,6 +143,7 @@ export type FeedCategoryWithProducts = Prisma.FeedCategoryGetPayload<{
         category: {
           select: {
             name: true
+            iconPath: true
           }
         }
       }
@@ -169,6 +170,7 @@ export type FeedCategoryWithCustomProducts = Prisma.FeedCategoryGetPayload<{
         category: {
           select: {
             name: true
+            iconPath: true
           }
         }
       }
@@ -229,6 +231,7 @@ export type ProductSummary = Prisma.ProductGetPayload<{
     category: {
       select: {
         name: true
+        iconPath: true
       }
     }
   }

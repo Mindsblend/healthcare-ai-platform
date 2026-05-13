@@ -1,5 +1,4 @@
 // features/shop/services/FeedService.ts
-import { FeedCategoryWithProducts } from '@/components/types/types'
 import { prisma } from '@/lib/prisma'
 
 export class FeedService {
@@ -7,7 +6,7 @@ export class FeedService {
    * Get all feed categories with their products
    * For the main user feed page
    */
-  static async fetchFeedCategories(): Promise<FeedCategoryWithProducts[]> {
+  static async fetchFeedCategories() {
     return prisma.feedCategory.findMany({
       orderBy: { order: 'asc' },
       include: {
@@ -24,10 +23,11 @@ export class FeedService {
             category: {
               select: {
                 name: true,
+                iconPath: true,
               },
             },
           },
-          take: 10, // Limit to 10 products per category
+          take: 10,
         },
       },
     })
@@ -35,7 +35,6 @@ export class FeedService {
 
   /**
    * Get a single feed category by slug with its products
-   * For viewing all products in a specific feed category
    */
   static async fetchFeedCategoryBySlug(slug: string) {
     const category = await prisma.feedCategory.findUnique({
@@ -51,9 +50,11 @@ export class FeedService {
             slug: true,
             image: true,
             description: true,
+            categoryId: true,
             category: {
               select: {
                 name: true,
+                iconPath: true,
               },
             },
           },
@@ -109,9 +110,11 @@ export class FeedService {
         slug: true,
         image: true,
         description: true,
+        categoryId: true,
         category: {
           select: {
             name: true,
+            iconPath: true,
           },
         },
       },
@@ -126,6 +129,7 @@ export class FeedService {
       },
     })
 
+    // Return without the type annotation to avoid mismatch
     return {
       category: {
         id: category.id,
@@ -164,9 +168,11 @@ export class FeedService {
             solution: true,
             slug: true,
             image: true,
+            categoryId: true,
             category: {
               select: {
                 name: true,
+                iconPath: true,
               },
             },
           },

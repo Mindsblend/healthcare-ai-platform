@@ -50,6 +50,7 @@ export class ProductService {
         category: {
           select: {
             name: true,
+            iconPath: true,
           },
         },
       },
