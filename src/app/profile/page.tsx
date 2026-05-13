@@ -21,7 +21,7 @@ interface FormErrors {
 }
 
 export default function Profile() {
-  const { userInfo, loading, error } = useUserInfo()
+  const { userInfo } = useUserInfo()
   const { updateUserProfile, loading: updateLoading } = useUpdateUserProfile()
   const router = useRouter()
 
@@ -170,32 +170,6 @@ export default function Profile() {
     }
     setErrors({})
     setSaveStatus('idle')
-  }
-
-  if (loading) {
-    return (
-      <div className="flex-1 rounded-lg border-[1.5px] border-[#D9D9D9] bg-white px-10 py-8">
-        <h2 className="font-aria mb-6 text-xl font-bold text-black">
-          پروفایل کاربری
-        </h2>
-        <div className="py-12 text-center">
-          <p className="text-black">در حال بارگذاری...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="flex-1 rounded-lg border-[1.5px] border-[#D9D9D9] bg-white px-10 py-8">
-        <h2 className="font-aria mb-6 text-xl font-bold text-black">
-          پروفایل کاربری
-        </h2>
-        <div className="rounded-lg bg-red-50 p-4 text-red-600">
-          خطا در بارگذاری اطلاعات. لطفاً دوباره تلاش کنید.
-        </div>
-      </div>
-    )
   }
 
   return (

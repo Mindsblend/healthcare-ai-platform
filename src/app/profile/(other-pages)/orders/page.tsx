@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { useUserOrder } from '@/features/shop/hooks/profile/useUserOrder'
 import { OrderStatus } from '@/components/types/types'
 import { getStatusLabel, toPersianDigit } from '@/lib/helpers'
+import LoadingBar from '@/components/layout/LoadingBar'
 
 const OrdersContent = () => {
   const { userOrder, loading, error } = useUserOrder()
@@ -81,166 +82,146 @@ const OrdersContent = () => {
     return dateObj.toLocaleDateString('fa-IR')
   }
 
-  if (loading) {
-    return (
-      <div className="flex-1 rounded-lg border-[1.5px] border-[#D9D9D9] bg-white px-10 py-8">
-        <h2 className="font-aria mb-6 text-xl font-bold text-black">
-          سفارش ها
-        </h2>
-        <div className="text-center">در حال بارگذاری...</div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="flex-1 rounded-lg border-[1.5px] border-[#D9D9D9] bg-white px-10 py-8">
-        <h2 className="font-aria mb-6 text-xl font-bold text-black">
-          سفارش ها
-        </h2>
-        <div className="rounded-lg bg-red-50 p-4 text-red-600">
-          خطا در بارگذاری سفارش‌ها. لطفاً دوباره تلاش کنید.
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="w-full">
-      <div className="w-full rounded-lg border-[1.5px] border-[#D9D9D9] bg-white px-10 py-8">
-        <h2 className="font-aria mb-6 text-xl font-bold text-black">
-          سفارش ها
-        </h2>
+    <LoadingBar loading={loading} error={error}>
+      <div className="w-full">
+        <div className="w-full rounded-lg border-[1.5px] border-[#D9D9D9] bg-white px-10 py-8">
+          <h2 className="font-aria mb-6 text-xl font-bold text-black">
+            سفارش ها
+          </h2>
 
-        {/* Status Filters */}
-        <div className="mb-3.75 flex w-full flex-wrap items-center gap-5">
-          {statusGroups.map((group) => (
-            <button
-              key={group.id}
-              onClick={() => setActiveStatus(group.id)}
-              className={`flex h-7 cursor-pointer items-center gap-1 transition-all ${
-                activeStatus === group.id
-                  ? 'border-b-2 border-[#161A1D]'
-                  : 'opacity-70 hover:opacity-100'
-              }`}
-            >
-              <span
-                className={`font-ray font-medium ${
-                  activeStatus === group.id ? 'text-black' : 'text-[#A2A2A2]'
-                }`}
-              >
-                {group.label}
-              </span>
-              <div
-                className={`font-aria flex h-5 w-5 items-center justify-center rounded-xs text-center text-sm font-semibold ${
+          {/* Status Filters */}
+          <div className="mb-3.75 flex w-full flex-wrap items-center gap-5">
+            {statusGroups.map((group) => (
+              <button
+                key={group.id}
+                onClick={() => setActiveStatus(group.id)}
+                className={`flex h-7 cursor-pointer items-center gap-1 transition-all ${
                   activeStatus === group.id
-                    ? 'bg-[#161A1D] text-white'
-                    : 'bg-[#D9D9D9] text-black'
+                    ? 'border-b-2 border-[#161A1D]'
+                    : 'opacity-70 hover:opacity-100'
                 }`}
               >
-                {getStatusCount(group.statuses)}
-              </div>
-            </button>
-          ))}
-        </div>
-
-        <hr className="w-full" />
-
-        <div className="mt-7.5 w-full">
-          {filteredOrders.length === 0 ? (
-            <div className="w-full py-10 text-center text-gray-500">
-              سفارشی با این وضعیت وجود ندارد
-            </div>
-          ) : (
-            <div className="w-full space-y-5">
-              {filteredOrders.map((order) => (
-                <div
-                  key={order.id}
-                  className="w-full rounded-[10px] border border-[#D9D9D9] p-5"
+                <span
+                  className={`font-ray font-medium ${
+                    activeStatus === group.id ? 'text-black' : 'text-[#A2A2A2]'
+                  }`}
                 >
-                  {/* Status Badge */}
-                  <div className="w-full">
-                    <span
-                      className={`font-aria inline-block rounded-full px-3 py-1 text-sm font-medium ${
-                        order.status === 'DELIVERED'
-                          ? 'bg-green-100 text-green-600'
-                          : order.status === 'CANCELED'
-                            ? 'bg-red-100 text-red-600'
-                            : order.status === 'PENDING'
-                              ? 'bg-yellow-100 text-yellow-600'
-                              : 'bg-blue-100 text-blue-600'
-                      }`}
-                    >
-                      {getStatusLabel(order.status as OrderStatus)}
-                    </span>
-                  </div>
-
-                  <div className="font-ray mt-3 flex w-full flex-wrap gap-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-500">تاریخ:</span>
-                      <span className="text-black">
-                        {formatDate(order.createdAt)}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <div className="h-1.5 w-1.5 rounded-full bg-[#FF0000]"></div>
-                      <span className="text-sm text-gray-500">کد سفارش:</span>
-                      <span className="font-medium text-black">{order.id}</span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <div className="h-1.5 w-1.5 rounded-full bg-[#FF0000]"></div>
-                      <span className="text-sm text-gray-500">مبلغ کل:</span>
-                      <span className="font-bold text-black">
-                        {formatPrice(order.totalPrice)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Products List */}
-                  <div className="mt-4 w-full border-t border-[#D9D9D9] pt-4">
-                    {order.items && order.items.length > 0 ? (
-                      order.items.map((item) => (
-                        <div
-                          key={item.id}
-                          className="flex w-full items-center gap-4 py-2"
-                        >
-                          {item.product?.image && (
-                            <img
-                              src={item.product.image}
-                              alt={item.product.title}
-                              className="h-16 w-16 rounded-md object-cover"
-                            />
-                          )}
-                          <div className="flex-1">
-                            <p className="font-medium text-black">
-                              {item.product?.title || 'محصول'}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              تعداد: {toPersianDigit(item.quantity)}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="font-medium text-black">
-                              {formatPrice(item.price * item.quantity)}
-                            </p>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="py-2 text-center text-gray-500">
-                        آیتمی برای این سفارش وجود ندارد
-                      </div>
-                    )}
-                  </div>
+                  {group.label}
+                </span>
+                <div
+                  className={`font-aria flex h-5 w-5 items-center justify-center rounded-xs text-center text-sm font-semibold ${
+                    activeStatus === group.id
+                      ? 'bg-[#161A1D] text-white'
+                      : 'bg-[#D9D9D9] text-black'
+                  }`}
+                >
+                  {getStatusCount(group.statuses)}
                 </div>
-              ))}
-            </div>
-          )}
+              </button>
+            ))}
+          </div>
+
+          <hr className="w-full" />
+
+          <div className="mt-7.5 w-full">
+            {filteredOrders.length === 0 ? (
+              <div className="w-full py-10 text-center text-gray-500">
+                سفارشی با این وضعیت وجود ندارد
+              </div>
+            ) : (
+              <div className="w-full space-y-5">
+                {filteredOrders.map((order) => (
+                  <div
+                    key={order.id}
+                    className="w-full rounded-[10px] border border-[#D9D9D9] p-5"
+                  >
+                    {/* Status Badge */}
+                    <div className="w-full">
+                      <span
+                        className={`font-aria inline-block rounded-full px-3 py-1 text-sm font-medium ${
+                          order.status === 'DELIVERED'
+                            ? 'bg-green-100 text-green-600'
+                            : order.status === 'CANCELED'
+                              ? 'bg-red-100 text-red-600'
+                              : order.status === 'PENDING'
+                                ? 'bg-yellow-100 text-yellow-600'
+                                : 'bg-blue-100 text-blue-600'
+                        }`}
+                      >
+                        {getStatusLabel(order.status as OrderStatus)}
+                      </span>
+                    </div>
+
+                    <div className="font-ray mt-3 flex w-full flex-wrap gap-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-500">تاریخ:</span>
+                        <span className="text-black">
+                          {formatDate(order.createdAt)}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <div className="h-1.5 w-1.5 rounded-full bg-[#FF0000]"></div>
+                        <span className="text-sm text-gray-500">کد سفارش:</span>
+                        <span className="font-medium text-black">
+                          {order.id}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <div className="h-1.5 w-1.5 rounded-full bg-[#FF0000]"></div>
+                        <span className="text-sm text-gray-500">مبلغ کل:</span>
+                        <span className="font-bold text-black">
+                          {formatPrice(order.totalPrice)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Products List */}
+                    <div className="mt-4 w-full border-t border-[#D9D9D9] pt-4">
+                      {order.items && order.items.length > 0 ? (
+                        order.items.map((item) => (
+                          <div
+                            key={item.id}
+                            className="flex w-full items-center gap-4 py-2"
+                          >
+                            {item.product?.image && (
+                              <img
+                                src={item.product.image}
+                                alt={item.product.title}
+                                className="h-16 w-16 rounded-md object-cover"
+                              />
+                            )}
+                            <div className="flex-1">
+                              <p className="font-medium text-black">
+                                {item.product?.title || 'محصول'}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                تعداد: {toPersianDigit(item.quantity)}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="font-medium text-black">
+                                {formatPrice(item.price * item.quantity)}
+                              </p>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="py-2 text-center text-gray-500">
+                          آیتمی برای این سفارش وجود ندارد
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </LoadingBar>
   )
 }
 

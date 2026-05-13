@@ -27,6 +27,7 @@ import {
   OrderStatus,
   OrderItem,
 } from '@/components/types/types'
+import LoadingBar from '@/components/layout/LoadingBar'
 
 export default function RecentOrders() {
   const router = useRouter()
@@ -147,107 +148,105 @@ export default function RecentOrders() {
     }
   }
 
-  if (loading) return <div>در حال بارگذاری سفارشات...</div>
-
-  if (error) return <div>خطا در بارگذاری سفارشات: {error}</div>
-
   if (!orders.length) {
     return (
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pt-4 pb-3 sm:px-6 dark:border-gray-800 dark:bg-white/3">
-        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            سفارشات اخیر
-          </h3>
+      <LoadingBar loading={loading} error={error}>
+        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pt-4 pb-3 sm:px-6 dark:border-gray-800 dark:bg-white/3">
+          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+              سفارشات اخیر
+            </h3>
 
-          <Link
-            href="/dashboard/orders"
-            className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/3 dark:hover:text-gray-200"
-          >
-            مشاهده کامل
-          </Link>
-        </div>
+            <Link
+              href="/dashboard/orders"
+              className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/3 dark:hover:text-gray-200"
+            >
+              مشاهده کامل
+            </Link>
+          </div>
 
-        <div className="max-w-full overflow-x-auto">
-          <Table>
-            <TableHeader className="border-y border-gray-100 dark:border-gray-800">
-              <TableRow>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  شماره سفارش
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  مشاهده جزئیات
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  نام مشتری
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  شماره تلفن
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  تاریخ سفارش
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  وضعیت
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  جمع کل
-                </TableCell>
-              </TableRow>
-            </TableHeader>
+          <div className="max-w-full overflow-x-auto">
+            <Table>
+              <TableHeader className="border-y border-gray-100 dark:border-gray-800">
+                <TableRow>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    شماره سفارش
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    مشاهده جزئیات
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    نام مشتری
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    شماره تلفن
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    تاریخ سفارش
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    وضعیت
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    جمع کل
+                  </TableCell>
+                </TableRow>
+              </TableHeader>
 
-            <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-              <TableRow>
-                <td colSpan={7} className="h-64 text-center">
-                  <div className="flex flex-col items-center justify-center">
-                    <div className="mb-4 text-gray-400">
-                      <svg
-                        width="48"
-                        height="48"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M3 7l9-4 9 4v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
-                        <path d="M3 7l9 6 9-6" />
-                      </svg>
+              <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
+                <TableRow>
+                  <td colSpan={7} className="h-64 text-center">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="mb-4 text-gray-400">
+                        <svg
+                          width="48"
+                          height="48"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M3 7l9-4 9 4v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
+                          <path d="M3 7l9 6 9-6" />
+                        </svg>
+                      </div>
+
+                      <h3 className="text-color-title-on-light mb-2 text-lg font-semibold">
+                        سفارشی وجود ندارد
+                      </h3>
+
+                      <p className="text-sm text-gray-500">
+                        هنوز هیچ سفارشی ثبت نشده است.
+                      </p>
                     </div>
-
-                    <h3 className="text-color-title-on-light mb-2 text-lg font-semibold">
-                      سفارشی وجود ندارد
-                    </h3>
-
-                    <p className="text-sm text-gray-500">
-                      هنوز هیچ سفارشی ثبت نشده است.
-                    </p>
-                  </div>
-                </td>
-              </TableRow>
-            </TableBody>
-          </Table>
+                  </td>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
         </div>
-      </div>
+      </LoadingBar>
     )
   }
 
