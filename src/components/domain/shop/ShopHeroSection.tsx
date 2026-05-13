@@ -5,17 +5,17 @@ const ShopHeroSection = () => {
     <div className="container flex w-full items-center justify-center lg:justify-between">
       {/* Right: Text + Buttons */}
       <div className="mt-12 flex flex-col justify-center max-lg:items-center max-lg:text-center">
-        <h1 className="font-aria text-color-title-on-light max-w-sm text-4xl font-extrabold sm:text-[40px] lg:max-w-118.25 xl:text-[64px]">
+        <h1 className="font-aria text-color-title-on-light max-w-sm text-4xl font-extrabold sm:text-[40px] lg:max-w-118.25 lg:text-[64px]">
           سلامتی امروز، پلی به فردایی شادتر
         </h1>
-        <p className="font-ray text-color-body-on-light mt-3.75 max-w-115.75 text-sm font-medium xl:text-lg">
+        <p className="font-ray text-color-body-on-light mt-3.75 max-w-115.75 text-sm font-medium lg:text-lg">
           به دنیای محصولات طبیعی و ارگانیک خوش آمدید. اینجا می‌توانید متناسب با
           نیازهای خود، بهترین انتخاب‌ها را داشته باشید و با اطمینان بیشتری از
           سلامت و کیفیت زندگی‌تان مراقبت کنید.
         </p>
 
         <div className="mt-5 mb-6 flex gap-4">
-          <button className="primary-btn flex cursor-pointer items-center justify-between rounded-full bg-black text-white">
+          <button className="primary-btn flex cursor-pointer items-center justify-between rounded-full bg-black text-white transition hover:bg-gray-800">
             {/* Button text */}
             <span className="font-ray pr-2 font-medium">تست هوش مصنوعی</span>
 

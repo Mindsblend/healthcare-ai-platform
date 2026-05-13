@@ -467,6 +467,12 @@ const Orders = () => {
                         <p className="text-sm text-gray-500">
                           سفارشی با "{debouncedSearchValue}" پیدا نشد.
                         </p>
+                        <button
+                          onClick={clearSearch}
+                          className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+                        >
+                          پاک کردن جستجو
+                        </button>
                       </div>
                     </td>
                   </TableRow>
