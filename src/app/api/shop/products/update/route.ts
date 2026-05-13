@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
       image,
       description,
       categoryId,
+      feedCategoryId,
       isActive,
       icons,
       gains,
@@ -40,6 +41,8 @@ export async function POST(req: NextRequest) {
     if (image !== undefined) allowedUpdates.image = image
     if (description !== undefined) allowedUpdates.description = description
     if (categoryId !== undefined) allowedUpdates.categoryId = categoryId
+    if (feedCategoryId !== undefined)
+      allowedUpdates.feedCategoryId = feedCategoryId
     if (icons !== undefined) allowedUpdates.icons = icons
     if (gains !== undefined) allowedUpdates.gains = gains
     if (faqs !== undefined) allowedUpdates.faqs = faqs

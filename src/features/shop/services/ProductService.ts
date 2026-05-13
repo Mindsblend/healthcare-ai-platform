@@ -28,6 +28,7 @@ interface UpdateProductDTO {
   image?: string
   description?: string
   categoryId?: number
+  feedCategoryId?: number
   isActive?: boolean
   icons?: iconType[]
   gains?: gainType[]
@@ -140,6 +141,7 @@ export class ProductService {
       title: data.title,
       price: data.price,
       categoryId: data.categoryId,
+      feedCategoryId: data.feedCategoryId,
       slug: data.slug,
       solution: data.solution,
       image: data.image,

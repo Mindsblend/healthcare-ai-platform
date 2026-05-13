@@ -3,23 +3,21 @@
 import { useState, useMemo } from 'react'
 import Image from 'next/image'
 import { useCategories } from '@/features/shop/hooks/categories/useCategories'
-import { useProductsPreview } from '@/features/shop/hooks/products/useProductsPreview'
 import BundleSwiper from '@/components/layout/BundleSwiper'
+import { ProductSummary } from '@/components/types/types'
 
-const ShopBundle = () => {
-  const { productsPreview, loading, error } = useProductsPreview()
+interface ShopBundleProps {
+  products: ProductSummary[]
+}
+
+const ShopBundle = ({ products }: ShopBundleProps) => {
   const { categories } = useCategories()
-
   const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null)
 
-  const hasCategories = Boolean(categories?.length)
-
   const filteredProducts = useMemo(() => {
-    if (!activeCategoryId) return productsPreview
-    return productsPreview.filter(
-      (product) => product.categoryId === activeCategoryId,
-    )
-  }, [productsPreview, activeCategoryId])
+    if (!activeCategoryId) return products
+    return products.filter((product) => product.categoryId === activeCategoryId)
+  }, [products, activeCategoryId])
 
   if (!filteredProducts.length) return null
 
@@ -49,7 +47,7 @@ const ShopBundle = () => {
               <h1 className="font-aria text-color-title-on-light text-xl font-bold">
                 دسته بندی ها
               </h1>
-              {categories!.map((category) => (
+              {categories?.map((category) => (
                 <div
                   key={category.id}
                   onClick={() =>
@@ -57,21 +55,19 @@ const ShopBundle = () => {
                       activeCategoryId === category.id ? null : category.id,
                     )
                   }
-                  className={`flex items-center justify-center ${
+                  className={`flex cursor-pointer items-center justify-center ${
                     activeCategoryId === category.id
                       ? 'font-bold text-black'
                       : 'text-color-body-on-light'
                   } `}
                 >
-                  <span className="font-ray cursor-pointer text-xl">
-                    {category.name}
-                  </span>
+                  <span className="font-ray text-xl">{category.name}</span>
                 </div>
               ))}
             </div>
             <hr className="my-7 w-full border border-[#E9E9E8]" />
           </div>
-          <BundleSwiper />
+          <BundleSwiper products={filteredProducts} />
         </div>
       </div>
     </div>

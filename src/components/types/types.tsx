@@ -242,6 +242,7 @@ export type ProductDetail = Prisma.ProductGetPayload<{
     faqs: true
     aiResponses: true
     category: true
+    feedCategoryId: true
   }
 }>
 

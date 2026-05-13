@@ -45,46 +45,45 @@ export default function Feed() {
     )
   }
 
-  // Find specific categories by slug
-  const bestSellers = feedCategories?.find((cat) => cat.slug === 'best-sellers')
-  const recommended = feedCategories?.find(
-    (cat) => cat.slug === 'recommended-for-you',
+  // Find special offers for the bundle
+  const specialOffers = feedCategories?.find(
+    (cat) => cat.slug === 'limited-offers',
   )
-  const newArrivals = feedCategories?.find((cat) => cat.slug === 'new-arrivals')
+
+  // Filter out categories that have no products (excluding limited-offers)
+  const categoriesWithProducts =
+    feedCategories?.filter(
+      (cat) =>
+        cat.slug !== 'limited-offers' &&
+        cat.products &&
+        cat.products.length > 0,
+    ) || []
 
   return (
     <div>
       <ShopHeroSection />
       <ProductCategorySection />
 
-      {/* Best Sellers Section */}
-      {bestSellers && bestSellers.products.length > 0 && (
-        <ShopProductsSection
-          title={bestSellers.name}
-          description="برترین و پر فروش ترین محصولات این هفته"
-          products={bestSellers.products}
-        />
-      )}
+      {/* Dynamically map through all categories with products */}
+      {categoriesWithProducts.map((category, index) => {
+        // Check if this is the best-sellers category to show bundle after it
+        const showBundle = category.slug === 'best-sellers'
 
-      <ShopBundle />
-
-      {/* Recommended Section (can be personalized later) */}
-      {recommended && recommended.products.length > 0 && (
-        <ShopProductsSection
-          title={recommended.name}
-          description="محصولاتی که با توجه به نیازها و سبک زندگی شما، بیشترین تاثیر را دارند"
-          products={recommended.products}
-        />
-      )}
-
-      {/* New Arrivals Section */}
-      {newArrivals && newArrivals.products.length > 0 && (
-        <ShopProductsSection
-          title={newArrivals.name}
-          description="تازه‌ترین محصولات و انتخاب‌های فصلی برای تجربه‌ای نو و به‌روز"
-          products={newArrivals.products}
-        />
-      )}
+        return (
+          <div key={category.id}>
+            <ShopProductsSection
+              title={category.name}
+              description={category.description || ''}
+              products={category.products}
+            />
+            {showBundle &&
+              specialOffers &&
+              specialOffers.products.length > 0 && (
+                <ShopBundle products={specialOffers.products} />
+              )}
+          </div>
+        )
+      })}
     </div>
   )
 }

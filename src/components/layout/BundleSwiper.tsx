@@ -1,16 +1,17 @@
-import {
-  Navigation,
-  Pagination,
-  Autoplay,
-} from 'swiper/modules'
-
+import { Navigation, Pagination, Autoplay } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
-
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import Bundle from './Bundle'
+import { ProductSummary } from '@/components/types/types'
 
-const BundleSwiper = () => {
+interface BundleSwiperProps {
+  products: ProductSummary[]
+}
+
+const BundleSwiper = ({ products }: BundleSwiperProps) => {
+  if (!products || products.length === 0) return null
+
   return (
     <div className="flex flex-col items-center justify-center">
       <Swiper
@@ -23,15 +24,11 @@ const BundleSwiper = () => {
         autoplay={{ delay: 3000, disableOnInteraction: false }}
         className="w-full"
       >
-        <SwiperSlide className="w-full">
-          <Bundle />
-        </SwiperSlide>
-        <SwiperSlide className="w-full">
-          <Bundle />
-        </SwiperSlide>
-        <SwiperSlide className="w-full">
-          <Bundle />
-        </SwiperSlide>
+        {products.map((product) => (
+          <SwiperSlide key={product.id} className="w-full">
+            <Bundle product={product} />
+          </SwiperSlide>
+        ))}
       </Swiper>
       <div className="mt-3 flex items-center justify-center">
         <div id="custom-pagination" />

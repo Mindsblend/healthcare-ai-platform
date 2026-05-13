@@ -5,6 +5,8 @@ import { useDeleteProduct } from '@/features/shop/hooks/products/deleteProduct'
 import { useUpdateProduct } from '@/features/shop/hooks/products/updateProduct'
 import { useProductsPreview } from '@/features/shop/hooks/products/useProductsPreview'
 import { useProductBySlug } from '@/features/shop/hooks/products/useProductBySlug'
+import { useCategories } from '@/features/shop/hooks/categories/useCategories'
+import { useFeedCategories } from '@/features/shop/hooks/feed/useFeedCategories'
 import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
 import Image from 'next/image'
 import {
@@ -23,6 +25,8 @@ import LoadingBar from '@/components/layout/LoadingBar'
 const Products = () => {
   const router = useRouter()
   const { productsPreview, loading, error } = useProductsPreview()
+  const { categories } = useCategories()
+  const { feedCategories } = useFeedCategories()
   const { deleteProduct } = useDeleteProduct()
   const { updateProduct, loading: updating } = useUpdateProduct()
 
@@ -46,6 +50,9 @@ const Products = () => {
   const [image, setImage] = useState<string>('')
   const [description, setDescription] = useState<string>('')
   const [categoryId, setCategoryId] = useState<number | null>(null)
+  const [feedCategoryId, setFeedCategoryId] = useState<number | undefined>(
+    undefined,
+  )
 
   // Search and pagination state
   const [searchValue, setSearchValue] = useState<string>('')
@@ -66,6 +73,7 @@ const Products = () => {
       setImage(fetchedProduct.image)
       setDescription(fetchedProduct.description || '')
       setCategoryId(fetchedProduct.categoryId)
+      setFeedCategoryId(fetchedProduct.feedCategoryId || undefined)
       setIsFetchingProduct(false)
     }
   }, [fetchedProduct])
@@ -157,6 +165,7 @@ const Products = () => {
       setImage(fullProduct.image)
       setDescription(fullProduct.description || '')
       setCategoryId(fullProduct.categoryId)
+      setFeedCategoryId(fullProduct.feedCategoryId || undefined)
     } catch (error) {
       console.error('Failed to fetch product details:', error)
     } finally {
@@ -176,6 +185,7 @@ const Products = () => {
         image,
         description,
         categoryId: categoryId!,
+        feedCategoryId: feedCategoryId,
       })
       setIsModalOpen(false)
       router.refresh()
@@ -565,6 +575,52 @@ const Products = () => {
                     />
                   </div>
 
+                  {/* Product Category Dropdown */}
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      دسته‌بندی محصول
+                    </label>
+                    <select
+                      value={categoryId || ''}
+                      onChange={(e) =>
+                        setCategoryId(
+                          e.target.value ? Number(e.target.value) : null,
+                        )
+                      }
+                      className="w-full rounded-lg border border-gray-300 p-2.5 text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:text-white/90"
+                    >
+                      <option value="">انتخاب دسته‌بندی</option>
+                      {categories?.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Feed Category Dropdown */}
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      دسته‌بندی فید
+                    </label>
+                    <select
+                      value={feedCategoryId || ''}
+                      onChange={(e) =>
+                        setFeedCategoryId(
+                          e.target.value ? Number(e.target.value) : undefined,
+                        )
+                      }
+                      className="w-full rounded-lg border border-gray-300 p-2.5 text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:text-white/90"
+                    >
+                      <option value="">انتخاب دسته‌بندی فید</option>
+                      {feedCategories?.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
                   {/* Slug */}
                   <div>
                     <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -593,18 +649,59 @@ const Products = () => {
                     />
                   </div>
 
-                  {/* Image URL */}
+                  {/* Image Upload */}
                   <div>
                     <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      آدرس تصویر
+                      تصویر محصول
                     </label>
+
+                    {/* Current Image Preview */}
+                    {image && (
+                      <div className="mb-3">
+                        <p className="mb-2 text-sm text-gray-500">
+                          تصویر فعلی:
+                        </p>
+                        <div className="relative h-32 w-32 overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+                          <Image
+                            src={
+                              image.startsWith('http')
+                                ? image
+                                : `/uploads/${image}`
+                            }
+                            alt="Product image"
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* File Upload */}
                     <input
-                      type="text"
-                      value={image}
-                      onChange={(e) => setImage(e.target.value)}
-                      className="w-full rounded-lg border border-gray-300 p-2.5 font-mono text-sm text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:text-white/90"
-                      dir="ltr"
-                      placeholder="https://example.com/image.jpg"
+                      type="file"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0]
+                        if (!file) return
+
+                        const formData = new FormData()
+                        formData.append('file', file)
+
+                        try {
+                          const response = await fetch('/api/upload', {
+                            method: 'POST',
+                            body: formData,
+                          })
+
+                          const data = await response.json()
+                          if (data.url) {
+                            setImage(data.url)
+                          }
+                        } catch (error) {
+                          console.error('Upload failed:', error)
+                        }
+                      }}
+                      className="w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:text-white/90"
                     />
                   </div>
 

@@ -11,6 +11,7 @@ interface UpdateProductData {
   image?: string
   description?: string
   categoryId?: number
+  feedCategoryId?: number
   isActive?: boolean
   icons?: Array<{
     title: string
