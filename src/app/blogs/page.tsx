@@ -2,6 +2,7 @@
 
 import { useBlogsPreview } from '@/features/shop/hooks/blogs/useBlogsPreview'
 import Blog from '@/components/layout/Blog'
+import { BlogType } from '@/components/types/types'
 import Image from 'next/image'
 import LoadingBar from '@/components/layout/LoadingBar'
 
@@ -12,9 +13,12 @@ const page = () => {
     return null
   }
 
-  const latestBlog = blogs.reduce((latest, current) =>
-    new Date(current.updatedAt) > new Date(latest.updatedAt) ? current : latest,
+  const sortedBlogs: BlogType[] = [...blogs].sort(
+    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
   )
+
+  const latestBlog: BlogType = sortedBlogs[0]
+  const remainingBlogs: BlogType[] = sortedBlogs.slice(1)
 
   return (
     <LoadingBar loading={loading} error={error}>
@@ -106,7 +110,7 @@ const page = () => {
 
         {/* All Blogs */}
         <div className="mt-14 grid flex-1 grid-cols-1 justify-items-center gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          {blogs.map((blog) => (
+          {remainingBlogs.map((blog) => (
             <Blog key={blog.id} blog={blog} />
           ))}
         </div>

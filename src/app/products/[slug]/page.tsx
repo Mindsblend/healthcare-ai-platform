@@ -9,19 +9,27 @@ import { useProductBySlug } from '@/features/shop/hooks/products/useProductBySlu
 import { useProductsByCategoryId } from '@/features/shop/hooks/products/useProductsByCategoryId'
 import { gainType, iconType } from '@/components/types/types'
 import LoadingBar from '@/components/layout/LoadingBar'
+import { useCart } from '@/features/shop/hooks/cart/useCart'
 
 export default function ProductPage() {
   const params = useParams()
   const slug = decodeURIComponent(params.slug as string)
 
   const { product, loading, error } = useProductBySlug(slug)
+  const { addToCart, loading: cartLoading } = useCart()
+
   const { productsByCategoryId: relatedProducts, loading: relatedLoading } =
     useProductsByCategoryId(product?.categoryId || 0)
+
+  const handleAddToCart = async () => {
+    if (cartLoading || !product) return
+    await addToCart(product.id, 1)
+  }
 
   return (
     <LoadingBar loading={loading} error={error}>
       {product && (
-        <div className="container">
+        <div className="container mt-14">
           <div className="flex items-center justify-between gap-x-6 max-lg:flex-col">
             <div className="shrink-2 max-lg:w-full max-lg:pt-5">
               <h1 className="font-aria text-color-title-on-light text-4xl font-extrabold sm:text-[40px]">
@@ -86,9 +94,9 @@ export default function ProductPage() {
                 )}
               </div>
               <div className="mt-5 flex items-center gap-3.5">
-                <Link
-                  href="/"
-                  className="primary-btn text-color-title-on-dark font-ray flex items-center justify-between rounded-full bg-black font-medium whitespace-nowrap"
+                <button
+                  onClick={() => handleAddToCart()}
+                  className="primary-btn text-color-title-on-dark font-ray flex items-center justify-between rounded-full bg-black font-medium whitespace-nowrap transition hover:bg-gray-800"
                 >
                   <span className="pr-2">افزودن به سبد خرید</span>
                   <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white xl:h-10 xl:w-10">
@@ -100,7 +108,7 @@ export default function ProductPage() {
                       className="max-xl:h-3.75 max-xl:w-3.75"
                     />
                   </div>
-                </Link>
+                </button>
                 <Link
                   href="/"
                   className="secondary-btn text-color-title-on-light flex items-center justify-center rounded-full bg-[#F2F2F2] font-extrabold"
@@ -119,7 +127,7 @@ export default function ProductPage() {
                   <div className="bg-page absolute top-4.25 right-4.25 z-10 h-12 w-12 rounded-full p-2.25">
                     <Image
                       src="/images/makeup.svg"
-                      alt="Product icon"
+                      alt="Productproduct icon"
                       width={30}
                       height={30}
                     />
