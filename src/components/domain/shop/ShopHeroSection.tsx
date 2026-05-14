@@ -1,51 +1,41 @@
 import Image from 'next/image'
+import Link from 'next/link'
 
 const ShopHeroSection = () => {
   return (
-    <div className="container flex w-full items-center justify-center lg:justify-between">
+    <div className="container flex w-full flex-col items-center justify-center text-center">
       {/* Right: Text + Buttons */}
-      <div className="mt-12 flex flex-col justify-center max-lg:items-center max-lg:text-center">
-        <h1 className="font-aria text-color-title-on-light max-w-sm text-4xl font-extrabold sm:text-[40px] lg:max-w-118.25 lg:text-[64px]">
-          سلامتی امروز، پلی به فردایی شادتر
+      <div className="mt-12 flex flex-col items-center justify-center">
+        <h1 className="font-aria text-color-title-on-light max-w-2xl text-4xl font-extrabold sm:text-[40px] xl:text-[64px]">
+          اشکان عزیز، انتخاب‌های سالم منتظر شماست
         </h1>
-        <p className="font-ray text-color-body-on-light mt-3.75 max-w-115.75 text-sm font-medium lg:text-lg">
-          به دنیای محصولات طبیعی و ارگانیک خوش آمدید. اینجا می‌توانید متناسب با
-          نیازهای خود، بهترین انتخاب‌ها را داشته باشید و با اطمینان بیشتری از
-          سلامت و کیفیت زندگی‌تان مراقبت کنید.
+        <p className="font-ray text-color-body-on-light mt-3.75 max-w-2xl text-sm font-medium xl:text-lg">
+          هنوز تست هوش مصنوعی را انجام نداده‌ای. با انجام این تست می‌توانی نمره
+          سلامت خودت را ببینی، نقاط قوت و ضعف‌هات را بشناسی و محصولاتی که مخصوص
+          تو هستند را دریافت کنی. فقط ۵ دقیقه زمان می‌برد و کاملاً رایگان است.
         </p>
 
-        <div className="mt-5 mb-6 flex gap-4">
-          <button className="primary-btn flex cursor-pointer items-center justify-between rounded-full bg-black text-white transition hover:bg-gray-800">
-            {/* Button text */}
-            <span className="font-ray pr-2 font-medium">تست هوش مصنوعی</span>
-
-            {/* Circle with icon */}
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white xl:h-10 xl:w-10">
-              <Image
-                src="/images/arrow.svg"
-                alt="Top Right Image"
-                width={20}
-                height={20}
-                className="max-xl:h-3.75 max-xl:w-3.75"
-              />
-            </div>
-          </button>
-          <button className="secondary-btn flex items-center justify-center rounded-full border border-black font-medium whitespace-nowrap text-black transition hover:bg-black hover:text-white">
-            آشنایی با محصولات
-          </button>
+        <div className="mt-5 mb-6 flex flex-wrap justify-center gap-4">
+          <Link href="/ai">
+            <button className="primary-btn flex cursor-pointer items-center justify-between rounded-full bg-black text-white">
+              <span className="font-ray pr-2 font-medium">تست هوش مصنوعی</span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white xl:h-10 xl:w-10">
+                <Image
+                  src="/images/arrow.svg"
+                  alt="Arrow icon"
+                  width={20}
+                  height={20}
+                  className="max-xl:h-3.75 max-xl:w-3.75"
+                />
+              </div>
+            </button>
+          </Link>
+          <Link href="/products">
+            <button className="secondary-btn flex items-center justify-center rounded-full border border-black font-medium whitespace-nowrap text-black transition hover:bg-black hover:text-white">
+              آشنایی با محصولات
+            </button>
+          </Link>
         </div>
-      </div>
-      {/* Left: Image */}
-      <div className="hidden lg:block">
-        <Image
-          src="/images/basket.svg"
-          alt="Healthy Lifestyle"
-          width={500}
-          height={100}
-          priority
-          fetchPriority="high"
-          loading="eager"
-        />
       </div>
     </div>
   )

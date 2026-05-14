@@ -282,15 +282,15 @@ const AddressContent = () => {
       {isModalOpen && (
         <div className="fixed inset-0 z-100000 flex items-center justify-center bg-black/50">
           {/* Modal content container */}
-          <div className="mx-4 flex max-h-[90vh] w-full max-w-2xl flex-col rounded-lg bg-white shadow-xl dark:bg-gray-900">
+          <div className="mx-4 flex max-h-[90vh] w-full max-w-2xl flex-col rounded-lg bg-white shadow-xl">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-gray-400 p-4">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+              <h2 className="text-xl font-semibold text-gray-800">
                 افزودن ادرس جدید
               </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-gray-500 hover:text-gray-700 focus:outline-none dark:text-gray-400 dark:hover:text-gray-200"
+                className="cursor-pointer text-gray-800 hover:text-gray-700 focus:outline-none"
               >
                 ✕
               </button>

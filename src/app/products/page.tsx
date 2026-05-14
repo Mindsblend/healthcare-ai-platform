@@ -8,11 +8,14 @@ import { useCategories } from '@/features/shop/hooks/categories/useCategories'
 import Product from '@/components/layout/Product'
 import PriceRangeSlider from '@/components/domain/shop/product/PriceRangeSlider'
 import LoadingBar from '@/components/layout/LoadingBar'
+import Pagination from '@/components/domain/dashboard/tables/Pagination'
 
 const Page = () => {
   const { productsPreview, loading, error } = useProductsPreview()
   const { categories } = useCategories()
   const searchParams = useSearchParams()
+
+  const [page, setPage] = useState<number>(1)
 
   const [isCategoryOpen, setIsCategoryOpen] = useState(true)
   const [isPriceOpen, setIsPriceOpen] = useState(true)
@@ -71,6 +74,16 @@ const Page = () => {
     appliedMaxPrice,
     appliedSearchQuery,
   ])
+
+  const itemsPerPage = 7
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage)
+
+  // Safe page calculation
+  const safePage = totalPages === 0 ? 1 : Math.min(page, totalPages)
+
+  const startIndex = (safePage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const currentData = filteredProducts.slice(startIndex, endIndex)
 
   const appliedCategoryNames = useMemo(() => {
     if (appliedCategoryIds.size === 0) return []
@@ -157,6 +170,10 @@ const Page = () => {
         </button>
       </div>
     )
+  }
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage)
   }
 
   return (
@@ -338,17 +355,22 @@ const Page = () => {
           </aside>
 
           {/* ===== Products Grid ===== */}
-          {filteredProducts.length === 0 ? (
+          {currentData.length === 0 ? (
             <EmptyState />
           ) : (
             <div className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4 sm:grid-cols-2 sm:gap-6 lg:gap-8 xl:grid-cols-3">
-              {filteredProducts.map((product) => (
+              {currentData.map((product) => (
                 <Product key={product.id} product={product} />
               ))}
             </div>
           )}
         </div>
       </section>
+      <Pagination
+        currentPage={safePage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
     </LoadingBar>
   )
 }

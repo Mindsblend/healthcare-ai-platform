@@ -15,7 +15,7 @@ export default function AI() {
       </p>
 
       <div className="mt-6.5 flex flex-row items-center justify-center gap-12">
-        <div className="text-color-title-on-light flex flex-col items-center justify-center gap-2">
+        <div className="text-color-title-on-light flex w-36 flex-col items-center justify-center gap-2">
           <Image
             src="/images/diamond.svg"
             alt="Diamond"
@@ -25,7 +25,7 @@ export default function AI() {
           <p className="font-ray text-center text-sm xl:text-lg">۱۰۰% رایگان</p>
         </div>
 
-        <div className="text-color-title-on-light flex flex-col items-center justify-center gap-2">
+        <div className="text-color-title-on-light flex w-36 flex-col items-center justify-center gap-2">
           <h1 className="font-aria flex items-center justify-center text-5xl font-bold">
             ۵۰۰
           </h1>
@@ -34,7 +34,7 @@ export default function AI() {
           </p>
         </div>
 
-        <div className="text-color-title-on-light flex flex-col items-center justify-center gap-2">
+        <div className="text-color-title-on-light flex w-36 flex-col items-center justify-center gap-2">
           <Image src="/images/brain.svg" alt="brain" width={49} height={49} />
           <p className="font-ray text-center text-sm xl:text-lg">
             برگرفته از علم پزشکی
@@ -42,20 +42,10 @@ export default function AI() {
         </div>
       </div>
 
-      <button className="mt-6.75 flex h-[54px] w-[210px] cursor-pointer items-center justify-between rounded-full bg-black px-2 text-white">
-        {/* Button text */}
-        <span className="font-aria pr-2 text-base font-medium">
-          شروع تحلیل هوشمند
-        </span>
-
-        {/* Circle with icon */}
+      <button className="mt-6.75 flex h-13.5 w-52.5 cursor-pointer items-center justify-between rounded-full bg-black px-2 text-white">
+        <span className="font-aria pr-2 text-base">شروع تحلیل هوشمند</span>
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white">
-          <Image
-            src="/images/arrow.svg"
-            alt="Top Right Image"
-            width={20}
-            height={20}
-          />
+          <Image src="/images/arrow.svg" alt="Arrow" width={20} height={20} />
         </div>
       </button>
       <span className="font-ray text-color-title-on-light mt-2 mb-10 text-xs font-bold">

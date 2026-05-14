@@ -58,8 +58,8 @@ const Footer = () => {
             </h3>
             <ul className="font-ray space-y-2 sm:text-sm xl:text-lg">
               <li>
-                <a href="#" className="hover:text-gray-300">
-                  بلاگ
+                <a href="/products" className="hover:text-gray-300">
+                  محصولات
                 </a>
               </li>
               <li>
@@ -69,7 +69,7 @@ const Footer = () => {
               </li>
               <li>
                 <a href="#" className="hover:text-gray-300">
-                  فروشگاه
+                  بلاگ
                 </a>
               </li>
             </ul>
@@ -82,18 +82,27 @@ const Footer = () => {
             </h3>
             <ul className="font-ray space-y-2 sm:text-sm xl:text-lg">
               <li>
-                <a href="#" className="hover:text-gray-300">
-                  روغن‌ها
+                <a
+                  href="/products?categoryId=6"
+                  className="hover:text-gray-300"
+                >
+                  لوازم خانه
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-gray-300">
-                  عرقیجات
+                <a
+                  href="/products?categoryId=5"
+                  className="hover:text-gray-300"
+                >
+                  موادغذایی
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-gray-300">
-                  دمنوش‌ها
+                <a
+                  href="/products?categoryId=3"
+                  className="hover:text-gray-300"
+                >
+                  مراقبت ذهنی
                 </a>
               </li>
             </ul>

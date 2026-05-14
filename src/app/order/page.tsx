@@ -723,7 +723,8 @@ const CheckoutPage = () => {
                     height={50}
                   />
                 </div>
-                <div
+                {/* For now we only support zarrinpal for the mvp. Other payment methods like the mellat will be added later */}
+                {/* <div
                   onClick={() => setActiveBtn('mellat')}
                   className={`flex h-19.5 cursor-pointer items-center justify-center rounded-2xl px-1 py-2.25 ${
                     activeBtn === 'mellat'
@@ -737,7 +738,7 @@ const CheckoutPage = () => {
                     width={56}
                     height={56}
                   />
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

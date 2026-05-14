@@ -59,28 +59,30 @@ const Pagination: React.FC<PaginationProps> = ({
   }
 
   return (
-    <div className="flex items-center justify-center gap-2 py-4">
+    <div className="flex items-center justify-center gap-2 py-6">
+      {/* Previous Button */}
       <button
         onClick={() => handlePageChange(safeCurrentPage - 1)}
         disabled={safeCurrentPage === 1}
-        className="flex h-10 items-center justify-center rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
+        className="group relative flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
         aria-label="صفحه قبلی"
       >
-        قبلی
+        <span className="hidden sm:inline">قبلی</span>
       </button>
 
-      <div className="flex items-center gap-2">
+      {/* Page Numbers */}
+      <div className="flex items-center gap-1.5">
         {getPageNumbers().map((page, index) => (
           <button
             key={index}
             onClick={() => handlePageChange(page)}
             disabled={page === '...'}
-            className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+            className={`relative flex h-10 min-w-[2.5rem] cursor-pointer items-center justify-center rounded-lg px-2 py-2 text-sm font-medium transition-all duration-200 ${
               safeCurrentPage === page
-                ? 'bg-brand-500 text-white shadow-md'
+                ? 'bg-blue-500 text-white shadow-md shadow-blue-200 hover:bg-blue-600'
                 : page === '...'
-                  ? 'cursor-default text-gray-400 dark:text-gray-600'
-                  : 'text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
+                  ? 'cursor-default text-gray-400'
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
             }`}
             aria-label={typeof page === 'number' ? `صفحه ${page}` : '...'}
           >
@@ -89,13 +91,14 @@ const Pagination: React.FC<PaginationProps> = ({
         ))}
       </div>
 
+      {/* Next Button */}
       <button
         onClick={() => handlePageChange(safeCurrentPage + 1)}
         disabled={safeCurrentPage === totalPages}
-        className="flex h-10 items-center justify-center rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
+        className="group relative flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
         aria-label="صفحه بعدی"
       >
-        بعدی
+        <span className="hidden sm:inline">بعدی</span>
       </button>
     </div>
   )
