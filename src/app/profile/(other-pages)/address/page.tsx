@@ -19,10 +19,14 @@ import {
 } from '@/lib/helpers'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { City, ShippingInfo } from '@/components/types/types'
+import { getSession } from '@/features/auth/services/sessionService'
+import { useUpdateUserProfile } from '@/features/shop/hooks/profile/updateUserProfile'
 
-const AddressContent = () => {
+const AddressContent = async () => {
   const { userAddress, loading, error } = useUserAddress()
   const { createUserAddress } = useCreateUserAddress()
+  const { updateUserProfile } = useUpdateUserProfile()
+  const user = await getSession()
 
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
     firstName: '',
@@ -193,6 +197,16 @@ const AddressContent = () => {
 
     try {
       await createUserAddress(shippingInfo)
+
+      // If its the first address user is adding and user has no addresses, update user profile with the data provided
+      if (!userAddress?.addresses && user?.id) {
+        await updateUserProfile(user?.id, {
+          firstName: shippingInfo.firstName,
+          lastName: shippingInfo.lastName,
+          email: shippingInfo.email,
+          phone: shippingInfo.phone,
+        })
+      }
 
       alert('ادرس جدید با موفقیت ثبت شد!')
     } catch (err) {

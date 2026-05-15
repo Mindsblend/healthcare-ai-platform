@@ -276,7 +276,7 @@ const CheckoutPage = async () => {
         paymentMethod: activeBtn,
       })
 
-      // If its the first time the user is placing an order, update user profile with the data provided
+      // If its the first time the user is placing an order and user has no addresses, update user profile with the data provided
       if (!userAddress?.addresses && isAddingNewAddress && user?.id) {
         await updateUserProfile(user?.id, {
           firstName: shippingInfo.firstName,
