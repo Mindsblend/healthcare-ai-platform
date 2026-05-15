@@ -196,8 +196,6 @@ const AddressContent = async () => {
     }
 
     try {
-      await createUserAddress(shippingInfo)
-
       // If its the first address user is adding and user has no addresses, update user profile with the data provided
       if (!userAddress?.addresses && user?.id) {
         await updateUserProfile(user?.id, {
@@ -207,6 +205,8 @@ const AddressContent = async () => {
           phone: shippingInfo.phone,
         })
       }
+
+      await createUserAddress(shippingInfo)
 
       alert('ادرس جدید با موفقیت ثبت شد!')
     } catch (err) {

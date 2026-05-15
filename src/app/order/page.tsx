@@ -250,6 +250,16 @@ const CheckoutPage = async () => {
     }
 
     try {
+      // If its the first time the user is placing an order and user has no addresses, update user profile with the data provided
+      if (!userAddress?.addresses && isAddingNewAddress && user?.id) {
+        await updateUserProfile(user?.id, {
+          firstName: shippingInfo.firstName,
+          lastName: shippingInfo.lastName,
+          email: shippingInfo.email,
+          phone: shippingInfo.phone,
+        })
+      }
+
       let addressId = selectedAddressId
 
       // If user wants to create a new address (either from form or "Add New Address" button)
@@ -275,16 +285,6 @@ const CheckoutPage = async () => {
         shippingInfo, // Keep this as is
         paymentMethod: activeBtn,
       })
-
-      // If its the first time the user is placing an order and user has no addresses, update user profile with the data provided
-      if (!userAddress?.addresses && isAddingNewAddress && user?.id) {
-        await updateUserProfile(user?.id, {
-          firstName: shippingInfo.firstName,
-          lastName: shippingInfo.lastName,
-          email: shippingInfo.email,
-          phone: shippingInfo.phone,
-        })
-      }
 
       alert('سفارش با موفقیت ثبت شد!')
 
