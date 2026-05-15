@@ -65,7 +65,7 @@ export default function Feed() {
       <ProductCategorySection />
 
       {/* Dynamically map through all categories with products */}
-      {categoriesWithProducts.map((category, index) => {
+      {categoriesWithProducts.map((category) => {
         // Check if this is the best-sellers category to show bundle after it
         const showBundle = category.slug === 'best-sellers'
 

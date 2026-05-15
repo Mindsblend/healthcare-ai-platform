@@ -1,50 +1,64 @@
-// Bundle.tsx - Accept single product
 import Image from 'next/image'
 import Link from 'next/link'
 import { ProductSummary } from '@/components/types/types'
 
 interface BundleProps {
-  product: ProductSummary // Single product, not array
+  product: ProductSummary
 }
 
 const Bundle = ({ product }: BundleProps) => {
   return (
-    <div className="w-full rounded-3xl border border-black/25 p-5">
-      <div className="flex items-center justify-between">
+    <div className="w-full rounded-3xl border border-black/25 p-3 sm:p-4 md:p-5">
+      {/* Product Image */}
+      <div className="flex justify-center">
         <Image
           src={product.image}
           width={335}
           height={347}
           alt={product.title}
-          className="rounded-lg object-cover"
+          className="max-h-[200px] w-full rounded-lg object-cover sm:max-h-[250px] md:max-h-[347px]"
         />
       </div>
-      <div className="mt-5 flex items-center justify-between">
-        <div>
-          <h1 className="font-aria text-color-title-on-light text-2xl font-bold">
+
+      {/* Content Section */}
+      <div className="mt-3 sm:mt-4 md:mt-5">
+        {/* Title & Description - Stacked on mobile */}
+        <div className="flex flex-col gap-2 sm:gap-3">
+          <h1 className="font-aria text-color-title-on-light text-lg font-bold sm:text-xl md:text-2xl">
             {product.title}
           </h1>
-          <p className="font-ray text-color-title-on-light mt-2 max-w-xl text-sm font-medium">
+          <p className="font-ray text-color-title-on-light line-clamp-2 text-xs font-medium sm:line-clamp-none sm:text-sm">
             {product.solution}
           </p>
         </div>
-        <div className="flex items-center justify-center gap-2.5">
-          <h1 className="font-aria text-color-title-on-light mt-1 text-center text-base font-extrabold line-through">
-            543,000 تومان
-          </h1>
-          <div className="text-color-title-on-dark font-ray flex h-10 w-full items-center justify-center rounded-3xl bg-black px-5 text-sm font-extrabold sm:w-auto 2xl:h-12 2xl:px-7 2xl:text-base">
-            {product.price.toLocaleString('fa-IR')}
-            <span className="pr-1">تومان</span>
+
+        {/* Price & Action Section */}
+        <div className="mt-3 flex flex-col gap-3 sm:mt-4 sm:flex-row sm:items-center sm:justify-between md:mt-5">
+          {/* Price Info */}
+          <div className="flex items-center justify-between gap-2 sm:justify-start sm:gap-2.5">
+            {/* Discounted Price */}
+            <h1 className="font-aria text-color-title-on-light text-sm font-extrabold line-through sm:text-base">
+              543,000 تومان
+            </h1>
+
+            {/* Current Price */}
+            <div className="text-color-title-on-dark font-ray flex h-9 items-center justify-center rounded-3xl bg-black px-3 text-xs font-extrabold whitespace-nowrap sm:h-10 sm:px-4 sm:text-sm md:h-12 md:px-5 md:text-base">
+              {product.price.toLocaleString('fa-IR')}
+              <span className="pr-1">تومان</span>
+            </div>
           </div>
-          <Link href={`/products/${product.slug}`}>
-            <button className="text-color-title-on-light font-ray flex h-10 w-full cursor-pointer items-center justify-center gap-3 rounded-full bg-[#F2F2F2] pr-4 pl-1 text-sm font-medium whitespace-nowrap sm:w-auto 2xl:h-12 2xl:pr-5 2xl:text-base">
+
+          {/* Action Button */}
+          <Link href={`/products/${product.slug}`} className="w-full sm:w-auto">
+            <button className="text-color-title-on-light font-ray flex h-9 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-[#F2F2F2] px-3 text-xs font-medium whitespace-nowrap transition-all hover:bg-gray-200 sm:h-10 sm:gap-3 sm:pr-4 sm:pl-1 sm:text-sm md:h-12 md:text-base">
               مشاهده جزئیات پک
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white xl:h-10 xl:w-10">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white sm:h-8 sm:w-8 md:h-10 md:w-10">
                 <Image
                   src="/images/arrow.svg"
                   alt="arrow"
                   width={19}
                   height={19}
+                  className="h-4 w-4 sm:h-4.75 sm:w-4.75"
                 />
               </div>
             </button>

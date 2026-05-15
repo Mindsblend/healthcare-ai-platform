@@ -1,7 +1,5 @@
 'use client'
-import { ThemeToggleButton } from '../domain/dashboard/common/ThemeToggleButton'
-import NotificationDropdown from '../domain/dashboard/header/NotificationDropdown'
-import UserDropdown from '../domain/dashboard/header/UserDropdown'
+
 import { useSidebar } from '../context/SidebarContext'
 import Image from 'next/image'
 import Link from 'next/link'
