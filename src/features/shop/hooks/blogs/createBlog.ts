@@ -9,6 +9,7 @@ export interface CreateBlogInput {
   content: string
   author: string
   authorImage: string
+  authorTitle: string
 }
 
 export function useCreateBlog() {
