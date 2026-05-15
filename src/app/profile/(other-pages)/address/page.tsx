@@ -27,7 +27,6 @@ const AddressContent = async () => {
   const { userAddress, loading, error } = useUserAddress()
   const { createUserAddress } = useCreateUserAddress()
   const { updateUserProfile } = useUpdateUserProfile()
-  const user = await getSession()
 
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
     firstName: '',
@@ -199,8 +198,8 @@ const AddressContent = async () => {
 
     try {
       // If its the first address user is adding and user has no addresses, update user profile with the data provided
-      if (!userAddress?.addresses && user?.id) {
-        await updateUserProfile(user?.id, {
+      if (!userAddress?.addresses) {
+        await updateUserProfile({
           firstName: shippingInfo.firstName,
           lastName: shippingInfo.lastName,
           email: shippingInfo.email,

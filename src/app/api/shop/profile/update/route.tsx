@@ -1,4 +1,3 @@
-// app/api/shop/profile/update/route.ts
 import { requireAuthority } from '@/features/auth/services/sessionService'
 import { NextRequest, NextResponse } from 'next/server'
 import { UserService } from '@/features/shop/services/UserService'
