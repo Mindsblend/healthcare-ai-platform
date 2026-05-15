@@ -24,13 +24,17 @@ import {
 } from '@/lib/helpers'
 import { useCreateUserAddress } from '@/features/shop/hooks/profile/createUserAddress'
 import LoadingBar from '@/components/layout/LoadingBar'
+import { useUpdateUserProfile } from '@/features/shop/hooks/profile/updateUserProfile'
+import { getSession } from '@/features/auth/services/sessionService'
 
-const CheckoutPage = () => {
+const CheckoutPage = async () => {
   const { cartItems, loading: cartLoading, error } = useCart()
   const [activeBtn, setActiveBtn] = useState<'mellat' | 'zarinpal'>('zarinpal')
   const { createOrder, loading: orderLoading } = useCreateOrder()
   const { createUserAddress } = useCreateUserAddress()
   const { userAddress } = useUserAddress()
+  const { updateUserProfile } = useUpdateUserProfile()
+  const user = await getSession()
 
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
     null,
@@ -271,6 +275,16 @@ const CheckoutPage = () => {
         shippingInfo, // Keep this as is
         paymentMethod: activeBtn,
       })
+
+      // If its the first time the user is placing an order, update user profile with the data provided
+      if (userAddress?.addresses && isAddingNewAddress && user?.id) {
+        await updateUserProfile(user?.id, {
+          firstName: shippingInfo.firstName,
+          lastName: shippingInfo.lastName,
+          email: shippingInfo.email,
+          phone: shippingInfo.phone,
+        })
+      }
 
       alert('سفارش با موفقیت ثبت شد!')
 
