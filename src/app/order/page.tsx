@@ -26,6 +26,7 @@ import { useCreateUserAddress } from '@/features/shop/hooks/profile/createUserAd
 import LoadingBar from '@/components/layout/LoadingBar'
 import { useUpdateUserProfile } from '@/features/shop/hooks/profile/updateUserProfile'
 import { getSession } from '@/features/auth/services/sessionService'
+import InformPopup from '@/components/layout/InformPopup'
 
 const CheckoutPage = async () => {
   const { cartItems, loading: cartLoading, error } = useCart()
@@ -53,6 +54,7 @@ const CheckoutPage = async () => {
     notes: '',
   })
 
+  const [errorMessage, setErrorMessage] = useState<string | null>()
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>(
     {},
@@ -285,14 +287,13 @@ const CheckoutPage = async () => {
         shippingInfo, // Keep this as is
         paymentMethod: activeBtn,
       })
-
-      alert('سفارش با موفقیت ثبت شد!')
+      setErrorMessage('سفارش با موفقیت ثبت شد!')
 
       // Optional: Redirect to order confirmation or payment page
       // router.push('/payment')
     } catch (err) {
       console.error('Order creation error:', err)
-      alert('خطا در ثبت سفارش، لطفا دوباره تلاش کنید.')
+      setErrorMessage('خطا در ثبت سفارش، لطفا دوباره تلاش کنید.')
     }
   }
 
@@ -906,6 +907,7 @@ const CheckoutPage = async () => {
           </div>
         </div>
       </div>
+      <InformPopup message={errorMessage} />
     </section>
   )
 }

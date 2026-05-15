@@ -21,6 +21,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ProductDetail, ProductSummary } from '@/components/types/types'
 import LoadingBar from '@/components/layout/LoadingBar'
+import ConfirmPopup from '@/components/layout/ConfirmPopup'
 
 const Products = () => {
   const router = useRouter()
@@ -36,13 +37,14 @@ const Products = () => {
     getProductBySlug,
   } = useProductBySlug('')
 
-  const [selectedProduct, setSelectedProduct] = useState<ProductDetail | null>(
-    null,
-  )
+  const [selectedProduct, setSelectedProduct] = useState<
+    ProductDetail | null | undefined
+  >(null)
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [isFetchingProduct, setIsFetchingProduct] = useState<boolean>(false)
 
   // Form state for editing product
+  const [productId, setProductId] = useState<number>(0)
   const [title, setTitle] = useState<string>('')
   const [price, setPrice] = useState<string>('')
   const [slug, setSlug] = useState<string>('')
@@ -53,6 +55,8 @@ const Products = () => {
   const [feedCategoryId, setFeedCategoryId] = useState<number | undefined>(
     undefined,
   )
+
+  const [openIndex, setOpenIndex] = useState(false)
 
   // Search and pagination state
   const [searchValue, setSearchValue] = useState<string>('')
@@ -66,6 +70,7 @@ const Products = () => {
   useEffect(() => {
     if (fetchedProduct) {
       setSelectedProduct(fetchedProduct)
+      setProductId(fetchedProduct.id)
       setTitle(fetchedProduct.title)
       setPrice(fetchedProduct.price.toString())
       setSlug(fetchedProduct.slug)
@@ -143,10 +148,7 @@ const Products = () => {
   const showEmptyState =
     !loading && !error && !productsPreview.length && !debouncedSearchValue
 
-  const handleDelete = async (id: number, title: string) => {
-    const ok = window.confirm(`آیا از حذف "${title}" مطمئن هستید؟`)
-    if (!ok) return
-
+  const handleDelete = async (id: number) => {
     await deleteProduct(id)
     router.refresh()
   }
@@ -455,8 +457,8 @@ const Products = () => {
                       <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
                         <div className="flex items-center gap-3">
                           <button
-                            onClick={async () => {
-                              await handleDelete(product.id, product.title)
+                            onClick={() => {
+                              setOpenIndex(true)
                             }}
                             className="text-gray-500 transition-colors"
                             aria-label="حذف محصول"
@@ -741,6 +743,19 @@ const Products = () => {
           </div>
         </div>
       )}
+      <ConfirmPopup
+        isOpen={openIndex}
+        onClose={() => setOpenIndex(false)}
+        onConfirm={async () => {
+          await handleDelete(productId)
+        }}
+        popupTitle={`آیا از حذف "${title}" مطمئن هستید؟`}
+        descriptionText={
+          'در صورت حذف این محصول، تمام اطلاعات مربوط به آن به‌طور دائمی پاک می‌شود.'
+        }
+        confirmButtonText={'حذف'}
+        cancelButtonText={'انصراف'}
+      />
     </LoadingBar>
   )
 }

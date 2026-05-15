@@ -21,6 +21,7 @@ import { ChangeEvent, useEffect, useState } from 'react'
 import { City, ShippingInfo } from '@/components/types/types'
 import { getSession } from '@/features/auth/services/sessionService'
 import { useUpdateUserProfile } from '@/features/shop/hooks/profile/updateUserProfile'
+import InformPopup from '@/components/layout/InformPopup'
 
 const AddressContent = async () => {
   const { userAddress, loading, error } = useUserAddress()
@@ -39,6 +40,7 @@ const AddressContent = async () => {
     postalCode: '',
   })
 
+  const [errorMessage, setErrorMessage] = useState<string | null>()
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>(
     {},
@@ -208,10 +210,10 @@ const AddressContent = async () => {
 
       await createUserAddress(shippingInfo)
 
-      alert('ادرس جدید با موفقیت ثبت شد!')
+      setErrorMessage('ادرس جدید با موفقیت ثبت شد!')
     } catch (err) {
       console.error('Address creation error:', err)
-      alert('خطا در ثبت ادرس جدید، لطفا دوباره تلاش کنید.')
+      setErrorMessage('خطا در ثبت ادرس جدید، لطفا دوباره تلاش کنید.')
     }
   }
 
@@ -520,6 +522,7 @@ const AddressContent = async () => {
           </div>
         </div>
       )}
+      <InformPopup message={errorMessage} />
     </div>
   )
 }

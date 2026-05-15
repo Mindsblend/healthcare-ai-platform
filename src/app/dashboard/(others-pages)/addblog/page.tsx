@@ -5,6 +5,7 @@ import { useCreateBlog } from '@/features/shop/hooks/blogs/createBlog'
 import { iconType } from '@/components/types/types'
 import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
+import InformPopup from '@/components/layout/InformPopup'
 import '../../../../../styles/dashboard.css'
 import '../../../../../styles/_variables.scss'
 
@@ -26,6 +27,7 @@ interface ImageUploaderProps {
   onUpload: (url: string) => void
   onClear: () => void
   id: string
+  setErrorMessage: (message: string | null) => void
 }
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({
@@ -34,13 +36,15 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   onUpload,
   onClear,
   id,
+  setErrorMessage,
 }) => {
   const [isUploading, setIsUploading] = useState(false)
-  const [uploadError, setUploadError] = useState<string | null>(null)
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+
+    setErrorMessage(null)
 
     // اعتبارسنجی نوع فایل
     const validTypes = [
@@ -51,7 +55,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       'image/svg+xml',
     ]
     if (!validTypes.includes(file.type)) {
-      setUploadError(
+      setErrorMessage(
         'فرمت فایل پشتیبانی نمی‌شود. لطفاً از فرمت‌های JPG، PNG، GIF یا SVG استفاده کنید.',
       )
       return
@@ -59,11 +63,9 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
     // اعتبارسنجی حجم فایل (حداکثر 5 مگابایت)
     if (file.size > 5 * 1024 * 1024) {
-      setUploadError('حجم فایل نباید بیشتر از 5 مگابایت باشد.')
+      setErrorMessage('حجم فایل نباید بیشتر از 5 مگابایت باشد.')
       return
     }
-
-    setUploadError(null)
     setIsUploading(true)
 
     const formData = new FormData()
@@ -88,7 +90,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       }
     } catch (error) {
       console.error('Upload error:', error)
-      setUploadError('خطا در آپلود تصویر. لطفاً دوباره تلاش کنید.')
+      setErrorMessage('خطا در آپلود تصویر. لطفاً دوباره تلاش کنید.')
     } finally {
       setIsUploading(false)
       // پاک کردن مقدار input برای امکان آپلود مجدد همان فایل
@@ -220,13 +222,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
               disabled={isUploading}
             />
           </label>
-
-          {/* نمایش خطا */}
-          {uploadError && (
-            <p className="mt-2 text-sm text-red-500 dark:text-red-400">
-              {uploadError}
-            </p>
-          )}
         </div>
       )}
     </div>
@@ -246,6 +241,8 @@ const AddBlog = () => {
   })
 
   const { create, loading, error } = useCreateBlog()
+
+  const [errorMessage, setErrorMessage] = useState<string | null>()
 
   type AnyField = keyof BlogFormState
   type AnyArrayKey = keyof iconType
@@ -268,8 +265,7 @@ const AddBlog = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.title || !form.author || !form.description) {
-      alert('Title, author, and description are required!')
-      return
+      setErrorMessage('Title, author, and description are required!')
     }
 
     try {
@@ -282,7 +278,7 @@ const AddBlog = () => {
         author: form.author,
         authorImage: form.authorImage,
       })
-      alert('Blog created!')
+      setErrorMessage('Blog created!')
       setForm({
         title: '',
         image: '',
@@ -295,7 +291,7 @@ const AddBlog = () => {
       })
     } catch (err) {
       console.error(err)
-      alert('Create failed')
+      setErrorMessage('Create failed')
     }
   }
 
@@ -401,6 +397,7 @@ const AddBlog = () => {
                 onUpload={(url) => setForm((prev) => ({ ...prev, image: url }))}
                 onClear={() => setForm((prev) => ({ ...prev, image: '' }))}
                 id="blog-image-upload"
+                setErrorMessage={setErrorMessage}
               />
 
               {/* Author Image Uploader */}
@@ -414,6 +411,7 @@ const AddBlog = () => {
                   setForm((prev) => ({ ...prev, authorImage: '' }))
                 }
                 id="author-image-upload"
+                setErrorMessage={setErrorMessage}
               />
             </form>
           </div>
@@ -454,6 +452,7 @@ const AddBlog = () => {
           'انتشار بلاگ'
         )}
       </button>
+      <InformPopup message={errorMessage} />
     </div>
   )
 }

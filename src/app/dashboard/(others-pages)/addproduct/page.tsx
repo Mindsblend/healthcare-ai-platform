@@ -6,6 +6,7 @@ import { useCategories } from '@/features/shop/hooks/categories/useCategories'
 import { iconType, gainType, faqType } from '@/components/types/types'
 import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
 import LoadingBar from '@/components/layout/LoadingBar'
+import InformPopup from '@/components/layout/InformPopup'
 
 interface ProductFormState {
   title: string
@@ -52,6 +53,8 @@ const AddProduct = () => {
   const { create, loading, error } = useCreateProduct()
   const { categories } = useCategories()
 
+  const [errorMessage, setErrorMessage] = useState<string | null>()
+
   type AnyField = keyof ProductFormState
   type AnyArrayKey = keyof iconType | keyof gainType | keyof faqType
 
@@ -95,7 +98,7 @@ const AddProduct = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.title || !form.price || !form.categoryId) {
-      alert('Title, price, and category are required!')
+      setErrorMessage('Title, price, and category are required!')
       return
     }
 
@@ -112,7 +115,7 @@ const AddProduct = () => {
         gains: form.gains,
         faqs: form.faqs,
       })
-      alert('Product created!')
+      setErrorMessage('Product created!')
       setForm({
         title: '',
         price: '',
@@ -127,7 +130,7 @@ const AddProduct = () => {
       })
     } catch (err) {
       console.error(err)
-      alert('Create failed')
+      setErrorMessage('Create failed')
     }
   }
 
@@ -425,6 +428,7 @@ const AddProduct = () => {
           انتشار محصول
         </button>
       </div>
+      <InformPopup message={errorMessage} />
     </LoadingBar>
   )
 }

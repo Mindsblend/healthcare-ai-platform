@@ -3,18 +3,27 @@
 import { useEffect, useCallback } from 'react'
 import Image from 'next/image'
 
-interface LogoutPopupProps {
+interface ConfirmPopupProps {
   isOpen: boolean
   onClose: () => void
   onConfirm: () => void
-  userName?: string
+  popupTitle: string
+  descriptionText: string
+  confirmButtonText: string
+  cancelButtonText: string
+  closeButtonAltText?: string
 }
 
-export default function LogoutPopup({
+export default function ConfirmPopup({
   isOpen,
   onClose,
   onConfirm,
-}: LogoutPopupProps) {
+  popupTitle,
+  descriptionText,
+  confirmButtonText,
+  cancelButtonText,
+  closeButtonAltText = 'Close', // Default alt text if not provided
+}: ConfirmPopupProps) {
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
@@ -47,16 +56,21 @@ export default function LogoutPopup({
     >
       <div className="animate-in fade-in zoom-in w-full max-w-md rounded-2xl bg-white px-9 py-7.5 shadow-2xl duration-300">
         <div className="space-y-5">
-          <div className="flex items-center">
+          <div className="flex items-center justify-between">
             <h1 className="font-aria text-lg font-semibold text-black">
-              از حساب کاربری خارج میشوید ؟
+              {popupTitle}
             </h1>
-            <Image src="/images/close.svg" width={22} height={22} alt="close" />
+            {/* Use the closeButtonAltText prop here */}
+            <Image
+              src="/images/close.svg"
+              width={22}
+              height={22}
+              alt={closeButtonAltText}
+            />
           </div>
           <hr />
           <p className="font-ray text-sm font-medium text-black">
-            با خروج از حساب کاربری، به سبد خرید فعلی‌تان دسترسی نخواهید داشت.
-            هروقت بخواهید می‌توانید مجددا وارد شوید و خریدتان را ادامه دهید.
+            {descriptionText}
           </p>
         </div>
 
@@ -65,13 +79,13 @@ export default function LogoutPopup({
             onClick={onConfirm}
             className="font-aria h-9.5 w-33 cursor-pointer rounded-[5px] bg-[#161A1D] text-sm font-bold text-white"
           >
-            خروج از حساب
+            {confirmButtonText}
           </button>
           <button
             onClick={onClose}
             className="font-aria h-9.5 w-33 cursor-pointer text-sm font-bold text-black"
           >
-            انصراف
+            {cancelButtonText}
           </button>
         </div>
       </div>

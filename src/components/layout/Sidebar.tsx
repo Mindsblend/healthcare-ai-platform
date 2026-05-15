@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import Image from 'next/image'
-import LogoutPopup from '@/components/layout/LogoutPopup.tsx'
+import ConfirmPopup from '@/components/layout/ConfirmPopup.tsx'
 import { useRouter } from 'next/navigation'
 import { NavItem } from '../types/types.tsx'
 import Link from 'next/link'
@@ -153,10 +153,16 @@ const Sidebar = () => {
               </span>
             </button>
 
-            <LogoutPopup
+            <ConfirmPopup
               isOpen={openIndex}
               onClose={() => setOpenIndex(false)}
               onConfirm={handleLogout}
+              popupTitle={'از حساب کاربری خارج میشوید ؟'}
+              descriptionText={
+                'با خروج از حساب کاربری، به سبد خرید فعلی‌تان دسترسی نخواهید داشت. هروقت بخواهید می‌توانید مجددا وارد شوید و خریدتان را ادامه دهید.'
+              }
+              confirmButtonText={'خروج از حساب'}
+              cancelButtonText={'انصراف'}
             />
           </div>
         </nav>
