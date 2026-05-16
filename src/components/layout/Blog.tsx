@@ -32,7 +32,7 @@ const Blog = ({ blog }: Props) => {
           <h1 className="font-ray text-xl font-extrabold xl:text-2xl">
             {blog.title}
           </h1>
-          <p className="font-ray mt-1.5 text-sm font-medium">
+          <div className="font-ray mt-1.5 text-sm font-medium">
             <div dangerouslySetInnerHTML={{ __html: blog.description }}></div>
 
             <Link href={'/blogs/' + blog.slug}>
@@ -46,7 +46,7 @@ const Blog = ({ blog }: Props) => {
                 />
               </span>
             </Link>
-          </p>
+          </div>
         </div>
 
         {/* footer */}

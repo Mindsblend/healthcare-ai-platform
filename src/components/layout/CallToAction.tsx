@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 const CallToAction = () => {
   return (
-    <div className="container">
+    <div className="container py-12">
       <div className="bg-section text-color-title-on-dark flex w-full flex-col items-center justify-center rounded-2xl px-8 py-9 text-center sm:py-12">
         <h1 className="font-aria mb-3 text-3xl font-bold sm:text-[50px]">
           سلامتی آینده‌ات را امروز بساز
