@@ -1,18 +1,15 @@
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
-import CallToAction from '@/components/layout/CallToAction'
-import NavbarWrapper from '@/components/layout/NavbarWrapper'
 
-export default function InterfaceLayout({
+export default function LegalLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
     <>
-      <NavbarWrapper />
+      <Navbar />
       {children}
-      <CallToAction />
       <Footer />
     </>
   )
