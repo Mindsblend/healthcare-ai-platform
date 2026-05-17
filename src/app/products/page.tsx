@@ -189,7 +189,7 @@ const Page = () => {
           <div className="relative mx-auto mt-8 w-full max-w-117.25 px-4 sm:px-0">
             <div
               onClick={() => setAppliedSearchQuery(searchQuery)}
-              className="absolute top-1/2 left-4 flex h-11.5 w-11.5 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white shadow-sm"
+              className="absolute top-1/2 left-6 flex h-11.5 w-11.5 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white shadow-sm sm:left-4"
             >
               <Image
                 src="/images/search.svg"
@@ -201,7 +201,7 @@ const Page = () => {
 
             <input
               type="text"
-              placeholder="جستجو هوشمندانه از میان صدها محصول"
+              placeholder="جستجو هوشمندانه از میان محصولات"
               className="font-ray text-color-body-on-light h-16.25 w-full rounded-2xl bg-[#f2f2f2] pr-5 pl-12.5 text-[16px] font-bold transition outline-none focus:bg-white focus:ring-2 focus:ring-black"
               value={searchQuery}
               onChange={(e) => {

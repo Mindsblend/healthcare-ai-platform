@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useMemo, useRef, useState, useEffect } from 'react'
+import { useMemo, useRef, useState, useEffect, memo } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay } from 'swiper/modules'
 import type { Swiper as SwiperType } from 'swiper'
@@ -16,10 +16,7 @@ type ProductSwiperProps = {
   categories?: CategorySummary[]
 }
 
-export default function ProductSwiper({
-  products,
-  categories,
-}: ProductSwiperProps) {
+const ProductSwiper = memo(({ products, categories }: ProductSwiperProps) => {
   const swiperRef = useRef<SwiperType | null>(null)
 
   const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null)
@@ -258,4 +255,6 @@ export default function ProductSwiper({
       </Swiper>
     </div>
   )
-}
+})
+
+export default ProductSwiper

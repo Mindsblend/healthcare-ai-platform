@@ -134,7 +134,7 @@ export default function Navbar({ user }: { user: any }) {
               {/* Button text */}
               <Link
                 href={'/auth'}
-                className="primary-btn flex hidden items-center justify-between rounded-full bg-black whitespace-nowrap lg:flex"
+                className="primary-btn flex items-center justify-between rounded-full bg-black whitespace-nowrap lg:flex"
               >
                 <span className="font-ray pr-2 font-medium text-white">
                   ورود به حساب کاربری

@@ -35,6 +35,9 @@ const ProductCategorySection = () => {
                 alt={category.name}
                 width={32}
                 height={32}
+                className="h-8 w-8"
+                loading="lazy"
+                style={{ width: '32px', height: '32px' }}
               />
             </div>
             <h1 className="font-ray mt-2 text-center text-base font-medium">
