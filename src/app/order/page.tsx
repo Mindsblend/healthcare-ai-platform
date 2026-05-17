@@ -25,17 +25,15 @@ import {
 import { useCreateUserAddress } from '@/features/shop/hooks/profile/createUserAddress'
 import LoadingBar from '@/components/layout/LoadingBar'
 import { useUpdateUserProfile } from '@/features/shop/hooks/profile/updateUserProfile'
-import { getSession } from '@/features/auth/services/sessionService'
 import InformPopup from '@/components/layout/InformPopup'
 
-const CheckoutPage = async () => {
+const CheckoutPage = () => {
   const { cartItems, loading: cartLoading, error } = useCart()
   const [activeBtn, setActiveBtn] = useState<'mellat' | 'zarinpal'>('zarinpal')
   const { createOrder, loading: orderLoading } = useCreateOrder()
   const { createUserAddress } = useCreateUserAddress()
   const { userAddress } = useUserAddress()
   const { updateUserProfile } = useUpdateUserProfile()
-  const user = await getSession()
 
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
     null,
@@ -359,7 +357,7 @@ const CheckoutPage = async () => {
                           phone: address.phone,
                           address: address.address,
                           postalCode: address.postalCode,
-                          notes: '',
+                          notes: shippingInfo.notes, // Shipping notes is a seperate form from the prefilled address
                         })
                       }}
                     >
@@ -390,6 +388,16 @@ const CheckoutPage = async () => {
                       </div>
                     </div>
                   ))}
+                </div>
+                {/* Notes */}
+                <div className="mt-5 md:col-span-2">
+                  <textarea
+                    name="notes"
+                    placeholder="یادداشت سفارش (اختیاری)"
+                    value={shippingInfo.notes}
+                    onChange={handleChange}
+                    className="font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black"
+                  />
                 </div>
                 <div className="mt-5 flex flex-wrap items-center justify-between rounded-2xl border-2 border-[#d9d9d9] bg-white px-6 py-3.5">
                   {/* Payment Method Buttons */}
@@ -426,14 +434,37 @@ const CheckoutPage = async () => {
                       ? 'border-2 border-[#d9d9d9] bg-white'
                       : ''
                   }`}
-                >
-                  <Image
-                    src="/images/bank-mellat.svg"
-                    alt="bank mellat"
-                    width={56}
-                    height={56}
-                  />
-                </div> */}
+                  </label>
+                ))}
+              </div>
+                    {/* <div className="mt-6 flex justify-center gap-4">
+                      <button
+                        onClick={() => {
+                          setIsAddingNewAddress(true)
+                          // Reset form to empty
+                          setShippingInfo({
+                            firstName: '',
+                            lastName: '',
+                            city: '',
+                            province: '',
+                            email: '',
+                            phone: '',
+                            address: '',
+                            postalCode: '',
+                            notes: '',
+                          })
+                          setSelectedAddressId(null)
+                        }}
+                        className="font-aria rounded-xl border-2 border-black px-6 py-3 font-bold text-black transition hover:bg-gray-100"
+                      >
+                        <Image
+                          src="/images/bank-mellat.svg"
+                          alt="bank mellat"
+                          width={56}
+                          height={56}
+                        />
+                      </button>
+                    </div> */}
                   </div>
                 </div>
               </div>

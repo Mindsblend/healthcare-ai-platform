@@ -19,11 +19,10 @@ import {
 } from '@/lib/helpers'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { City, ShippingInfo } from '@/components/types/types'
-import { getSession } from '@/features/auth/services/sessionService'
 import { useUpdateUserProfile } from '@/features/shop/hooks/profile/updateUserProfile'
 import InformPopup from '@/components/layout/InformPopup'
 
-const AddressContent = async () => {
+const AddressContent = () => {
   const { userAddress, loading, error } = useUserAddress()
   const { createUserAddress } = useCreateUserAddress()
   const { updateUserProfile } = useUpdateUserProfile()

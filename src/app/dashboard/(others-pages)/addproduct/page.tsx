@@ -7,6 +7,7 @@ import { iconType, gainType, faqType } from '@/components/types/types'
 import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
 import LoadingBar from '@/components/layout/LoadingBar'
 import InformPopup from '@/components/layout/InformPopup'
+import { useFeedCategories } from '@/features/shop/hooks/feed/useFeedCategories'
 
 interface ProductFormState {
   title: string
@@ -16,6 +17,7 @@ interface ProductFormState {
   description: string
   image: string
   categoryId: string
+  feedCategoryId: string
   icons: iconType[]
   gains: gainType[]
   faqs: faqType[]
@@ -30,6 +32,7 @@ const AddProduct = () => {
     description: '',
     image: '',
     categoryId: '',
+    feedCategoryId: '',
     icons: [
       { id: 1, title: '', description: '', iconPath: '' },
       { id: 2, title: '', description: '', iconPath: '' },
@@ -52,6 +55,7 @@ const AddProduct = () => {
 
   const { create, loading, error } = useCreateProduct()
   const { categories } = useCategories()
+  const { feedCategories } = useFeedCategories()
 
   const [errorMessage, setErrorMessage] = useState<string | null>()
 
@@ -111,6 +115,7 @@ const AddProduct = () => {
         image: form.image,
         description: form.description,
         categoryId: Number(form.categoryId),
+        feedCategoryId: Number(form.feedCategoryId),
         icons: form.icons,
         gains: form.gains,
         faqs: form.faqs,
@@ -124,6 +129,7 @@ const AddProduct = () => {
         description: '',
         image: '',
         categoryId: '',
+        feedCategoryId: '',
         icons: [],
         gains: [],
         faqs: [],
@@ -222,6 +228,26 @@ const AddProduct = () => {
                     {categories.map((category) => (
                       <option key={category.id} value={category.id}>
                         {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Feed Category */}
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    دسته‌بندی فید
+                  </label>
+                  <select
+                    value={form.feedCategoryId}
+                    onChange={(e) =>
+                      handleChange('feedCategoryId', e.target.value)
+                    }
+                    className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full cursor-pointer appearance-none rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+                  >
+                    {feedCategories.map((feedCategory) => (
+                      <option key={feedCategory.id} value={feedCategory.id}>
+                        {feedCategory.name}
                       </option>
                     ))}
                   </select>
