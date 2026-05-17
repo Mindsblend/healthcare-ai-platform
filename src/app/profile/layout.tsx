@@ -1,4 +1,5 @@
 import Navbar from '@/components/layout/Navbar'
+import NavbarWrapper from '@/components/layout/NavbarWrapper'
 import Sidebar from '@/components/layout/Sidebar'
 
 export default function CartLayout({
@@ -8,9 +9,9 @@ export default function CartLayout({
 }) {
   return (
     <div>
-      <Navbar />
-      <div className="container mx-auto mt-24">
-        <div className="flex gap-6">
+      <NavbarWrapper />
+      <div className="container mx-auto mt-12 lg:mt-24">
+        <div className="flex flex-col gap-6 lg:flex-row">
           <Sidebar />
           {children}
         </div>

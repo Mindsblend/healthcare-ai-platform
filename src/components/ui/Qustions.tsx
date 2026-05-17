@@ -16,10 +16,10 @@ const FaqItem = ({ item, isOpen, onToggle }: FaqItemProps) => {
     <div>
       {/* Question */}
       <div
-        className="flex cursor-pointer items-start justify-between pt-3"
+        className="flex cursor-pointer items-start justify-between gap-4 pt-3"
         onClick={onToggle}
       >
-        <h2 className="font-aria text-color-title-on-light text-2xl font-extrabold">
+        <h2 className="font-aria text-color-title-on-light text-xl font-extrabold sm:text-2xl">
           {item.question}
         </h2>
 
@@ -27,12 +27,14 @@ const FaqItem = ({ item, isOpen, onToggle }: FaqItemProps) => {
           animate={{ rotate: isOpen ? -90 : 0 }}
           transition={{ duration: 0.3 }}
           aria-label={isOpen ? 'Collapse answer' : 'Expand answer'}
+          className="shrink-0"
         >
           <Image
             src="/images/arrow.svg"
             alt="arrow icon"
             width={20}
             height={20}
+            className="h-5 w-5"
           />
         </motion.span>
       </div>
@@ -47,7 +49,7 @@ const FaqItem = ({ item, isOpen, onToggle }: FaqItemProps) => {
             transition={{ duration: 0.35, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
-            <p className="font-ray text-color-body-on-light max-w-[596px] pt-2 pb-4 text-lg font-medium">
+            <p className="font-ray text-color-body-on-light max-w-full pt-2 pb-4 text-base font-medium sm:max-w-[596px] sm:text-lg">
               {item.answer}
             </p>
           </motion.div>
@@ -68,9 +70,9 @@ const Questions = ({ faqs }: QuestionsProps) => {
   const rightFaqs = faqs ? faqs.slice(3, 6) : []
 
   return (
-    <div className="mt-11 flex w-full flex-col justify-between gap-10 lg:flex-row">
+    <div className="mt-11 flex w-full flex-col justify-between gap-6 md:gap-10 lg:flex-row">
       {/* left side */}
-      <div className="w-[607px]">
+      <div className="w-full lg:w-1/2">
         {leftFaqs.map((item, index) => {
           const isOpen = activeId === item.id
 
@@ -90,7 +92,7 @@ const Questions = ({ faqs }: QuestionsProps) => {
       </div>
 
       {/* right side */}
-      <div className="w-[607px]">
+      <div className="w-full lg:w-1/2">
         {rightFaqs.map((item, index) => {
           const isOpen = activeId === item.id
 

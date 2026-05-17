@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import '../../globals.css'
 import PageViewTracker from '@/components/layout/PageViewTracker'
+import { SessionRefresher } from '@/components/layout/SessionRefresher'
 
 /* ============================
    Headers: Aria Font Family
@@ -131,8 +132,11 @@ export default function RootLayout({
           } as React.CSSProperties
         }
       >
-        <PageViewTracker />
-        {children}
+        <main>
+          <SessionRefresher />
+          <PageViewTracker />
+          {children}
+        </main>
       </body>
     </html>
   )

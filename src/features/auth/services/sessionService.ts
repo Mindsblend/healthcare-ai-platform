@@ -95,11 +95,6 @@ export async function getSession(): Promise<SessionPayload | null> {
       return null
     }
 
-    // Check if session needs refresh (less than 1 day left)
-    if (exp && exp * 1000 - Date.now() < 24 * 60 * 60 * 1000) {
-      refreshSessionIfNeeded()
-    }
-
     return {
       id: decoded.id,
       email: typeof decoded.email === 'string' ? decoded.email : null,
@@ -199,21 +194,26 @@ export async function refreshSessionIfNeeded(): Promise<void> {
     const decoded = verify(token, getJwtSecret()) as JwtPayload
 
     // Refresh if less than 1 day remaining
-    // Create new token with same payload
-    const newToken = sign(
-      {
-        id: decoded.id,
-        email: decoded.email,
-        phone: decoded.phone,
-        role: decoded.role,
-      },
-      getJwtSecret(),
-      { expiresIn: JWT_EXPIRES_IN },
-    )
+    const exp = decoded.exp
+    if (
+      exp &&
+      exp * 1000 - Date.now() < 24 * 60 * 60 * 1000 &&
+      exp * 1000 > Date.now()
+    ) {
+      const newToken = sign(
+        {
+          id: decoded.id,
+          email: decoded.email,
+          phone: decoded.phone,
+          role: decoded.role,
+        },
+        getJwtSecret(),
+        { expiresIn: JWT_EXPIRES_IN },
+      )
 
-    await setSessionCookie(newToken)
+      await setSessionCookie(newToken)
+    }
   } catch (error) {
-    // Don't throw, just fail silently
     console.error('Session refresh failed:', error)
   }
 }

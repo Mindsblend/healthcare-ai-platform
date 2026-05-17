@@ -35,13 +35,19 @@ const CartItem = ({
       {/* Mobile & Tablet Layout */}
       <div className="flex flex-col gap-3 lg:hidden">
         <div className="flex gap-5">
-          <Image
-            src={image}
-            alt="product image"
-            width={80}
-            height={80}
-            className="h-20 w-20 rounded-2xl object-cover"
-          />
+          {image && image.trim() !== '' ? (
+            <Image
+              src={image}
+              alt="product image"
+              width={80}
+              height={80}
+              className="h-20 w-20 rounded-2xl object-cover"
+            />
+          ) : (
+            <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gray-100">
+              <span className="text-xs text-gray-400">بدون تصویر</span>
+            </div>
+          )}
 
           <div>
             <h1 className="font-aria text-color-title-on-light text-lg font-bold">
@@ -111,13 +117,19 @@ const CartItem = ({
       {/* Desktop Layout */}
       <div className="hidden lg:grid lg:grid-cols-[2fr_1fr_1fr_40px] lg:items-center">
         <div className="flex items-center">
-          <Image
-            src={image}
-            alt="product image"
-            width={80}
-            height={80}
-            className="rounded-3xl"
-          />
+          {image && image.trim() !== '' ? (
+            <Image
+              src={image}
+              alt="product image"
+              width={80}
+              height={80}
+              className="rounded-3xl"
+            />
+          ) : (
+            <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-gray-100">
+              <span className="text-xs text-gray-400">بدون تصویر</span>
+            </div>
+          )}
           <div className="mr-6">
             <h1 className="font-aria text-color-title-on-light text-xl font-bold xl:text-2xl xl:font-extrabold">
               {title}

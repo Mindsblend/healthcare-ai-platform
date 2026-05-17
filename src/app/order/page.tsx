@@ -291,29 +291,48 @@ const CheckoutPage = () => {
     return (
       <LoadingBar loading={cartLoading} error={error}>
         <div className="container mt-10">
-          <div className="flex gap-6">
-            {/* ===== LEFT: Address Selection ===== */}
-            <div className="flex-1 rounded-2xl border-2 border-[#d9d9d9] bg-white p-8">
-              <h2 className="font-aria text-color-title-on-light mb-6 text-right text-[24px] font-bold">
-                انتخاب آدرس ارسال
-              </h2>
-
-              <div className="space-y-4">
-                {userAddress.addresses.map((address, index) => (
-                  <label
-                    key={address.id || index}
-                    className={`flex cursor-pointer items-start gap-4 rounded-lg border p-4 transition hover:bg-gray-50 ${
-                      selectedAddressId === address.id
-                        ? 'border-2 border-black'
-                        : ''
-                    }`}
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 xl:grid-cols-3">
+            {/* RIGHT: Address Selection */}
+            <div className="col-span-1 xl:col-span-2">
+              <div className="rounded-2xl border-2 border-[#d9d9d9] bg-white p-8">
+                <div className="mb-6 flex items-center justify-between">
+                  <h2 className="font-aria text-color-title-on-light text-right text-[24px] font-bold">
+                    انتخاب آدرس ارسال
+                  </h2>
+                  <button
+                    onClick={() => {
+                      setIsAddingNewAddress(true)
+                      // Reset form to empty
+                      setShippingInfo({
+                        firstName: '',
+                        lastName: '',
+                        city: '',
+                        province: '',
+                        email: '',
+                        phone: '',
+                        address: '',
+                        postalCode: '',
+                        notes: '',
+                      })
+                      setSelectedAddressId(null)
+                    }}
+                    className="font-aria w-35 cursor-pointer rounded-[5px] bg-[#161A1D] text-sm font-bold text-white transition-all hover:bg-[#2a3035] disabled:cursor-not-allowed disabled:opacity-50"
+                    style={{ height: '50px' }} // Keeping height with inline style for precision
                   >
-                    <input
-                      type="radio"
-                      name="selectedAddress"
-                      className="hidden"
-                      checked={selectedAddressId === address.id}
-                      onChange={() => {
+                    ثبت آدرس جدید
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {userAddress.addresses.map((address, index) => (
+                    <div
+                      key={address.id || index}
+                      className={`cursor-pointer rounded-lg border transition hover:bg-gray-50 ${
+                        selectedAddressId === address.id
+                          ? 'border-2 border-black'
+                          : 'border border-[#D9D9D9]'
+                      }`}
+                      onClick={() => {
                         setSelectedAddressId(address.id)
                         // Set selected address to shippingInfo
                         setShippingInfo({
@@ -328,9 +347,8 @@ const CheckoutPage = () => {
                           notes: '',
                         })
                       }}
-                    />
-                    <div className="space-y-4">
-                      <div className="rounded-lg border border-[#D9D9D9] p-5">
+                    >
+                      <div className="p-5">
                         <div className="font-ray flex items-start justify-between text-lg font-medium">
                           <div className="space-y-2">
                             {address.isDefault && (
@@ -356,37 +374,58 @@ const CheckoutPage = () => {
                         </div>
                       </div>
                     </div>
-                  </label>
-                ))}
-              </div>
-
-              <div className="mt-6 flex justify-center gap-4">
-                <button
-                  onClick={() => {
-                    setIsAddingNewAddress(true)
-                    // Reset form to empty
-                    setShippingInfo({
-                      firstName: '',
-                      lastName: '',
-                      city: '',
-                      province: '',
-                      email: '',
-                      phone: '',
-                      address: '',
-                      postalCode: '',
-                      notes: '',
-                    })
-                    setSelectedAddressId(null)
-                  }}
-                  className="font-aria rounded-xl border-2 border-black px-6 py-3 font-bold text-black transition hover:bg-gray-100"
+                  ))}
+                </div>
+                <div className="mt-5 flex flex-wrap items-center justify-between rounded-2xl border-2 border-[#d9d9d9] bg-white px-6 py-3.5">
+                  {/* Payment Method Buttons */}
+                  <div>
+                    <h1 className="font-aria text-color-title-on-light text-base font-extrabold">
+                      انتخاب درگاه پرداخت
+                    </h1>
+                    <p className="font-aria text-color-body-on-dark my-1.5 max-w-xs text-sm font-semibold">
+                      شما با انتخاب درگاه پرداخت خود میتوانید خریدی اسوده و
+                      مطمعن داشته باشید.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3.5">
+                    <div
+                      onClick={() => setActiveBtn('zarinpal')}
+                      className={`flex h-19.5 cursor-pointer items-center justify-center rounded-2xl p-3 ${
+                        activeBtn === 'zarinpal'
+                          ? 'border-2 border-[#d9d9d9] bg-white'
+                          : ''
+                      }`}
+                    >
+                      <Image
+                        src="/images/zarinpal.svg"
+                        alt="zarinpal"
+                        width={38}
+                        height={50}
+                      />
+                    </div>
+                    {/* For now we only support zarrinpal for the mvp. Other payment methods like the mellat will be added later */}
+                    {/* <div
+                  onClick={() => setActiveBtn('mellat')}
+                  className={`flex h-19.5 cursor-pointer items-center justify-center rounded-2xl px-1 py-2.25 ${
+                    activeBtn === 'mellat'
+                      ? 'border-2 border-[#d9d9d9] bg-white'
+                      : ''
+                  }`}
                 >
-                  ثبت آدرس جدید
-                </button>
+                  <Image
+                    src="/images/bank-mellat.svg"
+                    alt="bank mellat"
+                    width={56}
+                    height={56}
+                  />
+                </div> */}
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* ===== RIGHT: Order Summary ===== */}
-            <div className="flex-1 space-y-6">
+            <div className="space-y-6">
               {/* Cart Details */}
               <div className="flex h-92.5 flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-7">
                 <h1 className="font-aria text-color-title-on-light mt-9 text-center text-2xl font-extrabold">
@@ -399,11 +438,22 @@ const CheckoutPage = () => {
                       className="flex justify-between rounded-xl border-b pb-5 last:border-b-0 max-sm:flex-col max-sm:space-y-3 sm:items-center"
                     >
                       <div className="shrink-0">
-                        <Image
-                          src={item.product.image}
-                          alt={item.product.title}
-                          className="h-20 w-20 rounded-2xl object-cover"
-                        />
+                        {item.product.image &&
+                        item.product.image.trim() !== '' ? (
+                          <Image
+                            src={item.product.image}
+                            alt={item.product.title}
+                            width={80}
+                            height={80}
+                            className="h-20 w-20 rounded-2xl object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gray-100">
+                            <span className="text-xs text-gray-400">
+                              بدون تصویر
+                            </span>
+                          </div>
+                        )}
                       </div>
                       <div className="flex-1 sm:px-4">
                         <h3 className="font-aria text-color-title-on-light text-lg font-extrabold">
@@ -758,11 +808,21 @@ const CheckoutPage = () => {
                   className="flex justify-between rounded-xl border-b pb-5 last:border-b-0 max-sm:flex-col max-sm:space-y-3 sm:items-center"
                 >
                   <div className="shrink-0">
-                    <img
-                      src={item.product.image}
-                      alt={item.product.title}
-                      className="h-20 w-20 rounded-2xl object-cover"
-                    />
+                    {item.product.image && item.product.image.trim() !== '' ? (
+                      <Image
+                        src={item.product.image}
+                        alt={item.product.title}
+                        width={80}
+                        height={80}
+                        className="h-20 w-20 rounded-2xl object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gray-100">
+                        <span className="text-xs text-gray-400">
+                          بدون تصویر
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div className="flex-1 sm:px-4">
                     <h3 className="font-aria text-color-title-on-light text-lg font-extrabold">

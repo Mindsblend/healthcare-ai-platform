@@ -1,5 +1,6 @@
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import NavbarWrapper from '@/components/layout/NavbarWrapper'
 
 export default function CartLayout({
   children,
@@ -8,7 +9,7 @@ export default function CartLayout({
 }) {
   return (
     <>
-      <Navbar />
+      <NavbarWrapper />
       {children}
       <Footer />
     </>

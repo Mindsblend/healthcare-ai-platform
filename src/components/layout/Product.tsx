@@ -21,38 +21,82 @@ const Product = ({ product }: Props) => {
   return (
     <div className="bg-page flex max-h-min w-full flex-col rounded-[22px] border border-black/25 p-2.5">
       {/* Image Section */}
-      <div
-        className="relative aspect-square w-full rounded-3xl bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${product.image})` }}
-      >
-        <div className="bg-page absolute top-3.5 right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full p-2.5">
-          <Image src={categoryIcon} alt="Product icon" width={20} height={20} />
-        </div>
+      {product.image && product.image.trim() !== '' ? (
+        <div
+          className="relative aspect-square w-full rounded-3xl bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${product.image})` }}
+        >
+          <div className="bg-page absolute top-3.5 right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full p-2.5">
+            <Image
+              src={categoryIcon}
+              alt="Product icon"
+              width={20}
+              height={20}
+            />
+          </div>
 
-        {/* Bottom Actions */}
-        <div className="absolute bottom-1 flex w-full flex-col gap-y-1 px-1 sm:flex-row sm:items-center sm:justify-between lg:bottom-2 lg:px-2">
-          <button
-            onClick={handleAddToCart}
-            disabled={cartLoading}
-            className="text-color-title-on-dark font-ray flex h-10 w-full cursor-pointer items-center justify-center gap-3 rounded-full bg-black pr-4 pl-1 text-sm font-medium whitespace-nowrap transition hover:bg-gray-800 sm:w-auto 2xl:h-12 2xl:pr-5 2xl:text-base"
-          >
-            افزودن به سبد خرید
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white 2xl:h-10 2xl:w-10">
-              <Image
-                src="/images/add-to-cart.svg"
-                alt="Add to cart"
-                width={20}
-                height={20}
-              />
+          {/* Bottom Actions */}
+          <div className="absolute bottom-1 flex w-full flex-col gap-y-1 px-1 sm:flex-row sm:items-center sm:justify-between lg:bottom-2 lg:px-2">
+            <button
+              onClick={handleAddToCart}
+              disabled={cartLoading}
+              className="text-color-title-on-dark font-ray flex h-10 w-full cursor-pointer items-center justify-center gap-3 rounded-full bg-black pr-4 pl-1 text-sm font-medium whitespace-nowrap transition hover:bg-gray-800 sm:w-auto 2xl:h-12 2xl:pr-5 2xl:text-base"
+            >
+              افزودن به سبد خرید
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white 2xl:h-10 2xl:w-10">
+                <Image
+                  src="/images/add-to-cart.svg"
+                  alt="Add to cart"
+                  width={20}
+                  height={20}
+                />
+              </div>
+            </button>
+
+            <div className="text-color-title-on-light font-ray flex h-10 w-full items-center justify-center rounded-3xl bg-[#F2F2F2] px-5 text-sm font-extrabold sm:w-auto 2xl:h-12 2xl:px-7 2xl:text-base">
+              {product.price.toLocaleString('fa-IR')}
+              <span className="pr-1">تومان</span>
             </div>
-          </button>
-
-          <div className="text-color-title-on-light font-ray flex h-10 w-full items-center justify-center rounded-3xl bg-[#F2F2F2] px-5 text-sm font-extrabold sm:w-auto 2xl:h-12 2xl:px-7 2xl:text-base">
-            {product.price.toLocaleString('fa-IR')}
-            <span className="pr-1">تومان</span>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="relative flex aspect-square w-full items-center justify-center rounded-3xl bg-gray-100">
+          <div className="bg-page absolute top-3.5 right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full p-2.5">
+            <Image
+              src={categoryIcon}
+              alt="Product icon"
+              width={20}
+              height={20}
+            />
+          </div>
+
+          <span className="text-sm text-gray-400">بدون تصویر</span>
+
+          {/* Bottom Actions */}
+          <div className="absolute bottom-1 flex w-full flex-col gap-y-1 px-1 sm:flex-row sm:items-center sm:justify-between lg:bottom-2 lg:px-2">
+            <button
+              onClick={handleAddToCart}
+              disabled={cartLoading}
+              className="text-color-title-on-dark font-ray flex h-10 w-full cursor-pointer items-center justify-center gap-3 rounded-full bg-black pr-4 pl-1 text-sm font-medium whitespace-nowrap transition hover:bg-gray-800 sm:w-auto 2xl:h-12 2xl:pr-5 2xl:text-base"
+            >
+              افزودن به سبد خرید
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white 2xl:h-10 2xl:w-10">
+                <Image
+                  src="/images/add-to-cart.svg"
+                  alt="Add to cart"
+                  width={20}
+                  height={20}
+                />
+              </div>
+            </button>
+
+            <div className="text-color-title-on-light font-ray flex h-10 w-full items-center justify-center rounded-3xl bg-[#F2F2F2] px-5 text-sm font-extrabold sm:w-auto 2xl:h-12 2xl:px-7 2xl:text-base">
+              {product.price.toLocaleString('fa-IR')}
+              <span className="pr-1">تومان</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Info Section */}
       <div className="mt-2.5 flex flex-col gap-3 rounded-3xl bg-[#F2F2F2] px-6 py-4 lg:justify-between">

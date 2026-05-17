@@ -413,7 +413,7 @@ const Products = () => {
                             src={
                               product.image && product.image.startsWith('http')
                                 ? product.image
-                                : '/images/placeholder.png'
+                                : '/images/binoculars.svg'
                             }
                             alt={product.title}
                             width={48}

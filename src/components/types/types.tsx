@@ -1,6 +1,29 @@
 import { Prisma } from '@prisma/client'
 import { DefaultSession } from 'next-auth'
 
+// ============================================
+// SESSION & AUTH TYPES
+// ============================================
+
+export interface SessionPayload {
+  id: string
+  email: string | null
+  phone: string | null
+  role: string | null
+}
+
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      id: string
+    } & DefaultSession['user']
+  }
+}
+
+// ============================================
+// CART TYPES
+// ============================================
+
 export interface CartType {
   id: string
   userId: string | null
@@ -15,6 +38,19 @@ export interface CartItemType {
   price: number
   product: ProductSummary
 }
+
+// ============================================
+// ORDER TYPES
+// ============================================
+
+export type OrderStatus =
+  | 'PENDING'
+  | 'PAID'
+  | 'FAILED'
+  | 'CANCELED'
+  | 'REFUNDED'
+  | 'DELIVERING'
+  | 'DELIVERED'
 
 export type OrderSummary = Prisma.OrderGetPayload<{
   select: {
@@ -46,15 +82,6 @@ export type OrderDetail = Prisma.OrderGetPayload<{
   }
 }>
 
-export type OrderStatus =
-  | 'PENDING'
-  | 'PAID'
-  | 'FAILED'
-  | 'CANCELED'
-  | 'REFUNDED'
-  | 'DELIVERING'
-  | 'DELIVERED'
-
 export type OrderItem = Prisma.OrderItemGetPayload<{
   select: {
     id: true
@@ -75,17 +102,9 @@ export type OrderItem = Prisma.OrderItemGetPayload<{
   }
 }>
 
-export type ShippingInfo = {
-  firstName: string
-  lastName: string
-  city: string
-  province: string
-  email: string
-  phone: string
-  address: string
-  postalCode: string
-  notes?: string
-}
+// ============================================
+// USER TYPES
+// ============================================
 
 export interface UserType {
   id: string
@@ -93,8 +112,6 @@ export interface UserType {
   phone: string | null
   createdAt: string
   updatedAt: string
-
-  // aiResponses: AiResponse[]
   carts: CartType[]
   orders: OrderDetail[]
 }
@@ -117,7 +134,126 @@ export type UserInfo = Prisma.UserGetPayload<{
   }
 }>
 
-// Add FeedCategory types
+export type UserOrder = Prisma.UserGetPayload<{
+  include: {
+    orders: {
+      include: {
+        items: {
+          include: {
+            product: {
+              select: {
+                id: true
+                title: true
+                price: true
+                image: true
+                slug: true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}>
+
+export type UserAddress = Prisma.UserGetPayload<{
+  include: {
+    addresses: true
+  }
+}>
+
+// @deprecated - Use specific user types instead (UserSummary, UserInfo, etc.)
+export type UserWithTimestampsAndRelations = Prisma.UserGetPayload<{
+  select: {
+    id: true
+    email: true
+    phone: true
+    createdAt: true
+    updatedAt: true
+    carts: { select: Prisma.CartSelect }
+    orders: { select: Prisma.OrderSelect }
+  }
+}>
+
+// ============================================
+// SHIPPING TYPES
+// ============================================
+
+export type ShippingInfo = {
+  firstName: string
+  lastName: string
+  city: string
+  province: string
+  email: string
+  phone: string
+  address: string
+  postalCode: string
+  notes?: string
+}
+
+// ============================================
+// PRODUCT TYPES
+// ============================================
+
+export type ProductSummary = Prisma.ProductGetPayload<{
+  select: {
+    id: true
+    title: true
+    price: true
+    solution: true
+    slug: true
+    image: true
+    categoryId: true
+    category: {
+      select: {
+        name: true
+        iconPath: true
+      }
+    }
+  }
+}>
+
+export type ProductDetail = Prisma.ProductGetPayload<{
+  where: { slug: true; isActive: true }
+  include: {
+    icons: true
+    gains: true
+    faqs: true
+    aiResponses: true
+    category: true
+    feedCategoryId: true
+  }
+}>
+
+// ============================================
+// CATEGORY TYPES
+// ============================================
+
+export type CategorySummary = Prisma.CategoryGetPayload<{
+  select: {
+    id: true
+    name: true
+    iconPath: true
+  }
+}>
+
+export type CategoryWithProducts = Prisma.CategoryGetPayload<{
+  include: {
+    products: {
+      include: {
+        category: true
+        icons: true
+        gains: true
+        faqs: true
+      }
+    }
+  }
+}>
+
+// ============================================
+// FEED CATEGORY TYPES
+// ============================================
+
 export type FeedCategorySummary = Prisma.FeedCategoryGetPayload<{
   select: {
     id: true
@@ -151,7 +287,6 @@ export type FeedCategoryWithProducts = Prisma.FeedCategoryGetPayload<{
   }
 }>
 
-// Or if you want more control over the product fields
 export type FeedCategoryWithCustomProducts = Prisma.FeedCategoryGetPayload<{
   select: {
     id: true
@@ -178,117 +313,9 @@ export type FeedCategoryWithCustomProducts = Prisma.FeedCategoryGetPayload<{
   }
 }>
 
-export type UserOrder = Prisma.UserGetPayload<{
-  include: {
-    orders: {
-      include: {
-        items: {
-          include: {
-            product: {
-              select: {
-                id: true
-                title: true
-                price: true
-                image: true
-                slug: true
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}>
-
-export type UserAddress = Prisma.UserGetPayload<{
-  include: {
-    addresses: true
-  }
-}>
-
-export type UserWithTimestampsAndRelations = Prisma.UserGetPayload<{
-  select: {
-    id: true
-    email: true
-    phone: true
-    createdAt: true
-    updatedAt: true
-    carts: { select: Prisma.CartSelect }
-    orders: { select: Prisma.OrderSelect }
-    // aiResponses: { select: Prisma.AiResponseSelect };
-  }
-}>
-
-export type ProductSummary = Prisma.ProductGetPayload<{
-  select: {
-    id: true
-    title: true
-    price: true
-    solution: true
-    slug: true
-    image: true
-    categoryId: true
-    category: {
-      select: {
-        name: true
-        iconPath: true
-      }
-    }
-  }
-}>
-
-export type ProductDetail = Prisma.ProductGetPayload<{
-  where: { slug: true; isActive: true }
-  include: {
-    icons: true
-    gains: true
-    faqs: true
-    aiResponses: true
-    category: true
-    feedCategoryId: true
-  }
-}>
-
-export type CategoryWithProducts = Prisma.CategoryGetPayload<{
-  include: {
-    products: {
-      include: {
-        category: true
-        icons: true
-        gains: true
-        faqs: true
-      }
-    }
-  }
-}>
-
-export type CategorySummary = Prisma.CategoryGetPayload<{
-  select: {
-    id: true
-    name: true
-    iconPath: true
-  }
-}>
-
-export interface iconType {
-  id: number
-  title: string
-  description: string
-  iconPath: string | null
-}
-
-export interface gainType {
-  id: number
-  title: string
-  ingredient: string
-  description: string
-}
-
-export interface faqType {
-  id: number
-  question: string
-  answer: string
-}
+// ============================================
+// BLOG TYPES
+// ============================================
 
 export interface BlogType {
   id: number
@@ -316,11 +343,8 @@ export type BlogSummary = Prisma.BlogGetPayload<{
   }
 }>
 
+// @todo - Add blog content when schema is updated
 export type BlogDetail = Prisma.BlogGetPayload<{
-  // where: { slug: true } // The payload will change to this after we add a new row for the blog content. Blog content will be included here
-  // include: {
-  //   content: true
-  // }
   select: {
     id: true
     title: true
@@ -333,28 +357,33 @@ export type BlogDetail = Prisma.BlogGetPayload<{
   }
 }>
 
-declare module 'next-auth' {
-  interface Session {
-    user: {
-      id: string
-    } & DefaultSession['user']
-  }
+// ============================================
+// PRODUCT COMPONENT TYPES (Icons, Gains, FAQs)
+// ============================================
+
+export interface iconType {
+  id: number
+  title: string
+  description: string
+  iconPath: string | null
 }
 
-export interface SessionPayload {
-  id: string
-  email: string | null
-  phone: string | null
-  role: string | null
+export interface gainType {
+  id: number
+  title: string
+  ingredient: string
+  description: string
 }
 
-export interface VisitMonth {
-  id: string
-  year: number
-  month: number
-  visits: number
-  updatedAt: Date
+export interface faqType {
+  id: number
+  question: string
+  answer: string
 }
+
+// ============================================
+// NAVIGATION TYPES
+// ============================================
 
 export interface NavItem {
   name: string
@@ -363,7 +392,10 @@ export interface NavItem {
   subItems?: { name: string; path: string }[]
 }
 
-// lib/types/location.types.ts
+// ============================================
+// LOCATION TYPES
+// ============================================
+
 export interface City {
   id: number
   name: string
@@ -373,4 +405,16 @@ export interface Province {
   id: number
   name: string
   cities: City[]
+}
+
+// ============================================
+// ANALYTICS TYPES
+// ============================================
+
+export interface VisitMonth {
+  id: string
+  year: number
+  month: number
+  visits: number
+  updatedAt: Date
 }

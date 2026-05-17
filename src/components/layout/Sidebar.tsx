@@ -98,7 +98,7 @@ const Sidebar = () => {
   return (
     <div>
       {/* Sidebar */}
-      <aside className="w-89.75 rounded-lg border-[1.5px] border-[#D9D9D9] bg-white">
+      <aside className="rounded-lg border-[1.5px] border-[#D9D9D9] bg-white lg:w-89.75">
         {/* User Info */}
         <div className="px-10 pt-10">
           <h1 className="font-aria mb-2.5 text-lg font-bold text-black">
@@ -110,7 +110,7 @@ const Sidebar = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="p-10 pb-5">
+        <nav className="p-5 pb-3 max-lg:flex lg:p-10 lg:pb-5">
           {sidebarItems.map((item, index) => (
             <div key={item.name}>
               <Link
@@ -132,11 +132,11 @@ const Sidebar = () => {
                 </span>
               </Link>
               {index < sidebarItems.length - 1 && (
-                <hr className="w-full border border-[#D9D9D9]" />
+                <hr className="hidden w-full border border-[#D9D9D9] lg:block" />
               )}
             </div>
           ))}
-          <hr className="w-full border border-[#D9D9D9]" />
+          <hr className="hidden w-full border border-[#D9D9D9] lg:block" />
           <div>
             <button
               onClick={() => setOpenIndex(true)}

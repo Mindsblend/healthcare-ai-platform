@@ -11,13 +11,28 @@ const Bundle = ({ product }: BundleProps) => {
     <div className="w-full rounded-3xl border border-black/25 p-3 sm:p-4 md:p-5">
       {/* Product Image */}
       <div className="flex justify-center">
-        <Image
-          src={product.image}
-          width={335}
-          height={347}
-          alt={product.title}
-          className="max-h-[200px] w-full rounded-lg object-cover sm:max-h-[250px] md:max-h-[347px]"
-        />
+        {product.image && product.image.trim() !== '' ? (
+          <div className="relative max-h-[200px] w-full sm:max-h-[250px] md:max-h-[347px]">
+            <Image
+              src={product.image}
+              width={335}
+              height={347}
+              alt={product.title}
+              className="h-full w-full rounded-lg object-cover"
+              style={{ maxHeight: 'inherit' }}
+            />
+          </div>
+        ) : (
+          <div
+            className="flex w-full items-center justify-center rounded-lg bg-gray-100"
+            style={{
+              height: 'clamp(200px, 30vw, 347px)',
+              maxHeight: '347px',
+            }}
+          >
+            <span className="text-sm text-gray-400">بدون تصویر</span>
+          </div>
+        )}
       </div>
 
       {/* Content Section */}

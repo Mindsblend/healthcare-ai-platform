@@ -21,6 +21,9 @@ export default function ProductPage() {
   const { productsByCategoryId: relatedProducts, loading: relatedLoading } =
     useProductsByCategoryId(product?.categoryId || 0)
 
+  // Get the category icon path, fallback to default
+  const categoryIcon = product?.category?.iconPath || '/images/makeup.svg'
+
   const handleAddToCart = async () => {
     if (cartLoading || !product) return
     await addToCart(product.id, 1)
@@ -29,7 +32,7 @@ export default function ProductPage() {
   return (
     <LoadingBar loading={loading} error={error}>
       {product && (
-        <div className="container mt-14">
+        <div className="container mt-5 sm:mt-14">
           <div className="flex items-center justify-between gap-x-6 max-lg:flex-col">
             <div className="shrink-2 max-lg:w-full max-lg:pt-5">
               <h1 className="font-aria text-color-title-on-light text-4xl font-extrabold sm:text-[40px]">
@@ -38,12 +41,16 @@ export default function ProductPage() {
               <div className="mt-5 flex items-center gap-x-3">
                 {product.icons?.map(({ id, title, iconPath }: iconType) => (
                   <div key={id} className="flex gap-1">
-                    <Image
-                      src={iconPath ?? '/images/close.svg'}
-                      alt="earbuds icon"
-                      width={13}
-                      height={13}
-                    />
+                    {iconPath && iconPath.trim() !== '' ? (
+                      <Image
+                        src={iconPath}
+                        alt={title || 'icon'}
+                        width={13}
+                        height={13}
+                      />
+                    ) : (
+                      <span className="text-xs text-gray-400">بدون آیکون</span>
+                    )}
                     <h1 className="font-ray text-color-title-on-light text-xs font-medium xl:text-base">
                       {title}
                     </h1>
@@ -53,7 +60,7 @@ export default function ProductPage() {
               <p className="font-ray text-color-body-on-light mt-5 max-w-xl text-xs sm:text-sm xl:text-lg">
                 {product.description}
               </p>
-              <div className="bg-section mt-5 max-w-131.25 rounded-lg px-6.25 py-5.5">
+              <div className="bg-section mt-5 rounded-lg px-6.25 py-5.5 sm:max-w-131.25">
                 <div className="flex items-center gap-1.5">
                   <Image
                     src="/images/cognition.svg"
@@ -120,19 +127,33 @@ export default function ProductPage() {
             </div>
             <div className="w-full max-lg:order-first lg:max-w-xl">
               <div className="bg-page mx-auto w-full rounded-[37px] border border-black/25 p-3.5">
-                <div
-                  className="relative aspect-4/3 w-full rounded-[25px] bg-cover bg-center bg-no-repeat sm:aspect-square xl:h-full xl:w-full"
-                  style={{ backgroundImage: `url(${product.image})` }}
-                >
-                  <div className="bg-page absolute top-4.25 right-4.25 z-10 h-12 w-12 rounded-full p-2.25">
-                    <Image
-                      src="/images/makeup.svg"
-                      alt="Productproduct icon"
-                      width={30}
-                      height={30}
-                    />
+                {product.image && product.image.trim() !== '' ? (
+                  <div
+                    className="relative aspect-4/3 w-full rounded-[25px] bg-cover bg-center bg-no-repeat sm:aspect-square xl:h-full xl:w-full"
+                    style={{ backgroundImage: `url(${product.image})` }}
+                  >
+                    <div className="bg-page absolute top-4.25 right-4.25 z-10 h-12 w-12 rounded-full p-2.25">
+                      <Image
+                        src={categoryIcon}
+                        alt="Product icon"
+                        width={30}
+                        height={30}
+                      />
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="relative flex aspect-4/3 w-full items-center justify-center rounded-[25px] bg-gray-100 sm:aspect-square xl:h-full xl:w-full">
+                    <div className="bg-page absolute top-4.25 right-4.25 z-10 h-12 w-12 rounded-full p-2.25">
+                      <Image
+                        src={categoryIcon}
+                        alt="Product icon"
+                        width={30}
+                        height={30}
+                      />
+                    </div>
+                    <span className="text-sm text-gray-400">بدون تصویر</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>

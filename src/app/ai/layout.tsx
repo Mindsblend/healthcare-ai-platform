@@ -1,15 +1,12 @@
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import CallToAction from '@/components/layout/CallToAction'
+import NavbarWrapper from '@/components/layout/NavbarWrapper'
 
-export default function AILayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function AILayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <Navbar />
+      <NavbarWrapper />
       {children}
       <CallToAction />
       <Footer />

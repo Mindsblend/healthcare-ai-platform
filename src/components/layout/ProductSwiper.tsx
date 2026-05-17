@@ -90,76 +90,77 @@ export default function ProductSwiper({
             </div>
           )}
         </div>
-
-        <div className="category-menu-container relative block lg:hidden">
-          <button
-            onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
-            className="secondary-btn flex items-center justify-center gap-1 rounded-full border border-black bg-black px-4 py-2 font-medium whitespace-nowrap text-white"
-          >
-            <Image
-              src="/images/discover_tune.svg"
-              width={15}
-              height={15}
-              alt="discover tune image"
-            />
-            دسته بندی
-            <svg
-              className={`transition-transform duration-200 ${isCategoryMenuOpen ? 'rotate-180' : ''}`}
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
+        {hasCategories && (
+          <div className="category-menu-container relative block lg:hidden">
+            <button
+              onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
+              className="secondary-btn flex items-center justify-center gap-1 rounded-full border border-black bg-black px-4 py-2 font-medium whitespace-nowrap text-white"
             >
-              <path
-                d="M6 9L12 15L18 9"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+              <Image
+                src="/images/discover_tune.svg"
+                width={15}
+                height={15}
+                alt="discover tune image"
               />
-            </svg>
-          </button>
+              دسته بندی
+              <svg
+                className={`transition-transform duration-200 ${isCategoryMenuOpen ? 'rotate-180' : ''}`}
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M6 9L12 15L18 9"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
 
-          {isCategoryMenuOpen && hasCategories && (
-            <div className="absolute top-full right-0 z-50 mt-2 w-64 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg">
-              <div className="py-2">
-                <button
-                  onClick={() => {
-                    setActiveCategoryId(null)
-                    setIsCategoryMenuOpen(false)
-                  }}
-                  className={`w-full px-4 py-3 text-right transition-colors ${
-                    activeCategoryId === null
-                      ? 'bg-black text-white'
-                      : 'text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  <span className="block font-medium">همه</span>
-                </button>
-
-                {categories!.map((category) => (
+            {isCategoryMenuOpen && hasCategories && (
+              <div className="absolute top-full right-0 z-50 mt-2 w-64 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg">
+                <div className="py-2">
                   <button
-                    key={category.id}
                     onClick={() => {
-                      setActiveCategoryId(
-                        activeCategoryId === category.id ? null : category.id,
-                      )
+                      setActiveCategoryId(null)
                       setIsCategoryMenuOpen(false)
                     }}
                     className={`w-full px-4 py-3 text-right transition-colors ${
-                      activeCategoryId === category.id
+                      activeCategoryId === null
                         ? 'bg-black text-white'
                         : 'text-gray-700 hover:bg-gray-50'
                     }`}
                   >
-                    <span className="block font-medium">{category.name}</span>
+                    <span className="block font-medium">همه</span>
                   </button>
-                ))}
+
+                  {categories!.map((category) => (
+                    <button
+                      key={category.id}
+                      onClick={() => {
+                        setActiveCategoryId(
+                          activeCategoryId === category.id ? null : category.id,
+                        )
+                        setIsCategoryMenuOpen(false)
+                      }}
+                      className={`w-full px-4 py-3 text-right transition-colors ${
+                        activeCategoryId === category.id
+                          ? 'bg-black text-white'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <span className="block font-medium">{category.name}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
         {/* Navigation Buttons */}
         {hasCategories && (

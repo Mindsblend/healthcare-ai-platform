@@ -51,7 +51,7 @@ const page = () => {
                   {latestBlog.title}
                 </h1>
 
-                <p className="font-ray mt-3 text-sm font-medium lg:mt-3.5 lg:text-base">
+                <div className="font-ray mt-1.5 text-sm font-medium">
                   <div
                     dangerouslySetInnerHTML={{ __html: latestBlog.description }}
                   ></div>
@@ -64,7 +64,7 @@ const page = () => {
                       height={16}
                     />
                   </span>
-                </p>
+                </div>
               </div>
 
               {/* footer */}
