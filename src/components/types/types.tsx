@@ -408,7 +408,7 @@ export interface Province {
 }
 
 // ============================================
-// ANALYTICS TYPES
+// ADMIN DASHBOARD
 // ============================================
 
 export interface VisitMonth {
@@ -418,3 +418,8 @@ export interface VisitMonth {
   visits: number
   updatedAt: Date
 }
+export type SubscriptionPayload = Prisma.SubscriptionGetPayload<{
+  select: {
+    email: true
+  }
+}>
