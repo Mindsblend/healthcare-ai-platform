@@ -9,7 +9,7 @@ export async function GET(
     const { slug: rawSlug } = await params
     const slug = decodeURIComponent(rawSlug)
 
-    const blog = await BlogService.fetchBlogBySlug(slug)
+    const blog = await BlogService.fetchBlogBySlug({ slug })
 
     if (!blog) {
       return new Response(JSON.stringify({ error: 'Blog not found' }), {

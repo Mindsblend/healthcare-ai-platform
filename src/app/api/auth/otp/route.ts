@@ -29,7 +29,8 @@ export async function POST(req: Request) {
         console.log(`[SMS] OTP request for: ${value}`)
 
         // Send OTP
-        code = await sendOtpViaSms(value)
+        const smsResponse = await sendOtpViaSms({ phone: value })
+        code = smsResponse.code
         console.log('[SMS] OTP code sent')
 
         // Store OTP

@@ -1,8 +1,12 @@
-export async function deleteBlogAction(id: number) {
+import { DeleteBlogInput, DeleteBlogResponse } from '../../shop.types'
+
+export async function deleteBlogAction(
+  input: DeleteBlogInput,
+): Promise<DeleteBlogResponse> {
   const res = await fetch('/api/shop/blogs/delete', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(id),
+    body: JSON.stringify(input),
   })
 
   if (!res.ok) {

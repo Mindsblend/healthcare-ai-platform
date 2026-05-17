@@ -3,10 +3,10 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { faqType } from '../types/types'
+import { FaqType } from '@/features/shop/shop.types'
 
 interface FaqItemProps {
-  item: faqType
+  item: FaqType
   isOpen: boolean
   onToggle: () => void
 }
@@ -60,7 +60,7 @@ const FaqItem = ({ item, isOpen, onToggle }: FaqItemProps) => {
 }
 
 interface QuestionsProps {
-  faqs: faqType[]
+  faqs: FaqType[]
 }
 
 const Questions = ({ faqs }: QuestionsProps) => {

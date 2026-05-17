@@ -2,19 +2,19 @@
 
 import { useBlogsPreview } from '@/features/shop/hooks/blogs/useBlogsPreview'
 import Blog from '@/components/layout/Blog'
-import { BlogType } from '@/components/types/types'
+import { BlogPreview } from '@/features/shop/shop.types'
 import Image from 'next/image'
 import LoadingBar from '@/components/layout/LoadingBar'
 
 const page = () => {
   const { blogs, loading, error } = useBlogsPreview()
 
-  const sortedBlogs: BlogType[] = [...blogs].sort(
+  const sortedBlogs: BlogPreview[] = [...blogs].sort(
     (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
   )
 
-  const latestBlog: BlogType = sortedBlogs[0]
-  const remainingBlogs: BlogType[] = sortedBlogs.slice(1)
+  const latestBlog: BlogPreview = sortedBlogs[0]
+  const remainingBlogs: BlogPreview[] = sortedBlogs.slice(1)
 
   return (
     <LoadingBar

@@ -1,39 +1,15 @@
+// features/shop/products/services/productService.ts
+
 import { prisma } from '@/lib/prisma'
 import {
   ProductSummary,
-  iconType,
-  gainType,
-  faqType,
   ProductDetail,
-} from '@/components/types/types'
-
-interface CreateProductDTO {
-  title: string
-  price: number
-  slug: string
-  solution: string
-  image: string
-  description: string
-  categoryId: number
-  icons: iconType[]
-  gains: gainType[]
-  faqs: faqType[]
-}
-
-interface UpdateProductDTO {
-  title?: string
-  price?: number
-  slug?: string
-  solution?: string
-  image?: string
-  description?: string
-  categoryId?: number
-  feedCategoryId?: number
-  isActive?: boolean
-  icons?: iconType[]
-  gains?: gainType[]
-  faqs?: faqType[]
-}
+  CreateProductInput,
+  UpdateProductInput,
+  DeleteProductInput,
+  GetProductBySlugInput,
+  GetProductsByCategoryInput,
+} from '../shop.types'
 
 export class ProductService {
   static async fetchProductsPreview(): Promise<ProductSummary[]> {
@@ -57,7 +33,10 @@ export class ProductService {
     })
   }
 
-  static async fetchProductBySlug(slug: string): Promise<ProductDetail | null> {
+  static async fetchProductBySlug(
+    input: GetProductBySlugInput,
+  ): Promise<ProductDetail | null> {
+    const { slug } = input
     return prisma.product.findUnique({
       where: { slug, isActive: true },
       include: {
@@ -70,7 +49,8 @@ export class ProductService {
     })
   }
 
-  static async fetchProductsByCategoryId(categoryId: number) {
+  static async fetchProductsByCategoryId(input: GetProductsByCategoryInput) {
+    const { categoryId } = input
     return prisma.product.findMany({
       where: {
         categoryId,
@@ -81,37 +61,45 @@ export class ProductService {
     })
   }
 
-  static async createProduct(data: CreateProductDTO) {
+  static async createProduct(input: CreateProductInput) {
+    const {
+      title,
+      price,
+      categoryId,
+      slug,
+      solution,
+      image,
+      description,
+      icons,
+      gains,
+      faqs,
+    } = input
+
     const product = await prisma.product.create({
       data: {
-        title: data.title,
-        price: data.price,
-
-        categoryId: data.categoryId,
-
-        slug: data.slug,
-        solution: data.solution,
-        image: data.image,
-        description: data.description,
-
+        title,
+        price,
+        categoryId,
+        slug,
+        solution,
+        image,
+        description,
         icons: {
-          create: data.icons.map((i) => ({
+          create: icons.map((i) => ({
             title: i.title,
             description: i.description,
             iconPath: i.iconPath ?? null,
           })),
         },
-
         gains: {
-          create: data.gains.map((g) => ({
+          create: gains.map((g) => ({
             title: g.title,
             description: g.description,
             ingredient: g.ingredient,
           })),
         },
-
         faqs: {
-          create: data.faqs.map((f) => ({
+          create: faqs.map((f) => ({
             question: f.question,
             answer: f.answer,
           })),
@@ -122,7 +110,9 @@ export class ProductService {
     return product
   }
 
-  static async updateProduct(id: number, data: UpdateProductDTO) {
+  static async updateProduct(input: UpdateProductInput) {
+    const { id, ...data } = input
+
     // First, get the existing product to handle nested updates
     const existingProduct = await prisma.product.findUnique({
       where: { id },
@@ -157,11 +147,9 @@ export class ProductService {
 
     // Update icons if provided
     if (data.icons) {
-      // Delete existing icons
       await prisma.icon.deleteMany({
         where: { productId: id },
       })
-      // Create new icons
       updateData.icons = {
         create: data.icons.map((i) => ({
           title: i.title,
@@ -173,11 +161,9 @@ export class ProductService {
 
     // Update gains if provided
     if (data.gains) {
-      // Delete existing gains
       await prisma.gain.deleteMany({
         where: { productId: id },
       })
-      // Create new gains
       updateData.gains = {
         create: data.gains.map((g) => ({
           title: g.title,
@@ -189,11 +175,9 @@ export class ProductService {
 
     // Update faqs if provided
     if (data.faqs) {
-      // Delete existing faqs
       await prisma.faq.deleteMany({
         where: { productId: id },
       })
-      // Create new faqs
       updateData.faqs = {
         create: data.faqs.map((f) => ({
           question: f.question,
@@ -216,9 +200,10 @@ export class ProductService {
     return product
   }
 
-  static async deleteProduct(id: number) {
+  static async deleteProduct(input: DeleteProductInput) {
+    const { id } = input
     return prisma.product.update({
-      where: { id: id },
+      where: { id },
       data: { isActive: false },
     })
   }

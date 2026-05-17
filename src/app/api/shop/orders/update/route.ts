@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check authorization
-    await requireAuthority('ADMIN')
+    await requireAuthority({ requiredRole: 'ADMIN' })
 
     // Only allow certain updates
     const allowedUpdates: any = {}
@@ -33,7 +33,10 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const updatedOrder = await OrderService.updateOrder(orderId, allowedUpdates)
+    const updatedOrder = await OrderService.updateOrder({
+      orderId: orderId,
+      ...allowedUpdates,
+    })
 
     return NextResponse.json(updatedOrder)
   } catch (err) {

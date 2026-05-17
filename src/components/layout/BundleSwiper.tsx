@@ -3,7 +3,7 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import Bundle from './Bundle'
-import { ProductSummary } from '@/components/types/types'
+import { ProductSummary } from '@/features/shop/shop.types'
 
 interface BundleSwiperProps {
   products: ProductSummary[]

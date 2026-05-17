@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { getUsers } from '../actions/getUsersAction'
-import { UserType } from '@/components/types/types'
+import { UserSummary } from '@/features/shop/shop.types'
 
 export function useUsers() {
-  const [users, setUsers] = useState<UserType[]>([])
+  const [users, setUsers] = useState<UserSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

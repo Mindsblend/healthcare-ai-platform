@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    await requireAuthority('ADMIN')
+    await requireAuthority({ requiredRole: 'ADMIN' })
 
     // Create allowed updates object (only include fields that are provided)
     const allowedUpdates: any = {}
@@ -53,10 +53,10 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const updatedProduct = await ProductService.updateProduct(
+    const updatedProduct = await ProductService.updateProduct({
       productId,
-      allowedUpdates,
-    )
+      ...allowedUpdates,
+    })
     return NextResponse.json(updatedProduct)
   } catch (error) {
     return NextResponse.json(

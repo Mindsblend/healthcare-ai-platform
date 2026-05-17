@@ -2,7 +2,7 @@ import { UserService } from '@/features/shop/services/UserService'
 import { requireAuthority } from '@/features/auth/services/sessionService'
 
 export async function GET() {
-  await requireAuthority('ADMIN')
+  await requireAuthority({ requiredRole: 'ADMIN' })
   try {
     const users = await UserService.fetchAllUsers()
     return new Response(JSON.stringify(users), { status: 200 })

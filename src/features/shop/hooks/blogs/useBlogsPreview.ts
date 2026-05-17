@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { getBlogsPreview } from '../../actions/blogs/getBlogsPreviewAction'
-import { BlogType } from '@/components/types/types'
+import { BlogPreview } from '../../shop.types'
 
 export function useBlogsPreview() {
-  const [blogs, setBlogs] = useState<BlogType[]>([])
+  const [blogs, setBlogs] = useState<BlogPreview[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

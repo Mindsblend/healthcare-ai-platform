@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import { requireAuthority } from '@/features/auth/services/sessionService'
 
 export async function POST() {
-  await requireAuthority('USER')
+  await requireAuthority({ requiredRole: 'USER' })
   try {
     // Clear the session cookie
     const cookieStore = await cookies()

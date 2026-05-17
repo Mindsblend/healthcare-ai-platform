@@ -1,9 +1,4 @@
-import { ShippingInfo, OrderDetail } from '@/components/types/types'
-
-export type CreateOrderInput = {
-  shippingInfo: ShippingInfo
-  paymentMethod: 'mellat' | 'zarinpal'
-}
+import { CreateOrderInput, OrderDetail } from '../../shop.types'
 
 export async function createOrderAction(
   input: CreateOrderInput,

@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react'
 import Image from 'next/image'
 import { useCategories } from '@/features/shop/hooks/categories/useCategories'
 import BundleSwiper from '@/components/layout/BundleSwiper'
-import { ProductSummary } from '@/components/types/types'
+import { ProductSummary } from '@/features/shop/shop.types'
 
 interface ShopBundleProps {
   products: ProductSummary[]

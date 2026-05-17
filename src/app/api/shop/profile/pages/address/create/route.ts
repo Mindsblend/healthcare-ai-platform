@@ -2,7 +2,7 @@ import { UserService } from '@/features/shop/services/UserService'
 import { requireAuthority } from '@/features/auth/services/sessionService'
 
 export async function POST(req: Request) {
-  const session = await requireAuthority('USER')
+  const session = await requireAuthority({ requiredRole: 'USER' })
   try {
     const data = await req.json()
     const address = await UserService.createAddress(session.id, data)

@@ -2,7 +2,7 @@ import { BlogService } from '@/features/shop/services/BlogService'
 import { requireAuthority } from '@/features/auth/services/sessionService'
 
 export async function POST(req: Request) {
-  await requireAuthority('ADMIN')
+  await requireAuthority({ requiredRole: 'ADMIN' })
   try {
     const data = await req.json()
     const blog = await BlogService.deleteBlog(data)

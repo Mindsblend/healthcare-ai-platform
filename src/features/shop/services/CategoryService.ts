@@ -1,8 +1,15 @@
+// features/shop/categories/services/categoryService.ts
+
 import { prisma } from '@/lib/prisma'
+import {
+  CategorySummary,
+  CategoryWithProducts,
+  FetchCategoryWithProductsInput,
+} from '../shop.types'
 
 export class CategoryService {
   // Returns ONLY categories (no products)
-  static async fetchPreviewCategories() {
+  static async fetchPreviewCategories(): Promise<CategorySummary[]> {
     return prisma.category.findMany({
       select: {
         id: true,
@@ -13,19 +20,26 @@ export class CategoryService {
   }
 
   // Returns category WITH its products (for category page)
-  static async fetchCategoryWithProducts(id: number) {
+  static async fetchCategoryWithProducts(
+    input: FetchCategoryWithProductsInput,
+  ): Promise<CategoryWithProducts | null> {
+    const { id } = input
     return prisma.category.findUnique({
       where: { id },
       include: {
         products: {
-          // Products are included here
           where: { isActive: true },
-          select: {
-            id: true,
-            title: true,
-            price: true,
-            slug: true,
-            image: true,
+          include: {
+            category: {
+              select: {
+                id: true,
+                name: true,
+                iconPath: true,
+              },
+            },
+            icons: true,
+            gains: true,
+            faqs: true,
           },
         },
       },

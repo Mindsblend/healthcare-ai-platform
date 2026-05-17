@@ -2,14 +2,20 @@
 
 import { useEffect, useState } from 'react'
 import { getProductsByCategory } from '../../actions/products/getProductByCategoryIdAction'
+import {
+  GetProductsByCategoryInput,
+  GetProductsByCategoryResponse,
+} from '../../shop.types'
 
-export function useProductsByCategoryId(categoryId: number) {
-  const [productsByCategoryId, setProductsByCategoryId] = useState([])
+export function useProductsByCategoryId(input: GetProductsByCategoryInput) {
+  const [productsByCategoryId, setProductsByCategoryId] = useState<
+    GetProductsByCategoryResponse[]
+  >([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!categoryId) {
+    if (!input.categoryId) {
       setLoading(false)
       return
     }
@@ -18,7 +24,7 @@ export function useProductsByCategoryId(categoryId: number) {
       setLoading(true)
       setError(null)
       try {
-        const data = await getProductsByCategory(categoryId)
+        const data = await getProductsByCategory(input)
         setProductsByCategoryId(data)
       } catch (err: any) {
         setError(err.message)
@@ -27,7 +33,7 @@ export function useProductsByCategoryId(categoryId: number) {
       }
     }
     load()
-  }, [categoryId])
+  }, [input.categoryId])
 
   return { productsByCategoryId, loading, error }
 }

@@ -1,4 +1,4 @@
-import { VisitMonth } from '@/components/types/types'
+import { VisitMonth } from '../dashboard.types'
 
 export async function trackVisitAction(): Promise<VisitMonth> {
   const res = await fetch('/api/dashboard/analytics/views/track', {

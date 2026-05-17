@@ -1,5 +1,11 @@
+// features/dashboard/services/analyticsService.ts
+
 import { prisma } from '@/lib/prisma'
-import { SubscriptionPayload, VisitMonth } from '@/components/types/types'
+import {
+  SubscriptionPayload,
+  VisitMonth,
+  CreateSubscriptionInput,
+} from '../dashboard.types'
 
 export class AnalyticsService {
   static async trackVisit(): Promise<VisitMonth> {
@@ -20,12 +26,12 @@ export class AnalyticsService {
     })
   }
 
-  static async createSubscription(data: {
-    email: string
-  }): Promise<SubscriptionPayload> {
+  static async createSubscription(
+    input: CreateSubscriptionInput,
+  ): Promise<SubscriptionPayload> {
     return prisma.subscription.create({
       data: {
-        email: data.email,
+        email: input.email,
       },
     })
   }

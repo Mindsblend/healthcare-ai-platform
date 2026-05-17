@@ -1,10 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import {
-  createUserAddressAction,
-  CreateUserAddressInput,
-} from '../../actions/profile/createUserAddressAction'
+import { createUserAddressAction } from '../../actions/profile/createUserAddressAction'
+import { CreateUserAddressInput } from '../../shop.types'
 
 export function useCreateUserAddress() {
   const [loading, setLoading] = useState(false)

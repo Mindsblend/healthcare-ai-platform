@@ -1,13 +1,11 @@
 import { verify, JwtPayload } from 'jsonwebtoken'
+import { VerifyTokenInput, EdgeSession } from '../auth.types'
 
 const JWT_SECRET = process.env.JWT_SECRET!
 
-export type EdgeSession = {
-  id: string
-  role: string
-}
+export function verifyToken(input: VerifyTokenInput): EdgeSession | null {
+  const { token } = input
 
-export function verifyToken(token: string): EdgeSession | null {
   try {
     const decoded = verify(token, JWT_SECRET) as JwtPayload
 

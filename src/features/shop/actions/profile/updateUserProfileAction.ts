@@ -1,13 +1,10 @@
-export async function updateUserProfileAction(data: {
-  firstName?: string
-  lastName?: string
-  email?: string
-  phone?: string
-}) {
+import { UpdateUserProfileInput, UpdateUserProfileResponse } from '../../shop.types'
+
+export async function updateUserProfileAction(input: UpdateUserProfileInput): Promise<UpdateUserProfileResponse> {
   const res = await fetch('/api/shop/profile/update', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...data }),
+    body: JSON.stringify(input),
   })
 
   if (!res.ok) {

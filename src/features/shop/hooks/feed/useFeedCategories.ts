@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { getFeedCategories } from '../../actions/feed/getFeedCategoriesAction'
-import { FeedCategoryWithProducts } from '@/components/types/types'
+import { FeedCategoryWithProducts } from '../../shop.types'
 
 export function useFeedCategories() {
   const [feedCategories, setFeedCategories] = useState<

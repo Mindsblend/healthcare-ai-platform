@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { getCategories } from '../../actions/categories/getCategoriesAction'
-import { CategorySummary } from '@/components/types/types'
+import { CategorySummary } from '../../shop.types'
 
 export function useCategories() {
   const [categories, setcategories] = useState<CategorySummary[]>([])

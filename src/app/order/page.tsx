@@ -5,7 +5,8 @@ import { useCart } from '@/features/shop/hooks/cart/useCart'
 import { useState, ChangeEvent, useEffect } from 'react'
 import { useCreateOrder } from '@/features/shop/hooks/orders/createOrders'
 import { useUserAddress } from '@/features/shop/hooks/profile/useUserAddress'
-import { ShippingInfo, City } from '@/components/types/types'
+import { ShippingInfo } from '@/features/shop/shop.types'
+import { City } from '@/components/types/types'
 import {
   getFreeShippingStatus,
   provinces,
@@ -264,8 +265,7 @@ const CheckoutPage = () => {
 
       // If user wants to create a new address (either from form or "Add New Address" button)
       if (shouldCreateNewAddress && !selectedAddressId) {
-        // Create new address using your hook
-        const newAddress = await createUserAddress({
+        await createUserAddress({
           firstName: shippingInfo.firstName,
           lastName: shippingInfo.lastName,
           city: shippingInfo.city,
@@ -275,8 +275,6 @@ const CheckoutPage = () => {
           address: shippingInfo.address,
           postalCode: shippingInfo.postalCode,
         })
-
-        addressId = newAddress.id
       }
 
       // Create order with the SAME shippingInfo structure you were already using

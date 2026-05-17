@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useDeleteProduct } from '@/features/shop/hooks/products/deleteProduct'
 import { useUpdateProduct } from '@/features/shop/hooks/products/updateProduct'
 import { useProductsPreview } from '@/features/shop/hooks/products/useProductsPreview'
-import { useProductBySlug } from '@/features/shop/hooks/products/useProductBySlug'
+import { getProductBySlug } from '@/features/shop/actions/products/getProductBySlugAction'
 import { useCategories } from '@/features/shop/hooks/categories/useCategories'
 import { useFeedCategories } from '@/features/shop/hooks/feed/useFeedCategories'
 import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
@@ -19,7 +19,11 @@ import {
 import Pagination from '@/components/domain/dashboard/tables/Pagination'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ProductDetail, ProductSummary } from '@/components/types/types'
+import {
+  GetProductBySlugResponse,
+  GetProductsByCategoryResponse,
+  ProductSummary,
+} from '@/features/shop/shop.types'
 import LoadingBar from '@/components/layout/LoadingBar'
 import ConfirmPopup from '@/components/layout/ConfirmPopup'
 
@@ -31,14 +35,8 @@ const Products = () => {
   const { deleteProduct } = useDeleteProduct()
   const { updateProduct, loading: updating } = useUpdateProduct()
 
-  const {
-    product: fetchedProduct,
-    loading: productLoading,
-    getProductBySlug,
-  } = useProductBySlug('')
-
   const [selectedProduct, setSelectedProduct] = useState<
-    ProductDetail | null | undefined
+    GetProductBySlugResponse | null | undefined
   >(null)
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [isFetchingProduct, setIsFetchingProduct] = useState<boolean>(false)
@@ -66,22 +64,20 @@ const Products = () => {
   // Ref for debounce timer
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Effect to update form when fetchedProduct changes
+  // Effect to update form when selectedProduct changes
   useEffect(() => {
-    if (fetchedProduct) {
-      setSelectedProduct(fetchedProduct)
-      setProductId(fetchedProduct.id)
-      setTitle(fetchedProduct.title)
-      setPrice(fetchedProduct.price.toString())
-      setSlug(fetchedProduct.slug)
-      setSolution(fetchedProduct.solution)
-      setImage(fetchedProduct.image)
-      setDescription(fetchedProduct.description || '')
-      setCategoryId(fetchedProduct.categoryId)
-      setFeedCategoryId(fetchedProduct.feedCategoryId || undefined)
-      setIsFetchingProduct(false)
+    if (selectedProduct && !isFetchingProduct) {
+      setProductId(selectedProduct.id)
+      setTitle(selectedProduct.title)
+      setPrice(selectedProduct.price.toString())
+      setSlug(selectedProduct.slug)
+      setSolution(selectedProduct.solution)
+      setImage(selectedProduct.image)
+      setDescription(selectedProduct.description || '')
+      setCategoryId(selectedProduct.categoryId)
+      setFeedCategoryId(selectedProduct.feedCategoryId || undefined)
     }
-  }, [fetchedProduct])
+  }, [selectedProduct, isFetchingProduct])
 
   // Debounce search input
   const handleSearchChange = useCallback((value: string) => {
@@ -121,19 +117,21 @@ const Products = () => {
   }
 
   // Filter products based on debounced search value
-  const filteredProducts = productsPreview.filter((product: ProductSummary) => {
-    if (!debouncedSearchValue.trim()) return true
+  const filteredProducts = productsPreview.filter(
+    (product: GetProductsByCategoryResponse) => {
+      if (!debouncedSearchValue.trim()) return true
 
-    const searchTerm = debouncedSearchValue.toLowerCase().trim()
+      const searchTerm = debouncedSearchValue.toLowerCase().trim()
 
-    return (
-      product.id?.toString().includes(searchTerm) ||
-      product.title?.toLowerCase().includes(searchTerm) ||
-      product.slug?.toLowerCase().includes(searchTerm) ||
-      product.price?.toString().includes(searchTerm) ||
-      product.category?.name?.toLowerCase().includes(searchTerm)
-    )
-  })
+      return (
+        product.id?.toString().includes(searchTerm) ||
+        product.title?.toLowerCase().includes(searchTerm) ||
+        product.slug?.toLowerCase().includes(searchTerm) ||
+        product.price?.toString().includes(searchTerm) ||
+        product.category?.name?.toLowerCase().includes(searchTerm)
+      )
+    },
+  )
 
   const itemsPerPage = 7
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage)
@@ -149,7 +147,7 @@ const Products = () => {
     !loading && !error && !productsPreview.length && !debouncedSearchValue
 
   const handleDelete = async (id: number) => {
-    await deleteProduct(id)
+    await deleteProduct({ id })
     router.refresh()
   }
 
@@ -158,7 +156,7 @@ const Products = () => {
     setIsModalOpen(true)
 
     try {
-      const fullProduct = await getProductBySlug(product.slug)
+      const fullProduct = await getProductBySlug({ slug: product.slug })
       setSelectedProduct(fullProduct)
       setTitle(fullProduct.title)
       setPrice(fullProduct.price.toString())
@@ -179,7 +177,8 @@ const Products = () => {
     if (!selectedProduct) return
 
     try {
-      await updateProduct(selectedProduct.id, {
+      await updateProduct({
+        id: selectedProduct.id,
         title,
         price: parseInt(price),
         slug,

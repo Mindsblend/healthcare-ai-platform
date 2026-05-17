@@ -1,37 +1,12 @@
-import { ProductDetail } from '@/components/types/types'
+import { UpdateProductInput, UpdateProductResponse } from '../../shop.types'
 
 export async function updateProductAction(
-  productId: number,
-  data: {
-    title?: string
-    price?: number
-    slug?: string
-    solution?: string
-    image?: string
-    description?: string
-    categoryId?: number
-    feedCategoryId?: number
-    isActive?: boolean
-    icons?: Array<{
-      title: string
-      description: string
-      iconPath?: string | null
-    }>
-    gains?: Array<{
-      title: string
-      description: string
-      ingredient?: string
-    }>
-    faqs?: Array<{
-      question: string
-      answer: string
-    }>
-  },
-): Promise<ProductDetail> {
+  input: UpdateProductInput,
+): Promise<UpdateProductResponse> {
   const res = await fetch('/api/shop/products/update', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ productId, ...data }),
+    body: JSON.stringify(input),
   })
 
   if (!res.ok) {

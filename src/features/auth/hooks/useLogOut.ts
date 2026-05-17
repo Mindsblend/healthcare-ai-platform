@@ -1,4 +1,3 @@
-// src/features/auth/hooks/useLogOut.ts
 'use client'
 
 import { useState } from 'react'

@@ -1,4 +1,6 @@
-export async function logOut() {
+import { LogOutResponse } from '../auth.types'
+
+export async function logOut(): Promise<LogOutResponse> {
   const res = await fetch('/api/auth/logout', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -9,8 +11,6 @@ export async function logOut() {
 
   if (!res.ok) {
     console.error('[logOut] error object:', data?.error)
-
-    // Throw a real JS Error with the service/domain error code
     throw new Error(data?.error?.code || 'UNKNOWN')
   }
 

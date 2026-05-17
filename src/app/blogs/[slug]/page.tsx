@@ -10,7 +10,7 @@ export default function ProductPage() {
   const params = useParams()
   const slug = decodeURIComponent(params.slug as string)
 
-  const { blog, loading, error } = useBlogBySlug(slug)
+  const { blog, loading, error } = useBlogBySlug({ slug })
 
   if (!loading && !error && !blog) {
     return (

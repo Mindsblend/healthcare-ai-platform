@@ -3,36 +3,27 @@
 import { useState } from 'react'
 import { useCreateProduct } from '@/features/shop/hooks/products/createProduct'
 import { useCategories } from '@/features/shop/hooks/categories/useCategories'
-import { iconType, gainType, faqType } from '@/components/types/types'
+import {
+  CreateProductInput,
+  IconType,
+  GainType,
+  FaqType,
+} from '@/features/shop/shop.types'
 import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
 import LoadingBar from '@/components/layout/LoadingBar'
 import InformPopup from '@/components/layout/InformPopup'
 import { useFeedCategories } from '@/features/shop/hooks/feed/useFeedCategories'
 
-interface ProductFormState {
-  title: string
-  price: string
-  slug: string
-  solution: string
-  description: string
-  image: string
-  categoryId: string
-  feedCategoryId: string
-  icons: iconType[]
-  gains: gainType[]
-  faqs: faqType[]
-}
-
 const AddProduct = () => {
-  const [form, setForm] = useState<ProductFormState>({
+  const [form, setForm] = useState<CreateProductInput>({
     title: '',
-    price: '',
+    price: 0,
     slug: '',
     solution: '',
     description: '',
     image: '',
-    categoryId: '',
-    feedCategoryId: '',
+    categoryId: 0,
+    feedCategoryId: 0,
     icons: [
       { id: 1, title: '', description: '', iconPath: '' },
       { id: 2, title: '', description: '', iconPath: '' },
@@ -59,8 +50,8 @@ const AddProduct = () => {
 
   const [errorMessage, setErrorMessage] = useState<string | null>()
 
-  type AnyField = keyof ProductFormState
-  type AnyArrayKey = keyof iconType | keyof gainType | keyof faqType
+  type AnyField = keyof CreateProductInput
+  type AnyArrayKey = keyof IconType | keyof GainType | keyof FaqType
 
   const handleChange = (
     field: AnyField,
@@ -123,13 +114,13 @@ const AddProduct = () => {
       setErrorMessage('Product created!')
       setForm({
         title: '',
-        price: '',
+        price: 0,
         slug: '',
         solution: '',
         description: '',
         image: '',
-        categoryId: '',
-        feedCategoryId: '',
+        categoryId: 0,
+        feedCategoryId: 0,
         icons: [],
         gains: [],
         faqs: [],

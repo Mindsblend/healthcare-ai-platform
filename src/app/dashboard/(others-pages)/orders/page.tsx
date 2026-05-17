@@ -1,11 +1,10 @@
-// features/shop/components/Orders.tsx
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useOrdersPreview } from '@/features/shop/hooks/orders/useOrdersPreview'
-import { useOrderById } from '@/features/shop/hooks/orders/useOrderById'
+import { getOrderById } from '@/features/shop/actions/orders/getOrderByIdAction'
 import { useUpdateOrder } from '@/features/shop/hooks/orders/updateOrder'
 import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
 import {
@@ -25,10 +24,10 @@ import {
 } from '@/lib/helpers'
 import {
   OrderSummary,
-  OrderDetail,
   OrderStatus,
   OrderItem,
-} from '@/components/types/types'
+  GetOrderByIdResponse,
+} from '@/features/shop/shop.types'
 import { useRouter } from 'next/navigation'
 import LoadingBar from '@/components/layout/LoadingBar'
 
@@ -36,11 +35,6 @@ const Orders = () => {
   const router = useRouter()
   const { orders, loading, error } = useOrdersPreview()
   const { updateOrder, loading: updating } = useUpdateOrder()
-  const {
-    order: fetchedOrder,
-    loading: orderLoading,
-    getOrderById,
-  } = useOrderById('')
 
   const TAX_RATE = 0.09
   const FREE_SHIPPING_THRESHOLD = 2_000_000
@@ -60,7 +54,9 @@ const Orders = () => {
   const [shippingAddress, setShippingAddress] = useState<string>('')
   const [shippingPostalCode, setShippingPostalCode] = useState<string>('')
   const [selectedStatus, setSelectedStatus] = useState<OrderStatus>('PENDING')
-  const [shippingNotes, setShippingNotes] = useState<string>('')
+  const [shippingNotes, setShippingNotes] = useState<string | undefined>(
+    undefined,
+  )
   const [createdAt, setCreatedAt] = useState<string>(new Date().toISOString())
   const [items, setItems] = useState<OrderItem[]>([])
 
@@ -74,7 +70,8 @@ const Orders = () => {
   // Ref for debounce timer
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-  const [selectedOrder, setSelectedOrder] = useState<OrderDetail | null>(null)
+  const [selectedOrder, setSelectedOrder] =
+    useState<GetOrderByIdResponse | null>(null)
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [isFetchingOrder, setIsFetchingOrder] = useState<boolean>(false)
 
@@ -139,25 +136,25 @@ const Orders = () => {
 
   // Effect to update form when fetchedOrder changes
   useEffect(() => {
-    if (fetchedOrder) {
-      setSelectedOrder(fetchedOrder)
-      setSelectedStatus(fetchedOrder.status)
-      setShippingNotes(fetchedOrder.shippingNotes || '')
+    if (selectedOrder && !isFetchingOrder) {
+      setSelectedOrder(selectedOrder)
+      setSelectedStatus(selectedOrder.status)
+      setShippingNotes(selectedOrder.shippingNotes || '')
       setIsFetchingOrder(false)
     }
-  }, [fetchedOrder])
+  }, [selectedOrder])
 
   const handleViewOrder = async (order: OrderSummary) => {
     setIsFetchingOrder(true)
     setIsModalOpen(true)
 
     try {
-      const fullOrder = await getOrderById(order.id)
+      const fullOrder = await getOrderById({ id: order.id })
 
       setSelectedOrder(fullOrder)
       setOrderId(fullOrder.id)
       setShippingFirstName(fullOrder.shippingFirstName)
-      setShippingLastName(fullOrder.shippingLastname)
+      setShippingLastName(fullOrder.shippingLastName)
       setShippingEmail(fullOrder.shippingEmail)
       setShippingPhone(fullOrder.shippingPhone)
       setShippingCity(fullOrder.shippingCity)
@@ -203,7 +200,11 @@ const Orders = () => {
     if (!selectedOrder) return
 
     try {
-      await updateOrder(selectedOrder.id, selectedStatus, shippingNotes)
+      await updateOrder({
+        orderId: selectedOrder.id,
+        status: selectedStatus,
+        shippingNotes,
+      })
       setIsModalOpen(false)
       router.refresh()
     } catch (error) {

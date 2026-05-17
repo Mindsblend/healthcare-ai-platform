@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { useUserOrder } from '@/features/shop/hooks/profile/useUserOrder'
-import { OrderStatus } from '@/components/types/types'
+import { OrderStatus } from '@/features/shop/shop.types'
 import { getStatusLabel, toPersianDigit } from '@/lib/helpers'
 import LoadingBar from '@/components/layout/LoadingBar'
 

@@ -15,7 +15,7 @@ import {
 } from '../../../../components/ui/table'
 import { useRouter } from 'next/navigation'
 import LoadingBar from '@/components/layout/LoadingBar'
-import { BlogSummary } from '@/components/types/types'
+import { BlogSummary } from '@/features/shop/shop.types'
 import ConfirmPopup from '@/components/layout/ConfirmPopup'
 
 const Blogs = () => {
@@ -100,7 +100,7 @@ const Blogs = () => {
     !loading && !error && !blogs.length && !debouncedSearchValue
 
   const handleDelete = async (id: number) => {
-    await deleteBlog(id)
+    await deleteBlog({ id })
     router.refresh()
   }
 

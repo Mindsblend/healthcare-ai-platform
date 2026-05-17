@@ -1,28 +1,20 @@
+// features/shop/blogs/hooks/useCreateBlog.ts
+
 import { useState } from 'react'
 import { createBlog } from '../../actions/blogs/createBlogAction'
-
-export interface CreateBlogInput {
-  title: string
-  image: string
-  description: string
-  slug: string
-  content: string
-  author: string
-  authorImage: string
-  authorTitle: string
-}
+import { CreateBlogInput, CreateBlogResponse } from '../../shop.types'
 
 export function useCreateBlog() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
-  const [data, setData] = useState<unknown>(null)
+  const [data, setData] = useState<CreateBlogResponse | null>(null)
 
-  async function create(blog: CreateBlogInput) {
+  async function create(input: CreateBlogInput) {
     setLoading(true)
     setError(null)
 
     try {
-      const result = await createBlog(blog)
+      const result = await createBlog(input)
       setData(result)
       return result
     } catch (err) {

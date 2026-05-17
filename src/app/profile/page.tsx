@@ -146,7 +146,10 @@ export default function Profile() {
 
     try {
       // Use the updateUserProfile hook instead of direct fetch
-      await updateUserProfile(userInfo?.id, formData)
+      await updateUserProfile({
+        id: userInfo?.id,
+        ...formData,
+      })
 
       setSaveStatus('success')
 

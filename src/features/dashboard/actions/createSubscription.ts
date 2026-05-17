@@ -1,12 +1,17 @@
-import { SubscriptionPayload } from '@/components/types/types'
+// features/dashboard/actions/createSubscriptionAction.ts
+
+import {
+  CreateSubscriptionInput,
+  SubscriptionPayload,
+} from '../dashboard.types'
 
 export async function createSubscriptionAction(
-  email: string,
+  input: CreateSubscriptionInput,
 ): Promise<SubscriptionPayload> {
   const res = await fetch('/api/dashboard/blogs/subscribe', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(email),
+    body: JSON.stringify(input),
   })
 
   if (!res.ok) {

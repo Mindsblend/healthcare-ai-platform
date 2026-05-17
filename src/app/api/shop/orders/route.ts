@@ -2,7 +2,7 @@ import { OrderService } from '@/features/shop/services/OrderService'
 import { requireAuthority } from '@/features/auth/services/sessionService'
 
 export async function GET() {
-  await requireAuthority('ADMIN')
+  await requireAuthority({ requiredRole: 'ADMIN' })
   try {
     const orders = await OrderService.fetchOrdersPreview()
     return new Response(JSON.stringify(orders), { status: 200 })

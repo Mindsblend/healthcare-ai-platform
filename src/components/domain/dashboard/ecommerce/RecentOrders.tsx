@@ -10,7 +10,7 @@ import {
 } from '../../../ui/table'
 import Badge from '../../../ui/badge/Badge'
 import { useOrdersPreview } from '@/features/shop/hooks/orders/useOrdersPreview'
-import { useOrderById } from '@/features/shop/hooks/orders/useOrderById'
+import { getOrderById } from '@/features/shop/actions/orders/getOrderByIdAction'
 import { useUpdateOrder } from '@/features/shop/hooks/orders/updateOrder'
 import Link from 'next/link'
 import {
@@ -26,17 +26,13 @@ import {
   OrderDetail,
   OrderStatus,
   OrderItem,
-} from '@/components/types/types'
+  GetOrderByIdResponse,
+} from '@/features/shop/shop.types'
 import LoadingBar from '@/components/layout/LoadingBar'
 
 export default function RecentOrders() {
   const router = useRouter()
   const { orders, loading, error } = useOrdersPreview()
-  const {
-    order: fetchedOrder,
-    loading: orderLoading,
-    getOrderById,
-  } = useOrderById('')
   const { updateOrder, loading: updating } = useUpdateOrder()
 
   const TAX_RATE = 0.09
@@ -46,7 +42,8 @@ export default function RecentOrders() {
   const [orderTaxAmount, setOrderTaxAmount] = useState(0)
   const [orderDeliveryAmount, setOrderDeliveryAmount] = useState(0)
 
-  const [selectedOrder, setSelectedOrder] = useState<OrderDetail | null>(null)
+  const [selectedOrder, setSelectedOrder] =
+    useState<GetOrderByIdResponse | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isFetchingOrder, setIsFetchingOrder] = useState(false)
 
@@ -61,7 +58,9 @@ export default function RecentOrders() {
   const [shippingAddress, setShippingAddress] = useState('')
   const [shippingPostalCode, setShippingPostalCode] = useState('')
   const [selectedStatus, setSelectedStatus] = useState<OrderStatus>('PENDING')
-  const [shippingNotes, setShippingNotes] = useState('')
+  const [shippingNotes, setShippingNotes] = useState<string | undefined>(
+    undefined,
+  )
   const [createdAt, setCreatedAt] = useState<string>(new Date().toISOString())
   const [items, setItems] = useState<OrderItem[]>([])
 
@@ -75,25 +74,25 @@ export default function RecentOrders() {
 
   // Effect to update form when fetchedOrder changes
   useEffect(() => {
-    if (fetchedOrder) {
-      setSelectedOrder(fetchedOrder)
-      setSelectedStatus(fetchedOrder.status)
-      setShippingNotes(fetchedOrder.shippingNotes || '')
+    if (selectedOrder && !isFetchingOrder) {
+      setSelectedOrder(selectedOrder)
+      setSelectedStatus(selectedOrder.status)
+      setShippingNotes(selectedOrder.shippingNotes || '')
       setIsFetchingOrder(false)
     }
-  }, [fetchedOrder])
+  }, [selectedOrder])
 
   const handleViewOrder = async (order: OrderSummary) => {
     setIsFetchingOrder(true)
     setIsModalOpen(true)
 
     try {
-      const fullOrder = await getOrderById(order.id)
+      const fullOrder = await getOrderById({ id: order.id })
 
       setSelectedOrder(fullOrder)
       setOrderId(fullOrder.id)
       setShippingFirstName(fullOrder.shippingFirstName)
-      setShippingLastName(fullOrder.shippingLastname)
+      setShippingLastName(fullOrder.shippingLastName)
       setShippingEmail(fullOrder.shippingEmail)
       setShippingPhone(fullOrder.shippingPhone)
       setShippingCity(fullOrder.shippingCity)
@@ -140,7 +139,11 @@ export default function RecentOrders() {
     if (!selectedOrder) return
 
     try {
-      await updateOrder(selectedOrder.id, selectedStatus, shippingNotes)
+      await updateOrder({
+        orderId: selectedOrder.id,
+        status: selectedStatus,
+        shippingNotes,
+      })
       setIsModalOpen(false)
       router.refresh()
     } catch (error) {
@@ -382,7 +385,7 @@ export default function RecentOrders() {
             {/* Header */}
             <div className="flex items-center justify-between border-b p-4">
               <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
-                {isFetchingOrder || orderLoading
+                {isFetchingOrder
                   ? 'در حال بارگذاری...'
                   : `جزئیات سفارش - ${orderId}`}
               </h2>
@@ -395,7 +398,7 @@ export default function RecentOrders() {
             </div>
 
             {/* Content */}
-            {isFetchingOrder || orderLoading ? (
+            {isFetchingOrder ? (
               <div className="flex items-center justify-center p-8">
                 <div className="text-center">
                   <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-gray-900"></div>

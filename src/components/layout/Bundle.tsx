@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { ProductSummary } from '@/components/types/types'
+import { ProductSummary } from '@/features/shop/shop.types'
 
 interface BundleProps {
   product: ProductSummary

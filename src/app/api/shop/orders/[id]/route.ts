@@ -22,7 +22,7 @@ export async function GET(
       })
     }
 
-    const order = await OrderService.fetchOrderById(orderId)
+    const order = await OrderService.fetchOrderById({ id: orderId })
 
     if (!order) {
       return new Response(JSON.stringify({ error: 'Order not found' }), {

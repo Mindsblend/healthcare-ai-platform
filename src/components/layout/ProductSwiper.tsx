@@ -7,7 +7,7 @@ import { Autoplay } from 'swiper/modules'
 import type { Swiper as SwiperType } from 'swiper'
 
 import Product from './Product'
-import { CategorySummary, ProductSummary } from '../types/types'
+import { ProductSummary, CategorySummary } from '@/features/shop/shop.types'
 
 import 'swiper/css'
 

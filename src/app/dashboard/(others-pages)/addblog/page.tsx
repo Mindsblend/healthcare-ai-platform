@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useCreateBlog } from '@/features/shop/hooks/blogs/createBlog'
-import { iconType } from '@/components/types/types'
+import { IconType } from '@/features/shop/shop.types'
 import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor'
 import InformPopup from '@/components/layout/InformPopup'
@@ -245,7 +245,7 @@ const AddBlog = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>()
 
   type AnyField = keyof BlogFormState
-  type AnyArrayKey = keyof iconType
+  type AnyArrayKey = keyof IconType
 
   const handleChange = (
     field: AnyField,

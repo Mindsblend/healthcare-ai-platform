@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
     switch (type) {
       case 'email':
-        await verifyOtp(value, code)
+        await verifyOtp({ identifier: value, code })
         console.log('[EMAIL] OTP verified successfully')
 
         user = await UserService.createUser(value, type)
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
         break
 
       case 'phone':
-        await verifyOtp(value, code)
+        await verifyOtp({ identifier: value, code })
         console.log('[SMS] OTP verified successfully')
 
         user = await UserService.createUser(value, type)

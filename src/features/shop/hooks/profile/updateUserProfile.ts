@@ -1,25 +1,25 @@
+// features/shop/profile/hooks/useUpdateUserProfile.ts
+
 'use client'
+
 import { useState } from 'react'
 import { updateUserProfileAction } from '../../actions/profile/updateUserProfileAction'
+import {
+  UpdateUserProfileInput,
+  UpdateUserProfileResponse,
+} from '../../shop.types'
 
 export function useUpdateUserProfile() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
-  const [data, setData] = useState<null>(null)
+  const [data, setData] = useState<UpdateUserProfileResponse | null>(null)
 
-  async function updateUserProfile(
-    data: {
-      firstName?: string
-      lastName?: string
-      email?: string
-      phone?: string
-    },
-  ) {
+  async function updateUserProfile(input: UpdateUserProfileInput) {
     setLoading(true)
     setError(null)
 
     try {
-      const result = await updateUserProfileAction(data)
+      const result = await updateUserProfileAction(input)
       setData(result)
       return result
     } catch (err) {

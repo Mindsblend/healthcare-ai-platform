@@ -8,9 +8,9 @@ export async function GET(request: NextRequest) {
 
     // If categoryId is provided, filter products by category
     if (categoryId) {
-      const products = await ProductService.fetchProductsByCategoryId(
-        Number(categoryId),
-      )
+      const products = await ProductService.fetchProductsByCategoryId({
+        categoryId: Number(categoryId),
+      })
       return NextResponse.json(products)
     }
 

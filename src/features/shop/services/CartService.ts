@@ -1,9 +1,21 @@
+// features/shop/cart/services/cartService.ts
+
 import { prisma } from '@/lib/prisma'
 import { CartStatus } from '@prisma/client'
+import {
+  AddItemInput,
+  UpdateItemQuantityInput,
+  RemoveItemInput,
+  ClearCartInput,
+  CartType,
+} from '../shop.types'
 
 export class CartService {
   // fetch Active Cart
-  static async fetchActiveCart(userId: string) {
+  static async fetchActiveCart(input: {
+    userId: string
+  }): Promise<CartType | null> {
+    const { userId } = input
     return prisma.cart.findFirst({
       where: {
         userId,
@@ -18,7 +30,8 @@ export class CartService {
   }
 
   // Create Cart
-  static async createCart(userId: string) {
+  static async createCart(input: { userId: string }): Promise<CartType | null> {
+    const { userId } = input
     const cart = await prisma.cart.create({
       data: {
         userId,
@@ -39,7 +52,9 @@ export class CartService {
   }
 
   /** Add to Cart */
-  static async addItem(cartId: string, productId: number, quantity = 1) {
+  static async addItem(input: AddItemInput) {
+    const { cartId, productId, quantity = 1 } = input
+
     const product = await prisma.product.findUnique({
       where: { id: productId },
     })
@@ -68,7 +83,9 @@ export class CartService {
   }
 
   /** Change Quantity */
-  static async updateItemQuantity(cartItemId: number, quantity: number) {
+  static async updateItemQuantity(input: UpdateItemQuantityInput) {
+    const { cartItemId, quantity } = input
+
     if (quantity <= 0) {
       return prisma.cartItem.delete({
         where: { id: cartItemId },
@@ -82,21 +99,24 @@ export class CartService {
   }
 
   /** Delete Item */
-  static async removeItem(cartItemId: number) {
+  static async removeItem(input: RemoveItemInput) {
+    const { cartItemId } = input
     return prisma.cartItem.delete({
       where: { id: cartItemId },
     })
   }
 
   /** Empty Carts */
-  static async clearCart(cartId: string) {
+  static async clearCart(input: ClearCartInput) {
+    const { cartId } = input
     return prisma.cartItem.deleteMany({
       where: { cartId },
     })
   }
 
   /** Total cost */
-  static async calculateTotal(cartId: string) {
+  static async calculateTotal(input: { cartId: string }) {
+    const { cartId } = input
     const items = await prisma.cartItem.findMany({
       where: { cartId },
     })

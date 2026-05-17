@@ -1,15 +1,12 @@
-import { OrderSummary } from '@/components/types/types'
-import { OrderStatus } from '@prisma/client'
+import { UpdateOrderInput, OrderSummary } from '../../shop.types'
 
 export async function updateOrderAction(
-  orderId: string,
-  status?: OrderStatus,
-  shippingNotes?: string,
+  input: UpdateOrderInput,
 ): Promise<OrderSummary> {
   const res = await fetch('/api/shop/orders/update', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ orderId, status, shippingNotes }),
+    body: JSON.stringify(input),
   })
 
   if (!res.ok) {

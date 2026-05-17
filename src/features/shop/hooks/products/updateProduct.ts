@@ -1,48 +1,20 @@
 'use client'
+
 import { useState } from 'react'
 import { updateProductAction } from '../../actions/products/updateProductAction'
-import { ProductDetail } from '@/components/types/types'
-
-interface UpdateProductData {
-  title?: string
-  price?: number
-  slug?: string
-  solution?: string
-  image?: string
-  description?: string
-  categoryId?: number
-  feedCategoryId?: number
-  isActive?: boolean
-  icons?: Array<{
-    title: string
-    description: string
-    iconPath?: string | null
-  }>
-  gains?: Array<{
-    title: string
-    description: string
-    ingredient?: string
-  }>
-  faqs?: Array<{
-    question: string
-    answer: string
-  }>
-}
+import { UpdateProductInput, UpdateProductResponse } from '../../shop.types'
 
 export function useUpdateProduct() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
-  const [data, setData] = useState<ProductDetail | null>(null)
+  const [data, setData] = useState<UpdateProductResponse | null>(null)
 
-  async function updateProduct(
-    productId: number,
-    productData: UpdateProductData,
-  ) {
+  async function updateProduct(input: UpdateProductInput) {
     setLoading(true)
     setError(null)
 
     try {
-      const result = await updateProductAction(productId, productData)
+      const result = await updateProductAction(input)
       setData(result)
       return result
     } catch (err) {

@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from 'react'
 import { getProductsPreview } from '../../actions/products/getProductsPreviewAction'
-import { ProductSummary } from '@/components/types/types'
+import { GetProductsByCategoryResponse } from '../../shop.types'
 
 export function useProductsPreview() {
-  const [productsPreview, setProductsPreview] = useState<ProductSummary[]>([])
+  const [productsPreview, setProductsPreview] = useState<
+    GetProductsByCategoryResponse[]
+  >([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

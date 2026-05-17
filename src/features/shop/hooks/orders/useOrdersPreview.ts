@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { getOrdersPreview } from '@/features/shop/actions/orders/getOrdersPreviewAction'
-import { OrderSummary } from '@/components/types/types'
+import { OrderSummary } from '../../shop.types'
 
 export function useOrdersPreview() {
   const [orders, setOrders] = useState<OrderSummary[]>([])

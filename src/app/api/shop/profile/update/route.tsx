@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
 
     let { firstName, lastName, email, phone } = body
 
-    const user = await requireAuthority('USER')
+    const user = await requireAuthority({ requiredRole: 'USER' })
     const userId = user.id
 
     // Create allowed updates object (only include fields that are provided)

@@ -1,9 +1,7 @@
 'use client'
 import { useState } from 'react'
-import {
-  createOrderAction,
-  CreateOrderInput,
-} from '@/features/shop/actions/orders/createOrdersAction'
+import { createOrderAction } from '@/features/shop/actions/orders/createOrdersAction'
+import { CreateOrderInput } from '../../shop.types'
 
 export function useCreateOrder() {
   const [loading, setLoading] = useState(false)

@@ -1,26 +1,14 @@
-
-export interface CreateBlogPayload {
-  title: string,
-  image: string,
-  description: string,
-  author: string,
-  authorImage: string
-}
-
-export interface CreateBlogResponse {
-  id: number
-  title: string
-}
+import { CreateBlogInput, CreateBlogResponse } from '../../shop.types'
 
 export async function createBlog(
-  blog: CreateBlogPayload
+  input: CreateBlogInput,
 ): Promise<CreateBlogResponse> {
   const response = await fetch('/api/shop/blogs/create', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(blog),
+    body: JSON.stringify(input),
   })
 
   let data: any = null

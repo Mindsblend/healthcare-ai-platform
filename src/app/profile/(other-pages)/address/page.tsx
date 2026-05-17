@@ -18,7 +18,8 @@ import {
   validateShippingInfo,
 } from '@/lib/helpers'
 import { ChangeEvent, useEffect, useState } from 'react'
-import { City, ShippingInfo } from '@/components/types/types'
+import { ShippingInfo } from '@/features/shop/shop.types'
+import { City } from '@/components/types/types'
 import { useUpdateUserProfile } from '@/features/shop/hooks/profile/updateUserProfile'
 import InformPopup from '@/components/layout/InformPopup'
 

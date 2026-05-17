@@ -1,9 +1,17 @@
+// features/auth/services/sessionService.ts
+
 import { sign, verify, JwtPayload } from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 import { User } from '@prisma/client'
-import { SessionPayload } from '@/components/types/types'
 import { createDomainError, ErrorCode } from '@/lib/errors'
 import { NextRequest } from 'next/server'
+import {
+  SessionPayload,
+  JwtPayload as JwtPayloadType,
+  CookieOptions,
+  CreateSessionInput,
+  RequireAuthorityInput,
+} from '../auth.types'
 
 const getJwtSecret = (): string => {
   const secret = process.env.JWT_SECRET
@@ -19,27 +27,16 @@ const getJwtSecret = (): string => {
 const JWT_EXPIRES_IN = '7d'
 const COOKIE_NAME = 'session'
 
-// const COOKIE_OPTIONS = {
-//   httpOnly: false,
-//   secure: false, // PRODUCTION TODO: Set to true in production for secure cookie passing
-//   sameSite: 'lax' as const,
-//   path: '/',
-//   maxAge: 60 * 60 * 24 * 7, // 7 days in seconds
-//   priority: 'high' as const,
-// }
-
-// sessionService.ts - temporary simplified cookie options for debugging
-const COOKIE_OPTIONS = {
+const COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
-  secure: false, // ✅ Set to false for local development
-  sameSite: 'lax' as const,
+  secure: false,
+  sameSite: 'lax',
   path: '/',
   maxAge: 60 * 60 * 24 * 7,
-  // priority: 'high' as const, // ✅ Comment this out temporarily - some browsers have issues
 }
 
 export function createJwtSession(user: User): string {
-  const payload = {
+  const payload: CreateSessionInput = {
     id: user.id,
     email: user.email || null,
     phone: user.phone || null,
@@ -73,25 +70,22 @@ export async function getSession(): Promise<SessionPayload | null> {
   if (!token) return null
 
   try {
-    const decoded = verify(token, getJwtSecret()) as JwtPayload
+    const decoded = verify(token, getJwtSecret()) as JwtPayloadType
 
-    // Validate required fields
     if (!decoded || typeof decoded !== 'object') {
-      await clearSessionCookie() // Clear invalid cookie
+      await clearSessionCookie()
       return null
     }
 
-    // Check for required id field
     const id = decoded.id
     if (!id || typeof id !== 'string') {
-      await clearSessionCookie() // Clear invalid cookie
+      await clearSessionCookie()
       return null
     }
 
-    // Check expiration (additional safety beyond JWT verification)
     const exp = decoded.exp
     if (exp && exp * 1000 < Date.now()) {
-      await clearSessionCookie() // Clear expired cookie
+      await clearSessionCookie()
       return null
     }
 
@@ -102,7 +96,6 @@ export async function getSession(): Promise<SessionPayload | null> {
       role: typeof decoded.role === 'string' ? decoded.role : 'USER',
     }
   } catch (err: any) {
-    // Handle specific JWT errors
     if (err.name === 'TokenExpiredError') {
       console.log('Session token expired, clearing cookie')
       await clearSessionCookie()
@@ -115,7 +108,6 @@ export async function getSession(): Promise<SessionPayload | null> {
       return null
     }
 
-    // Unexpected error
     console.error('Session verification error:', err)
     throw createDomainError(
       ErrorCode.INTERNAL_ERROR,
@@ -130,7 +122,7 @@ export function getSessionFromRequest(req: NextRequest): SessionPayload | null {
   if (!token) return null
 
   try {
-    const decoded = verify(token, getJwtSecret()) as JwtPayload
+    const decoded = verify(token, getJwtSecret()) as JwtPayloadType
 
     if (!decoded || typeof decoded !== 'object') {
       return null
@@ -141,7 +133,6 @@ export function getSessionFromRequest(req: NextRequest): SessionPayload | null {
       return null
     }
 
-    // Check expiration
     const exp = decoded.exp
     if (exp && exp * 1000 < Date.now()) {
       return null
@@ -157,26 +148,25 @@ export function getSessionFromRequest(req: NextRequest): SessionPayload | null {
     if (err.name === 'TokenExpiredError' || err.name === 'JsonWebTokenError') {
       return null
     }
-    // In middleware, we can't throw - just return null
     console.error('Middleware session error:', err.message)
     return null
   }
 }
 
 export async function requireAuthority(
-  requiredRole: 'ADMIN' | 'USER',
+  input: RequireAuthorityInput,
 ): Promise<SessionPayload> {
   const session = await getSession()
   if (!session) {
     throw createDomainError(ErrorCode.UNAUTHORIZED)
   }
 
-  // ADMIN can access USER endpoints
+  const { requiredRole } = input
+
   if (session.role === 'ADMIN' && requiredRole === 'USER') {
     return session
   }
 
-  // For all other cases, exact role match required
   if (session.role !== requiredRole) {
     throw createDomainError(ErrorCode.UNAUTHORIZED)
   }
@@ -191,9 +181,8 @@ export async function refreshSessionIfNeeded(): Promise<void> {
   if (!token) return
 
   try {
-    const decoded = verify(token, getJwtSecret()) as JwtPayload
+    const decoded = verify(token, getJwtSecret()) as JwtPayloadType
 
-    // Refresh if less than 1 day remaining
     const exp = decoded.exp
     if (
       exp &&

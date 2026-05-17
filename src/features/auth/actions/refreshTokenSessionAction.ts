@@ -1,4 +1,6 @@
-export async function refreshTokenSession() {
+import { RefreshTokenSessionResponse } from '../auth.types'
+
+export async function refreshTokenSession(): Promise<RefreshTokenSessionResponse> {
   const res = await fetch('/api/auth/refresh', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

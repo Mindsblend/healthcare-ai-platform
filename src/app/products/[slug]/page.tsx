@@ -3,11 +3,11 @@
 import { useParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import Questions from '@/components/ui/Qustions'
+import Questions from '@/components/ui/Questions'
 import ProductSwiper from '@/components/layout/ProductSwiper'
 import { useProductBySlug } from '@/features/shop/hooks/products/useProductBySlug'
 import { useProductsByCategoryId } from '@/features/shop/hooks/products/useProductsByCategoryId'
-import { gainType, iconType } from '@/components/types/types'
+import { GainType, IconType } from '@/features/shop/shop.types'
 import LoadingBar from '@/components/layout/LoadingBar'
 import { useCart } from '@/features/shop/hooks/cart/useCart'
 
@@ -15,11 +15,11 @@ export default function ProductPage() {
   const params = useParams()
   const slug = decodeURIComponent(params.slug as string)
 
-  const { product, loading, error } = useProductBySlug(slug)
+  const { product, loading, error } = useProductBySlug({ slug })
   const { addToCart, loading: cartLoading } = useCart()
 
   const { productsByCategoryId: relatedProducts, loading: relatedLoading } =
-    useProductsByCategoryId(product?.categoryId || 0)
+    useProductsByCategoryId({ categoryId: product?.categoryId || 0 })
 
   // Get the category icon path, fallback to default
   const categoryIcon = product?.category?.iconPath || '/images/makeup.svg'
@@ -39,7 +39,7 @@ export default function ProductPage() {
                 {product.title}
               </h1>
               <div className="mt-5 flex items-center gap-x-3">
-                {product.icons?.map(({ id, title, iconPath }: iconType) => (
+                {product.icons?.map(({ id, title, iconPath }: IconType) => (
                   <div key={id} className="flex gap-1">
                     {iconPath && iconPath.trim() !== '' ? (
                       <Image
@@ -84,7 +84,7 @@ export default function ProductPage() {
               </div>
               <div className="mt-7 flex flex-col gap-5">
                 {product.gains?.map(
-                  ({ id, title, ingredient, description }: gainType) => (
+                  ({ id, title, ingredient, description }: GainType) => (
                     <div key={id} className="flex items-center gap-1.5">
                       <Image
                         src="/images/add_circle.svg"

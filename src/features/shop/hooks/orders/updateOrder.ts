@@ -1,23 +1,20 @@
 'use client'
+
 import { useState } from 'react'
 import { updateOrderAction } from '@/features/shop/actions/orders/updateOrderAction'
-import { OrderStatus } from '@/components/types/types'
+import { UpdateOrderInput, UpdateOrderResponse } from '../../shop.types'
 
 export function useUpdateOrder() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
-  const [data, setData] = useState<unknown>(null)
+  const [data, setData] = useState<UpdateOrderResponse | null>(null)
 
-  async function updateOrder(
-    orderId: string,
-    status?: OrderStatus,
-    shippingNotes?: string,
-  ) {
+  async function updateOrder(input: UpdateOrderInput) {
     setLoading(true)
     setError(null)
 
     try {
-      const result = await updateOrderAction(orderId, status, shippingNotes)
+      const result = await updateOrderAction(input)
       setData(result)
       return result
     } catch (err) {

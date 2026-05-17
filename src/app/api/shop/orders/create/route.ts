@@ -3,7 +3,7 @@ import { requireAuthority } from '@/features/auth/services/sessionService'
 
 export async function POST(req: Request) {
   try {
-    const session = await requireAuthority('USER')
+    const session = await requireAuthority({ requiredRole: 'USER' })
 
     const data = await req.json()
     console.log('[createOrder API] input data:', data)

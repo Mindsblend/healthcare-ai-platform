@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import ProductSwiper from '@/components/layout/ProductSwiper'
 import { useCategories } from '@/features/shop/hooks/categories/useCategories'
 import { useProductsPreview } from '@/features/shop/hooks/products/useProductsPreview'
-import { ProductSummary } from '@/components/types/types'
+import { ProductSummary } from '@/features/shop/shop.types'
 
 interface Props {
   title: string

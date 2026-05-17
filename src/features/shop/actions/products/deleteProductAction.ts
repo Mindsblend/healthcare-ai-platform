@@ -1,8 +1,12 @@
-export async function deleteProductAction(id: number) {
+import { DeleteProductInput, DeleteProductResponse } from '../../shop.types'
+
+export async function deleteProductAction(
+  input: DeleteProductInput,
+): Promise<DeleteProductResponse> {
   const res = await fetch('/api/shop/products/delete', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(id),
+    body: JSON.stringify(input), // Fixed: now sends { id: number } instead of just the number
   })
 
   if (!res.ok) {

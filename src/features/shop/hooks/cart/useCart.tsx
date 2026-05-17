@@ -1,10 +1,18 @@
+// features/shop/cart/hooks/useCart.ts
+
 import { useState, useEffect } from 'react'
 import { getCart } from '../../actions/cart/getCartAction'
-import { addItem as addItemAction } from '@/features/shop/actions/cart/addItemAction'
-import { removeItem as removeItemAction } from '@/features/shop/actions/cart/removeItemAction'
-import { updateItemQuantity as updateItemAction } from '@/features/shop/actions/cart/updateItemAction'
+import { addItem as addItemAction } from '../../actions/cart/addItemAction'
+import { removeItem as removeItemAction } from '../../actions/cart/removeItemAction'
+import { updateItemQuantity as updateItemAction } from '../../actions/cart/updateItemAction'
 import { createCart } from '../../actions/cart/createCartAction'
-import { CartItemType, CartType } from '@/components/types/types'
+import {
+  CartType,
+  CartItemType,
+  AddItemInput,
+  RemoveItemInput,
+  UpdateItemQuantityInput,
+} from '../../shop.types'
 
 export function useCart() {
   const [cart, setCart] = useState<CartType | null>(null)
@@ -26,6 +34,18 @@ export function useCart() {
     load()
   }, [])
 
+  // Helper to refresh cart data
+  const refreshCart = async () => {
+    try {
+      const refreshedCart = await getCart()
+      setCart(refreshedCart)
+      return refreshedCart
+    } catch (err: any) {
+      setError(err.message)
+      return null
+    }
+  }
+
   // --------------------
   // STRUCTURAL CHANGES
   // --------------------
@@ -41,8 +61,11 @@ export function useCart() {
         setCart(activeCart)
       }
 
-      const updated = await addItemAction(activeCart.id, productId, quantity)
-      setCart(updated)
+      const input: AddItemInput = { cartId: activeCart.id, productId, quantity }
+      await addItemAction(input)
+
+      // Refresh the entire cart after adding
+      await refreshCart()
     } catch (err: any) {
       setError(err.message)
     }
@@ -50,9 +73,9 @@ export function useCart() {
 
   const removeFromCart = async (cartItemId: number) => {
     try {
-      await removeItemAction(cartItemId)
-      const refreshedCart = await getCart()
-      setCart(refreshedCart)
+      const input: RemoveItemInput = { cartItemId }
+      await removeItemAction(input)
+      await refreshCart()
     } catch (err: any) {
       setError(err.message)
     }
@@ -74,10 +97,15 @@ export function useCart() {
       )
 
       // Send to backend
-      await updateItemAction(cartItemId, quantity)
-      // NO REFRESH needed
+      const input: UpdateItemQuantityInput = { cartItemId, quantity }
+      await updateItemAction(input)
+
+      // Refresh cart to ensure consistency
+      await refreshCart()
     } catch (err: any) {
       setError(err.message)
+      // Revert optimistic update by refreshing on error
+      await refreshCart()
     }
   }
 

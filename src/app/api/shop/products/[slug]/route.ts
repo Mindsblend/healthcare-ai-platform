@@ -9,7 +9,7 @@ export async function GET(
     const { slug: rawSlug } = await params
     const slug = decodeURIComponent(rawSlug)
 
-    const product = await ProductService.fetchProductBySlug(slug)
+    const product = await ProductService.fetchProductBySlug({ slug })
 
     if (!product) {
       return new Response(JSON.stringify({ error: 'Product not found' }), {

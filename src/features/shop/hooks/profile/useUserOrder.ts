@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { getUserOrder } from '../../actions/profile/getUserOrderAction'
-import { UserOrder } from '@/components/types/types'
+import { UserOrder } from '../../shop.types'
 
 export function useUserOrder() {
   const [userOrder, setUserOrder] = useState<UserOrder | null>(null)

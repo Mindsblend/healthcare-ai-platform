@@ -1,24 +1,12 @@
-import { faqType, gainType, iconType } from '@/components/types/types'
+import { CreateProductInput, CreateProductResponse } from '../../shop.types'
 
-export interface CreateProductInput {
-  title: string
-  price: number
-  slug: string
-  solution: string
-  image: string
-  description: string
-  categoryId: number
-  feedCategoryId: number
-  icons: iconType[]
-  gains: gainType[]
-  faqs: faqType[]
-}
-
-export async function createProductAction(product: CreateProductInput) {
+export async function createProductAction(
+  input: CreateProductInput,
+): Promise<CreateProductResponse> {
   const res = await fetch('/api/shop/products/create', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(product),
+    body: JSON.stringify(input),
   })
 
   if (!res.ok) {

@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { ProductSummary } from '../types/types'
+import { ProductSummary } from '@/features/shop/shop.types'
 import { useCart } from '@/features/shop/hooks/cart/useCart'
 import { useRouter } from 'next/navigation'
 

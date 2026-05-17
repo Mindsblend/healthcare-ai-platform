@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { getUserAddress } from '../../actions/profile/getUserAddressAction'
-import { UserAddress } from '@/components/types/types'
+import { UserAddress } from '../../shop.types'
 
 export function useUserAddress() {
   const [userAddress, setUserAddress] = useState<UserAddress | null>(null)

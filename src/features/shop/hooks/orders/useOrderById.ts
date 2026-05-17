@@ -2,15 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import { getOrderById } from '../../actions/orders/getOrderByIdAction'
-import { OrderDetail } from '@/components/types/types'
+import { GetOrderByIdInput, GetOrderByIdResponse } from '../../shop.types'
 
-export function useOrderById(id: string) {
-  const [order, setOrder] = useState<OrderDetail | null>(null)
+export function useOrderById(input: GetOrderByIdInput) {
+  const [order, setOrder] = useState<GetOrderByIdResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!id) {
+    if (!input.id) {
       setLoading(false)
       return
     }
@@ -19,7 +19,7 @@ export function useOrderById(id: string) {
       setLoading(true)
       setError(null)
       try {
-        const data = await getOrderById(id)
+        const data = await getOrderById(input)
         setOrder(data)
       } catch (err: any) {
         setError(err.message)
@@ -28,7 +28,7 @@ export function useOrderById(id: string) {
       }
     }
     load()
-  }, [id])
+  }, [input.id])
 
-  return { order, loading, error, getOrderById }
+  return { order, loading, error }
 }

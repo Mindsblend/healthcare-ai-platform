@@ -1,10 +1,13 @@
+// features/shop/orders/services/orderService.ts
+
 import { prisma } from '@/lib/prisma'
 import {
   OrderDetail,
   OrderSummary,
-  ShippingInfo,
-} from '@/components/types/types'
-import { OrderStatus } from '@/components/types/types'
+  CreateOrderInput,
+  UpdateOrderInput,
+  FetchOrderByIdInput,
+} from '../shop.types'
 
 export class OrderService {
   static async fetchOrdersPreview(): Promise<OrderSummary[]> {
@@ -22,7 +25,10 @@ export class OrderService {
   }
 
   // For single order with full details
-  static async fetchOrderById(id: string): Promise<OrderDetail | null> {
+  static async fetchOrderById(
+    input: FetchOrderByIdInput,
+  ): Promise<OrderDetail | null> {
+    const { id } = input
     return prisma.order.findUnique({
       where: { id },
       include: {
@@ -43,15 +49,9 @@ export class OrderService {
     })
   }
 
-  static async createOrder({
-    userId,
-    shippingInfo,
-    paymentMethod,
-  }: {
-    userId: string
-    shippingInfo: ShippingInfo
-    paymentMethod: 'mellat' | 'zarinpal'
-  }) {
+  static async createOrder(input: CreateOrderInput) {
+    const { userId, shippingInfo, paymentMethod } = input
+
     // Fetch active cart
     const cart = await prisma.cart.findFirst({
       where: { userId, status: 'ACTIVE' },
@@ -111,13 +111,9 @@ export class OrderService {
     return order
   }
 
-  static async updateOrder(
-    orderId: string,
-    updates: {
-      status?: OrderStatus
-      shippingNotes?: string
-    },
-  ) {
+  static async updateOrder(input: UpdateOrderInput) {
+    const { orderId, status, shippingNotes } = input
+
     // Get current order to check status
     const currentOrder = await prisma.order.findUnique({
       where: { id: orderId },
@@ -131,8 +127,8 @@ export class OrderService {
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
       data: {
-        status: updates.status,
-        shippingNotes: updates.shippingNotes,
+        status,
+        shippingNotes,
       },
     })
 

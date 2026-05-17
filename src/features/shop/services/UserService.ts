@@ -1,5 +1,5 @@
-import { UserInfo, UserOrder, UserSummary } from '@/components/types/types'
 import { prisma } from '@/lib/prisma'
+import { UserInfo, UserOrder, UserSummary } from '../shop.types'
 
 export class UserService {
   static async fetchCurrentUser(userId: string): Promise<UserInfo | null> {

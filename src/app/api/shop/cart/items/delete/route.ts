@@ -3,7 +3,7 @@ import { CartService } from '@/features/shop/services/CartService'
 import { requireAuthority } from '@/features/auth/services/sessionService'
 
 export async function POST(req: NextRequest) {
-  await requireAuthority('USER')
+  await requireAuthority({ requiredRole: 'USER' })
   try {
     const { cartItemId } = await req.json()
     const deletedItem = await CartService.removeItem(cartItemId)

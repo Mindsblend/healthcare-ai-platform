@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { createProductAction, CreateProductInput } from '../../actions/products/createProductAction'
+import { createProductAction } from '../../actions/products/createProductAction'
+import { CreateProductInput } from '../../shop.types'
 
 export function useCreateProduct() {
   const [loading, setLoading] = useState(false)

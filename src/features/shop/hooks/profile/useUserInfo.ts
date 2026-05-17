@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { getUserInfo } from '../../actions/profile/getUserInfoAction'
-import { UserInfo } from '@/components/types/types'
+import { UserInfo } from '../../shop.types'
 
 export function useUserInfo() {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null)

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { getTrackedVisitsAction } from '../actions/getTrackedVisitsAction'
-import { VisitMonth } from '@/components/types/types'
+import { VisitMonth } from '@prisma/client'
 
 export function useTrackedVisit() {
   const [visits, setVisits] = useState<VisitMonth[]>([])
