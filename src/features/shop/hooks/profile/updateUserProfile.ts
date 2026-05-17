@@ -8,7 +8,6 @@ export function useUpdateUserProfile() {
   const [data, setData] = useState<null>(null)
 
   async function updateUserProfile(
-    userId: string,
     data: {
       firstName?: string
       lastName?: string
@@ -20,7 +19,7 @@ export function useUpdateUserProfile() {
     setError(null)
 
     try {
-      const result = await updateUserProfileAction(userId, data)
+      const result = await updateUserProfileAction(data)
       setData(result)
       return result
     } catch (err) {

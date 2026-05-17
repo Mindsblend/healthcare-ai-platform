@@ -8,6 +8,7 @@ export interface CreateProductInput {
   image: string
   description: string
   categoryId: number
+  feedCategoryId: number
   icons: iconType[]
   gains: gainType[]
   faqs: faqType[]

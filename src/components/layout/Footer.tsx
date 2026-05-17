@@ -145,14 +145,20 @@ const Footer = () => {
           © ۲۰۲۵ زیستیار – تمامی حقوق محفوظ است
         </a>
         <div className="flex flex-wrap justify-center gap-4 sm:gap-5 xl:gap-8">
-          <a href="#" className="hover:text-gray-200">
+          <a href="/legal/privacy-policy" className="hover:text-gray-200">
             سیاست حریم خصوصی
           </a>
-          <a href="#" className="hover:text-gray-200">
+          <a href="/legal/platform-rules" className="hover:text-gray-200">
             قوانین خدمات
           </a>
-          <a href="#" className="hover:text-gray-200">
+          <a href="/legal/return-policy" className="hover:text-gray-200">
             سیاست بازگشت کالا
+          </a>
+          <a href="/legal/ai-transparency" className="hover:text-gray-200">
+            شفافیت هوش مصنوعی
+          </a>
+          <a href="/legal/medical-disclaimer" className="hover:text-gray-200">
+            مسئولیت پزشکی
           </a>
         </div>
       </div>

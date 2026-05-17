@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma'
-import { VisitMonth } from '@/components/types/types'
+import { SubscriptionPayload, VisitMonth } from '@/components/types/types'
 
 export class AnalyticsService {
   static async trackVisit(): Promise<VisitMonth> {
@@ -17,6 +17,16 @@ export class AnalyticsService {
   static async fetchTrackedVisits(): Promise<VisitMonth[]> {
     return prisma.visitMonth.findMany({
       orderBy: [{ year: 'desc' }, { month: 'desc' }],
+    })
+  }
+
+  static async createSubscription(data: {
+    email: string
+  }): Promise<SubscriptionPayload> {
+    return prisma.subscription.create({
+      data: {
+        email: data.email,
+      },
     })
   }
 }

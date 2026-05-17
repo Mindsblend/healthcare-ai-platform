@@ -16,6 +16,7 @@ import {
 import { useRouter } from 'next/navigation'
 import LoadingBar from '@/components/layout/LoadingBar'
 import { BlogSummary } from '@/components/types/types'
+import ConfirmPopup from '@/components/layout/ConfirmPopup'
 
 const Blogs = () => {
   const { blogs, loading, error } = useBlogsPreview()
@@ -25,6 +26,9 @@ const Blogs = () => {
 
   // Search and pagination state
   const [searchValue, setSearchValue] = useState<string>('')
+  const [openIndex, setOpenIndex] = useState(false)
+  const [selectedBlog, setSelectedBlog] = useState<number>(0)
+  const [selectedBlogTitle, setSelectedBlogTitle] = useState<string>('')
   const [debouncedSearchValue, setDebouncedSearchValue] = useState<string>('')
   const [page, setPage] = useState<number>(1)
 
@@ -95,10 +99,7 @@ const Blogs = () => {
   const showEmptyState =
     !loading && !error && !blogs.length && !debouncedSearchValue
 
-  const handleDelete = async (id: number, title: string) => {
-    const ok = window.confirm(`آیا از حذف "${title}" مطمئن هستید؟`)
-    if (!ok) return
-
+  const handleDelete = async (id: number) => {
     await deleteBlog(id)
     router.refresh()
   }
@@ -353,8 +354,10 @@ const Blogs = () => {
                       <TableCell className="text-theme-sm py-4">
                         <button
                           type="button"
-                          onClick={async () => {
-                            await handleDelete(blog.id, blog.title)
+                          onClick={() => {
+                            setSelectedBlog(blog.id)
+                            setSelectedBlogTitle(blog.title)
+                            setOpenIndex(true)
                           }}
                           className="text-red-500 transition-colors hover:text-red-700"
                           aria-label="حذف بلاگ"
@@ -396,6 +399,19 @@ const Blogs = () => {
           )}
         </div>
       </div>
+      <ConfirmPopup
+        isOpen={openIndex}
+        onClose={() => setOpenIndex(false)}
+        onConfirm={async () => {
+          await handleDelete(selectedBlog)
+        }}
+        popupTitle={`آیا از حذف "${selectedBlogTitle}" مطمئن هستید؟`}
+        descriptionText={
+          'در صورت حذف این مقاله، تمامی اطلاعات مرتبط با آن به‌طور دائمی پاک خواهد شد. لطفاً پیش از ادامه، تصمیم خود را بررسی کنید.'
+        }
+        confirmButtonText={'حذف'}
+        cancelButtonText={'انصراف'}
+      />
     </LoadingBar>
   )
 }

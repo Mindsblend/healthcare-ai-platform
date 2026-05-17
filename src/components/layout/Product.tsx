@@ -2,17 +2,24 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ProductSummary } from '../types/types'
 import { useCart } from '@/features/shop/hooks/cart/useCart'
+import { useRouter } from 'next/navigation'
 
 interface Props {
   product: ProductSummary
 }
 
 const Product = ({ product }: Props) => {
-  const { addToCart, loading: cartLoading } = useCart()
+  const { addToCart, cart, loading: cartLoading } = useCart()
+
+  const router = useRouter()
 
   const handleAddToCart = async () => {
     if (cartLoading) return
-    await addToCart(product.id, 1)
+    if (cart?.userId) {
+      await addToCart(product.id, 1)
+    } else {
+      router.push(`/auth?redirect=${encodeURIComponent('/feed')}`)
+    }
   }
 
   // Get the category icon path, fallback to default

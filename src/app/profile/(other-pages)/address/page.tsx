@@ -19,10 +19,13 @@ import {
 } from '@/lib/helpers'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { City, ShippingInfo } from '@/components/types/types'
+import { useUpdateUserProfile } from '@/features/shop/hooks/profile/updateUserProfile'
+import InformPopup from '@/components/layout/InformPopup'
 
 const AddressContent = () => {
   const { userAddress, loading, error } = useUserAddress()
   const { createUserAddress } = useCreateUserAddress()
+  const { updateUserProfile } = useUpdateUserProfile()
 
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
     firstName: '',
@@ -35,6 +38,7 @@ const AddressContent = () => {
     postalCode: '',
   })
 
+  const [errorMessage, setErrorMessage] = useState<string | null>()
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>(
     {},
@@ -192,12 +196,22 @@ const AddressContent = () => {
     }
 
     try {
+      // If its the first address user is adding and user has no addresses, update user profile with the data provided
+      if (!userAddress?.addresses) {
+        await updateUserProfile({
+          firstName: shippingInfo.firstName,
+          lastName: shippingInfo.lastName,
+          email: shippingInfo.email,
+          phone: shippingInfo.phone,
+        })
+      }
+
       await createUserAddress(shippingInfo)
 
-      alert('ادرس جدید با موفقیت ثبت شد!')
+      setErrorMessage('ادرس جدید با موفقیت ثبت شد!')
     } catch (err) {
       console.error('Address creation error:', err)
-      alert('خطا در ثبت ادرس جدید، لطفا دوباره تلاش کنید.')
+      setErrorMessage('خطا در ثبت ادرس جدید، لطفا دوباره تلاش کنید.')
     }
   }
 
@@ -506,6 +520,7 @@ const AddressContent = () => {
           </div>
         </div>
       )}
+      <InformPopup message={errorMessage} />
     </div>
   )
 }

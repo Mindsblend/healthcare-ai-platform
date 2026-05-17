@@ -1,4 +1,3 @@
-// app/api/shop/profile/update/route.ts
 import { requireAuthority } from '@/features/auth/services/sessionService'
 import { NextRequest, NextResponse } from 'next/server'
 import { ProductService } from '@/features/shop/services/ProductService'
@@ -46,7 +45,6 @@ export async function POST(req: NextRequest) {
     if (icons !== undefined) allowedUpdates.icons = icons
     if (gains !== undefined) allowedUpdates.gains = gains
     if (faqs !== undefined) allowedUpdates.faqs = faqs
-    console.log('Step 6.5: Allowed updates:', allowedUpdates)
 
     if (Object.keys(allowedUpdates).length === 0) {
       return NextResponse.json(

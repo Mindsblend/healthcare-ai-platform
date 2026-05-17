@@ -24,6 +24,8 @@ import {
 } from '@/lib/helpers'
 import { useCreateUserAddress } from '@/features/shop/hooks/profile/createUserAddress'
 import LoadingBar from '@/components/layout/LoadingBar'
+import { useUpdateUserProfile } from '@/features/shop/hooks/profile/updateUserProfile'
+import InformPopup from '@/components/layout/InformPopup'
 
 const CheckoutPage = () => {
   const { cartItems, loading: cartLoading, error } = useCart()
@@ -31,6 +33,7 @@ const CheckoutPage = () => {
   const { createOrder, loading: orderLoading } = useCreateOrder()
   const { createUserAddress } = useCreateUserAddress()
   const { userAddress } = useUserAddress()
+  const { updateUserProfile } = useUpdateUserProfile()
 
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
     null,
@@ -49,6 +52,7 @@ const CheckoutPage = () => {
     notes: '',
   })
 
+  const [errorMessage, setErrorMessage] = useState<string | null>()
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>(
     {},
@@ -246,6 +250,16 @@ const CheckoutPage = () => {
     }
 
     try {
+      // If its the first time the user is placing an order and user has no addresses, update user profile with the data provided
+      if (!userAddress?.addresses && isAddingNewAddress) {
+        await updateUserProfile({
+          firstName: shippingInfo.firstName,
+          lastName: shippingInfo.lastName,
+          email: shippingInfo.email,
+          phone: shippingInfo.phone,
+        })
+      }
+
       let addressId = selectedAddressId
 
       // If user wants to create a new address (either from form or "Add New Address" button)
@@ -271,14 +285,13 @@ const CheckoutPage = () => {
         shippingInfo, // Keep this as is
         paymentMethod: activeBtn,
       })
-
-      alert('سفارش با موفقیت ثبت شد!')
+      setErrorMessage('سفارش با موفقیت ثبت شد!')
 
       // Optional: Redirect to order confirmation or payment page
       // router.push('/payment')
     } catch (err) {
       console.error('Order creation error:', err)
-      alert('خطا در ثبت سفارش، لطفا دوباره تلاش کنید.')
+      setErrorMessage('خطا در ثبت سفارش، لطفا دوباره تلاش کنید.')
     }
   }
 
@@ -344,7 +357,7 @@ const CheckoutPage = () => {
                           phone: address.phone,
                           address: address.address,
                           postalCode: address.postalCode,
-                          notes: '',
+                          notes: shippingInfo.notes, // Shipping notes is a seperate form from the prefilled address
                         })
                       }}
                     >
@@ -375,6 +388,16 @@ const CheckoutPage = () => {
                       </div>
                     </div>
                   ))}
+                </div>
+                {/* Notes */}
+                <div className="mt-5 md:col-span-2">
+                  <textarea
+                    name="notes"
+                    placeholder="یادداشت سفارش (اختیاری)"
+                    value={shippingInfo.notes}
+                    onChange={handleChange}
+                    className="font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black"
+                  />
                 </div>
                 <div className="mt-5 flex flex-wrap items-center justify-between rounded-2xl border-2 border-[#d9d9d9] bg-white px-6 py-3.5">
                   {/* Payment Method Buttons */}
@@ -411,14 +434,37 @@ const CheckoutPage = () => {
                       ? 'border-2 border-[#d9d9d9] bg-white'
                       : ''
                   }`}
-                >
-                  <Image
-                    src="/images/bank-mellat.svg"
-                    alt="bank mellat"
-                    width={56}
-                    height={56}
-                  />
-                </div> */}
+                  </label>
+                ))}
+              </div>
+                    {/* <div className="mt-6 flex justify-center gap-4">
+                      <button
+                        onClick={() => {
+                          setIsAddingNewAddress(true)
+                          // Reset form to empty
+                          setShippingInfo({
+                            firstName: '',
+                            lastName: '',
+                            city: '',
+                            province: '',
+                            email: '',
+                            phone: '',
+                            address: '',
+                            postalCode: '',
+                            notes: '',
+                          })
+                          setSelectedAddressId(null)
+                        }}
+                        className="font-aria rounded-xl border-2 border-black px-6 py-3 font-bold text-black transition hover:bg-gray-100"
+                      >
+                        <Image
+                          src="/images/bank-mellat.svg"
+                          alt="bank mellat"
+                          width={56}
+                          height={56}
+                        />
+                      </button>
+                    </div> */}
                   </div>
                 </div>
               </div>
@@ -892,6 +938,7 @@ const CheckoutPage = () => {
           </div>
         </div>
       </div>
+      <InformPopup message={errorMessage} />
     </section>
   )
 }

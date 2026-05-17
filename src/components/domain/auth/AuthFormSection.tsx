@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useOtpAuth } from '@/features/auth/hooks/useOtpAuth'
-import ErrorPopup from '@/components/layout/ErrorPopup'
+import InformPopup from '@/components/layout/InformPopup'
 
 export default function AuthFormSection() {
   const [identifier, setIdentifier] = useState('')
@@ -69,7 +69,7 @@ export default function AuthFormSection() {
           </button>
 
           {/* Error Popup in case of facing errors */}
-          <ErrorPopup error={error} />
+          <InformPopup message={error} />
         </div>
       </div>
     </div>

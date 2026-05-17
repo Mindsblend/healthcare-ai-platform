@@ -1,4 +1,3 @@
-// app/api/shop/profile/update/route.ts
 import { requireAuthority } from '@/features/auth/services/sessionService'
 import { NextRequest, NextResponse } from 'next/server'
 import { UserService } from '@/features/shop/services/UserService'
@@ -7,13 +6,10 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
 
-    const { userId, firstName, lastName, email, phone } = body
+    let { firstName, lastName, email, phone } = body
 
-    if (!userId) {
-      return NextResponse.json({ error: 'userId is required' }, { status: 400 })
-    }
-
-    await requireAuthority('USER')
+    const user = await requireAuthority('USER')
+    const userId = user.id
 
     // Create allowed updates object (only include fields that are provided)
     const allowedUpdates: any = {}
