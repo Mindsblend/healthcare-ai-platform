@@ -85,41 +85,45 @@ const OrdersContent = () => {
   return (
     <LoadingBar loading={loading} error={error}>
       <div className="w-full">
-        <div className="w-full rounded-lg border-[1.5px] border-[#D9D9D9] bg-white px-10 py-8">
+        <div className="w-full rounded-lg border-[1.5px] border-[#D9D9D9] bg-white px-5 py-5 sm:px-10 sm:py-8">
           <h2 className="font-aria mb-6 text-xl font-bold text-black">
             سفارش ها
           </h2>
 
           {/* Status Filters */}
-          <div className="mb-3.75 flex w-full flex-wrap items-center gap-5">
-            {statusGroups.map((group) => (
-              <button
-                key={group.id}
-                onClick={() => setActiveStatus(group.id)}
-                className={`flex h-7 cursor-pointer items-center gap-1 transition-all ${
-                  activeStatus === group.id
-                    ? 'border-b-2 border-[#161A1D]'
-                    : 'opacity-70 hover:opacity-100'
-                }`}
-              >
-                <span
-                  className={`font-ray font-medium ${
-                    activeStatus === group.id ? 'text-black' : 'text-[#A2A2A2]'
-                  }`}
-                >
-                  {group.label}
-                </span>
-                <div
-                  className={`font-aria flex h-5 w-5 items-center justify-center rounded-xs text-center text-sm font-semibold ${
+          <div className="mb-3.75 w-full overflow-x-auto pb-3">
+            <div className="flex w-max flex-nowrap items-center gap-5 px-1">
+              {statusGroups.map((group) => (
+                <button
+                  key={group.id}
+                  onClick={() => setActiveStatus(group.id)}
+                  className={`flex h-7 shrink-0 cursor-pointer items-center gap-1 whitespace-nowrap transition-all ${
                     activeStatus === group.id
-                      ? 'bg-[#161A1D] text-white'
-                      : 'bg-[#D9D9D9] text-black'
+                      ? 'border-b-2 border-[#161A1D]'
+                      : 'opacity-70 hover:opacity-100'
                   }`}
                 >
-                  {getStatusCount(group.statuses)}
-                </div>
-              </button>
-            ))}
+                  <span
+                    className={`font-ray font-medium ${
+                      activeStatus === group.id
+                        ? 'text-black'
+                        : 'text-[#A2A2A2]'
+                    }`}
+                  >
+                    {group.label}
+                  </span>
+                  <div
+                    className={`font-aria flex h-5 w-5 items-center justify-center rounded-xs text-center text-sm font-semibold ${
+                      activeStatus === group.id
+                        ? 'bg-[#161A1D] text-white'
+                        : 'bg-[#D9D9D9] text-black'
+                    }`}
+                  >
+                    {getStatusCount(group.statuses)}
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
 
           <hr className="w-full" />
@@ -161,7 +165,7 @@ const OrdersContent = () => {
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <div className="h-1.5 w-1.5 rounded-full bg-[#FF0000]"></div>
                         <span className="text-sm text-gray-500">کد سفارش:</span>
                         <span className="font-medium text-black">
@@ -184,7 +188,7 @@ const OrdersContent = () => {
                         order.items.map((item) => (
                           <div
                             key={item.id}
-                            className="flex w-full items-center gap-4 py-2"
+                            className="flex w-full flex-col gap-4 border-b border-gray-200 py-4 last:border-b-0 last:pb-0 sm:flex-row sm:items-center"
                           >
                             {item.product?.image && (
                               <img

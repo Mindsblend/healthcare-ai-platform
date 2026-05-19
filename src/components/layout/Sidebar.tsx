@@ -12,12 +12,9 @@ import { toPersianDigit } from '@/lib/helpers.ts'
 
 const Sidebar = () => {
   const { userInfo, loading, error } = useUserInfo()
-
   const [activeItem, setActiveItem] = useState<string>('profile')
-
   const [openIndex, setOpenIndex] = useState(false)
   const router = useRouter()
-
   const { logout } = useLogOut()
 
   const sidebarItems: NavItem[] = [
@@ -45,22 +42,18 @@ const Sidebar = () => {
 
     const { firstName, lastName, phone, email } = userInfo
 
-    // If we have first and last name
     if (firstName && lastName) {
       return `${firstName} ${lastName}`
     }
 
-    // If no name, show welcome message
     if (phone) {
       return 'خوش آمدید'
     }
 
-    // If no phone, show email username
     if (email) {
       return email.split('@')[0]
     }
 
-    // Ultimate fallback
     return 'کاربر گرامی'
   }, [userInfo, loading, error])
 
@@ -71,17 +64,14 @@ const Sidebar = () => {
 
     const { phone, email } = userInfo
 
-    // Priority 1: Phone number (if available)
     if (phone) {
       return toPersianDigit(phone)
     }
 
-    // Priority 2: Email (if available)
     if (email) {
       return email
     }
 
-    // Fallback
     return 'اطلاعات تماس ثبت نشده'
   }, [userInfo, loading, error])
 
@@ -109,8 +99,8 @@ const Sidebar = () => {
           </p>
         </div>
 
-        {/* Navigation */}
-        <nav className="p-5 pb-3 max-lg:flex lg:p-10 lg:pb-5">
+        {/* Navigation - Desktop */}
+        <nav className="hidden p-5 pb-3 lg:block lg:p-10 lg:pb-5">
           {sidebarItems.map((item, index) => (
             <div key={item.name}>
               <Link
@@ -132,11 +122,11 @@ const Sidebar = () => {
                 </span>
               </Link>
               {index < sidebarItems.length - 1 && (
-                <hr className="hidden w-full border border-[#D9D9D9] lg:block" />
+                <hr className="w-full border border-[#D9D9D9]" />
               )}
             </div>
           ))}
-          <hr className="hidden w-full border border-[#D9D9D9] lg:block" />
+          <hr className="w-full border border-[#D9D9D9]" />
           <div>
             <button
               onClick={() => setOpenIndex(true)}
@@ -166,7 +156,66 @@ const Sidebar = () => {
             />
           </div>
         </nav>
+
+        <nav className="lg:hidden">
+          <div className="scrollbar-hide flex overflow-x-auto px-5 py-3">
+            <div className="flex gap-x-2">
+              {sidebarItems.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.path}
+                  className={`shrink-0 cursor-pointer rounded-lg px-4 py-3 transition-all duration-200 ${
+                    activeItem === item.name
+                      ? 'bg-gray-50 text-black'
+                      : 'text-black hover:bg-gray-50'
+                  }`}
+                  onClick={() => setActiveItem(item.name)}
+                >
+                  <div className="flex items-center gap-x-2.5">
+                    <Image
+                      src={item.icon}
+                      width={20}
+                      height={20}
+                      alt="Profile Icon"
+                    />
+                    <span className="font-aria text-sm font-semibold whitespace-nowrap">
+                      {item.name}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+              <button
+                onClick={() => setOpenIndex(true)}
+                className="shrink-0 cursor-pointer rounded-lg px-4 py-3 transition-all duration-200 hover:bg-gray-50"
+              >
+                <div className="flex items-center gap-x-2.5">
+                  <Image
+                    src="/images/logout.svg"
+                    width={20}
+                    height={20}
+                    alt="logout"
+                  />
+                  <span className="font-aria text-sm font-semibold whitespace-nowrap text-black">
+                    خروج
+                  </span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </nav>
       </aside>
+
+      <ConfirmPopup
+        isOpen={openIndex}
+        onClose={() => setOpenIndex(false)}
+        onConfirm={handleLogout}
+        popupTitle={'از حساب کاربری خارج میشوید ؟'}
+        descriptionText={
+          'با خروج از حساب کاربری، به سبد خرید فعلی‌تان دسترسی نخواهید داشت. هروقت بخواهید می‌توانید مجددا وارد شوید و خریدتان را ادامه دهید.'
+        }
+        confirmButtonText={'خروج از حساب'}
+        cancelButtonText={'انصراف'}
+      />
     </div>
   )
 }
