@@ -3,13 +3,12 @@ import Link from 'next/link'
 
 const ShopHeroSection = () => {
   return (
-    <div className="container flex w-full flex-col items-center justify-center text-center">
-      {/* Right: Text + Buttons */}
-      <div className="mt-12 flex flex-col items-center justify-center">
+    <div className="container flex h-[40vh] w-full flex-col items-center justify-center text-center md:h-[40vh] lg:min-h-[60vh]">
+      <div className="flex flex-col items-center justify-center">
         <h1 className="font-aria text-color-title-on-light max-w-2xl text-4xl font-extrabold sm:text-[40px] xl:text-[64px]">
-          اشکان عزیز، انتخاب‌های سالم منتظر شماست
+          انتخاب‌های سالم منتظر شماست
         </h1>
-        <p className="font-ray text-color-body-on-light mt-3.75 max-w-2xl text-sm font-medium xl:text-lg">
+        <p className="font-ray text-color-body-on-light mt-3.75 max-w-80 text-sm font-medium sm:max-w-md md:max-w-lg xl:max-w-xl xl:text-lg">
           هنوز تست هوش مصنوعی را انجام نداده‌ای. با انجام این تست می‌توانی نمره
           سلامت خودت را ببینی، نقاط قوت و ضعف‌هات را بشناسی و محصولاتی که مخصوص
           تو هستند را دریافت کنی. فقط ۵ دقیقه زمان می‌برد و کاملاً رایگان است.

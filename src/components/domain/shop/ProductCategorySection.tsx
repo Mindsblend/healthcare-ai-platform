@@ -13,16 +13,8 @@ const ProductCategorySection = () => {
   }
 
   return (
-    <div className="container mt-20 mb-12">
-      <div className="text-center">
-        <h1 className="font-aria text-color-title-on-light text-[32px] font-extrabold xl:text-[40px]">
-          دسته بندی محصولات
-        </h1>
-        <p className="font-ray font-regular text-color-body-on-light text-sm xl:text-base">
-          سالم‌ترین و ارگانیک‌ترین انتخاب‌ها، با دقت برای شما آماده شده‌اند
-        </p>
-      </div>
-      <div className="text-color-title-on-light mt-8 flex flex-wrap items-center justify-center gap-17">
+    <div className="container mb-48">
+      <div className="text-color-title-on-light mt-6 flex flex-wrap items-center justify-center gap-4 gap-y-14 md:gap-17">
         {categories.map((category) => (
           <div
             key={category.id}

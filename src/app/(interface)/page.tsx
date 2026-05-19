@@ -8,12 +8,14 @@ import NewsletterSection from '@/components/domain/(interface)/NewsletterSection
 import FeaturesSection from '@/components/domain/(interface)/FeaturesSection'
 import BlogsSection from '@/components/domain/(interface)/BlogsSection'
 import StepsSection from '@/components/domain/(interface)/StepsSection'
+import PainPointSection from '@/components/domain/(interface)/PainPointSection'
 
 export default async function Home() {
   return (
     <div>
       <LandingHeroSection />
       <HealthInvestmentSection />
+      <PainPointSection />
       <HealthTestSection />
       <ServicesSection />
       <StepsSection />

@@ -6,7 +6,7 @@ const StepsSection = () => {
   return (
     <div className="text-color-title-on-light bg-section">
       <div className="container flex flex-wrap justify-between pt-20">
-        <div>
+        <div className="text-center lg:text-right">
           <h1 className="font-aria text-color-title-on-dark max-w-lg text-4xl font-bold xl:max-w-2xl xl:text-5xl">
             راهکار کامل شما برای سلامتی، بدون پیچیدگی و دغدغه
           </h1>
@@ -17,7 +17,7 @@ const StepsSection = () => {
             به دست شما می‌رسد، تا مطمئن باشید کیفیت و اثرگذاری واقعی دریافت
             می‌کنید.
           </p>
-          <div className="mt-5 mb-6 flex gap-4">
+          <div className="mt-5 mb-6 flex justify-center gap-4 lg:justify-start">
             <Link
               href="/ai"
               className="primary-btn bg-accent-purple flex items-center justify-between rounded-full text-black"
@@ -44,7 +44,7 @@ const StepsSection = () => {
             </Link>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-x-16">
+        <div className="mx-auto grid grid-cols-2 justify-center gap-x-16 max-lg:mt-8 lg:mx-0">
           <div className="flex items-center gap-3">
             <div>
               <h1 className="font-aria text-color-title-on-dark text-left text-4xl font-black xl:max-w-2xl xl:text-5xl">
@@ -77,7 +77,7 @@ const StepsSection = () => {
               height={32}
             />
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 max-lg:mt-6">
             <div>
               <h1 className="font-aria text-color-title-on-dark text-left text-4xl font-black xl:max-w-2xl xl:text-5xl">
                 ۱۲
@@ -93,7 +93,7 @@ const StepsSection = () => {
               height={32}
             />
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 max-lg:mt-6">
             <div>
               <h1 className="font-aria text-color-title-on-dark text-left text-4xl font-black xl:max-w-2xl xl:text-5xl">
                 ۳۰۰۰+
