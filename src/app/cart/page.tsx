@@ -34,6 +34,7 @@ const page = () => {
       loading={cartLoading}
       error={error}
       loadingText="در حال بارگذاری سبد خرید..."
+      showOnlyOnInitialLoad
     >
       <div className="container mt-16">
         <h1 className="font-aria text-color-title-on-light text-4xl font-extrabold">

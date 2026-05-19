@@ -1,5 +1,7 @@
 // components/LoadingBar.tsx
-import React from 'react'
+'use client'
+
+import React, { useState, useEffect, useRef } from 'react'
 
 interface LoadingBarProps {
   loading: boolean
@@ -7,6 +9,7 @@ interface LoadingBarProps {
   children: React.ReactNode
   loadingText?: string
   errorTitle?: string
+  showOnlyOnInitialLoad?: boolean
 }
 
 const LoadingBar: React.FC<LoadingBarProps> = ({
@@ -15,17 +18,21 @@ const LoadingBar: React.FC<LoadingBarProps> = ({
   children,
   loadingText = 'در حال بارگذاری محصولات...',
   errorTitle = 'خطا در بارگذاری',
+  showOnlyOnInitialLoad = false,
 }) => {
-  if (loading) {
-    return (
-      <div className="flex min-h-100 items-center justify-center">
-        <div className="text-center">
-          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-black"></div>
-          <p className="text-gray-600">{loadingText}</p>
-        </div>
-      </div>
-    )
-  }
+  const [initialLoadingDone, setInitialLoadingDone] = useState(false)
+  const previousLoading = useRef(loading)
+
+  useEffect(() => {
+    if (showOnlyOnInitialLoad && previousLoading.current && !loading) {
+      setInitialLoadingDone(true)
+    }
+    previousLoading.current = loading
+  }, [loading, showOnlyOnInitialLoad])
+
+  const shouldShowLoading = showOnlyOnInitialLoad
+    ? loading && !initialLoadingDone
+    : loading
 
   if (error) {
     return (
@@ -54,7 +61,18 @@ const LoadingBar: React.FC<LoadingBarProps> = ({
     )
   }
 
-  return <>{children}</>
+  if (shouldShowLoading && !initialLoadingDone) {
+    return (
+      <div className="flex min-h-100 items-center justify-center">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-black"></div>
+          <p className="text-gray-600">{loadingText}</p>
+        </div>
+      </div>
+    )
+  }
+
+  return <div>{children}</div>
 }
 
 export default LoadingBar
