@@ -23,3 +23,82 @@ export interface Province {
   name: string
   cities: City[]
 }
+
+// ============================================
+// IMAGE UPLOADING
+// ============================================
+
+export interface UploadData {
+  url: string
+  filename: string
+  originalName: string
+  size: number
+}
+
+// Separate response types for single vs multiple uploads
+export interface SingleUploadResponse {
+  success: boolean
+  data?: UploadData // Always a single object, never an array
+  error?: string
+}
+
+export interface MultipleUploadResponse {
+  success: boolean
+  data?: UploadData[] // Always an array
+  error?: string
+}
+
+export interface FileInput {
+  file: File
+  folder: string
+  filename: string
+}
+
+export interface MultipleFilesInput {
+  files: File[]
+  folder?: string
+}
+
+export interface DeleteState {
+  isDeleting: boolean
+  error: string | null
+  success: boolean
+}
+
+export interface DeleteFileInput {
+  folder: string // The folder path where the file is stored (e.g., 'products', 'general', 'users')
+  filename: string // The name of the file to delete (e.g., 'image-123.jpg')
+}
+
+export interface DeleteUploadResponse {
+  success: boolean
+  error?: string
+}
+
+export interface UploadState {
+  isUploading: boolean
+  progress: number
+  error: string | null
+  success: boolean
+}
+
+export interface UploadResult {
+  url: string
+  filename: string
+  originalName: string
+  size: number
+}
+
+export interface FileInputOptions {
+  accept?: string
+  multiple?: boolean
+  maxSize?: number
+  maxFiles?: number
+}
+
+export interface FileValidationResult {
+  isValid: boolean
+  error?: string
+  file?: File
+  files?: File[]
+}

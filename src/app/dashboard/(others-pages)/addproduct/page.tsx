@@ -13,6 +13,7 @@ import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
 import LoadingBar from '@/components/layout/LoadingBar'
 import InformPopup from '@/components/layout/InformPopup'
 import { useFeedCategories } from '@/features/shop/hooks/feed/useFeedCategories'
+import { ImageUploader } from '@/components/domain/dashboard/form/ImageUpload'
 
 const AddProduct = () => {
   const [form, setForm] = useState<CreateProductInput>({
@@ -68,26 +69,10 @@ const AddProduct = () => {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    const formData = new FormData()
-    formData.append('file', file)
-
-    const res = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData,
-    })
-
-    const data = await res.json()
-
-    if (data.url) {
-      setForm((prev) => ({
-        ...prev,
-        image: data.url,
-      }))
-    }
+  const handleIconUpload = async (index: number, url: string) => {
+    const updatedIcons = [...form.icons]
+    updatedIcons[index] = { ...updatedIcons[index], iconPath: url }
+    setForm((prev) => ({ ...prev, icons: updatedIcons }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -216,6 +201,7 @@ const AddProduct = () => {
                     onChange={(e) => handleChange('categoryId', e.target.value)}
                     className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full cursor-pointer appearance-none rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
                   >
+                    <option value={0}>انتخاب دسته بندی</option>
                     {categories.map((category) => (
                       <option key={category.id} value={category.id}>
                         {category.name}
@@ -236,6 +222,7 @@ const AddProduct = () => {
                     }
                     className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full cursor-pointer appearance-none rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
                   >
+                    <option value={0}>انتخاب دسته بندی فید</option>
                     {feedCategories.map((feedCategory) => (
                       <option key={feedCategory.id} value={feedCategory.id}>
                         {feedCategory.name}
@@ -258,30 +245,15 @@ const AddProduct = () => {
                   />
                 </div>
 
-                {/* Image Upload */}
-                <div className="col-span-full">
-                  <label className="shadow-theme-xs group hover:border-brand-500 block cursor-pointer rounded-lg border-2 border-dashed border-gray-300 transition dark:border-gray-800">
-                    <div className="flex justify-center p-10">
-                      <div className="flex max-w-65 flex-col items-center gap-4">
-                        <div className="inline-flex h-13 w-13 items-center justify-center rounded-full border border-gray-200 text-gray-700 transition dark:border-gray-800 dark:text-gray-400">
-                          {/* Upload icon SVG */}
-                        </div>
-                        <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-                          <span className="font-medium text-gray-800 dark:text-white/90">
-                            برای بارگذاری کلیک کنید
-                          </span>{' '}
-                          یا بگیرید و بکشید SVG, PNG, JPG یا GIF
-                        </p>
-                      </div>
-                    </div>
-                    <input
-                      type="file"
-                      id="product-image"
-                      className="hidden"
-                      onChange={handleImage}
-                    />
-                  </label>
-                </div>
+                {/* Product Image Upload - Using reusable ImageUploader */}
+                <ImageUploader
+                  label="عکس محصول"
+                  imageUrl={form.image}
+                  onUpload={(url) => handleChange('image', url)}
+                  onClear={() => handleChange('image', '')}
+                  id="product-image-upload"
+                  setErrorMessage={setErrorMessage}
+                />
               </form>
             </div>
           </div>
@@ -295,33 +267,33 @@ const AddProduct = () => {
             </h1>
           </div>
           <div className="p-4 sm:p-6 dark:border-gray-800">
-            <form className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               {form.icons.map((icon, idx) => (
-                <div key={idx}>
+                <div key={idx} className="space-y-4">
                   {/* Icon Upload */}
-                  <div className="col-span-6">
+                  <ImageUploader
+                    label={`آیکن ${idx + 1}`}
+                    imageUrl={icon.iconPath}
+                    onUpload={(url) => handleIconUpload(idx, url)}
+                    onClear={() => handleIconUpload(idx, '')}
+                    id={`icon-upload-${idx}`}
+                    setErrorMessage={setErrorMessage}
+                  />
+
+                  {/* Icon Title */}
+                  <div>
                     <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                      آیکن
+                      عنوان
                     </label>
-                    <label className="group hover:border-brand-500 flex cursor-pointer items-center gap-4 rounded-lg border border-dashed border-gray-300 bg-gray-50 px-4 py-4 transition hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900/30 dark:hover:bg-gray-900/50">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
-                        <span className="text-lg">⬆</span>
-                      </div>
-                      <div className="flex flex-col text-sm">
-                        <span className="font-medium text-gray-800 dark:text-white">
-                          آپلود آیکن
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          SVG یا PNG
-                        </span>
-                      </div>
-                      <input
-                        type="file"
-                        accept="image/svg+xml,image/png"
-                        className="hidden"
-                        onChange={handleImage}
-                      />
-                    </label>
+                    <input
+                      type="text"
+                      placeholder="عنوان آیکن"
+                      value={icon.title}
+                      onChange={(e) =>
+                        handleChange('icons', e.target.value, idx, 'title')
+                      }
+                      className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400"
+                    />
                   </div>
 
                   {/* Icon Description */}
@@ -346,7 +318,7 @@ const AddProduct = () => {
                   </div>
                 </div>
               ))}
-            </form>
+            </div>
           </div>
         </div>
 
@@ -358,42 +330,59 @@ const AddProduct = () => {
             </h1>
           </div>
           <div className="p-4 sm:p-6 dark:border-gray-800">
-            <form className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               {form.gains.map((gain, idx) => (
-                <div key={idx}>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    مزایا
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="عنوان مزیت"
-                    value={gain.title}
-                    onChange={(e) =>
-                      handleChange('gains', e.target.value, idx, 'title')
-                    }
-                    className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400"
-                  />
-                  <input
-                    type="text"
-                    placeholder="ماده فعال"
-                    value={gain.ingredient}
-                    onChange={(e) =>
-                      handleChange('gains', e.target.value, idx, 'ingredient')
-                    }
-                    className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400"
-                  />
-                  <input
-                    type="text"
-                    placeholder="توضیح"
-                    value={gain.description}
-                    onChange={(e) =>
-                      handleChange('gains', e.target.value, idx, 'description')
-                    }
-                    className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400"
-                  />
+                <div key={idx} className="space-y-3">
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                      عنوان مزیت
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="عنوان مزیت"
+                      value={gain.title}
+                      onChange={(e) =>
+                        handleChange('gains', e.target.value, idx, 'title')
+                      }
+                      className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                      ماده فعال
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="ماده فعال"
+                      value={gain.ingredient}
+                      onChange={(e) =>
+                        handleChange('gains', e.target.value, idx, 'ingredient')
+                      }
+                      className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                      توضیح
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="توضیح"
+                      value={gain.description}
+                      onChange={(e) =>
+                        handleChange(
+                          'gains',
+                          e.target.value,
+                          idx,
+                          'description',
+                        )
+                      }
+                      className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400"
+                    />
+                  </div>
                 </div>
               ))}
-            </form>
+            </div>
           </div>
         </div>
 
@@ -405,36 +394,40 @@ const AddProduct = () => {
             </h1>
           </div>
           <div className="p-4 sm:p-6 dark:border-gray-800">
-            <form className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               {form.faqs.map((faq, idx) => (
-                <div key={idx}>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    سوال
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="این محصول دقیقاً چگونه عمل می‌کند؟"
-                    value={faq.question}
-                    onChange={(e) =>
-                      handleChange('faqs', e.target.value, idx, 'question')
-                    }
-                    className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400"
-                  />
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    جواب
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="حفظ رطوبت پوست: اسید هیالورونیک — قادر به حفظ رطوبت پوست"
-                    value={faq.answer}
-                    onChange={(e) =>
-                      handleChange('faqs', e.target.value, idx, 'answer')
-                    }
-                    className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400"
-                  />
+                <div key={idx} className="space-y-3">
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                      سوال
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="این محصول دقیقاً چگونه عمل می‌کند؟"
+                      value={faq.question}
+                      onChange={(e) =>
+                        handleChange('faqs', e.target.value, idx, 'question')
+                      }
+                      className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                      جواب
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="حفظ رطوبت پوست: اسید هیالورونیک — قادر به حفظ رطوبت پوست"
+                      value={faq.answer}
+                      onChange={(e) =>
+                        handleChange('faqs', e.target.value, idx, 'answer')
+                      }
+                      className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400"
+                    />
+                  </div>
                 </div>
               ))}
-            </form>
+            </div>
           </div>
         </div>
 
