@@ -16,22 +16,119 @@ export class CartService {
     userId: string
   }): Promise<CartType | null> {
     const { userId } = input
-    return prisma.cart.findFirst({
+
+    const cart = await prisma.cart.findFirst({
       where: {
         userId,
         status: CartStatus.ACTIVE,
       },
       include: {
         items: {
-          include: { product: true },
+          orderBy: {
+            id: 'asc',
+          },
+          include: {
+            product: {
+              include: {
+                category: {
+                  select: {
+                    name: true,
+                    iconPath: true,
+                  },
+                },
+              },
+            },
+          },
         },
       },
     })
+
+    if (!cart) return null
+
+    // Transform to match CartType with ProductSummary
+    return {
+      id: cart.id,
+      userId: cart.userId,
+      status: cart.status,
+      items: cart.items.map((item) => ({
+        id: item.id,
+        cartId: item.cartId,
+        quantity: item.quantity,
+        price: item.price,
+        product: {
+          id: item.product.id,
+          title: item.product.title,
+          price: item.product.price,
+          solution: item.product.solution,
+          slug: item.product.slug,
+          image: item.product.image,
+          categoryId: item.product.categoryId,
+          category: item.product.category, // This matches ProductSummary
+        },
+      })),
+    }
   }
 
   // Create Cart
   static async createCart(input: { userId: string }): Promise<CartType | null> {
     const { userId } = input
+
+    // First, check if user already has an active cart
+    const existingCart = await prisma.cart.findFirst({
+      where: {
+        userId,
+        status: CartStatus.ACTIVE,
+      },
+      include: {
+        items: {
+          orderBy: {
+            id: 'asc',
+          },
+          include: {
+            product: {
+              include: {
+                category: {
+                  select: {
+                    name: true,
+                    iconPath: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    // If existing cart found, return it
+    if (existingCart) {
+      console.log(
+        '[CartService.createCart] Found existing cart:',
+        existingCart.id,
+      )
+      return {
+        id: existingCart.id,
+        userId: existingCart.userId,
+        status: existingCart.status,
+        items: existingCart.items.map((item) => ({
+          id: item.id,
+          cartId: item.cartId,
+          quantity: item.quantity,
+          price: item.price,
+          product: {
+            id: item.product.id,
+            title: item.product.title,
+            price: item.product.price,
+            solution: item.product.solution,
+            slug: item.product.slug,
+            image: item.product.image,
+            categoryId: item.product.categoryId,
+            category: item.product.category,
+          },
+        })),
+      }
+    }
+
     const cart = await prisma.cart.create({
       data: {
         userId,
@@ -39,16 +136,13 @@ export class CartService {
       },
     })
 
-    const fullCart = await prisma.cart.findUnique({
-      where: { id: cart.id },
-      include: {
-        items: {
-          include: { product: true },
-        },
-      },
-    })
-
-    return fullCart
+    // Return cart with empty items array (matches CartType)
+    return {
+      id: cart.id,
+      userId: cart.userId,
+      status: cart.status,
+      items: [],
+    }
   }
 
   /** Add to Cart */

@@ -1097,14 +1097,21 @@ export async function validateIdentifierField(identifier: string) {
   return { isValid: true, type: 'phone', value: phone }
 }
 
-const testData1 = {
-  firstName: 'محمد',
-  lastName: 'رضایی',
-  province: 'تهران',
-  city: 'تهران',
-  email: 'mohammad.rezaei@example.com',
-  phone: '09123456789',
-  address: 'تهران، خیابان ولیعصر، نبستن خیابان مطهری، پلاک ۱۲۳، واحد ۵',
-  postalCode: '1234567890',
-  notes: 'سفارش را قبل از ظهر ارسال کنید',
+// Helper function to validate and fix image URL
+export const getValidImageUrl = (url: string | null | undefined): string => {
+  if (!url || url.trim() === '') {
+    return '/images/placeholder.png' // Default placeholder
+  }
+
+  // If URL doesn't start with /, http://, or https://, add leading slash
+  if (
+    !url.startsWith('/') &&
+    !url.startsWith('http://') &&
+    !url.startsWith('https://')
+  ) {
+    return `/${url}`
+  }
+
+  // Fix common issues: replace spaces with %20
+  return url.replace(/ /g, '%20')
 }

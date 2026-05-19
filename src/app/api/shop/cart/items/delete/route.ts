@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
   await requireAuthority({ requiredRole: 'USER' })
   try {
     const { cartItemId } = await req.json()
-    const deletedItem = await CartService.removeItem(cartItemId)
+    const deletedItem = await CartService.removeItem({ cartItemId })
     return NextResponse.json(deletedItem)
   } catch (err) {
     return NextResponse.json(

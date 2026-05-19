@@ -1,5 +1,3 @@
-// features/shop/cart/actions/removeItem.ts
-
 import { RemoveItemInput, RemoveItemResponse } from '../../shop.types'
 
 export async function removeItem(

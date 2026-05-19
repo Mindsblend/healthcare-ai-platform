@@ -98,27 +98,12 @@ export type BlogSummary = Prisma.BlogGetPayload<{
 // CART TYPES
 // ============================================
 
-export interface CartProduct {
-  id: number
-  title: string
-  price: number
-  image: string
-  slug: string
-  description: string
-  createdAt: Date
-  updatedAt: Date
-  solution: string
-  categoryId: number
-  isActive: boolean
-  feedCategoryId: number | null
-}
-
 export interface CartItemType {
   id: number
   cartId: string
   quantity: number
   price: number
-  product: CartProduct
+  product: ProductSummary
 }
 
 export interface CartType {
