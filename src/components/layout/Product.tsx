@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ProductSummary } from '@/features/shop/shop.types'
 import { useCart } from '@/features/shop/hooks/cart/useCart'
 import { useRouter } from 'next/navigation'
+import { useUserInfo } from '@/features/shop/hooks/profile/useUserInfo'
 
 interface Props {
   product: ProductSummary
@@ -10,12 +11,13 @@ interface Props {
 
 const Product = ({ product }: Props) => {
   const { addToCart, cart, loading: cartLoading } = useCart()
+  const { userInfo } = useUserInfo()
 
   const router = useRouter()
 
   const handleAddToCart = async () => {
     if (cartLoading) return
-    if (cart?.userId) {
+    if (userInfo?.id) {
       await addToCart(product.id, 1)
     } else {
       router.push(`/auth?redirect=${encodeURIComponent('/feed')}`)
