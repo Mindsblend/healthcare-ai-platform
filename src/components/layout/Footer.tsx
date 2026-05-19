@@ -3,7 +3,7 @@ import Image from 'next/image'
 const Footer = () => {
   return (
     <footer className="bg-page text-color-title-on-light container pt-12 pb-5">
-      <div className="flex flex-col justify-between sm:flex-row">
+      <div className="flex flex-col items-center justify-center sm:flex-row sm:justify-between">
         {/* RIGHT SIDE — Logo + Paragraph + Social Icons + Numbers */}
         <div className="flex w-full max-w-sm flex-col items-center justify-between sm:items-start sm:text-right">
           {/* Logo */}
@@ -24,7 +24,7 @@ const Footer = () => {
           </p>
 
           {/* Numbers */}
-          <div className="font-aria text-color-title-on-light flex justify-center gap-3 text-lg font-normal sm:justify-start sm:gap-6">
+          <div className="font-aria text-color-title-on-light flex flex-wrap justify-center gap-3 text-lg font-normal sm:justify-start sm:gap-6">
             {/* Social Media */}
             <div className="flex justify-end gap-4">
               <Image
