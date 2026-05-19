@@ -147,6 +147,7 @@ const Products = () => {
     !loading && !error && !productsPreview.length && !debouncedSearchValue
 
   const handleDelete = async (id: number) => {
+    console.log('🟢 handleDelete called with id:', id, 'type:', typeof id)
     await deleteProduct({ id })
     router.refresh()
   }
@@ -410,18 +411,21 @@ const Products = () => {
 
                       <TableCell className="py-3 text-gray-800">
                         <div className="flex items-center gap-3">
-                          <Image
-                            src={
-                              product.image && product.image.startsWith('http')
-                                ? product.image
-                                : '/images/binoculars.svg'
-                            }
-                            alt={product.title}
-                            width={48}
-                            height={48}
-                            className="cursor-pointer rounded object-cover"
-                            onClick={() => handleViewProduct(product)}
-                          />
+                          {product.image && product.image.trim() !== '' ? (
+                            <Image
+                              src={product.image}
+                              alt="product image"
+                              width={80}
+                              height={80}
+                              className="h-20 w-20 rounded-2xl object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gray-100">
+                              <span className="text-xs text-gray-400">
+                                بدون تصویر
+                              </span>
+                            </div>
+                          )}
                           <span className="font-medium text-gray-800 dark:text-white/90">
                             {product.title}
                           </span>
@@ -457,6 +461,7 @@ const Products = () => {
                         <div className="flex items-center gap-3">
                           <button
                             onClick={() => {
+                              setProductId(product.id)
                               setOpenIndex(true)
                             }}
                             className="text-gray-500 transition-colors"
@@ -747,6 +752,7 @@ const Products = () => {
         onClose={() => setOpenIndex(false)}
         onConfirm={async () => {
           await handleDelete(productId)
+          setOpenIndex(false)
         }}
         popupTitle={`آیا از حذف "${title}" مطمئن هستید؟`}
         descriptionText={

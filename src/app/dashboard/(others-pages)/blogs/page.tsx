@@ -404,6 +404,7 @@ const Blogs = () => {
         onClose={() => setOpenIndex(false)}
         onConfirm={async () => {
           await handleDelete(selectedBlog)
+          setOpenIndex(false)
         }}
         popupTitle={`آیا از حذف "${selectedBlogTitle}" مطمئن هستید؟`}
         descriptionText={

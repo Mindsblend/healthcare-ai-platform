@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
 
     const {
-      productId,
+      id,
       title,
       price,
       slug,
@@ -22,9 +22,9 @@ export async function POST(req: NextRequest) {
       faqs,
     } = body
 
-    if (!productId) {
+    if (!id) {
       return NextResponse.json(
-        { error: 'productId is required' },
+        { error: 'id is required' },
         { status: 400 },
       )
     }
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     }
 
     const updatedProduct = await ProductService.updateProduct({
-      productId,
+      id,
       ...allowedUpdates,
     })
     return NextResponse.json(updatedProduct)
