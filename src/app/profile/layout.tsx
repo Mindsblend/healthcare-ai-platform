@@ -1,4 +1,3 @@
-import Navbar from '@/components/layout/Navbar'
 import NavbarWrapper from '@/components/layout/NavbarWrapper'
 import Sidebar from '@/components/layout/Sidebar'
 

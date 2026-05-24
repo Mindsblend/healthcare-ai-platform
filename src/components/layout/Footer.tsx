@@ -60,17 +60,17 @@ const Footer = () => {
             </h3>
             <ul className="font-ray space-y-2 sm:text-sm xl:text-lg">
               <li>
-                <a href="/products" className="hover:text-gray-300">
+                <a href="/products" className="transition hover:text-gray-500">
                   محصولات
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-gray-300">
+                <a href="#" className="transition hover:text-gray-500">
                   تست هوش مصنوعی
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-gray-300">
+                <a href="#" className="transition hover:text-gray-500">
                   بلاگ
                 </a>
               </li>
@@ -86,7 +86,7 @@ const Footer = () => {
               <li>
                 <a
                   href="/products?categoryId=6"
-                  className="hover:text-gray-300"
+                  className="transition hover:text-gray-500"
                 >
                   لوازم خانه
                 </a>
@@ -94,7 +94,7 @@ const Footer = () => {
               <li>
                 <a
                   href="/products?categoryId=5"
-                  className="hover:text-gray-300"
+                  className="transition hover:text-gray-500"
                 >
                   موادغذایی
                 </a>
@@ -102,7 +102,7 @@ const Footer = () => {
               <li>
                 <a
                   href="/products?categoryId=3"
-                  className="hover:text-gray-300"
+                  className="transition hover:text-gray-500"
                 >
                   مراقبت ذهنی
                 </a>
@@ -117,17 +117,17 @@ const Footer = () => {
             </h3>
             <ul className="font-ray space-y-2 sm:text-sm xl:text-lg">
               <li>
-                <a href="#" className="hover:text-gray-300">
+                <a href="#" className="transition hover:text-gray-500">
                   درباره ما
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-gray-300">
+                <a href="#" className="transition hover:text-gray-500">
                   پشتیبانی
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-gray-300">
+                <a href="#" className="transition hover:text-gray-500">
                   همکاری
                 </a>
               </li>
@@ -141,23 +141,38 @@ const Footer = () => {
 
       {/* Footer Bottom Links - Centered for mobile/tablet */}
       <div className="font-ray flex flex-col items-center justify-center gap-4 font-bold text-black sm:flex-row sm:justify-between sm:gap-0 sm:text-sm xl:text-xl">
-        <a href="#" className="text-center hover:text-gray-200">
+        <a href="#" className="text-center transition hover:text-gray-500">
           © ۲۰۲۵ زیستیار – تمامی حقوق محفوظ است
         </a>
         <div className="flex flex-wrap justify-center gap-4 sm:gap-5 xl:gap-8">
-          <a href="/legal/privacy-policy" className="hover:text-gray-200">
+          <a
+            href="/legal/privacy-policy"
+            className="transition hover:text-gray-500"
+          >
             سیاست حریم خصوصی
           </a>
-          <a href="/legal/platform-rules" className="hover:text-gray-200">
+          <a
+            href="/legal/platform-rules"
+            className="transition hover:text-gray-500"
+          >
             قوانین خدمات
           </a>
-          <a href="/legal/return-policy" className="hover:text-gray-200">
+          <a
+            href="/legal/return-policy"
+            className="transition hover:text-gray-500"
+          >
             سیاست بازگشت کالا
           </a>
-          <a href="/legal/ai-transparency" className="hover:text-gray-200">
+          <a
+            href="/legal/ai-transparency"
+            className="transition hover:text-gray-500"
+          >
             شفافیت هوش مصنوعی
           </a>
-          <a href="/legal/medical-disclaimer" className="hover:text-gray-200">
+          <a
+            href="/legal/medical-disclaimer"
+            className="transition hover:text-gray-500"
+          >
             مسئولیت پزشکی
           </a>
         </div>

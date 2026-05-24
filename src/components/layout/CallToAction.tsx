@@ -36,7 +36,7 @@ const CallToAction = () => {
             </div>
           </Link>
           <Link
-            href="auth"
+            href="/products"
             className="secondary-btn flex items-center justify-center rounded-full border border-white font-medium whitespace-nowrap text-white transition hover:bg-black hover:text-white"
           >
             آشنایی با محصولات
