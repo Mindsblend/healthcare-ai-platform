@@ -230,6 +230,7 @@ export type OrderItem = Prisma.OrderItemGetPayload<{
 
 export type OrderStatus =
   | 'PENDING'
+  | 'PREPARING'
   | 'PAID'
   | 'FAILED'
   | 'CANCELED'
@@ -696,3 +697,33 @@ export type UserFeedResponse = Array<{
   }
   products: FeedCategoryProduct[]
 }>
+
+// ============================================
+// PAYMENT TYPES
+// ============================================
+
+export interface PaymentRequestInput {
+  amount: number // Amount in Rials (Toman × 10)
+  description: string // Order description
+  orderId: string // Your order ID
+  email?: string // Optional: user email
+  mobile?: string // Optional: user mobile
+}
+
+export interface PaymentRequestResponse {
+  success: boolean
+  authority?: string
+  paymentUrl?: string
+  error?: string
+}
+
+export interface PaymentVerifyInput {
+  authority: string
+  amount: number
+}
+
+export interface PaymentVerifyResponse {
+  success: boolean
+  refId?: number
+  message?: string
+}

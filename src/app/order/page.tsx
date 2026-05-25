@@ -7,6 +7,7 @@ import { useCreateOrder } from '@/features/shop/hooks/orders/createOrders'
 import { useUserAddress } from '@/features/shop/hooks/profile/useUserAddress'
 import { ShippingInfo } from '@/features/shop/shop.types'
 import { City } from '@/components/types/types'
+import { usePayment } from '@/features/shop/hooks/payment/usePayment'
 import {
   getFreeShippingStatus,
   provinces,
@@ -35,6 +36,7 @@ const CheckoutPage = () => {
   const { createUserAddress } = useCreateUserAddress()
   const { userAddress } = useUserAddress()
   const { updateUserProfile } = useUpdateUserProfile()
+  const { initiatePayment, loading: paymentLoading } = usePayment()
 
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
     null,
@@ -217,7 +219,7 @@ const CheckoutPage = () => {
     }
   }
 
-  // Updated handleSubmit to use createAddress hook
+  // Updated handleSubmit to integrate payment
   const handleSubmit = async (shouldCreateNewAddress: boolean = true) => {
     // Mark all fields as touched
     const allTouched = Object.keys(shippingInfo).reduce(
@@ -261,8 +263,6 @@ const CheckoutPage = () => {
         })
       }
 
-      let addressId = selectedAddressId
-
       // If user wants to create a new address (either from form or "Add New Address" button)
       if (shouldCreateNewAddress && !selectedAddressId) {
         await createUserAddress({
@@ -277,16 +277,37 @@ const CheckoutPage = () => {
         })
       }
 
-      // Create order with the SAME shippingInfo structure you were already using
-      // No need to change your createOrder hook at all!
-      await createOrder({
-        shippingInfo, // Keep this as is
+      // Create order with PENDING status
+      console.log('1. Creating order...')
+      const orderResult = await createOrder({
+        shippingInfo,
         paymentMethod: activeBtn,
       })
-      setErrorMessage('سفارش با موفقیت ثبت شد!')
 
-      // Optional: Redirect to order confirmation or payment page
-      // router.push('/payment')
+      console.log('2. Order created:', orderResult)
+
+      if (!orderResult?.id) {
+        throw new Error('Failed to create order')
+      }
+
+      // Calculate total amount in Rials (Toman × 10)
+      const finalTotal = (totalAmount + deliveryAmount) * 10
+      console.log('3. Total amount (Rials):', finalTotal)
+
+      console.log('4. Initiating payment...')
+      // Initiate payment
+      const paymentResult = await initiatePayment({
+        amount: finalTotal,
+        description: `سفارش شماره ${orderResult.id}`,
+        orderId: orderResult.id,
+        email: shippingInfo.email,
+        mobile: shippingInfo.phone,
+      })
+
+      console.log('5. Payment result:', paymentResult)
+
+      // Note: The user will be redirected to Zarinpal by the initiatePayment function
+      // The code after this won't execute immediately due to redirect
     } catch (err) {
       console.error('Order creation error:', err)
       setErrorMessage('خطا در ثبت سفارش، لطفا دوباره تلاش کنید.')
@@ -300,7 +321,7 @@ const CheckoutPage = () => {
     !isAddingNewAddress
   ) {
     return (
-      <LoadingBar loading={cartLoading} error={error}>
+      <LoadingBar loading={cartLoading || paymentLoading} error={error}>
         <div className="container mt-10">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 xl:grid-cols-3">
             {/* RIGHT: Address Selection */}
@@ -328,7 +349,7 @@ const CheckoutPage = () => {
                       setSelectedAddressId(null)
                     }}
                     className="font-aria w-35 cursor-pointer rounded-[5px] bg-[#161A1D] text-sm font-bold text-white transition-all hover:bg-[#2a3035] disabled:cursor-not-allowed disabled:opacity-50"
-                    style={{ height: '50px' }} // Keeping height with inline style for precision
+                    style={{ height: '50px' }}
                   >
                     ثبت آدرس جدید
                   </button>
@@ -355,7 +376,7 @@ const CheckoutPage = () => {
                           phone: address.phone,
                           address: address.address,
                           postalCode: address.postalCode,
-                          notes: shippingInfo.notes, // Shipping notes is a seperate form from the prefilled address
+                          notes: shippingInfo.notes,
                         })
                       }}
                     >
@@ -424,45 +445,6 @@ const CheckoutPage = () => {
                         height={50}
                       />
                     </div>
-                    {/* For now we only support zarrinpal for the mvp. Other payment methods like the mellat will be added later */}
-                    {/* <div
-                  onClick={() => setActiveBtn('mellat')}
-                  className={`flex h-19.5 cursor-pointer items-center justify-center rounded-2xl px-1 py-2.25 ${
-                    activeBtn === 'mellat'
-                      ? 'border-2 border-[#d9d9d9] bg-white'
-                      : ''
-                  }`}
-                  </label>
-                ))}
-              </div>
-                    {/* <div className="mt-6 flex justify-center gap-4">
-                      <button
-                        onClick={() => {
-                          setIsAddingNewAddress(true)
-                          // Reset form to empty
-                          setShippingInfo({
-                            firstName: '',
-                            lastName: '',
-                            city: '',
-                            province: '',
-                            email: '',
-                            phone: '',
-                            address: '',
-                            postalCode: '',
-                            notes: '',
-                          })
-                          setSelectedAddressId(null)
-                        }}
-                        className="font-aria rounded-xl border-2 border-black px-6 py-3 font-bold text-black transition hover:bg-gray-100"
-                      >
-                        <Image
-                          src="/images/bank-mellat.svg"
-                          alt="bank mellat"
-                          width={56}
-                          height={56}
-                        />
-                      </button>
-                    </div> */}
                   </div>
                 </div>
               </div>
@@ -553,16 +535,21 @@ const CheckoutPage = () => {
                       جمع کل
                     </h1>
                     <h1 className="font-aria text-color-title-on-light font-extrabold">
-                      {totalAmount.toLocaleString('fa-IR')} تومان
+                      {(totalAmount + deliveryAmount).toLocaleString('fa-IR')}{' '}
+                      تومان
                     </h1>
                   </div>
                 </div>
                 <button
                   onClick={() => handleSubmit(true)}
-                  disabled={orderLoading}
-                  className="text-color-title-on-dark font-ray h-13.5 w-full cursor-pointer rounded-4xl bg-black font-medium transition hover:bg-gray-800"
+                  disabled={orderLoading || paymentLoading}
+                  className="text-color-title-on-dark font-ray h-13.5 w-full cursor-pointer rounded-4xl bg-black font-medium transition hover:bg-gray-800 disabled:opacity-50"
                 >
-                  {orderLoading ? 'در حال ثبت سفارش...' : 'ثبت سفارش و پرداخت'}
+                  {paymentLoading
+                    ? 'در حال اتصال به درگاه پرداخت...'
+                    : orderLoading
+                      ? 'در حال ثبت سفارش...'
+                      : 'ثبت سفارش و پرداخت'}
                 </button>
               </div>
             </div>
@@ -817,22 +804,6 @@ const CheckoutPage = () => {
                     height={50}
                   />
                 </div>
-                {/* For now we only support zarrinpal for the mvp. Other payment methods like the mellat will be added later */}
-                {/* <div
-                  onClick={() => setActiveBtn('mellat')}
-                  className={`flex h-19.5 cursor-pointer items-center justify-center rounded-2xl px-1 py-2.25 ${
-                    activeBtn === 'mellat'
-                      ? 'border-2 border-[#d9d9d9] bg-white'
-                      : ''
-                  }`}
-                >
-                  <Image
-                    src="/images/bank-mellat.svg"
-                    alt="bank mellat"
-                    width={56}
-                    height={56}
-                  />
-                </div> */}
               </div>
             </div>
           </div>
@@ -922,16 +893,20 @@ const CheckoutPage = () => {
                   جمع کل
                 </h1>
                 <h1 className="font-aria text-color-title-on-light font-extrabold">
-                  {totalAmount.toLocaleString('fa-IR')} تومان
+                  {(totalAmount + deliveryAmount).toLocaleString('fa-IR')} تومان
                 </h1>
               </div>
             </div>
             <button
               onClick={() => handleSubmit(true)}
-              disabled={orderLoading}
-              className="text-color-title-on-dark font-ray h-13.5 w-full cursor-pointer rounded-4xl bg-black font-medium transition hover:bg-gray-800"
+              disabled={orderLoading || paymentLoading}
+              className="text-color-title-on-dark font-ray h-13.5 w-full cursor-pointer rounded-4xl bg-black font-medium transition hover:bg-gray-800 disabled:opacity-50"
             >
-              {orderLoading ? 'در حال ثبت سفارش...' : 'ثبت سفارش و پرداخت'}
+              {paymentLoading
+                ? 'در حال اتصال به درگاه پرداخت...'
+                : orderLoading
+                  ? 'در حال ثبت سفارش...'
+                  : 'ثبت سفارش و پرداخت'}
             </button>
           </div>
         </div>

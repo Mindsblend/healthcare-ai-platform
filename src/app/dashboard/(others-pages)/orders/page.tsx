@@ -53,7 +53,7 @@ const Orders = () => {
   const [shippingProvince, setShippingProvince] = useState<string>('')
   const [shippingAddress, setShippingAddress] = useState<string>('')
   const [shippingPostalCode, setShippingPostalCode] = useState<string>('')
-  const [selectedStatus, setSelectedStatus] = useState<OrderStatus>('PENDING')
+  const [selectedStatus, setSelectedStatus] = useState<OrderStatus>('PAID')
   const [shippingNotes, setShippingNotes] = useState<string | undefined>(
     undefined,
   )

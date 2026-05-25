@@ -15,9 +15,21 @@ const OrdersContent = () => {
     {
       id: 'all',
       label: 'همه',
-      statuses: ['PENDING', 'DELIVERING', 'DELIVERED', 'CANCELED', 'REFUNDED'],
+      statuses: [
+        'PENDING',
+        'PREPARING',
+        'DELIVERING',
+        'DELIVERED',
+        'CANCELED',
+        'REFUNDED',
+      ],
     },
     { id: 'pending', label: getStatusLabel('PENDING'), statuses: ['PENDING'] },
+    {
+      id: 'preparing',
+      label: getStatusLabel('PREPARING'),
+      statuses: ['PREPARING'],
+    },
     {
       id: 'delivering',
       label: getStatusLabel('DELIVERING'),

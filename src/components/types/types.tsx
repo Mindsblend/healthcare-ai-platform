@@ -102,3 +102,39 @@ export interface FileValidationResult {
   file?: File
   files?: File[]
 }
+
+// ============================================
+// AI
+// ============================================
+
+export interface DomainScores {
+  sleep: number
+  nutrition: number
+  activity: number
+  stress: number
+  beauty: number
+  medical: number
+}
+
+export interface AIAnalysisResult {
+  summary: string
+  diagnosis: string
+  goals: Array<{
+    goal: string
+    domain: string
+    priority: number
+  }>
+  healthArchetype: string
+  readinessStage: string
+}
+
+export interface UserAnswers {
+  [key: string]: string | string[]
+}
+
+export interface ProductRecommendation {
+  productId: number
+  reason: string
+  domain: string
+  priority: number
+}

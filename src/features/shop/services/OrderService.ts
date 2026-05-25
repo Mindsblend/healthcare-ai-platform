@@ -1,6 +1,7 @@
 // features/shop/orders/services/orderService.ts
 
 import { prisma } from '@/lib/prisma'
+import { OrderStatus } from '@prisma/client'
 import {
   OrderDetail,
   OrderSummary,
@@ -24,7 +25,6 @@ export class OrderService {
     })
   }
 
-  // For single order with full details
   static async fetchOrderById(
     input: FetchOrderByIdInput,
   ): Promise<OrderDetail | null> {
@@ -52,7 +52,6 @@ export class OrderService {
   static async createOrder(input: CreateOrderInput) {
     const { userId, shippingInfo, paymentMethod } = input
 
-    // Fetch active cart
     const cart = await prisma.cart.findFirst({
       where: { userId, status: 'ACTIVE' },
       include: { items: { include: { product: true } } },
@@ -62,7 +61,62 @@ export class OrderService {
       throw new Error('Cart is empty or does not exist')
     }
 
-    // Calculate total
+    // Check if order already exists for this cart
+    const existingOrder = await prisma.order.findUnique({
+      where: { cartId: cart.id },
+    })
+
+    // If order exists
+    if (existingOrder) {
+      console.log(
+        `[OrderService] Found existing order: ${existingOrder.id}, status: ${existingOrder.status}`,
+      )
+
+      // Case 1: Order is PAID - cannot create new order
+      if (existingOrder.status === 'PAID') {
+        throw new Error('This cart has already been ordered and paid for.')
+      }
+
+      // Case 2: Order is FAILED - delete it and create new one (user can retry)
+      if (existingOrder.status === 'FAILED') {
+        console.log(`[OrderService] Deleting failed order, allowing retry...`)
+
+        await prisma.$transaction(async (tx) => {
+          await tx.orderItem.deleteMany({
+            where: { orderId: existingOrder.id },
+          })
+          await tx.order.delete({
+            where: { id: existingOrder.id },
+          })
+        })
+        // Continue to create new order below
+      }
+
+      // Case 3: Order is PENDING - return existing order (user continues payment)
+      else if (existingOrder.status === 'PENDING') {
+        console.log(
+          `[OrderService] Returning existing PENDING order for payment continuation`,
+        )
+        return existingOrder
+      }
+
+      // Case 4: Order is CANCELED - delete and create new
+      else if (existingOrder.status === 'CANCELED') {
+        console.log(`[OrderService] Deleting canceled order, allowing retry...`)
+
+        await prisma.$transaction(async (tx) => {
+          await tx.orderItem.deleteMany({
+            where: { orderId: existingOrder.id },
+          })
+          await tx.order.delete({
+            where: { id: existingOrder.id },
+          })
+        })
+        // Continue to create new order below
+      }
+    }
+
+    // If we reach here, either no order exists or we deleted a FAILED/CANCELED one
     const subtotal = cart.items.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0,
@@ -71,15 +125,14 @@ export class OrderService {
     const taxAmount = Math.round(subtotal * TAX_RATE)
     const totalPrice = subtotal + taxAmount
 
-    // Transaction: create order + mark cart checked out + create order items
     const order = await prisma.$transaction(async (tx) => {
-      // Create order
       const newOrder = await tx.order.create({
         data: {
           userId,
           cartId: cart.id,
           totalPrice,
-          status: 'PAID',
+          status: OrderStatus.PENDING,
+          paymentMethod,
           shippingFirstName: shippingInfo.firstName,
           shippingLastName: shippingInfo.lastName,
           shippingEmail: shippingInfo.email,
@@ -99,22 +152,79 @@ export class OrderService {
         },
       })
 
-      // Mark cart as checked out
-      await tx.cart.update({
-        where: { id: cart.id },
-        data: { status: 'CHECKED_OUT' },
-      })
-
       return newOrder
     })
 
     return order
   }
 
+  static async updateOrderPaymentAuthority(input: {
+    orderId: string
+    authority: string
+  }) {
+    const { orderId, authority } = input
+
+    return prisma.order.update({
+      where: { id: orderId },
+      data: {
+        paymentAuthority: authority,
+        paymentRequestedAt: new Date(),
+      },
+    })
+  }
+
+  static async findOrderByAuthority(authority: string) {
+    return prisma.order.findFirst({
+      where: { paymentAuthority: authority },
+    })
+  }
+
+  // Payment successful: PENDING → PAID
+  static async verifyAndFinalizePayment(input: {
+    authority: string
+    refId: string
+    status: 'PAID' | 'FAILED'
+    errorMessage?: string
+  }) {
+    const { authority, refId, status, errorMessage } = input
+
+    const order = await prisma.order.findFirst({
+      where: { paymentAuthority: authority },
+      include: { cart: true },
+    })
+
+    if (!order) {
+      throw new Error('Order not found for authority: ' + authority)
+    }
+
+    const updatedOrder = await prisma.$transaction(async (tx) => {
+      const updated = await tx.order.update({
+        where: { id: order.id },
+        data: {
+          status: status === 'PAID' ? OrderStatus.PAID : OrderStatus.FAILED,
+          paymentRefId: refId,
+          paymentVerifiedAt: new Date(),
+          paymentErrorMessage: errorMessage,
+        },
+      })
+
+      // Only clear cart if payment was successful
+      if (status === 'PAID' && order.cartId) {
+        await tx.cart.update({
+          where: { id: order.cartId },
+          data: { status: 'CHECKED_OUT' },
+        })
+      }
+
+      return updated
+    })
+
+    return updatedOrder
+  }
+
   static async updateOrder(input: UpdateOrderInput) {
     const { orderId, status, shippingNotes } = input
 
-    // Get current order to check status
     const currentOrder = await prisma.order.findUnique({
       where: { id: orderId },
     })
@@ -123,7 +233,6 @@ export class OrderService {
       throw new Error('Order not found')
     }
 
-    // Update the order - only status and shippingNotes
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
       data: {

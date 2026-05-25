@@ -1,5 +1,5 @@
 import { createDomainError, ErrorCode } from './errors.ts'
-import { City, Province } from '@/components/types/types.tsx'
+import { City, DomainScores, Province } from '@/components/types/types.tsx'
 
 export default function generateSlug(name: string) {
   return name
@@ -50,6 +50,8 @@ export const getFreeShippingStatus = (subtotal: number, threshold: number) => {
 export const getStatusLabel = (status: string): string => {
   switch (status) {
     case 'PENDING':
+      return 'در حال پرداخت'
+    case 'PREPARING':
       return 'در حال آماده‌سازی'
     case 'PAID':
       return 'پرداخت شده'
@@ -78,6 +80,8 @@ export const getStatusColor = (
     case 'DELIVERED':
       return 'primary'
     case 'PENDING':
+      return 'warning'
+    case 'PREPARING':
       return 'warning'
     case 'DELIVERING':
       return 'info'
@@ -1097,7 +1101,7 @@ export async function validateIdentifierField(identifier: string) {
   return { isValid: true, type: 'phone', value: phone }
 }
 
-// Helper function to validate and fix image URL
+// ============ Fix and Validate Images ============
 export const getValidImageUrl = (url: string | null | undefined): string => {
   if (!url || url.trim() === '') {
     return '/images/placeholder.png' // Default placeholder
@@ -1114,4 +1118,260 @@ export const getValidImageUrl = (url: string | null | undefined): string => {
 
   // Fix common issues: replace spaces with %20
   return url.replace(/ /g, '%20')
+}
+
+// ============ AI Test Scoring ============
+
+// Answer scoring mapping (0-100)
+const scoreMap: Record<string, Record<string, number>> = {
+  // Sleep (SL1-SL4)
+  SL1: {
+    'Less than 5': 20,
+    '5-6': 40,
+    '6-7': 60,
+    '7-8': 85,
+    '8+': 100,
+  },
+  SL2: {
+    'Refreshed and ready': 100,
+    'Fine after a few minutes': 70,
+    "Heavy, like I haven't slept": 30,
+    'Already thinking about a nap': 10,
+  },
+  SL3: {
+    'No, I sleep through': 100,
+    'Yes, once (easily fall back)': 70,
+    'Yes, multiple times': 40,
+    'Yes, and I struggle to fall back': 20,
+  },
+  SL4: {
+    'Yes, every night': 100,
+    Sometimes: 60,
+    Rarely: 30,
+    'No, I just collapse into bed': 10,
+  },
+
+  // Nutrition (N1-N6)
+  N1: {
+    'Every meal': 100,
+    'Twice daily': 80,
+    'Once daily': 60,
+    'A few times per week': 40,
+    Rarely: 20,
+  },
+  N2: {
+    Daily: 100,
+    'A few times per week': 70,
+    'Once a week': 40,
+    Rarely: 20,
+  },
+  N3: {
+    '5+ servings': 100,
+    '3-4 servings': 75,
+    '1-2 servings': 45,
+    Rarely: 20,
+  },
+  N4: {
+    '8+': 100,
+    '6-7': 75,
+    '4-5': 50,
+    'Less than 4': 25,
+  },
+  N5: {
+    'Very comfortable, regular': 100,
+    'Occasional bloating or gas': 60,
+    'Frequent discomfort or irregularity': 30,
+    'Chronic issues (IBS, constipation, diarrhea)': 10,
+  },
+  N6: {
+    Rarely: 100,
+    '1-2 times per week': 70,
+    '3-5 times per week': 40,
+    Daily: 10,
+  },
+
+  // Physical Activity (P1-P4)
+  P1: {
+    '5+ days': 100,
+    '3-4 days': 75,
+    '1-2 days': 50,
+    'Rarely or never': 25,
+  },
+  P3: {
+    'Very active (physical job, lots of walking)': 100,
+    'Moderately active': 60,
+    'Sedentary (desk job, mostly sitting)': 20,
+  },
+  P4: {
+    Energized: 100,
+    Neutral: 60,
+    'Tired but good': 70,
+    'Exhausted / wiped out': 30,
+  },
+
+  // Stress & Mental Health (M1-M5)
+  M1: {
+    Rarely: 100,
+    Sometimes: 70,
+    Often: 40,
+    'Almost daily': 20,
+  },
+  M3: {
+    'Generally positive and stable': 100,
+    'Occasional lows or irritability': 65,
+    'Frequent ups and downs': 35,
+    'Mostly low or apathetic': 15,
+  },
+  M4: {
+    'Yes, daily': 100,
+    Sometimes: 60,
+    Rarely: 30,
+    No: 10,
+  },
+  M5: {
+    Daily: 100,
+    'A few times per week': 75,
+    Weekly: 50,
+    Rarely: 25,
+  },
+
+  // Beauty (B1-B4)
+  B1: {
+    'Clear and calm': 100,
+    'Occasional breakouts': 70,
+    'Frequent breakouts or acne': 40,
+    'Dry, flaky, or prematurely aging': 30,
+    'Redness or rosacea': 35,
+  },
+  B4: {
+    'Daily, multiple steps': 100,
+    'Daily, basic (wash + moisturize)': 75,
+    Sometimes: 40,
+    'No routine': 15,
+  },
+
+  // Medical (C3)
+  C3: {
+    'Yes, one': 40,
+    'Yes, two or more': 20,
+    No: 100,
+  },
+  C5: {
+    'Within the last year': 100,
+    '1-2 years ago': 70,
+    '2+ years ago': 40,
+    "I don't remember / never": 20,
+  },
+}
+
+// Default scores for unmapped answers
+const DEFAULT_SCORE = 50
+
+export function calculateScores(
+  answers: Record<string, string | string[]>,
+): DomainScores {
+  // Sleep score (SL1-SL4)
+  const sleepQuestions = ['SL1', 'SL2', 'SL3', 'SL4']
+  const sleepScores = sleepQuestions.map((q) => {
+    const answer = answers[q] as string
+    return scoreMap[q]?.[answer] ?? DEFAULT_SCORE
+  })
+  const sleepScore = Math.round(
+    sleepScores.reduce((a, b) => a + b, 0) / sleepQuestions.length,
+  )
+
+  // Nutrition score (N1-N6)
+  const nutritionQuestions = ['N1', 'N2', 'N3', 'N4', 'N5', 'N6']
+  const nutritionScores = nutritionQuestions.map((q) => {
+    const answer = answers[q] as string
+    return scoreMap[q]?.[answer] ?? DEFAULT_SCORE
+  })
+  const nutritionScore = Math.round(
+    nutritionScores.reduce((a, b) => a + b, 0) / nutritionQuestions.length,
+  )
+
+  // Activity score (P1, P2 special, P3, P4)
+  let activityScores: number[] = []
+
+  // P1
+  const p1Answer = answers['P1'] as string
+  activityScores.push(scoreMap['P1']?.[p1Answer] ?? DEFAULT_SCORE)
+
+  // P2 (multiple select - higher score for more variety)
+  const p2Answers = (answers['P2'] as string[]) || []
+  const p2Score = Math.min(100, (p2Answers.length / 5) * 100) // 5 types max
+  activityScores.push(p2Score)
+
+  // P3
+  const p3Answer = answers['P3'] as string
+  activityScores.push(scoreMap['P3']?.[p3Answer] ?? DEFAULT_SCORE)
+
+  // P4
+  const p4Answer = answers['P4'] as string
+  activityScores.push(scoreMap['P4']?.[p4Answer] ?? DEFAULT_SCORE)
+
+  const activityScore = Math.round(
+    activityScores.reduce((a, b) => a + b, 0) / activityScores.length,
+  )
+
+  // Stress score (M1, M3, M4, M5) - M2 is physical symptoms, not scored
+  const stressQuestions = ['M1', 'M3', 'M4', 'M5']
+  const stressScores = stressQuestions.map((q) => {
+    const answer = answers[q] as string
+    return scoreMap[q]?.[answer] ?? DEFAULT_SCORE
+  })
+  const stressScore = Math.round(
+    stressScores.reduce((a, b) => a + b, 0) / stressQuestions.length,
+  )
+
+  // Beauty score (B1, B4) - B2 and B3 are descriptive
+  const beautyQuestions = ['B1', 'B4']
+  const beautyScores = beautyQuestions.map((q) => {
+    const answer = answers[q] as string
+    return scoreMap[q]?.[answer] ?? DEFAULT_SCORE
+  })
+  const beautyScore = Math.round(
+    beautyScores.reduce((a, b) => a + b, 0) / beautyQuestions.length,
+  )
+
+  // Medical score (C3, C5)
+  const medicalScores = []
+  const c3Answer = answers['C3'] as string
+  medicalScores.push(scoreMap['C3']?.[c3Answer] ?? DEFAULT_SCORE)
+  const c5Answer = answers['C5'] as string
+  medicalScores.push(scoreMap['C5']?.[c5Answer] ?? DEFAULT_SCORE)
+  const medicalScore = Math.round(
+    medicalScores.reduce((a, b) => a + b, 0) / medicalScores.length,
+  )
+
+  return {
+    sleep: sleepScore,
+    nutrition: nutritionScore,
+    activity: activityScore,
+    stress: stressScore,
+    beauty: beautyScore,
+    medical: medicalScore,
+  }
+}
+
+export function calculateOverallScore(scores: DomainScores): number {
+  // Weighted average based on your domain weights
+  const weights = {
+    sleep: 0.2,
+    nutrition: 0.25,
+    activity: 0.15,
+    stress: 0.2,
+    beauty: 0.1,
+    medical: 0.1,
+  }
+
+  const overall =
+    scores.sleep * weights.sleep +
+    scores.nutrition * weights.nutrition +
+    scores.activity * weights.activity +
+    scores.stress * weights.stress +
+    scores.beauty * weights.beauty +
+    scores.medical * weights.medical
+
+  return Math.round(overall)
 }

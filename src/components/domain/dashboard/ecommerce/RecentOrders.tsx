@@ -23,7 +23,6 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import {
   OrderSummary,
-  OrderDetail,
   OrderStatus,
   OrderItem,
   GetOrderByIdResponse,
@@ -57,7 +56,7 @@ export default function RecentOrders() {
   const [shippingProvince, setShippingProvince] = useState('')
   const [shippingAddress, setShippingAddress] = useState('')
   const [shippingPostalCode, setShippingPostalCode] = useState('')
-  const [selectedStatus, setSelectedStatus] = useState<OrderStatus>('PENDING')
+  const [selectedStatus, setSelectedStatus] = useState<OrderStatus>('PAID')
   const [shippingNotes, setShippingNotes] = useState<string | undefined>(
     undefined,
   )
