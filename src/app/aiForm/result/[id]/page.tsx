@@ -5,6 +5,7 @@ import Image from 'next/image'
 
 import LoadingBar from '@/components/layout/LoadingBar'
 import { useHealthAssessmentResult } from '@/features/shop/hooks/health/useHealthAssessmentResult'
+import Link from 'next/link'
 
 type Props = {
   params: Promise<{
@@ -17,10 +18,7 @@ const Page = ({ params }: Props) => {
 
   const { data, loading, error } = useHealthAssessmentResult(id)
 
-  if (!data) return null
-
-  const score = data.overallScore
-  const percentage = Math.min(Math.max(score, 0), 100)
+  const percentage = data ? Math.min(Math.max(data.overallScore, 0), 100) : 0
 
   const size = 300
   const strokeWidth = 20
@@ -36,17 +34,21 @@ const Page = ({ params }: Props) => {
   }
 
   return (
-    <LoadingBar loading={loading} error={error}>
-      {!loading && !error && !data ? (
+    <LoadingBar
+      loading={loading}
+      loadingText="در حال بارگذاری نتایج..."
+      error={error}
+    >
+      {!data ? (
         <div>اطلاعات ارزیابی پیدا نشد</div>
-      ) : data ? (
-        <div className="container my-28 space-y-8">
-          <div className="flex items-center justify-between">
+      ) : (
+        <div className="my-16 space-y-16 lg:my-28 lg:space-y-24">
+          <div className="flex flex-col-reverse items-center gap-15 text-center sm:gap-10 lg:flex-row lg:justify-between lg:text-right">
             <div>
-              <h1 className="font-aria text-6xl font-extrabold text-black">
+              <h1 className="font-aria text-4xl font-extrabold text-black sm:text-5xl lg:text-6xl">
                 نتیجه تحلیل سلامت شما
               </h1>
-              <p className="font-ray mt-6 max-w-2xl text-lg font-medium text-[#555]">
+              <p className="font-ray mt-6 max-w-2xl text-base font-medium text-[#555] sm:text-lg lg:text-lg">
                 {data.aiSummary}
               </p>
             </div>
@@ -95,9 +97,9 @@ const Page = ({ params }: Props) => {
             </div>
           </div>
 
-          <div className="mt-44 flex flex-col items-center justify-center text-center">
+          <div className="mt-24 flex flex-col items-center justify-center text-center lg:mt-36">
             <div>
-              <h1 className="font-aria mb-6 text-6xl font-extrabold text-black">
+              <h1 className="font-aria mb-6 text-4xl font-extrabold text-black sm:text-5xl lg:text-6xl">
                 اعداد واقعی پشت احساسات روزانه تو
               </h1>
 
@@ -105,12 +107,12 @@ const Page = ({ params }: Props) => {
                 {data.aiSummary}
               </p>
             </div>
-            <div className="mt-17.75 grid grid-cols-3 gap-25">
+            <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-25 xl:grid-cols-3">
               <div className="space-y-3.5 rounded-[10px] bg-[#F2F2F2] px-6.25 py-7 text-black">
                 <h1 className="font-aria text-2xl font-extrabold">
                   علائم فیزیکی
                 </h1>
-                <p className="font-ray text-xs font-medium">
+                <p className="font-ray text-sm font-medium">
                   تو خستگی مزمن را تأیید کردی؛ همان خستگی که حتی بعد از خواب
                   کافی هم رهایت نمی‌کند. گفتی که روزانه کمتر از ۱۵ دقیقه نور
                   خورشید می‌بینی. هوش مصنوعی ما این دو نشانه را کنار هم قرار داد
@@ -122,7 +124,7 @@ const Page = ({ params }: Props) => {
                 <h1 className="font-aria text-2xl font-extrabold">
                   سبک زندگی تو
                 </h1>
-                <p className="font-ray text-xs font-medium">
+                <p className="font-ray text-sm font-medium">
                   تو خستگی مزمن را تأیید کردی؛ همان خستگی که حتی بعد از خواب
                   کافی هم رهایت نمی‌کند. گفتی که روزانه کمتر از ۱۵ دقیقه نور
                   خورشید می‌بینی. هوش مصنوعی ما این دو نشانه را کنار هم قرار داد
@@ -134,7 +136,7 @@ const Page = ({ params }: Props) => {
                 <h1 className="font-aria text-2xl font-extrabold">
                   مقایسه پرونده های مشابه
                 </h1>
-                <p className="font-ray text-xs font-medium">
+                <p className="font-ray text-sm font-medium">
                   تو خستگی مزمن را تأیید کردی؛ همان خستگی که حتی بعد از خواب
                   کافی هم رهایت نمی‌کند. گفتی که روزانه کمتر از ۱۵ دقیقه نور
                   خورشید می‌بینی. هوش مصنوعی ما این دو نشانه را کنار هم قرار داد
@@ -145,9 +147,9 @@ const Page = ({ params }: Props) => {
             </div>
           </div>
 
-          <div>
+          <div className="mt-24 lg:mt-36">
             <div className="flex flex-col items-center justify-center text-center">
-              <h1 className="font-aria mt-44 text-6xl font-extrabold text-black">
+              <h1 className="font-aria text-4xl font-extrabold text-black sm:text-5xl lg:text-6xl">
                 برنامه شخصی‌سازی‌شده سلامتی شما
               </h1>
 
@@ -156,14 +158,14 @@ const Page = ({ params }: Props) => {
               </p>
             </div>
             <div className="mt-17.5 rounded-[10px] bg-[#F2F2F2] p-10 text-black">
-              <div className="font-aria flex h-12.5 w-35.5 items-center justify-center rounded-[5px] bg-black text-2xl font-bold text-white">
+              <div className="font-aria flex h-10 w-28 items-center justify-center rounded-[5px] bg-black text-lg font-bold text-white sm:h-12 sm:w-36 sm:text-2xl">
                 هفته اول
               </div>
               <div className="mt-8">
-                <h1 className="font-aria text-4xl font-bold">
+                <h1 className="font-aria text-2xl font-bold sm:text-3xl lg:text-4xl">
                   پایه‌گذاری کیفیت خواب و انرژی صبحگاهی
                 </h1>
-                <p className="font-ray mt-6 text-lg font-medium text-[#555]">
+                <p className="font-ray mt-6 text-base leading-8 font-medium text-[#555] lg:text-lg">
                   بر اساس داده‌های ورودی شما، مشاهده شده که زمان خواب شما نامنظم
                   است و کیفیت خواب عمیق و REM شما کمتر از سطح بهینه است. این
                   موضوع باعث می‌شود بدن شما فرصت کافی برای ریکاوری نداشته باشد و
@@ -193,12 +195,12 @@ const Page = ({ params }: Props) => {
               </div>
             </div>
           </div>
-          <div className="mt-44 flex flex-col items-center justify-center text-center">
+          <div className="mt-24 flex flex-col items-center justify-center text-center lg:mt-36">
             <div>
-              <h1 className="font-aria text-6xl font-extrabold text-black">
+              <h1 className="font-aria text-4xl font-extrabold text-black sm:text-5xl lg:text-6xl">
                 آینده شما در انتظار تصمیم امروز
               </h1>
-              <p className="font-ray mt-6 max-w-4xl text-lg font-medium text-[#555]">
+              <p className="font-ray mt-6 max-w-4xl text-base font-medium text-[#555] lg:text-lg">
                 اگر همین روند را ادامه دهی، بدنت فرصت‌های طبیعی بازسازی را از
                 دست می‌دهد. خواب نامنظم، انرژی پایین، تغذیه ناکافی و استرس
                 پنهان، مثل یک سنگ کوچک در کف رودخانه است که به مرور جریان زندگی
@@ -207,7 +209,10 @@ const Page = ({ params }: Props) => {
                 را در مسیر بهترین عملکرد قرار می‌دهد.
               </p>
             </div>
-            <button className="font-aria primary-btn mt-6 flex items-center justify-center gap-2.75 rounded-[7px] bg-[#1A1A1A] text-lg font-bold text-white">
+            <Link
+              href="/products"
+              className="font-aria primary-btn mt-6 flex items-center justify-center gap-2.75 rounded-[7px] bg-[#1A1A1A] text-lg font-bold text-white"
+            >
               شروع تغییر
               <Image
                 src="/images/keyboard_return.svg"
@@ -215,10 +220,10 @@ const Page = ({ params }: Props) => {
                 height={12}
                 alt="keyboard return icon"
               />
-            </button>
+            </Link>
           </div>
         </div>
-      ) : null}
+      )}
     </LoadingBar>
   )
 }
