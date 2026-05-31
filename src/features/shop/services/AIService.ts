@@ -1,7 +1,12 @@
 // services/aiHealthService.ts
 import axios from 'axios'
 import { prisma } from '@/lib/prisma'
-import { DomainScores, AIAnalysisResult, UserAnswers, ProductRecommendation } from '@/components/types/types'
+import {
+  DomainScores,
+  AIAnalysisResult,
+  UserAnswers,
+  ProductRecommendation,
+} from '@/components/types/types'
 import {
   SYSTEM_PROMPT,
   buildUserPrompt,

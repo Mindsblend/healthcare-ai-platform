@@ -138,3 +138,38 @@ export interface ProductRecommendation {
   domain: string
   priority: number
 }
+
+export interface HealthAssessmentResult {
+  id: string
+
+  overallScore: number
+
+  sleepScore: number
+  nutritionScore: number
+  activityScore: number
+  stressScore: number
+  beautyScore: number
+  medicalScore: number
+
+  aiSummary: string | null
+  aiDiagnosis: string | null
+
+  aiGoals:
+    | {
+        goal: string
+        domain: string
+        priority: number
+      }[]
+    | null
+
+  healthArchetype: string | null
+  readinessStage: string | null
+
+  recommendations: {
+    id: string
+    productId: number
+    reason: string
+    domain: string
+    priority: number
+  }[]
+}
