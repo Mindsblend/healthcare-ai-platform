@@ -112,7 +112,7 @@ const Page = ({ params }: Props) => {
                 <h1 className="font-aria text-2xl font-extrabold">
                   علائم فیزیکی
                 </h1>
-                <p className="font-ray text-sm font-medium">
+                <p className="font-ray text-sm leading-6 font-medium">
                   تو خستگی مزمن را تأیید کردی؛ همان خستگی که حتی بعد از خواب
                   کافی هم رهایت نمی‌کند. گفتی که روزانه کمتر از ۱۵ دقیقه نور
                   خورشید می‌بینی. هوش مصنوعی ما این دو نشانه را کنار هم قرار داد
@@ -124,7 +124,7 @@ const Page = ({ params }: Props) => {
                 <h1 className="font-aria text-2xl font-extrabold">
                   سبک زندگی تو
                 </h1>
-                <p className="font-ray text-sm font-medium">
+                <p className="font-ray text-sm leading-6 font-medium">
                   تو خستگی مزمن را تأیید کردی؛ همان خستگی که حتی بعد از خواب
                   کافی هم رهایت نمی‌کند. گفتی که روزانه کمتر از ۱۵ دقیقه نور
                   خورشید می‌بینی. هوش مصنوعی ما این دو نشانه را کنار هم قرار داد
@@ -136,7 +136,7 @@ const Page = ({ params }: Props) => {
                 <h1 className="font-aria text-2xl font-extrabold">
                   مقایسه پرونده های مشابه
                 </h1>
-                <p className="font-ray text-sm font-medium">
+                <p className="font-ray text-sm leading-6 font-medium">
                   تو خستگی مزمن را تأیید کردی؛ همان خستگی که حتی بعد از خواب
                   کافی هم رهایت نمی‌کند. گفتی که روزانه کمتر از ۱۵ دقیقه نور
                   خورشید می‌بینی. هوش مصنوعی ما این دو نشانه را کنار هم قرار داد

@@ -29,10 +29,13 @@ export class AIHealthService {
     const userPrompt = buildUserPrompt(scores, overallScore, answers)
 
     try {
+      console.log('URL:', GAPGPT_API_URL)
+      console.log('API KEY:', GAPGPT_API_KEY?.slice(0, 10))
+      console.log(`${GAPGPT_API_URL}/chat/completions`)
       const response = await axios.post(
         `${GAPGPT_API_URL}/chat/completions`,
         {
-          model: 'gpt-4-turbo',
+          model: 'gpt-4o',
           messages: [
             { role: 'system', content: SYSTEM_PROMPT },
             { role: 'user', content: userPrompt },
@@ -71,9 +74,13 @@ export class AIHealthService {
         readinessStage: parsed.readinessStage || fallback.readinessStage,
       }
     } catch (error) {
-      console.error('GapGPT API error:', error)
+      if (axios.isAxiosError(error)) {
+        console.log('STATUS:', error.response?.status)
+        console.log('DATA:', error.response?.data)
+      }
 
-      // Return fallback response from fine tune file
+      console.error(error)
+
       return getFallbackAnalysis(scores, answers)
     }
   }
