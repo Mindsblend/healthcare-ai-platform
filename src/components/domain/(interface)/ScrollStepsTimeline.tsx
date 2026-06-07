@@ -71,14 +71,13 @@ export default function ScrollStepsTimeline() {
 
   return (
     <section ref={sectionRef} className="bg-section relative h-[400vh] w-full">
-      <div className="sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden lg:justify-end">
-        <div className="relative -mt-32 w-full lg:-mt-20 xl:mt-0">
+      <div className="sticky top-0 flex h-screen flex-col items-center justify-end overflow-hidden">
+        <div className="relative w-full">
           <svg
             viewBox={`0 0 1000 530`}
-            className="h-auto w-full scale-75 lg:scale-90 xl:scale-100"
+            className="h-auto w-full"
             preserveAspectRatio="xMidYMid meet"
           >
-            {/* ARC ROAD */}
             <path
               d={`M 0 ${CENTER_Y} A ${ARC_RADIUS} ${ARC_RADIUS} 0 0 1 1000 ${CENTER_Y}`}
               fill="none"

@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import Link from 'next/link'
 
 export default function AI() {
   return (
@@ -51,12 +52,15 @@ export default function AI() {
         </div>
       </div>
 
-      <button className="mt-6.75 flex h-13.5 w-52.5 cursor-pointer items-center justify-between rounded-full bg-black px-2 text-white">
+      <Link
+        href="/aiForm"
+        className="mt-6.75 flex h-13.5 w-52.5 cursor-pointer items-center justify-between rounded-full bg-black px-2 text-white"
+      >
         <span className="font-aria pr-2 text-base">شروع تحلیل هوشمند</span>
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white">
           <Image src="/images/arrow.svg" alt="Arrow" width={20} height={20} />
         </div>
-      </button>
+      </Link>
       <span className="font-ray text-color-title-on-light mt-2 text-xs font-bold">
         مدت زمان ۳ دقیقه
       </span>
