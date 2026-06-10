@@ -53,7 +53,7 @@ export default function AI() {
       </div>
 
       <Link
-        href="/aiForm"
+        href="/ai-test"
         className="mt-6.75 flex h-13.5 w-52.5 cursor-pointer items-center justify-between rounded-full bg-black px-2 text-white"
       >
         <span className="font-aria pr-2 text-base">شروع تحلیل هوشمند</span>

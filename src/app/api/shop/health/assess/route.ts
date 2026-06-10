@@ -1,4 +1,3 @@
-// app/api/health/assess/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuthority } from '@/features/auth/services/sessionService'
 import { AIHealthService } from '@/features/shop/services/AIService'
@@ -40,13 +39,7 @@ export async function POST(req: NextRequest) {
       analysis,
     )
 
-    // 6. Get product recommendations based on weak domains
-    const recommendations = await AIHealthService.getProductRecommendations(
-      assessment.id,
-      domainScores,
-    )
-
-    // 7. Return complete response
+    // 6. Return complete response (no product recommendations)
     return NextResponse.json({
       success: true,
       assessment: {
@@ -67,13 +60,10 @@ export async function POST(req: NextRequest) {
         goals: analysis.goals,
         healthArchetype: analysis.healthArchetype,
         readinessStage: analysis.readinessStage,
+        // Include new causal fields if they exist
+        keyInsight: (analysis as any).keyInsight,
+        causalChain: (analysis as any).causalChain,
       },
-      recommendations: recommendations.map((rec) => ({
-        productId: rec.productId,
-        reason: rec.reason,
-        domain: rec.domain,
-        priority: rec.priority,
-      })),
     })
   } catch (error) {
     console.error('Health assessment error:', error)

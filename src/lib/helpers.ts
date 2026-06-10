@@ -1123,255 +1123,450 @@ export const getValidImageUrl = (url: string | null | undefined): string => {
 // ============ AI Test Scoring ============
 
 // Answer scoring mapping (0-100)
+// Keys match the Persian answer strings used in the questionnaire.
 const scoreMap: Record<string, Record<string, number>> = {
-  // Sleep (SL1-SL4)
+  // ── Goals (G1–G3) — not scored numerically; used for segmentation only ──
+
+  // ── Energy (E1–E3) ────────────────────────────────────────────────────────
+  E1: {
+    'ثابت و بالا': 100,
+    'صبح خوب، عصر افت شدید': 50,
+    'صبح خسته، عصر بهتر': 40,
+    'کل روز خسته': 20,
+  },
+  E2: {
+    'همچنان پرانرژی هستم': 100,
+    'کمی خستگی دارم اما قابل تحمل است': 65,
+    'افت شدید انرژی دارم، خوابم می‌آید': 35,
+    'اصلاً نمی‌توانم تمرکز کنم': 15,
+  },
+  E3: {
+    'فوری بیدار و شارژ هستم': 100,
+    'بعد از ۱۵–۳۰ دقیقه جا می‌افتم': 65,
+    'به ساعت‌ها قهوه و زمان نیاز دارم': 35,
+    'هرگز کاملاً آماده احساس نمی‌کنم': 15,
+  },
+
+  // ── Sleep (SL1–SL4) ───────────────────────────────────────────────────────
   SL1: {
-    'Less than 5': 20,
-    '5-6': 40,
-    '6-7': 60,
-    '7-8': 85,
-    '8+': 100,
+    'کمتر از ۵ ساعت': 20,
+    '۵ تا ۶ ساعت': 40,
+    '۶ تا ۷ ساعت': 60,
+    '۷ تا ۸ ساعت': 85,
+    'بیشتر از ۸ ساعت': 100,
   },
   SL2: {
-    'Refreshed and ready': 100,
-    'Fine after a few minutes': 70,
-    "Heavy, like I haven't slept": 30,
-    'Already thinking about a nap': 10,
+    'سرحال و آماده برای شروع روز': 100,
+    'بعد از چند دقیقه خوب می‌شوم': 70,
+    'احساس سنگینی می‌کنم، انگار اصلاً نخوابیده‌ام': 30,
+    'از همان اول به چرت زدن فکر می‌کنم': 10,
   },
   SL3: {
-    'No, I sleep through': 100,
-    'Yes, once (easily fall back)': 70,
-    'Yes, multiple times': 40,
-    'Yes, and I struggle to fall back': 20,
+    'نه، خوابم پیوسته است': 100,
+    'بله، یک بار (و راحت دوباره می‌خوابم)': 70,
+    'بله، چندین بار': 40,
+    'بله، و دوباره خوابیدن برایم سخت است': 20,
   },
   SL4: {
-    'Yes, every night': 100,
-    Sometimes: 60,
-    Rarely: 30,
-    'No, I just collapse into bed': 10,
+    'بله، هر شب': 100,
+    'بعضی وقت‌ها': 60,
+    'به ندرت': 30,
+    'نه، فقط خسته می‌شوم و می‌خوابم': 10,
   },
 
-  // Nutrition (N1-N6)
+  // ── Nutrition (N1–N5) ─────────────────────────────────────────────────────
   N1: {
-    'Every meal': 100,
-    'Twice daily': 80,
-    'Once daily': 60,
-    'A few times per week': 40,
-    Rarely: 20,
+    'در هر وعده غذایی': 100,
+    'روزی دو بار': 80,
+    'روزی یک بار': 60,
+    'چند بار در هفته': 40,
+    'به ندرت': 20,
   },
   N2: {
-    Daily: 100,
-    'A few times per week': 70,
-    'Once a week': 40,
-    Rarely: 20,
+    روزانه: 100,
+    'چند بار در هفته': 70,
+    'هفته‌ای یک بار': 40,
+    'به ندرت': 20,
   },
   N3: {
-    '5+ servings': 100,
-    '3-4 servings': 75,
-    '1-2 servings': 45,
-    Rarely: 20,
+    '۵ وعده یا بیشتر': 100,
+    '۳ تا ۴ وعده': 75,
+    '۱ تا ۲ وعده': 45,
+    'به ندرت': 20,
   },
   N4: {
-    '8+': 100,
-    '6-7': 75,
-    '4-5': 50,
-    'Less than 4': 25,
+    '۸ لیوان یا بیشتر': 100,
+    '۶ تا ۷ لیوان': 75,
+    '۴ تا ۵ لیوان': 50,
+    'کمتر از ۴ لیوان': 25,
   },
   N5: {
-    'Very comfortable, regular': 100,
-    'Occasional bloating or gas': 60,
-    'Frequent discomfort or irregularity': 30,
-    'Chronic issues (IBS, constipation, diarrhea)': 10,
-  },
-  N6: {
-    Rarely: 100,
-    '1-2 times per week': 70,
-    '3-5 times per week': 40,
-    Daily: 10,
+    'بسیار راحت و منظم': 100,
+    'گاهی نفخ یا گاز معده دارم': 60,
+    'ناراحتی یا بی‌نظمی مکرر': 30,
+    'مشکلات مزمن (IBS، یبوست یا اسهال)': 10,
   },
 
-  // Physical Activity (P1-P4)
+  // ── Physical Activity (P1–P4) ─────────────────────────────────────────────
   P1: {
-    '5+ days': 100,
-    '3-4 days': 75,
-    '1-2 days': 50,
-    'Rarely or never': 25,
+    '۵ روز یا بیشتر': 100,
+    '۳ تا ۴ روز': 75,
+    '۱ تا ۲ روز': 50,
+    'به ندرت یا هرگز': 25,
+  },
+  P2: {
+    پیاده‌روی: 40,
+    'ورزش هوازی (دویدن، دوچرخه‌سواری، شنا)': 80,
+    'تمرینات قدرتی': 80,
+    'یوگا / حرکات کششی': 60,
+    'هیچ‌کدام به‌صورت منظم': 10,
   },
   P3: {
-    'Very active (physical job, lots of walking)': 100,
-    'Moderately active': 60,
-    'Sedentary (desk job, mostly sitting)': 20,
+    'بسیار فعال (کار فیزیکی یا پیاده‌روی زیاد)': 100,
+    'نسبتاً فعال': 60,
+    'کم‌تحرک (کار پشت‌میزی و بیشتر نشسته)': 20,
   },
   P4: {
-    Energized: 100,
-    Neutral: 60,
-    'Tired but good': 70,
-    'Exhausted / wiped out': 30,
+    پرانرژی: 100,
+    'معمولی / بدون تغییر': 60,
+    'خسته اما حس خوبی دارم': 70,
+    'کاملاً خسته و بی‌حال': 30,
   },
 
-  // Stress & Mental Health (M1-M5)
+  // ── Stress & Mental Health (M1–M5) ───────────────────────────────────────
   M1: {
-    Rarely: 100,
-    Sometimes: 70,
-    Often: 40,
-    'Almost daily': 20,
+    'به ندرت': 100,
+    گاهی: 70,
+    اغلب: 40,
+    'تقریباً هر روز': 20,
   },
+  // M2 (physical stress symptoms) — descriptive, not scored
   M3: {
-    'Generally positive and stable': 100,
-    'Occasional lows or irritability': 65,
-    'Frequent ups and downs': 35,
-    'Mostly low or apathetic': 15,
+    'معمولاً مثبت و پایدار': 100,
+    'گاهی بی‌حوصلگی یا تحریک‌پذیری': 65,
+    'نوسانات روحی زیاد': 35,
+    'بیشتر اوقات بی‌انگیزه یا ناراحت': 15,
   },
   M4: {
-    'Yes, daily': 100,
-    Sometimes: 60,
-    Rarely: 30,
-    No: 10,
+    'بله، روزانه': 100,
+    'بعضی وقت‌ها': 60,
+    'به ندرت': 30,
+    نه: 10,
   },
   M5: {
-    Daily: 100,
-    'A few times per week': 75,
-    Weekly: 50,
-    Rarely: 25,
+    روزانه: 100,
+    'چند بار در هفته': 75,
+    هفتگی: 50,
+    'به ندرت': 25,
   },
 
-  // Beauty (B1-B4)
+  // ── Beauty (B1–B4) ────────────────────────────────────────────────────────
   B1: {
-    'Clear and calm': 100,
-    'Occasional breakouts': 70,
-    'Frequent breakouts or acne': 40,
-    'Dry, flaky, or prematurely aging': 30,
-    'Redness or rosacea': 35,
+    'شفاف و آرام': 100,
+    'جوش‌های گاه‌به‌گاه': 70,
+    'آکنه یا جوش‌های مکرر': 40,
+    'خشک، پوسته‌پوسته یا دارای علائم پیری زودرس': 30,
+    'قرمزی یا روزاسه': 35,
   },
+  // B2 (skin stress reaction) — descriptive, not scored
+  // B3 (hair & nails) — descriptive, not scored
   B4: {
-    'Daily, multiple steps': 100,
-    'Daily, basic (wash + moisturize)': 75,
-    Sometimes: 40,
-    'No routine': 15,
+    'هر روز، چند مرحله‌ای': 100,
+    'هر روز، ساده (شستشو + مرطوب‌کننده)': 75,
+    'بعضی وقت‌ها': 40,
+    'هیچ روتینی ندارم': 15,
   },
 
-  // Medical (C3)
+  // ── Medical (C3, C5) ──────────────────────────────────────────────────────
+  // C1 (chronic conditions) — descriptive / risk flag, not scored
+  // C2 (family history) — descriptive / risk flag, not scored
   C3: {
-    'Yes, one': 40,
-    'Yes, two or more': 20,
-    No: 100,
+    'بله، یک دارو': 40,
+    'بله، دو دارو یا بیشتر': 20,
+    خیر: 100,
   },
+  // C4 (allergies) — descriptive / safety flag, not scored
   C5: {
-    'Within the last year': 100,
-    '1-2 years ago': 70,
-    '2+ years ago': 40,
-    "I don't remember / never": 20,
+    'در یک سال گذشته': 100,
+    '۱ تا ۲ سال پیش': 70,
+    'بیشتر از ۲ سال پیش': 40,
+    'یادم نیست / هرگز': 20,
+  },
+
+  // ── Behavioral Intelligence (BI1–BI5) ────────────────────────────────────
+  // These feed readinessToChange, identityType, perceptionGap, confidence;
+  // they also contribute to a behavioralScore.
+  BI1: {
+    'همین امروز شروع می‌کنم': 100,
+    'احتمالاً شروع می‌کنم': 70,
+    'مطمئن نیستم': 40,
+    'فعلاً آماده نیستم': 15,
+  },
+  BI2: {
+    'من فردی هستم که همیشه از سلامت خود مراقبت می‌کنم': 100,
+    'معمولاً تلاش می‌کنم اما پایدار نیستم': 60,
+    'هر از گاهی به سلامت خود توجه می‌کنم': 35,
+    'سلامت در اولویت من نیست': 15,
+  },
+  BI3: {
+    'بهتر از امروز': 100,
+    'تقریباً مشابه': 60,
+    'کمی بدتر': 35,
+    'بسیار بدتر': 15,
+  },
+  BI4: {
+    // Self-awareness score — used to compute perceptionGap, not added to overall
+    'بسیار سالم': 100,
+    'نسبتاً سالم': 75,
+    متوسط: 50,
+    ناسالم: 25,
+  },
+  BI5: {
+    'کاملاً مطمئنم': 100,
+    'تا حدودی مطمئنم': 65,
+    'زیاد مطمئن نیستم': 35,
+    'اصلاً مطمئن نیستم': 15,
   },
 }
 
-// Default scores for unmapped answers
+// Default score for any unmapped answer
 const DEFAULT_SCORE = 50
 
-export function calculateScores(
-  answers: Record<string, string | string[]>,
-): DomainScores {
-  // Sleep score (SL1-SL4)
-  const sleepQuestions = ['SL1', 'SL2', 'SL3', 'SL4']
-  const sleepScores = sleepQuestions.map((q) => {
-    const answer = answers[q] as string
-    return scoreMap[q]?.[answer] ?? DEFAULT_SCORE
-  })
+// Map numeric question IDs → domain key used in scoreMap
+const idToKey: Record<number, string> = {
+  // Goals (G1–G3) — segmentation only, no numeric score
+  // 1: G1, 2: G2, 3: G3
+
+  // Energy
+  4: 'E1',
+  5: 'E2',
+  6: 'E3',
+
+  // Sleep
+  7: 'SL1',
+  8: 'SL2',
+  9: 'SL3',
+  10: 'SL4',
+
+  // Nutrition
+  11: 'N1',
+  12: 'N2',
+  13: 'N3',
+  14: 'N4',
+  15: 'N5',
+
+  // Movement
+  16: 'P1',
+  17: 'P2',
+  18: 'P3',
+  19: 'P4',
+
+  // Stress
+  20: 'M1',
+  21: 'M2', // descriptive
+  22: 'M3',
+  23: 'M4',
+  24: 'M5',
+
+  // Beauty
+  25: 'B1',
+  26: 'B2', // descriptive
+  27: 'B3', // descriptive
+  28: 'B4',
+
+  // Medical
+  29: 'C1', // descriptive
+  30: 'C2', // descriptive
+  31: 'C3',
+  32: 'C4', // descriptive
+  33: 'C5',
+
+  // Behavioral Intelligence
+  34: 'BI1',
+  35: 'BI2',
+  36: 'BI3',
+  37: 'BI4', // perceptionGap source
+  38: 'BI5',
+}
+
+// Helper: look up score by numeric question ID
+function score(id: number, answers: Record<number, string>): number {
+  const key = idToKey[id]
+  if (!key) return DEFAULT_SCORE
+  const answer = answers[id]
+  if (!answer) return DEFAULT_SCORE
+  return scoreMap[key]?.[answer] ?? DEFAULT_SCORE
+}
+
+export function calculateScores(answers: Record<number, string>): DomainScores {
+  // ── Energy score (E1–E3) ──────────────────────────────────────────────────
+  const energyScore = Math.round(
+    [score(4, answers), score(5, answers), score(6, answers)].reduce(
+      (a, b) => a + b,
+      0,
+    ) / 3,
+  )
+
+  // ── Sleep score (SL1–SL4) ─────────────────────────────────────────────────
   const sleepScore = Math.round(
-    sleepScores.reduce((a, b) => a + b, 0) / sleepQuestions.length,
+    [
+      score(7, answers),
+      score(8, answers),
+      score(9, answers),
+      score(10, answers),
+    ].reduce((a, b) => a + b, 0) / 4,
   )
 
-  // Nutrition score (N1-N6)
-  const nutritionQuestions = ['N1', 'N2', 'N3', 'N4', 'N5', 'N6']
-  const nutritionScores = nutritionQuestions.map((q) => {
-    const answer = answers[q] as string
-    return scoreMap[q]?.[answer] ?? DEFAULT_SCORE
-  })
+  // ── Nutrition score (N1–N5) ───────────────────────────────────────────────
   const nutritionScore = Math.round(
-    nutritionScores.reduce((a, b) => a + b, 0) / nutritionQuestions.length,
+    [
+      score(11, answers),
+      score(12, answers),
+      score(13, answers),
+      score(14, answers),
+      score(15, answers),
+    ].reduce((a, b) => a + b, 0) / 5,
   )
 
-  // Activity score (P1, P2 special, P3, P4)
-  let activityScores: number[] = []
+  // ── Activity score (P1–P4) ────────────────────────────────────────────────
+  // P2 (Q17) may be skipped if user never exercises; fall back to 0 in that case
+  const p1 = score(16, answers)
+  const p2 = answers[17] ? score(17, answers) : 0
+  const p2Divisor = answers[17] ? 4 : 3
+  const p3 = score(18, answers)
+  const p4 = score(19, answers)
+  const activityScore = Math.round((p1 + p2 + p3 + p4) / p2Divisor)
 
-  // P1
-  const p1Answer = answers['P1'] as string
-  activityScores.push(scoreMap['P1']?.[p1Answer] ?? DEFAULT_SCORE)
-
-  // P2 (multiple select - higher score for more variety)
-  const p2Answers = (answers['P2'] as string[]) || []
-  const p2Score = Math.min(100, (p2Answers.length / 5) * 100) // 5 types max
-  activityScores.push(p2Score)
-
-  // P3
-  const p3Answer = answers['P3'] as string
-  activityScores.push(scoreMap['P3']?.[p3Answer] ?? DEFAULT_SCORE)
-
-  // P4
-  const p4Answer = answers['P4'] as string
-  activityScores.push(scoreMap['P4']?.[p4Answer] ?? DEFAULT_SCORE)
-
-  const activityScore = Math.round(
-    activityScores.reduce((a, b) => a + b, 0) / activityScores.length,
-  )
-
-  // Stress score (M1, M3, M4, M5) - M2 is physical symptoms, not scored
-  const stressQuestions = ['M1', 'M3', 'M4', 'M5']
-  const stressScores = stressQuestions.map((q) => {
-    const answer = answers[q] as string
-    return scoreMap[q]?.[answer] ?? DEFAULT_SCORE
-  })
+  // ── Stress score (M1, M3, M4, M5 — M2 is descriptive) ────────────────────
   const stressScore = Math.round(
-    stressScores.reduce((a, b) => a + b, 0) / stressQuestions.length,
+    [
+      score(20, answers),
+      score(22, answers),
+      score(23, answers),
+      score(24, answers),
+    ].reduce((a, b) => a + b, 0) / 4,
   )
 
-  // Beauty score (B1, B4) - B2 and B3 are descriptive
-  const beautyQuestions = ['B1', 'B4']
-  const beautyScores = beautyQuestions.map((q) => {
-    const answer = answers[q] as string
-    return scoreMap[q]?.[answer] ?? DEFAULT_SCORE
-  })
+  // ── Beauty score (B1, B4 — B2 & B3 are descriptive) ──────────────────────
   const beautyScore = Math.round(
-    beautyScores.reduce((a, b) => a + b, 0) / beautyQuestions.length,
+    [score(25, answers), score(28, answers)].reduce((a, b) => a + b, 0) / 2,
   )
 
-  // Medical score (C3, C5)
-  const medicalScores = []
-  const c3Answer = answers['C3'] as string
-  medicalScores.push(scoreMap['C3']?.[c3Answer] ?? DEFAULT_SCORE)
-  const c5Answer = answers['C5'] as string
-  medicalScores.push(scoreMap['C5']?.[c5Answer] ?? DEFAULT_SCORE)
+  // ── Medical score (C3, C5) ────────────────────────────────────────────────
   const medicalScore = Math.round(
-    medicalScores.reduce((a, b) => a + b, 0) / medicalScores.length,
+    [score(31, answers), score(33, answers)].reduce((a, b) => a + b, 0) / 2,
+  )
+
+  // ── Behavioral score (BI1, BI2, BI3, BI5 — BI4 feeds perceptionGap only) ─
+  const behavioralScore = Math.round(
+    [
+      score(34, answers),
+      score(35, answers),
+      score(36, answers),
+      score(38, answers),
+    ].reduce((a, b) => a + b, 0) / 4,
   )
 
   return {
+    energy: energyScore,
     sleep: sleepScore,
     nutrition: nutritionScore,
     activity: activityScore,
     stress: stressScore,
     beauty: beautyScore,
     medical: medicalScore,
+    behavioral: behavioralScore,
   }
 }
 
 export function calculateOverallScore(scores: DomainScores): number {
-  // Weighted average based on your domain weights
   const weights = {
-    sleep: 0.2,
-    nutrition: 0.25,
-    activity: 0.15,
-    stress: 0.2,
-    beauty: 0.1,
-    medical: 0.1,
+    energy: 0.1,
+    sleep: 0.18,
+    nutrition: 0.2,
+    activity: 0.12,
+    stress: 0.18,
+    beauty: 0.07,
+    medical: 0.08,
+    behavioral: 0.07,
   }
 
   const overall =
+    scores.energy * weights.energy +
     scores.sleep * weights.sleep +
     scores.nutrition * weights.nutrition +
     scores.activity * weights.activity +
     scores.stress * weights.stress +
     scores.beauty * weights.beauty +
-    scores.medical * weights.medical
+    scores.medical * weights.medical +
+    scores.behavioral * weights.behavioral
 
   return Math.round(overall)
+}
+
+// ── Behavioral intelligence derived fields ────────────────────────────────────
+// Call this separately to get the rich profile fields described in the mental models.
+export function extractBehavioralProfile(
+  answers: Record<number, string>,
+  overallScore: number,
+) {
+  const readinessMap: Record<string, string> = {
+    'همین امروز شروع می‌کنم': 'high',
+    'احتمالاً شروع می‌کنم': 'medium',
+    'مطمئن نیستم': 'low',
+    'فعلاً آماده نیستم': 'not_ready',
+  }
+  const identityMap: Record<string, string> = {
+    'من فردی هستم که همیشه از سلامت خود مراقبت می‌کنم': 'consistent',
+    'معمولاً تلاش می‌کنم اما پایدار نیستم': 'inconsistent',
+    'هر از گاهی به سلامت خود توجه می‌کنم': 'occasional',
+    'سلامت در اولویت من نیست': 'disengaged',
+  }
+  const constraintMap: Record<string, string> = {
+    'وقت کافی ندارم': 'lack_of_time',
+    'انرژی کافی ندارم': 'lack_of_energy',
+    'نمی‌دانم از کجا شروع کنم': 'lack_of_knowledge',
+    'استرس زیادی دارم': 'high_stress',
+    'هزینه بالاست': 'cost',
+    'انگیزه ندارم': 'lack_of_motivation',
+  }
+  const goalMap: Record<string, string> = {
+    'انرژی بیشتری داشتم': 'energy',
+    'وزن کم می‌کردم': 'weight_loss',
+    'پوست بهتری داشتم': 'skin',
+    'خواب بهتری داشتم': 'sleep',
+    'استرس کمتری داشتم': 'stress',
+    'تمرکز بیشتری داشتم': 'focus',
+  }
+  const outcomeMap: Record<string, string> = {
+    'کاهش وزن': 'weight_loss',
+    'افزایش انرژی': 'energy',
+    'بهبود خواب': 'sleep',
+    'کاهش استرس': 'stress',
+    'سلامت پوست و مو': 'beauty',
+    'بهبود عملکرد ورزشی': 'performance',
+    'طول عمر و پیشگیری': 'longevity',
+  }
+  const energyPatternMap: Record<string, string> = {
+    'ثابت و بالا': 'stable_high',
+    'صبح خوب، عصر افت شدید': 'afternoon_crash',
+    'صبح خسته، عصر بهتر': 'slow_start',
+    'کل روز خسته': 'chronically_low',
+  }
+
+  // BI4 self-perception score (0–100)
+  const selfPerceptionScore = scoreMap['BI4']?.[answers[37]] ?? DEFAULT_SCORE
+  // perceptionGap: positive = overestimates health, negative = underestimates
+  const perceptionGap = selfPerceptionScore - overallScore
+
+  return {
+    primaryGoal: goalMap[answers[1]] ?? null,
+    desiredOutcome: outcomeMap[answers[2]] ?? null,
+    biggestConstraint: constraintMap[answers[3]] ?? null,
+    energyPattern: energyPatternMap[answers[4]] ?? null,
+    readinessToChange: readinessMap[answers[34]] ?? null,
+    identityType: identityMap[answers[35]] ?? null,
+    selfPerceptionScore,
+    perceptionGap,
+  }
 }

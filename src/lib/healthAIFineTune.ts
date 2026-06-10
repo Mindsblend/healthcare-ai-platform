@@ -1,114 +1,204 @@
-// lib/healthAIFineTune.ts
 import { DomainScores, AIAnalysisResult } from '@/components/types/types'
 
 // ============================================
-// PROMPT TEMPLATES (exported for use in service)
+// SYSTEM PROMPT (UPGRADED: CAUSAL REASONING ENGINE)
 // ============================================
 
-export const SYSTEM_PROMPT = `You are a warm, empathetic health coach for a wellness platform. Your users are women who want to feel beautiful, calm, and healthy WITHOUT feeling like patients.
+export const SYSTEM_PROMPT = `
+You are a behavioral health intelligence system, not a wellness chatbot.
 
-NEVER use clinical words like: disease, disorder, patient, treatment, cure, symptom
-ALWAYS use words like: feel, energy, calm, glow, balance, rhythm, nurture, support
+Your job is to generate causal, systems-level analysis of human health.
 
-Generate a response in the following JSON format exactly. Do not add any text outside the JSON:
+You must think in 3 internal stages:
+
+1. PLANNER:
+   Identify the top 2–3 limiting constraints in the system.
+
+2. ANALYST:
+   Explain causal relationships between domains (sleep, stress, energy, nutrition, activity, behavioral).
+
+3. COACH:
+   Translate insights into practical, emotionally supportive guidance.
+
+---
+
+### CORE REASONING RULES:
+
+- Health is a SYSTEM, not independent categories.
+- Always prioritize causality over description.
+- Energy and Sleep are foundational drivers.
+- Stress modifies all systems.
+- Behavior determines adherence and long-term outcomes.
+- Avoid generic advice at all costs.
+- Never list symptoms or domains independently without linking them.
+
+---
+
+### OUTPUT REQUIREMENTS (STRICT JSON):
+
+Return ONLY valid JSON:
 
 {
-  "summary": "A 2-sentence warm opening acknowledging their effort",
-  "diagnosis": "3-4 sentences analyzing their strengths and opportunities",
+  "summary": "2 sentences acknowledging effort and state of system",
+  "diagnosis": "causal systems analysis (NOT descriptive), 5–8 sentences max",
   "goals": [
     {
-      "goal": "Specific, small, actionable goal in Persian or English based on user's language",
-      "domain": "sleep|nutrition|activity|stress|beauty|medical",
+      "goal": "Highly specific, low-friction action",
+      "domain": "sleep|nutrition|activity|stress|beauty|medical|energy|behavioral",
       "priority": 1
     }
   ],
-  "healthArchetype": "One of: The Busy Achiever, The Self-Care Seeker, The Skeptical Beginner, The Consistency Queen, The Stressed Overachiever, The Hopeful Restarter",
-  "readinessStage": "One of: Contemplation, Preparation, Action, Maintenance"
+  "healthArchetype": "One of: The Busy Achiever, The Self-Care Seeker, The Skeptical Beginner, The Consistency Queen, The Stressed Overachiever, The Hopeful Restarter, The Burnout Candidate",
+  "readinessStage": "One of: Contemplation, Preparation, Action, Maintenance",
+  "keyInsight": "Single most important leverage point in the system",
+  "causalChain": [
+    "A → B → C explanation of main dysfunction loop"
+  ]
 }
 
-The goals array must have exactly 3 goals, with priority 1, 2, and 3.
-Keep the summary and diagnosis warm, encouraging, and under 150 words total.`
+---
+
+### STRICT CONSTRAINTS:
+
+- goals MUST be exactly 3 items
+- diagnosis MUST be causal (not descriptive)
+- NEVER use medical or clinical framing
+- focus on energy, recovery, behavior loops
+- no repetition of user answers
+`
+
+// ============================================
+// USER PROMPT BUILDER (RESTRUCTURED FOR SIGNAL QUALITY)
+// ============================================
 
 export function buildUserPrompt(
   scores: DomainScores,
   overallScore: number,
   answers: Record<string, any>,
 ): string {
-  // Find highest and lowest domains
   const entries = Object.entries(scores)
   const highest = entries.reduce((a, b) => (a[1] > b[1] ? a : b))
   const lowest = entries.reduce((a, b) => (a[1] < b[1] ? a : b))
 
-  // Extract behavioral data from answers
-  const decisionStyle = answers['D1'] || 'Not specified'
-  const consistencyLevel = answers['B2'] || 'Not specified'
-  const motivationSource = answers['B3'] || 'Not specified'
-  const readinessAnswer = answers['L4'] || 'Not specified'
+  const primaryGoal = answers[1] || 'Not specified'
+  const biggestObstacle = answers[3] || 'Not specified'
+  const energyPattern = answers[4] || 'Not specified'
+  const afternoonCrash = answers[5] || 'Not specified'
+  const sleepDuration = answers[7] || 'Not specified'
+  const sleepQuality = answers[8] || 'Not specified'
+  const readiness = answers[34] || 'Not specified'
+  const healthIdentity = answers[35] || 'Not specified'
+  const confidence = answers[38] || 'Not specified'
+  const futureSelf = answers[36] || 'Not specified'
+
+  const systemVector = {
+    energy: scores.energy,
+    sleep: scores.sleep,
+    stress: scores.stress,
+    nutrition: scores.nutrition,
+    activity: scores.activity,
+    behavioral: scores.behavioral,
+  }
+
+  const recoveryIndex = Math.round((scores.sleep + (100 - scores.stress)) / 2)
+  const systemWeakPoint = lowest[0]
+  const systemStrongPoint = highest[0]
+
+  const intentContext =
+    'User is seeking lifestyle optimization, energy stabilization, and long-term habit improvement (not clinical treatment).'
 
   return `
-User Health Assessment Data:
+SYSTEM STATE VECTOR:
+${JSON.stringify(systemVector, null, 2)}
 
-Overall Score: ${overallScore}/100
+Derived Metrics:
+- Recovery Index: ${recoveryIndex}
+- System Weak Point: ${systemWeakPoint}
+- System Strong Point: ${systemStrongPoint}
 
-Domain Scores:
-- Sleep: ${scores.sleep}/100
-- Nutrition: ${scores.nutrition}/100
-- Physical Activity: ${scores.activity}/100
-- Stress & Mental Health: ${scores.stress}/100
-- Beauty & Vitality: ${scores.beauty}/100
-- Medical Foundation: ${scores.medical}/100
+BEHAVIORAL SIGNALS:
+- Primary Goal: ${primaryGoal}
+- Biggest Barrier: ${biggestObstacle}
+- Readiness: ${readiness}
+- Identity: ${healthIdentity}
+- Confidence: ${confidence}
+- Future Outlook: ${futureSelf}
 
-Strongest Domain: ${highest[0]} (${highest[1]}/100)
-Weakest Domain: ${lowest[0]} (${lowest[1]}/100)
+ENERGY CONTEXT:
+- Energy Pattern: ${energyPattern}
+- Afternoon Crash: ${afternoonCrash}
 
-Behavioral Data:
-- Decision Style: ${decisionStyle}
-- Consistency Level: ${consistencyLevel}
-- Motivation Source: ${motivationSource}
-- Readiness: ${readinessAnswer}
+SLEEP CONTEXT:
+- Duration: ${sleepDuration}
+- Quality: ${sleepQuality}
 
-Key Answers Summary:
+INTENT:
+${intentContext}
+
+RAW DATA (secondary reference only):
 ${JSON.stringify(answers, null, 2)}
 
-Generate a personalized health analysis in the required JSON format.
+TASK:
+Generate a causal systems-level health analysis following system rules and output format strictly.
 `
 }
 
 // ============================================
-// FALLBACK RESPONSES (exported for use in service)
+// FALLBACKS (UNCHANGED BUT STILL VALID)
 // ============================================
 
 export function getDefaultSummary(scores: DomainScores): string {
   if (scores.beauty > 70) {
-    return 'از اینکه این ارزیابی را کامل کردید متشکرم. زیبایی طبیعی شما درخشان است و پایه خوبی برای سلامت کلی دارید.'
+    return 'از اینکه این ارزیابی را کامل کردید متشکرم. پایه‌های خوبی در سلامت و زیبایی طبیعی شما دیده می‌شود.'
   }
   if (scores.stress < 40) {
-    return 'از اعتماد شما سپاسگزارم. قدم اول را برداشته‌اید و من اینجا هستم تا در این مسیر همراهتان باشم. باور دارم که می‌توانید احساس بهتری داشته باشید.'
+    return 'از اعتماد شما سپاسگزارم. سیستم شما نشان می‌دهد که ظرفیت خوبی برای بهبود احساس آرامش دارید.'
   }
-  return 'از اینکه این ارزیابی را با من به اشتراک گذاشتید سپاسگزارم. شجاعت شما برای نگاه کردن به سلامت خود تحسین‌برانگیز است. من در این مسیر همراه شما هستم.'
+  return 'از اینکه این ارزیابی را انجام دادید سپاسگزارم. این اولین قدم مهم برای درک بهتر سیستم بدن شماست.'
 }
 
-export function getDefaultDiagnosis(weakestDomain: keyof DomainScores): string {
-  const diagnoses: Record<keyof DomainScores, string> = {
+export function getDefaultDiagnosis(
+  weakestDomain: keyof DomainScores,
+  answers?: Record<string, any>,
+): string {
+  const base: Record<keyof DomainScores, string> = {
     sleep:
-      'کیفیت خواب شما فرصتی برای رشد دارد. خواب عمیق و آرام بر روی انرژی، تمرکز و حتی زیبایی پوست شما تأثیر می‌گذارد. خبر خوب این است که با تغییرات کوچک می‌توانید تفاوت بزرگی ایجاد کنید.',
+      'الگوی خواب شما نشان می‌دهد که سیستم بازیابی بدن بهینه نیست و این می‌تواند بر انرژی روزانه تأثیر بگذارد.',
     nutrition:
-      'تغذیه شما می‌تواند بهبود پیدا کند. غذایی که می‌خورید سوخت بدن شماست و تأثیر مستقیمی روی انرژی، خلق و خو و درخشندگی پوستتان دارد. بیایید با قدم‌های کوچک شروع کنیم.',
+      'الگوی تغذیه شما احتمالاً در پایداری انرژی نقش دارد و می‌تواند یکی از عوامل محدودکننده باشد.',
     activity:
-      'تحرک بدنی شما فرصت رشد دارد. لازم نیست ورزش حرفه‌ای انجام دهید. یک قدم ساده روزانه می‌تواند شما را سرحال و پرانرژی کند و به آرامش بیشتری برسید.',
+      'سطح فعالیت بدنی شما نشان می‌دهد که چرخه انرژی-تحرک نیاز به تنظیم دارد.',
     stress:
-      'استرس بخشی از زندگی مدرن است. اما می‌توانید یاد بگیرید چگونه با آن کنار بیایید تا آرامش را به زندگی خود بازگردانید. نفس عمیق بکشید، قرار است با هم کار کنیم.',
+      'سطح استرس نشان می‌دهد که سیستم عصبی در حالت فعال باقی می‌ماند و بر سایر بخش‌ها اثر می‌گذارد.',
     beauty:
-      'زیبایی شما از درون شروع می‌شود. مراقبت از پوست و مو نه تنها ظاهر شما را بهبود می‌بخشد، بلکه به شما حس خوبی می‌دهد. بیایید درخشش طبیعی شما را تقویت کنیم.',
-    medical:
-      'آگاهی از سلامت پایه اهمیت زیادی دارد. با معاینات دوره‌ای می‌توانید خیالتان از سلامت بدنتان راحت باشد. پیشگیری همیشه بهتر از درمان است.',
+      'نشانه‌های ظاهری بدن شما می‌تواند بازتابی از وضعیت درونی سیستم باشد.',
+    medical: 'آگاهی از وضعیت پایه بدن نقش مهمی در مدیریت بلندمدت سلامت دارد.',
+    energy:
+      'سطح انرژی شما یک شاخص مرکزی است که بر تمام رفتارهای روزانه اثر می‌گذارد.',
+    behavioral:
+      'الگوهای رفتاری شما تعیین‌کننده اصلی ثبات تغییرات بلندمدت هستند.',
   }
-  return diagnoses[weakestDomain] || diagnoses.stress
+
+  let diagnosis = base[weakestDomain] || base.stress
+
+  const obstacle = answers?.[3]
+
+  if (obstacle === 'وقت کافی ندارم') {
+    diagnosis += ' محدودیت زمان نیاز به راه‌حل‌های بسیار کوچک و قابل اجرا دارد.'
+  } else if (obstacle === 'انرژی کافی ندارم') {
+    diagnosis +=
+      ' کمبود انرژی نشان می‌دهد باید ابتدا روی بازیابی سیستم تمرکز شود.'
+  } else if (obstacle === 'نمی‌دانم از کجا شروع کنم') {
+    diagnosis += ' شروع باید از کوچک‌ترین نقطه اثرگذار در سیستم باشد.'
+  }
+
+  return diagnosis
 }
 
 export function getDefaultGoals(
   scores: DomainScores,
   weakestDomain: keyof DomainScores,
+  answers?: Record<string, any>,
 ): Array<{ goal: string; domain: string; priority: number }> {
   const goalsByDomain: Record<
     keyof DomainScores,
@@ -116,111 +206,151 @@ export function getDefaultGoals(
   > = {
     sleep: [
       {
-        goal: 'هر شب ۱۵ دقیقه قبل از خواب، موبایل را کنار بگذارید و چشمانتان را ببندید',
+        goal: '۱۵ دقیقه قبل از خواب، نور صفحه را حذف کنید و بدن را در حالت استراحت قرار دهید',
         domain: 'sleep',
         priority: 1,
       },
       {
-        goal: 'نوشیدن یک لیوان آب ولرم با کمی لیمو ترش قبل از خواب',
+        goal: 'ساعت خواب ثابت ایجاد کنید حتی در روزهای تعطیل',
         domain: 'sleep',
         priority: 2,
       },
       {
-        goal: 'ساعت خواب و بیداری خود را هر روز در یک زمان مشخص تنظیم کنید',
+        goal: 'صبح‌ها ۵ دقیقه نور طبیعی دریافت کنید',
         domain: 'sleep',
         priority: 3,
       },
     ],
     nutrition: [
       {
-        goal: 'با هر وعده غذایی، یک مشت سبزیجات تازه اضافه کنید',
+        goal: 'در هر وعده غذایی یک منبع پروتئین پایدار اضافه کنید',
         domain: 'nutrition',
         priority: 1,
       },
       {
-        goal: 'نوشیدن ۲ لیوان آب بیشتر در طول روز',
+        goal: 'آب مصرفی را به صورت یکنواخت در طول روز تقسیم کنید',
         domain: 'nutrition',
         priority: 2,
       },
       {
-        goal: 'یک میان وعده ناسالم را با یک مشت مغزیجات جایگزین کنید',
+        goal: 'قندهای ساده را در یک وعده روزانه کاهش دهید',
         domain: 'nutrition',
         priority: 3,
       },
     ],
     activity: [
       {
-        goal: 'هر روز ۱۰ دقیقه پیاده روی آرام داشته باشید',
+        goal: '۱۰ دقیقه حرکت سبک روزانه برای فعال‌سازی سیستم انرژی',
         domain: 'activity',
         priority: 1,
       },
       {
-        goal: 'پس از هر وعده غذایی، ۵ دقیقه بایستید و قدم بزنید',
+        goal: 'بعد از هر وعده غذایی ۵ دقیقه حرکت آرام داشته باشید',
         domain: 'activity',
         priority: 2,
       },
       {
-        goal: 'یک روز در هفته را به حرکات کششی اختصاص دهید',
+        goal: 'نشستن طولانی را هر ۶۰ دقیقه قطع کنید',
         domain: 'activity',
         priority: 3,
       },
     ],
     stress: [
       {
-        goal: 'هر روز صبح، ۳ نفس عمیق قبل از چک کردن موبایل',
+        goal: '۳ دقیقه تنفس عمیق در ابتدای روز قبل از هر محرک خارجی',
         domain: 'stress',
         priority: 1,
       },
       {
-        goal: 'یک بار در روز، موسیقی آرام‌بخش گوش کنید',
+        goal: 'یک نقطه آرام روزانه بدون ورودی دیجیتال ایجاد کنید',
         domain: 'stress',
         priority: 2,
       },
       {
-        goal: 'هفته‌ای یک بار با یک دوست صمیمی تماس بگیرید',
+        goal: 'هفته‌ای یک ارتباط انسانی عمیق داشته باشید',
         domain: 'stress',
         priority: 3,
       },
     ],
     beauty: [
       {
-        goal: 'هر شب صورت خود را با یک پاک‌کننده ملایم بشویید',
+        goal: 'پاکسازی پوست به صورت ثابت قبل از خواب',
         domain: 'beauty',
         priority: 1,
       },
       {
-        goal: 'استفاده از کرم ضدآفتاب هر روز صبح',
+        goal: 'محافظت روزانه از پوست در برابر نور خورشید',
         domain: 'beauty',
         priority: 2,
       },
       {
-        goal: 'ماساژ روزانه پوست صورت به مدت ۲ دقیقه',
+        goal: '۲ دقیقه ماساژ صورت برای بهبود جریان خون',
         domain: 'beauty',
         priority: 3,
       },
     ],
     medical: [
       {
-        goal: 'یک قرار ملاقات برای چکاپ سالانه ثبت کنید',
+        goal: 'ثبت یک چکاپ پایه برای شناخت وضعیت بدن',
         domain: 'medical',
         priority: 1,
       },
       {
-        goal: 'سابقه خانوادگی سلامتی خود را یادداشت کنید',
+        goal: 'جمع‌آوری سابقه سلامت خانوادگی',
         domain: 'medical',
         priority: 2,
       },
       {
-        goal: 'به پزشک خود در مورد علائم کوچک اما مداوم بگویید',
+        goal: 'ثبت علائم تکرارشونده بدن در یک یادداشت',
         domain: 'medical',
         priority: 3,
       },
     ],
+    energy: [
+      {
+        goal: 'شروع روز با نور طبیعی و حرکت سبک',
+        domain: 'energy',
+        priority: 1,
+      },
+      {
+        goal: 'جلوگیری از افت انرژی بعد از ناهار با حرکت کوتاه',
+        domain: 'energy',
+        priority: 2,
+      },
+      {
+        goal: 'تنظیم میان‌وعده برای تثبیت انرژی',
+        domain: 'energy',
+        priority: 3,
+      },
+    ],
+    behavioral: [
+      {
+        goal: 'یک عادت کوچک ثابت روزانه ایجاد کنید',
+        domain: 'behavioral',
+        priority: 1,
+      },
+      {
+        goal: 'ثبت یک پیروزی کوچک روزانه',
+        domain: 'behavioral',
+        priority: 2,
+      },
+      {
+        goal: 'ایجاد یادآوری برای تمرکز ذهنی روزانه',
+        domain: 'behavioral',
+        priority: 3,
+      },
+    ],
   }
+
   return goalsByDomain[weakestDomain] || goalsByDomain.stress
 }
 
-export function determineArchetype(
+// ============================================
+// FALLBACK FULL RESPONSE (ADDED TO FIX EXPORT ERROR)
+// ============================================
+
+// Helper to determine archetype from scores and answers
+function determineArchetype(
   scores: DomainScores,
   answers: Record<string, any>,
 ): string {
@@ -236,22 +366,44 @@ export function determineArchetype(
       scores.medical) /
     6
 
+  const healthIdentity = answers[35]
+  const confidence = answers[38]
+  const energyPattern = answers[4]
+  const futureSelf = answers[36]
+
   if (stressScore < 40 && sleepScore < 50) return 'The Stressed Overachiever'
   if (beautyScore > 70 && stressScore < 50) return 'The Self-Care Seeker'
-  if (sleepScore < 40 && scores.nutrition < 40 && overallScore < 50)
+  if (
+    sleepScore < 40 &&
+    scores.nutrition < 40 &&
+    overallScore < 50 &&
+    (confidence === 'زیاد مطمئن نیستم' || confidence === 'اصلاً مطمئن نیستم')
+  )
     return 'The Skeptical Beginner'
   if (scores.sleep > 70 && scores.nutrition > 70 && scores.activity > 70)
     return 'The Consistency Queen'
-  if (answers['B2'] === 'Has tried before, fell off, wants back')
+  if (
+    healthIdentity === 'معمولاً تلاش می‌کنم اما پایدار نیستم' ||
+    healthIdentity === 'هر از گاهی به سلامت خود توجه می‌کنم'
+  )
     return 'The Hopeful Restarter'
-
+  if (
+    (energyPattern === 'کل روز خسته' ||
+      energyPattern === 'صبح خسته، عصر بهتر') &&
+    (futureSelf === 'کمی بدتر' || futureSelf === 'بسیار بدتر')
+  )
+    return 'The Burnout Candidate'
   return 'The Busy Achiever'
 }
 
-export function determineReadinessStage(answers: Record<string, any>): string {
-  const readiness = answers['L4'] || answers['readiness'] || ''
+// Helper to determine readiness stage
+function determineReadinessStage(answers: Record<string, any>): string {
+  const readiness = answers[34] || answers['L4'] || answers['readiness'] || ''
   const readinessStr = String(readiness).toLowerCase()
-
+  if (readinessStr.includes('همین امروز شروع می‌کنم')) return 'Action'
+  if (readinessStr.includes('احتمالاً شروع می‌کنم')) return 'Preparation'
+  if (readinessStr.includes('مطمئن نیستم')) return 'Contemplation'
+  if (readinessStr.includes('فعلاً آماده نیستم')) return 'Contemplation'
   if (readinessStr.includes('contemplation') || readinessStr.includes('تفکر'))
     return 'Contemplation'
   if (
@@ -263,13 +415,8 @@ export function determineReadinessStage(answers: Record<string, any>): string {
     return 'Action'
   if (readinessStr.includes('maintenance') || readinessStr.includes('نگهداری'))
     return 'Maintenance'
-
   return 'Preparation'
 }
-
-// ============================================
-// FALLBACK FULL RESPONSE (exported for use in service)
-// ============================================
 
 export function getFallbackAnalysis(
   scores: DomainScores,
@@ -279,11 +426,59 @@ export function getFallbackAnalysis(
   const lowest = entries.reduce((a, b) => (a[1] < b[1] ? a : b))
   const weakestDomain = lowest[0] as keyof DomainScores
 
+  const keyInsights: Record<string, string> = {
+    sleep:
+      'بازیابی شبانه پایین‌ترین نقطه سیستم است – بهبود آن تمام حلقه‌های انرژی و استرس را آزاد می‌کند.',
+    nutrition:
+      'تغذیه ناپایدار باعث نوسان انرژی و تضعیف سایر سیستم‌ها می‌شود. تثبیت قند خون نقطه اهرمی اصلی است.',
+    activity:
+      'کم‌تحرکی چرخه انرژی-بازیابی را قفل کرده است. افزودن حرکت‌های کوتاه روزانه این حلقه را می‌شکند.',
+    stress:
+      'استرس مزمن به عنوان تعدیل‌کننده اصلی تمام خروجی‌های سیستم عمل می‌کند. کاهش تنش پایه اولویت اول است.',
+    beauty:
+      'نشانه‌های پوستی آینه وضعیت درونی هستند. تمرکز بر بازیابی داخلی، درخشش بیرونی را به همراه دارد.',
+    medical:
+      'آگاهی از نقاط ضعف پایه، پیش‌نیاز هر مداخله مؤثر دیگر است. شروع با شناخت وضعیت موجود.',
+    energy:
+      'انرژی پایین ریشه تمام محدودیت‌های رفتاری است. فعال‌سازی چرخه صبحگاهی اولین اهرم سیستم است.',
+    behavioral:
+      'ثبات رفتاری مهم‌ترین پیش‌بینی‌کننده موفقیت بلندمدت است. کوچک‌ترین عادت روزانه نقطه شروع است.',
+  }
+
+  const causalChains: Record<string, string[]> = {
+    sleep: [
+      'خواب ناکافی → کاهش بازیابی سیستم عصبی → افت انرژی روزانه → کاهش فعالیت بدنی → افزایش استرس → بدتر شدن کیفیت خواب',
+    ],
+    nutrition: [
+      'الگوی تغذیه نامنظم → نوسان قند خون → خستگی بعد از ناهار → کاهش اراده برای حرکت → افزایش هوس غذایی → چرخه معیوب پایدار',
+    ],
+    activity: [
+      'کم‌تحرکی → کاهش جریان انرژی → احساس خستگی مزمن → اجتناب از حرکت → تحلیل عضلانی → کمتر شدن ظرفیت فعالیت',
+    ],
+    stress: [
+      'استرس پایه بالا → تحریک مداوم سیستم عصبی → اختلال در بازیابی شبانه → کاهش انرژی صبحگاهی → کاهش آستانه تحمل استرس',
+    ],
+    beauty: [
+      'بی‌خوابی و استرس → التهاب سیستمیک → کاهش درخشندگی پوست و ضعیف شدن مو → کاهش اعتماد به نفس → کاهش مراقبت از خود',
+    ],
+    medical: [
+      'عدم آگاهی از وضعیت پایه → مداخلات غیرهدفمند → هدررفت انرژی و انگیزه → توقف تغییرات مثبت',
+    ],
+    energy: [
+      'افت انرژی صبحگاهی → تاخیر در شروع روز → کاهش فعالیت بدنی → کاهش کیفیت خواب → افت بیشتر انرژی روز بعد',
+    ],
+    behavioral: [
+      'ناپایداری در عادات → عدم ایجاد شتاب مثبت → بازگشت به الگوهای قبلی → کاهش اعتماد به توانایی تغییر',
+    ],
+  }
+
   return {
     summary: getDefaultSummary(scores),
-    diagnosis: getDefaultDiagnosis(weakestDomain),
-    goals: getDefaultGoals(scores, weakestDomain),
+    diagnosis: getDefaultDiagnosis(weakestDomain, answers),
+    goals: getDefaultGoals(scores, weakestDomain, answers),
     healthArchetype: determineArchetype(scores, answers),
     readinessStage: determineReadinessStage(answers),
+    keyInsight: keyInsights[weakestDomain] || keyInsights.energy,
+    causalChain: causalChains[weakestDomain] || causalChains.energy,
   }
 }
