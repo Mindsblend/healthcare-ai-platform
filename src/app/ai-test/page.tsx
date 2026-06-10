@@ -838,7 +838,7 @@ const Page = () => {
   if (showIntro) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center px-6">
-        <div className="mx-auto max-w-3xl text-center">
+        <div className="mx-auto max-w-4xl">
           <h1 className="font-aria text-4xl font-extrabold text-black sm:text-5xl lg:text-6xl">
             به تست سلامت هوشمند خوش آمدید
           </h1>
@@ -860,7 +860,7 @@ const Page = () => {
           </p>
           <button
             onClick={handleStart}
-            className="font-aria mt-8 rounded-lg bg-[#087112] px-8 py-3 text-lg font-bold text-white transition hover:bg-[#065c0e]"
+            className="font-aria mt-8 cursor-pointer rounded-lg bg-[#087112] px-8 py-3 text-lg font-bold text-white transition hover:bg-[#065c0e]"
           >
             شروع تست
           </button>
