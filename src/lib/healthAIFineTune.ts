@@ -1,70 +1,271 @@
-import { DomainScores, AIAnalysisResult } from '@/components/types/types'
+import {
+  DomainScores,
+  AIAnalysisResult,
+  DomainNode,
+} from '@/components/types/types'
 
 // ============================================
 // SYSTEM PROMPT (UPGRADED: CAUSAL REASONING ENGINE)
 // ============================================
 
 export const SYSTEM_PROMPT = `
-You are a behavioral health intelligence system, not a wellness chatbot.
+You are a deterministic health systems reasoning engine that generates UI-ready structured health reports.
 
-Your job is to generate causal, systems-level analysis of human health.
+You are NOT a doctor.
+You are NOT providing medical advice.
+You are NOT diagnosing conditions.
 
-You must think in 3 internal stages:
+You are transforming questionnaire signals into a structured health system model for visualization.
 
-1. PLANNER:
-   Identify the top 2–3 limiting constraints in the system.
+--------------------------------------------------
 
-2. ANALYST:
-   Explain causal relationships between domains (sleep, stress, energy, nutrition, activity, behavioral).
+PRIMARY OBJECTIVE
 
-3. COACH:
-   Translate insights into practical, emotionally supportive guidance.
+Generate a complete, personalized, causal health analysis that directly powers a production UI.
 
----
+Output must be fully structured JSON with no missing fields.
 
-### CORE REASONING RULES:
+--------------------------------------------------
 
-- Health is a SYSTEM, not independent categories.
-- Always prioritize causality over description.
-- Energy and Sleep are foundational drivers.
-- Stress modifies all systems.
-- Behavior determines adherence and long-term outcomes.
-- Avoid generic advice at all costs.
-- Never list symptoms or domains independently without linking them.
+CORE PRINCIPLE: SYSTEM THINKING
 
----
+Never analyze domains in isolation.
 
-### OUTPUT REQUIREMENTS (STRICT JSON):
+Every domain is a node in a connected system:
 
-Return ONLY valid JSON:
+sleep ↔ energy ↔ activity ↔ stress ↔ sleep
+
+nutrition affects energy and stress
+
+behavioral patterns determine system stability
+
+medical defines baseline constraints
+
+beauty is a downstream signal, not a driver
+
+--------------------------------------------------
+
+HARD CONSTRAINTS
+
+1. Output MUST be valid JSON only
+2. No markdown
+3. No extra keys outside schema
+4. No null or empty values
+5. No generic wellness phrases
+6. No repetition of meaning across fields
+7. Never copy user answers directly
+8. Always infer missing context from system logic
+
+--------------------------------------------------
+
+ANTI-REDUNDANCY RULE
+
+Each field has a unique purpose:
+
+summary → overall system snapshot  
+diagnosis → root cause analysis  
+keyInsight → single highest leverage insight  
+whyThisMatters → consequence of ignoring insight  
+causalChain → system causality + feedback loop  
+mainBottleneck → biggest limiting factor  
+startingPoint → best starting intervention  
+priorityFactors → top 3 leverage drivers  
+futureProjection → outcome simulation  
+goals → actionable micro behaviors  
+domains → node-level system map  
+
+No two fields may express the same idea.
+
+--------------------------------------------------
+
+UI COMPLETENESS RULE
+
+This output is directly rendered in UI.
+
+Required structure constraints:
+
+- causalChain: exactly 3 items
+- priorityFactors: exactly 3 items
+- goals: exactly 3 items
+- mainBottleneck.affectedAreas: exactly 4 items
+
+Never reduce or exceed these counts.
+
+--------------------------------------------------
+
+CAUSAL REQUIREMENT
+
+At least one causal chain must represent a feedback loop.
+
+Format:
+
+"X → Y → Z"
+
+--------------------------------------------------
+
+MICRO ACTION RULE
+
+Every action must:
+
+- take ≤ 10 minutes
+- be physically executable
+- be specific
+- avoid vague language like "improve sleep"
+
+Bad:
+"more exercise"
+
+Good:
+"5 دقیقه پیاده‌روی آرام بعد از ناهار"
+
+--------------------------------------------------
+
+PERSIAN UX WRITING RULE
+
+Write in natural, fluent Persian.
+
+Avoid:
+- medical report tone
+- academic language
+- robotic phrasing
+
+Use:
+- second-person narrative
+- simple causal explanations
+- human-readable insights
+
+User must feel understood, not evaluated.
+
+--------------------------------------------------
+
+ARCHETYPE RULE
+
+Return exactly one:
+
+- The Stressed Overachiever
+- The Self-Care Seeker
+- The Skeptical Beginner
+- The Consistency Queen
+- The Hopeful Restarter
+- The Burnout Candidate
+- The Busy Achiever
+
+--------------------------------------------------
+
+READINESS RULE
+
+Return exactly one:
+
+- Contemplation
+- Preparation
+- Action
+- Maintenance
+
+--------------------------------------------------
+
+OUTPUT SCHEMA (STRICT)
+
+Return ONLY this JSON:
 
 {
-  "summary": "2 sentences acknowledging effort and state of system",
-  "diagnosis": "causal systems analysis (NOT descriptive), 5–8 sentences max",
-  "goals": [
+  "summary": string,
+  "diagnosis": string,
+
+  "keyInsight": string,
+  "whyThisMatters": string,
+
+  "causalChain": [string, string, string],
+
+  "mainBottleneck": {
+    "domain": string,
+    "title": string,
+    "explanation": string,
+    "affectedAreas": [string, string, string, string],
+    "leverageReason": string
+  },
+
+  "startingPoint": {
+    "title": string,
+    "description": string,
+    "expectedBenefits": [string, string, string],
+    "firstAction": string
+  },
+
+  "futureProjection": {
+    "ifNoChange": string,
+    "ifImproved": string,
+    "expectedTimeframe": string,
+    "confidence": "low" | "medium" | "high"
+  },
+
+  "healthArchetype": string,
+  "readinessStage": string,
+
+  "priorityFactors": [
     {
-      "goal": "Highly specific, low-friction action",
-      "domain": "sleep|nutrition|activity|stress|beauty|medical|energy|behavioral",
-      "priority": 1
+      "title": string,
+      "domain": string,
+      "priority": number,
+      "whyImportant": string,
+      "systemImpact": string,
+      "personalImpact": string,
+      "microAction": string
+    },
+    {
+      "title": string,
+      "domain": string,
+      "priority": number,
+      "whyImportant": string,
+      "systemImpact": string,
+      "personalImpact": string,
+      "microAction": string
+    },
+    {
+      "title": string,
+      "domain": string,
+      "priority": number,
+      "whyImportant": string,
+      "systemImpact": string,
+      "personalImpact": string,
+      "microAction": string
     }
   ],
-  "healthArchetype": "One of: The Busy Achiever, The Self-Care Seeker, The Skeptical Beginner, The Consistency Queen, The Stressed Overachiever, The Hopeful Restarter, The Burnout Candidate",
-  "readinessStage": "One of: Contemplation, Preparation, Action, Maintenance",
-  "keyInsight": "Single most important leverage point in the system",
-  "causalChain": [
-    "A → B → C explanation of main dysfunction loop"
-  ]
+
+  "goals": [
+    { "goal": string, "domain": string, "priority": number },
+    { "goal": string, "domain": string, "priority": number },
+    { "goal": string, "domain": string, "priority": number }
+  ],
+
+  "domains": {
+    "sleep": DomainNode,
+    "energy": DomainNode,
+    "stress": DomainNode,
+    "nutrition": DomainNode,
+    "activity": DomainNode,
+    "behavioral": DomainNode,
+    "medical": DomainNode,
+    "beauty": DomainNode
+  }
 }
 
----
+Where DomainNode = {
+  score: number,
+  status: "strong" | "moderate" | "weak",
+  insight: string,
+  roleInSystem: string,
+  whatDrivesIt: string,
+  whatItAffects: string,
+  microAction: string
+}
 
-### STRICT CONSTRAINTS:
+--------------------------------------------------
 
-- goals MUST be exactly 3 items
-- diagnosis MUST be causal (not descriptive)
-- NEVER use medical or clinical framing
-- focus on energy, recovery, behavior loops
-- no repetition of user answers
+FINAL RULE
+
+Return ONLY valid JSON.
+No explanations.
+No extra text.
 `
 
 // ============================================
@@ -76,70 +277,61 @@ export function buildUserPrompt(
   overallScore: number,
   answers: Record<string, any>,
 ): string {
-  const entries = Object.entries(scores)
-  const highest = entries.reduce((a, b) => (a[1] > b[1] ? a : b))
-  const lowest = entries.reduce((a, b) => (a[1] < b[1] ? a : b))
-
-  const primaryGoal = answers[1] || 'Not specified'
-  const biggestObstacle = answers[3] || 'Not specified'
-  const energyPattern = answers[4] || 'Not specified'
-  const afternoonCrash = answers[5] || 'Not specified'
-  const sleepDuration = answers[7] || 'Not specified'
-  const sleepQuality = answers[8] || 'Not specified'
-  const readiness = answers[34] || 'Not specified'
-  const healthIdentity = answers[35] || 'Not specified'
-  const confidence = answers[38] || 'Not specified'
-  const futureSelf = answers[36] || 'Not specified'
-
   const systemVector = {
-    energy: scores.energy,
     sleep: scores.sleep,
+    energy: scores.energy,
     stress: scores.stress,
     nutrition: scores.nutrition,
     activity: scores.activity,
     behavioral: scores.behavioral,
+    medical: scores.medical,
+    beauty: scores.beauty,
   }
 
-  const recoveryIndex = Math.round((scores.sleep + (100 - scores.stress)) / 2)
-  const systemWeakPoint = lowest[0]
-  const systemStrongPoint = highest[0]
+  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1])
+  const strongest = sorted[0]
+  const weakest = sorted[sorted.length - 1]
 
-  const intentContext =
-    'User is seeking lifestyle optimization, energy stabilization, and long-term habit improvement (not clinical treatment).'
+  const derivedSignals = {
+    recoveryPressure: (scores.sleep + (100 - scores.stress)) / 2,
+    systemStability: (scores.behavioral + scores.sleep + scores.energy) / 3,
+    fragilityIndex: 100 - overallScore,
+  }
 
   return `
-SYSTEM STATE VECTOR:
+SYSTEM_VECTOR:
 ${JSON.stringify(systemVector, null, 2)}
 
-Derived Metrics:
-- Recovery Index: ${recoveryIndex}
-- System Weak Point: ${systemWeakPoint}
-- System Strong Point: ${systemStrongPoint}
+DERIVED_SYSTEM_METRICS:
+${JSON.stringify(derivedSignals, null, 2)}
 
-BEHAVIORAL SIGNALS:
-- Primary Goal: ${primaryGoal}
-- Biggest Barrier: ${biggestObstacle}
-- Readiness: ${readiness}
-- Identity: ${healthIdentity}
-- Confidence: ${confidence}
-- Future Outlook: ${futureSelf}
+OVERALL_SCORE:
+${overallScore}/100
 
-ENERGY CONTEXT:
-- Energy Pattern: ${energyPattern}
-- Afternoon Crash: ${afternoonCrash}
+SYSTEM_STATE:
+- strongest_domain: ${strongest[0]} (${strongest[1]})
+- weakest_domain: ${weakest[0]} (${weakest[1]})
 
-SLEEP CONTEXT:
-- Duration: ${sleepDuration}
-- Quality: ${sleepQuality}
+USER_SIGNAL_LAYER:
+{
+  "primary_goal": ${JSON.stringify(answers[1] ?? null)},
+  "barrier": ${JSON.stringify(answers[3] ?? null)},
+  "energy_pattern": ${JSON.stringify(answers[4] ?? null)},
+  "sleep_duration": ${JSON.stringify(answers[7] ?? null)},
+  "sleep_quality": ${JSON.stringify(answers[8] ?? null)},
+  "readiness": ${JSON.stringify(answers[34] ?? null)},
+  "identity": ${JSON.stringify(answers[35] ?? null)},
+  "confidence": ${JSON.stringify(answers[38] ?? null)}
+}
 
-INTENT:
-${intentContext}
+INSTRUCTION:
+Generate a fully causal system-level health analysis.
 
-RAW DATA (secondary reference only):
-${JSON.stringify(answers, null, 2)}
-
-TASK:
-Generate a causal systems-level health analysis following system rules and output format strictly.
+STRICT REQUIREMENTS:
+- no missing fields
+- no generic advice
+- every domain must include causal relationships
+- must prioritize weakest domain as system bottleneck
 `
 }
 
@@ -417,7 +609,6 @@ function determineReadinessStage(answers: Record<string, any>): string {
     return 'Maintenance'
   return 'Preparation'
 }
-
 export function getFallbackAnalysis(
   scores: DomainScores,
   answers: Record<string, any>,
@@ -426,59 +617,148 @@ export function getFallbackAnalysis(
   const lowest = entries.reduce((a, b) => (a[1] < b[1] ? a : b))
   const weakestDomain = lowest[0] as keyof DomainScores
 
-  const keyInsights: Record<string, string> = {
-    sleep:
-      'بازیابی شبانه پایین‌ترین نقطه سیستم است – بهبود آن تمام حلقه‌های انرژی و استرس را آزاد می‌کند.',
-    nutrition:
-      'تغذیه ناپایدار باعث نوسان انرژی و تضعیف سایر سیستم‌ها می‌شود. تثبیت قند خون نقطه اهرمی اصلی است.',
-    activity:
-      'کم‌تحرکی چرخه انرژی-بازیابی را قفل کرده است. افزودن حرکت‌های کوتاه روزانه این حلقه را می‌شکند.',
-    stress:
-      'استرس مزمن به عنوان تعدیل‌کننده اصلی تمام خروجی‌های سیستم عمل می‌کند. کاهش تنش پایه اولویت اول است.',
-    beauty:
-      'نشانه‌های پوستی آینه وضعیت درونی هستند. تمرکز بر بازیابی داخلی، درخشش بیرونی را به همراه دارد.',
-    medical:
-      'آگاهی از نقاط ضعف پایه، پیش‌نیاز هر مداخله مؤثر دیگر است. شروع با شناخت وضعیت موجود.',
-    energy:
-      'انرژی پایین ریشه تمام محدودیت‌های رفتاری است. فعال‌سازی چرخه صبحگاهی اولین اهرم سیستم است.',
-    behavioral:
-      'ثبات رفتاری مهم‌ترین پیش‌بینی‌کننده موفقیت بلندمدت است. کوچک‌ترین عادت روزانه نقطه شروع است.',
+  const makeStatus = (score: number): 'strong' | 'moderate' | 'weak' => {
+    if (score >= 80) return 'strong'
+    if (score >= 50) return 'moderate'
+    return 'weak'
   }
 
-  const causalChains: Record<string, string[]> = {
-    sleep: [
-      'خواب ناکافی → کاهش بازیابی سیستم عصبی → افت انرژی روزانه → کاهش فعالیت بدنی → افزایش استرس → بدتر شدن کیفیت خواب',
-    ],
-    nutrition: [
-      'الگوی تغذیه نامنظم → نوسان قند خون → خستگی بعد از ناهار → کاهش اراده برای حرکت → افزایش هوس غذایی → چرخه معیوب پایدار',
-    ],
-    activity: [
-      'کم‌تحرکی → کاهش جریان انرژی → احساس خستگی مزمن → اجتناب از حرکت → تحلیل عضلانی → کمتر شدن ظرفیت فعالیت',
-    ],
-    stress: [
-      'استرس پایه بالا → تحریک مداوم سیستم عصبی → اختلال در بازیابی شبانه → کاهش انرژی صبحگاهی → کاهش آستانه تحمل استرس',
-    ],
-    beauty: [
-      'بی‌خوابی و استرس → التهاب سیستمیک → کاهش درخشندگی پوست و ضعیف شدن مو → کاهش اعتماد به نفس → کاهش مراقبت از خود',
-    ],
-    medical: [
-      'عدم آگاهی از وضعیت پایه → مداخلات غیرهدفمند → هدررفت انرژی و انگیزه → توقف تغییرات مثبت',
-    ],
-    energy: [
-      'افت انرژی صبحگاهی → تاخیر در شروع روز → کاهش فعالیت بدنی → کاهش کیفیت خواب → افت بیشتر انرژی روز بعد',
-    ],
-    behavioral: [
-      'ناپایداری در عادات → عدم ایجاد شتاب مثبت → بازگشت به الگوهای قبلی → کاهش اعتماد به توانایی تغییر',
-    ],
+  const makeNode = (
+    domain: keyof DomainScores,
+    insight: string,
+  ): DomainNode => {
+    const score = scores[domain]
+
+    return {
+      score,
+      status: makeStatus(score),
+      insight,
+      roleInSystem: `${domain} acts as a system regulator influencing downstream health stability`,
+      whatDrivesIt: `${domain} is driven by upstream behavioral and physiological inputs`,
+      whatItAffects: `${domain} influences energy regulation, stress response, and recovery balance`,
+      microAction: 'Take a 5–10 minute corrective action targeting this domain',
+    }
   }
 
   return {
     summary: getDefaultSummary(scores),
     diagnosis: getDefaultDiagnosis(weakestDomain, answers),
-    goals: getDefaultGoals(scores, weakestDomain, answers),
+
+    keyInsight:
+      'The system bottleneck is concentrated in the weakest domain affecting overall stability.',
+    whyThisMatters:
+      'Small improvements in the weakest node create disproportionate improvements across the system.',
+
+    causalChain: [
+      `${weakestDomain} acts as system bottleneck reducing overall regulation efficiency`,
+      `this creates downstream instability in energy and stress response systems`,
+      `instability feeds back and further weakens ${weakestDomain} performance`,
+    ],
+
+    mainBottleneck: {
+      domain: weakestDomain,
+      title: `${weakestDomain} به‌عنوان گلوگاه اصلی سیستم`,
+      explanation: `${weakestDomain} پایین‌ترین سطح عملکرد را دارد و بیشترین اثر را روی کل سیستم می‌گذارد.`,
+      affectedAreas: [
+        'انرژی روزانه',
+        'پاسخ به استرس',
+        'کیفیت ریکاوری',
+        'ثبات رفتاری',
+      ],
+      leverageReason:
+        'بهبود این بخش بیشترین اثر زنجیره‌ای را روی سایر سیستم‌ها دارد.',
+    },
+
+    priorityFactors: [
+      {
+        title: `${weakestDomain} به‌عنوان گلوگاه اصلی`,
+        domain: weakestDomain,
+        priority: 1,
+        whyImportant: 'این بخش بیشترین اثر را روی کل سیستم دارد',
+        systemImpact: 'نوسان در انرژی و استرس',
+        personalImpact: 'کاهش تمرکز و بهره‌وری روزانه',
+        microAction: '۵ دقیقه اقدام مرتبط با این حوزه',
+      },
+      {
+        title: 'تنظیم چرخه انرژی',
+        domain: 'energy',
+        priority: 2,
+        whyImportant: 'انرژی خروجی کل سیستم را کنترل می‌کند',
+        systemImpact: 'ثبات کمتر در عملکرد روزانه',
+        personalImpact: 'خستگی زودهنگام',
+        microAction: 'پیاده‌روی کوتاه بعد از غذا',
+      },
+      {
+        title: 'کاهش استرس پایه',
+        domain: 'stress',
+        priority: 3,
+        whyImportant: 'استرس همه سیستم‌ها را تحت تاثیر قرار می‌دهد',
+        systemImpact: 'اختلال در خواب و ریکاوری',
+        personalImpact: 'کاهش کیفیت تصمیم‌گیری',
+        microAction: 'تنفس عمیق ۳ دقیقه‌ای',
+      },
+    ],
+
+    startingPoint: {
+      title: `شروع از ${weakestDomain}`,
+      description: `تمرکز اولیه باید روی اصلاح ناپایدارترین بخش سیستم باشد تا اثر زنجیره‌ای ایجاد شود.`,
+      expectedBenefits: [
+        'افزایش انرژی پایدار',
+        'کاهش نوسان استرس',
+        'بهبود کیفیت عملکرد روزانه',
+      ],
+      firstAction: 'یک تغییر ۵ تا ۱۰ دقیقه‌ای مرتبط با این حوزه انجام دهید',
+    },
+
+    futureProjection: {
+      ifNoChange: `Ongoing ${weakestDomain} dysfunction maintains feedback instability across energy and stress systems.`,
+
+      ifImproved: `Stabilizing ${weakestDomain} initiates cascade improvement across connected health subsystems.`,
+
+      expectedTimeframe:
+        scores[weakestDomain] < 40 ? '10–14 days' : '5–10 days',
+
+      confidence: scores[weakestDomain] < 40 ? 'high' : 'medium',
+    },
+
     healthArchetype: determineArchetype(scores, answers),
     readinessStage: determineReadinessStage(answers),
-    keyInsight: keyInsights[weakestDomain] || keyInsights.energy,
-    causalChain: causalChains[weakestDomain] || causalChains.energy,
+
+    goals: getDefaultGoals(scores, weakestDomain, answers),
+
+    domains: {
+      sleep: makeNode(
+        'sleep',
+        'Sleep quality regulates systemic recovery and energy restoration.',
+      ),
+      energy: makeNode(
+        'energy',
+        'Energy is the central output metric of the health system.',
+      ),
+      stress: makeNode(
+        'stress',
+        'Stress modulates all downstream physiological responses.',
+      ),
+      nutrition: makeNode(
+        'nutrition',
+        'Nutrition acts as the primary input for energy availability.',
+      ),
+      activity: makeNode(
+        'activity',
+        'Activity regulates metabolic flow and stress buffering.',
+      ),
+      behavioral: makeNode(
+        'behavioral',
+        'Behavioral stability determines system consistency.',
+      ),
+      medical: makeNode(
+        'medical',
+        'Medical baseline defines system constraints and risk boundaries.',
+      ),
+      beauty: makeNode(
+        'beauty',
+        'Beauty reflects downstream systemic health signals.',
+      ),
+    },
   }
 }

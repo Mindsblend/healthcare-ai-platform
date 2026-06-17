@@ -118,19 +118,67 @@ export interface DomainScores {
   behavioral: number
 }
 
+export interface DomainNode {
+  score: number
+  status: 'strong' | 'moderate' | 'weak'
+  insight: string
+  roleInSystem: string
+  whatDrivesIt: string
+  whatItAffects: string
+  microAction: string
+}
+
 export interface AIAnalysisResult {
   summary: string
   diagnosis: string
+
+  keyInsight: string
+  whyThisMatters: string
+
+  causalChain: [string, string, string]
+
+  mainBottleneck: {
+    domain: string
+    title: string
+    explanation: string
+    affectedAreas: string[]
+    leverageReason: string
+  }
+
+  startingPoint: {
+    title: string
+    description: string
+    expectedBenefits: string[]
+    firstAction: string
+  }
+
+  futureProjection: {
+    ifNoChange: string
+    ifImproved: string
+    expectedTimeframe: string
+    confidence: 'low' | 'medium' | 'high'
+  }
+
+  healthArchetype: string
+  readinessStage: string
+
+  priorityFactors: Array<{
+    title: string
+    domain: string
+    priority: number
+    whyImportant: string
+    systemImpact: string
+    personalImpact: string
+    microAction: string
+  }>
+
   goals: Array<{
     goal: string
     domain: string
     priority: number
   }>
-  healthArchetype: string
-  readinessStage: string
-  // New fields for causal intelligence
-  keyInsight?: string // optional for backward compatibility
-  causalChain?: string[] // optional for backward compatibility
+
+  domains: Record<string, DomainNode>
 }
 
 export interface UserAnswers {
@@ -147,26 +195,90 @@ export interface ProductRecommendation {
 export interface HealthAssessmentResult {
   id: string
   overallScore: number
+
   sleepScore: number
   nutritionScore: number
   activityScore: number
   stressScore: number
   beautyScore: number
   medicalScore: number
-  aiSummary: string | null
-  aiDiagnosis: string | null
-  aiGoals: Array<{ goal: string; domain: string; priority: number }> | null
+  energyScore?: number
+  behavioralScore?: number
+
+  // =========================
+  // CORE TEXT OUTPUT
+  // =========================
+  summary: string | null
+  diagnosis: string | null
+
+  keyInsight: string | null
+  whyThisMatters: string | null
+
+  causalChain: [string, string, string] | null
+
+  // =========================
+  // SYSTEM CRITICAL BLOCK
+  // =========================
+  mainBottleneck: {
+    domain: string
+    title: string
+    explanation: string
+    affectedAreas: string[]
+    leverageReason: string
+  } | null
+
+  startingPoint: {
+    title: string
+    description: string
+    firstAction: string
+    expectedBenefits: string[]
+  } | null
+
+  futureProjection: {
+    ifNoChange: string
+    ifImproved: string
+    expectedTimeframe: string
+    confidence: 'low' | 'medium' | 'high'
+  } | null
+
+  // =========================
+  // STRATEGIC LAYERS
+  // =========================
+  priorityFactors: Array<{
+    title: string
+    domain: string
+    priority: number
+    whyImportant: string
+    systemImpact: string
+    personalImpact: string
+    microAction: string
+  }> | null
+
+  goals: Array<{
+    goal: string
+    domain: string
+    priority: number
+  }> | null
+
+  // =========================
+  // PERSONALIZATION
+  // =========================
   healthArchetype: string | null
   readinessStage: string | null
+
+  // =========================
+  // SYSTEM MAP (LOW LEVEL)
+  // =========================
+  domains: Record<string, DomainNode> | null
+
+  // =========================
+  // RECOMMENDATIONS (OPTIONAL LAYER)
+  // =========================
   recommendations: Array<{
     id: string
     productId: number
     reason: string
     domain: string
     priority: number
-  }>
-
-  // New optional fields for causal intelligence (can be added later)
-  keyInsight?: string | null
-  causalChain?: string[] | null
+  }> | null
 }

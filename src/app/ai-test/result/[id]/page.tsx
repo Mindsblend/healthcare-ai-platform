@@ -85,21 +85,25 @@ const Page = ({ params }: Props) => {
   }, [percentage])
 
   // Safely access AI analysis fields
-  const summary = data?.aiSummary || ''
-  const diagnosis = data?.aiDiagnosis || ''
-  const goals = data?.aiGoals || []
+  const summary = data?.summary || ''
+  const diagnosis = data?.diagnosis || ''
+  const goals = data?.goals || []
+  const mainBottleneck = (data as any)?.mainBottleneck
+  const startingPoint = data?.startingPoint
+  const priorityFactors = (data as any)?.priorityFactors || []
   const archetype = data?.healthArchetype || 'The Busy Achiever'
   const readiness = data?.readinessStage || 'Preparation'
   // New causal fields (may be undefined if not yet in DB)
-  const keyInsight = (data as any)?.keyInsight || ''
+  const insight = data?.keyInsight ?? ''
   const causalChain = Array.isArray(data?.causalChain) ? data.causalChain : []
-
   const chekcCircle = [
     { title: 'انرژی پایدارتر در طول روز' },
     { title: 'تمرکز و عملکرد ذهنی بهتر' },
     { title: 'حفظ آسان‌تر عادت‌های سالم' },
     { title: 'انرژی پایدارتر در طول روز' },
   ]
+
+  console.log('startingPoint:', data?.startingPoint)
 
   return (
     <LoadingBar
@@ -131,12 +135,21 @@ const Page = ({ params }: Props) => {
                     نقطه اهرمی
                   </h1>
                   <p className="font-ray text-sm leading-6 font-medium">
-                    {keyInsight ||
-                      'تمرکز روی یک نقطه اهرمی، کل سیستم را به تعادل نزدیک می‌کند.'}
+                    {insight.length > 0
+                      ? insight
+                      : 'تمرکز روی یک نقطه اهرمی، کل سیستم را به تعادل نزدیک می‌کند.'}
                   </p>
                   {causalChain.length > 0 && (
-                    <div className="mt-2 text-xs text-gray-500">
-                      {causalChain[0]}
+                    <div className="mt-3 text-xs text-gray-500">
+                      {causalChain.map((item, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <span>{item}</span>
+
+                          {idx < causalChain.length - 1 && (
+                            <span className="text-gray-400">→</span>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -146,12 +159,16 @@ const Page = ({ params }: Props) => {
                   <h1 className="font-aria text-2xl font-extrabold">
                     الگوی رفتاری
                   </h1>
+
                   <p className="font-aria text-xl font-bold text-black">
                     {archetype.replace(/^The /, '')}
                   </p>
+
+                  {/* جایگزین description استاتیک */}
                   <p className="font-ray text-sm leading-6 font-medium">
                     {getArchetypeDescription(archetype)}
                   </p>
+
                   <div className="mt-2 inline-block rounded-full bg-white/50 px-3 py-1 text-xs font-medium text-gray-600">
                     مرحله {getReadinessText(readiness)}
                   </div>
@@ -162,18 +179,45 @@ const Page = ({ params }: Props) => {
                   <h1 className="font-aria text-2xl font-extrabold">
                     اولین قدم
                   </h1>
-                  {goals.length > 0 ? (
+                  {startingPoint ? (
                     <>
-                      <p className="font-ray text-sm leading-6 font-medium">
-                        {goals[0].goal}
+                      <h1 className="font-aria text-2xl font-extrabold">
+                        {startingPoint.title}
+                      </h1>
+
+                      <p className="font-ray mt-3 text-base text-[#555]">
+                        {startingPoint.description}
                       </p>
-                      <p className="text-xs text-gray-500">
-                        حوزه: {getDomainName(goals[0].domain)}
-                      </p>
+
+                      <div className="mt-4">
+                        <h2 className="font-ray text-sm font-semibold text-black">
+                          اولین اقدام:
+                        </h2>
+
+                        <p className="font-ray mt-1 text-sm text-[#555]">
+                          {startingPoint.firstAction}
+                        </p>
+                      </div>
+
+                      {startingPoint.expectedBenefits?.length > 0 && (
+                        <div className="mt-4">
+                          <h2 className="font-ray text-sm font-semibold text-black">
+                            نتایج احتمالی:
+                          </h2>
+
+                          <ul className="mt-2 space-y-1">
+                            {startingPoint.expectedBenefits.map((b, i) => (
+                              <li key={i} className="text-sm text-[#555]">
+                                • {b}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </>
                   ) : (
-                    <p className="font-ray text-sm leading-6 font-medium">
-                      هر روز ۱۰ دقیقه پیاده‌روی آرام
+                    <p className="font-ray text-sm text-[#555]">
+                      در حال آماده‌سازی مسیر شروع شما...
                     </p>
                   )}
                 </div>
@@ -218,9 +262,6 @@ const Page = ({ params }: Props) => {
             </div>
           </div>
 
-          {/* Domain Highlights & Archetype Cards */}
-
-          {/* Personalized 3‑Goal Plan (Week 1) */}
           <div className="mt-24 lg:mt-36">
             <div className="flex flex-col items-center justify-center text-center">
               <h1 className="font-aria text-4xl font-extrabold text-black sm:text-5xl lg:text-6xl">
@@ -228,9 +269,9 @@ const Page = ({ params }: Props) => {
               </h1>
 
               <p className="font-ray mt-6 max-w-2xl text-lg font-medium text-[#555]">
-                {diagnosis.length > 120
-                  ? diagnosis.slice(0, 120) + '...'
-                  : diagnosis}
+                {data?.mainBottleneck?.explanation ||
+                  diagnosis ||
+                  'در حال تحلیل عمیق سیستم سلامت شما...'}
               </p>
             </div>
 
@@ -240,7 +281,7 @@ const Page = ({ params }: Props) => {
               </div>
 
               <div className="mt-8">
-                {goals.length > 0 ? (
+                {priorityFactors.length > 0 ? (
                   <Swiper
                     onSwiper={(swiper) => {
                       swiperRef.current = swiper
@@ -269,48 +310,35 @@ const Page = ({ params }: Props) => {
                     }}
                     className="mt-6 w-full pb-10"
                   >
-                    {goals.map((goal, idx) => (
+                    {priorityFactors.map((factor: any, idx: number) => (
                       <SwiperSlide key={idx}>
                         <div>
+                          {/* TITLE */}
                           <div>
-                            <h1 className="font-aria text-4xl font-bold">
-                              ?{goal.goal}
+                            <h1 className="font-aria text-3xl font-bold">
+                              {factor.title}
                             </h1>
-                            <p className="font-ray mt-6 text-lg leading-8 font-medium text-[#555]">
-                              مطالعات گسترده در حوزه خواب نشان می‌دهند که خواب
-                              کمتر از ۷ ساعت در شب به‌طور مداوم با افزایش ریسک
-                              اختلالات متابولیک، کاهش حساسیت انسولین، افزایش وزن
-                              و افت عملکرد شناختی همراه است. در سطح عصبی، خواب
-                              مرحله‌ای است که در آن مغز نه‌تنها استراحت می‌کند،
-                              بلکه اطلاعات روز را تثبیت، خاطرات را سازمان‌دهی و
-                              شبکه‌های عصبی را بازتنظیم می‌کند. در طول خواب
-                              عمیق، سیستم گلیمفاتیک مغز فعال‌تر می‌شود و به
-                              پاک‌سازی مواد زائد متابولیک کمک می‌کند؛ فرآیندی که
-                              برای عملکرد شناختی پایدار ضروری است. هم‌زمان،
-                              هورمون‌هایی مانند کورتیزول و لپتین تنظیم می‌شوند
-                              که نقش مستقیم در استرس، اشتها و تعادل انرژی دارند.
-                              به همین دلیل حتی اختلالات کوچک در کیفیت خواب
-                              می‌توانند اثرات گسترده‌ای بر رفتار روزانه ایجاد
-                              کنند. وقتی این سیستم دچار اختلال می‌شود، بدن
-                              به‌صورت تدریجی وارد حالت “جبران انرژی” می‌شود؛
-                              یعنی برای حفظ عملکرد روزانه، از منابع بیشتری
-                              استفاده می‌کند اما بازسازی کافی انجام نمی‌شود.
-                              نتیجه این وضعیت معمولاً به شکل نوسان انرژی، کاهش
-                              تمرکز، افزایش ولع غذایی و کاهش تحمل استرس ظاهر
-                              می‌شود. در مقابل، بهبود خواب یکی از قوی‌ترین نقاط
-                              اهرمی در کل سیستم سلامت است. با پایدار شدن چرخه
-                              خواب، نه‌تنها انرژی روزانه یکنواخت‌تر می‌شود، بلکه
-                              تنظیم اشتها، کیفیت تصمیم‌گیری و توانایی بدن برای
-                              ریکاوری نیز به‌صورت هم‌زمان بهبود پیدا می‌کند. در
-                              عمل، خواب یکی از معدود عوامل مرکزی است که تقریباً
-                              تمام سیستم‌های بدن را به‌صورت مستقیم یا غیرمستقیم
-                              تحت تأثیر قرار می‌دهد.
+
+                            {/* SYSTEM IMPACT */}
+                            <p className="font-ray mt-5 text-lg leading-8 font-medium text-[#555]">
+                              {factor.systemImpact}
+                            </p>
+
+                            {/* PERSONAL IMPACT */}
+                            <p className="font-ray mt-4 text-base leading-7 text-gray-600">
+                              {factor.personalImpact}
                             </p>
                           </div>
 
-                          <div className="font-ray mt-1 text-sm text-gray-600">
-                            حوزه: {getDomainName(goal.domain)} • اولویت{' '}
-                            {goal.priority}
+                          {/* META */}
+                          <div className="font-ray mt-4 text-sm text-gray-600">
+                            حوزه: {getDomainName(factor.domain)} • اولویت{' '}
+                            {factor.priority}
+                          </div>
+
+                          {/* MICRO ACTION (CRITICAL UX ELEMENT) */}
+                          <div className="mt-6 rounded-md bg-white px-4 py-3 text-sm font-medium text-black">
+                            🎯 اقدام ۱۰ دقیقه‌ای: {factor.microAction}
                           </div>
                         </div>
                       </SwiperSlide>
@@ -318,16 +346,16 @@ const Page = ({ params }: Props) => {
                   </Swiper>
                 ) : (
                   <div className="font-ray mt-6 text-gray-600">
-                    بر اساس ارزیابی شما، به زودی برنامه دقیق‌تری ارائه خواهد شد.
+                    در حال آماده‌سازی تحلیل عوامل کلیدی سیستم شما...
                   </div>
                 )}
 
-                {/* Custom Pagination */}
+                {/* Pagination */}
                 <div className="custom-pagination2 mt-6 flex justify-center gap-2" />
 
                 <p className="font-ray mt-8 text-base font-medium text-[#555]">
-                  این سه گام ساده، چرخه انرژی-بازیابی را در ۷ روز متحول می‌کنند.
-                  هر روز یک مورد را انجام بده و پیشرفت خود را ثبت کن.
+                  این عوامل، اهرم‌های اصلی تغییر سیستم سلامت شما هستند. تمرکز
+                  روی همین سه نقطه می‌تواند کل سیستم را متحول کند.
                 </p>
               </div>
             </div>
@@ -348,25 +376,47 @@ const Page = ({ params }: Props) => {
                 دهد.
               </p>
             </div>
-            <div className="items-centers mt-10 flex justify-center gap-3.25 max-sm:flex-wrap">
-              {chekcCircle.map((circle, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center justify-center gap-3.25 text-black max-sm:flex-col"
-                >
-                  <h1 className="font-aria text-base font-bold xl:text-2xl">
-                    {circle.title}
-                  </h1>
-                  <Image
-                    src="/images/arrow_back.svg"
-                    alt="left arrow"
-                    width={24}
-                    height={24}
-                    className="max-sm:-rotate-90"
-                  />
+            {mainBottleneck && (
+              <div className="mt-10 flex flex-col items-center justify-center text-center">
+                <h1 className="font-aria text-2xl font-bold text-black">
+                  {mainBottleneck.title}
+                </h1>
+
+                <p className="font-ray mt-3 max-w-3xl text-base text-gray-700">
+                  {mainBottleneck.explanation}
+                </p>
+
+                <div className="mt-10 flex flex-wrap justify-center gap-4">
+                  {(mainBottleneck.affectedAreas ?? []).map(
+                    (area: string, idx: number) => (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-2 text-black"
+                      >
+                        <Image
+                          src="/images/check-circle.svg"
+                          alt="check"
+                          width={24}
+                          height={24}
+                        />
+                        <span className="font-ray text-lg font-medium">
+                          {area}
+                        </span>
+                      </div>
+                    ),
+                  )}
                 </div>
-              ))}
-            </div>
+
+                <h2 className="mt-10 font-bold text-black">
+                  اگر این گلوگاه بهبود پیدا کند
+                </h2>
+
+                <p className="mt-4 max-w-2xl text-gray-700">
+                  {mainBottleneck.leverageReason}
+                </p>
+              </div>
+            )}
+
             <h1 className="font-aria mt-20 text-2xl font-bold text-black">
               اگر این گلوگاه بهبود پیدا کند
             </h1>
@@ -389,7 +439,6 @@ const Page = ({ params }: Props) => {
               ))}
             </div>
           </div>
-
           <div className="flex flex-col items-center justify-center">
             <div className="text-center">
               <h1 className="font-aria text-4xl font-extrabold text-black sm:text-5xl lg:text-6xl">
@@ -410,20 +459,61 @@ const Page = ({ params }: Props) => {
                 width={30}
                 height={30}
               />
-              <h1 className="font-aria text-2xl font-extrabold">
-                خواب و ریکاوری
-              </h1>
-              <p className="font-ray mt-2 max-w-4xl text-center text-base font-medium text-[#555] lg:text-lg">
-                خواب فقط زمانی برای استراحت نیست؛ بلکه یکی از مهم‌ترین فرایندهای
-                بازسازی بدن محسوب می‌شود. در طول خواب، مغز اطلاعات را پردازش
-                می‌کند، سیستم ایمنی تقویت می‌شود، هورمون‌ها تنظیم می‌شوند و بدن
-                فرصت بازسازی عمیق پیدا می‌کند. کیفیت خواب مستقیماً بر سطح انرژی،
-                تمرکز، خلق‌وخو و توانایی بدن برای حفظ تعادل فیزیولوژیک تأثیر
-                می‌گذارد.
-              </p>
+              <div className="flex flex-col items-center justify-center">
+                {/* Dynamic Starting Point Card */}
+                {startingPoint ? (
+                  <div className="mt-10 flex max-w-88.25 flex-col items-center justify-center space-y-3.5 rounded-[10px] bg-[#F2F2F2] px-7.5 py-5 text-center text-black">
+                    {/* Title */}
+                    <h1 className="font-aria text-2xl font-extrabold">
+                      {startingPoint.title}
+                    </h1>
+
+                    {/* Description */}
+                    <p className="font-ray mt-2 text-base font-medium text-[#555]">
+                      {startingPoint.description}
+                    </p>
+
+                    {/* Expected benefits */}
+                    {startingPoint.expectedBenefits?.length > 0 && (
+                      <div className="mt-4 w-full text-right">
+                        <h3 className="font-aria mb-2 text-lg font-bold">
+                          نتایج احتمالی
+                        </h3>
+
+                        <ul className="space-y-2">
+                          {startingPoint.expectedBenefits.map(
+                            (benefit: string, idx: number) => (
+                              <li
+                                key={idx}
+                                className="font-ray flex items-start gap-2 text-sm text-[#555]"
+                              >
+                                <span className="text-green-500">•</span>
+                                {benefit}
+                              </li>
+                            ),
+                          )}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* First action (MOST IMPORTANT CTA) */}
+                    <div className="mt-4 w-full rounded-md bg-white px-4 py-3 text-right">
+                      <h3 className="font-aria mb-1 text-lg font-bold">
+                        اولین اقدام
+                      </h3>
+                      <p className="font-ray text-sm text-[#333]">
+                        {startingPoint.firstAction}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-10 text-gray-500">
+                    در حال آماده‌سازی مسیر شروع...
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-
           {/* Future Projection + CTA */}
           <div className="mt-24 flex flex-col items-center justify-center text-center lg:mt-36">
             <div>
@@ -431,9 +521,7 @@ const Page = ({ params }: Props) => {
                 آینده شما در انتظار تصمیم امروز
               </h1>
               <p className="font-ray mt-6 max-w-4xl text-base font-medium text-[#555] lg:text-lg">
-                {keyInsight
-                  ? keyInsight
-                  : 'اگر همین روند را ادامه دهی، بدنت فرصت‌های طبیعی بازسازی را از دست می‌دهد. اما با یک تغییر کوچک و متمرکز، ظرف ۱۰ روز تعادل را تجربه خواهی کرد.'}
+                ...
               </p>
             </div>
             <Link
