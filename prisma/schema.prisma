@@ -246,41 +246,37 @@ model HealthAssessment {
   id            String   @id @default(cuid())
   userId        String
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  // Raw answers as JSON (stores all 28+ answers with question IDs)
+
   answers       Json
-  
-  // Domain scores (0-100)
+
   sleepScore    Int
   nutritionScore Int
   activityScore Int
   stressScore   Int
   beautyScore   Int
   medicalScore  Int
-  
-  // Overall health score (0-100)
   overallScore  Int
-  
-  // AI-generated content
-  aiSummary     String?  @db.Text  // User-facing health summary
-  aiDiagnosis   String?  @db.Text  // Analysis of weak points
-  aiGoals       Json?             // Array of { goal: string, domain: string, priority: number }
-  
-  // Behavioral insights (for internal use / marketing)
-  healthArchetype    String?   // e.g., "The Busy Achiever", "The Self-Care Seeker"
-  readinessStage     String?   // Contemplation, Preparation, Action, Maintenance
-  decisionStyle      String?   // From Layer 3
-  consistencyLevel   String?   // From Layer 3
-  motivationSource   String?   // From Layer 3
-  
+
+  // FULL AI STRUCTURED OUTPUT
+  aiOutput      Json?
+
+  // Behavioral insights
+  healthArchetype    String?
+  readinessStage     String?
+  decisionStyle      String?
+  consistencyLevel   String?
+  motivationSource   String?
+
+  // SYSTEM STATE (NEW - CRITICAL)
+  domains        Json?
+
   // Metadata
   isActive      Boolean  @default(true)
   completedAt   DateTime @default(now())
   lastViewedAt  DateTime?
-  
-  // Recommendations (products linked to this assessment)
+
   recommendations HealthRecommendation[]
-  
+
   @@index([userId])
   @@index([overallScore])
   @@index([healthArchetype])
@@ -291,16 +287,18 @@ model HealthRecommendation {
   id                 String   @id @default(cuid())
   healthAssessmentId String
   healthAssessment   HealthAssessment @relation(fields: [healthAssessmentId], references: [id], onDelete: Cascade)
-  
+
   productId          Int
   product            Product  @relation(fields: [productId], references: [id])
-  
-  reason             String   @db.Text  // Why this product was recommended for this user
-  domain             String   // Which domain this addresses (sleep, nutrition, stress, etc.)
-  priority           Int      @default(1)  // 1 = highest priority
-  
+
+  reason             String   @db.Text
+  domain             String
+  priority           Int      @default(1)
+
+  recommendationBatchId String?
+
   createdAt          DateTime @default(now())
-  
+
   @@unique([healthAssessmentId, productId])
   @@index([healthAssessmentId])
   @@index([productId])

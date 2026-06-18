@@ -185,13 +185,6 @@ export interface UserAnswers {
   [key: string]: string | string[]
 }
 
-export interface ProductRecommendation {
-  productId: number
-  reason: string
-  domain: string
-  priority: number
-}
-
 export interface HealthAssessmentResult {
   id: string
   overallScore: number

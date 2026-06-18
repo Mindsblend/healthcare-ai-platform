@@ -1,11 +1,11 @@
 // services/aiHealthService.ts
 import axios from 'axios'
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 import {
   DomainScores,
   AIAnalysisResult,
   UserAnswers,
-  ProductRecommendation,
 } from '@/components/types/types'
 import {
   SYSTEM_PROMPT,
@@ -41,7 +41,7 @@ export class AIHealthService {
             { role: 'user', content: userPrompt },
           ],
           temperature: 0.7,
-          max_tokens: 800,
+          max_tokens: 4000,
           response_format: { type: 'json_object' },
         },
         {
@@ -61,7 +61,18 @@ export class AIHealthService {
       }
 
       // Parse the JSON response
-      const parsed = JSON.parse(content) as Partial<AIAnalysisResult>
+      let parsed: Partial<AIAnalysisResult>
+      try {
+        parsed = JSON.parse(content) as Partial<AIAnalysisResult>
+      } catch (parseError) {
+        console.error(
+          'Failed to parse GapGPT response as JSON. Length:',
+          content.length,
+          'Tail:',
+          content.slice(-200),
+        )
+        return getFallbackAnalysis(scores, answers)
+      }
 
       // Merge with fallbacks for any missing fields
       const fallback = getFallbackAnalysis(scores, answers)
@@ -69,9 +80,23 @@ export class AIHealthService {
       return {
         summary: parsed.summary || fallback.summary,
         diagnosis: parsed.diagnosis || fallback.diagnosis,
-        goals: parsed.goals || fallback.goals,
+
+        keyInsight: parsed.keyInsight || fallback.keyInsight,
+        whyThisMatters: parsed.whyThisMatters || fallback.whyThisMatters,
+
+        causalChain: parsed.causalChain || fallback.causalChain,
+
+        mainBottleneck: parsed.mainBottleneck || fallback.mainBottleneck,
+        startingPoint: parsed.startingPoint || fallback.startingPoint,
+        futureProjection: parsed.futureProjection || fallback.futureProjection,
+
         healthArchetype: parsed.healthArchetype || fallback.healthArchetype,
         readinessStage: parsed.readinessStage || fallback.readinessStage,
+
+        priorityFactors: parsed.priorityFactors || fallback.priorityFactors,
+        goals: parsed.goals || fallback.goals,
+
+        domains: parsed.domains || fallback.domains,
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -106,11 +131,16 @@ export class AIHealthService {
         beautyScore: scores.beauty,
         medicalScore: scores.medical,
         overallScore: overallScore,
-        aiSummary: analysis.summary,
-        aiDiagnosis: analysis.diagnosis,
-        aiGoals: analysis.goals,
+
+        // FULL AI STRUCTURED OUTPUT
+        aiOutput: analysis as unknown as Prisma.InputJsonValue,
+
+        // Behavioral insights (promoted top-level for indexing/filtering)
         healthArchetype: analysis.healthArchetype,
         readinessStage: analysis.readinessStage,
+
+        // SYSTEM STATE
+        domains: analysis.domains as unknown as Prisma.InputJsonValue,
       },
     })
 
@@ -118,168 +148,36 @@ export class AIHealthService {
   }
 
   /**
-   * Get product recommendations based on assessment scores
-   */
-  static async getProductRecommendations(
-    assessmentId: string,
-    scores: DomainScores,
-  ): Promise<ProductRecommendation[]> {
-    const weakDomains: Array<{ domain: string; score: number }> = []
-
-    if (scores.sleep < 50)
-      weakDomains.push({ domain: 'sleep', score: scores.sleep })
-    if (scores.nutrition < 50)
-      weakDomains.push({ domain: 'nutrition', score: scores.nutrition })
-    if (scores.activity < 50)
-      weakDomains.push({ domain: 'activity', score: scores.activity })
-    if (scores.stress < 50)
-      weakDomains.push({ domain: 'stress', score: scores.stress })
-    if (scores.beauty < 50)
-      weakDomains.push({ domain: 'beauty', score: scores.beauty })
-    if (scores.medical < 50)
-      weakDomains.push({ domain: 'medical', score: scores.medical })
-
-    weakDomains.sort((a, b) => a.score - b.score)
-    const topDomains = weakDomains.slice(0, 3)
-
-    if (topDomains.length === 0) {
-      return this.getMaintenanceRecommendations(assessmentId)
-    }
-
-    const recommendations: ProductRecommendation[] = []
-    let priority = 1
-
-    for (const domain of topDomains) {
-      const products = await this.findProductsByDomain(domain.domain)
-
-      if (products.length > 0) {
-        const product = products[0]
-        const reason = this.getRecommendationReason(domain.domain)
-
-        await prisma.healthRecommendation.create({
-          data: {
-            healthAssessmentId: assessmentId,
-            productId: product.id,
-            reason: reason,
-            domain: domain.domain,
-            priority: priority,
-          },
-        })
-
-        recommendations.push({
-          productId: product.id,
-          reason,
-          domain: domain.domain,
-          priority,
-        })
-
-        priority++
-      }
-    }
-
-    return recommendations
-  }
-
-  /**
-   * Get user's latest assessment with recommendations
+   * Get user's latest assessment
    */
   static async getUserLatestAssessment(userId: string) {
     return prisma.healthAssessment.findFirst({
       where: { userId, isActive: true },
       orderBy: { completedAt: 'desc' },
-      include: {
-        recommendations: {
-          include: {
-            product: true,
-          },
-        },
-      },
     })
   }
 
-  // Private helper methods
-
-  private static async findProductsByDomain(domain: string) {
-    const domainToCategory: Record<string, string[]> = {
-      sleep: ['sleep', 'relax', 'calm', 'night'],
-      nutrition: ['nutrition', 'food', 'supplement', 'vitamin'],
-      activity: ['energy', 'fitness', 'sport'],
-      stress: ['calm', 'relax', 'stress', 'adaptogen'],
-      beauty: ['beauty', 'skin', 'hair', 'collagen'],
-      medical: ['wellness', 'health', 'immune'],
-    }
-
-    const categories = domainToCategory[domain] || ['wellness']
-
-    const products = await prisma.product.findMany({
-      where: {
-        OR: categories.map((cat) => ({
-          category: {
-            name: {
-              contains: cat,
-              mode: 'insensitive',
-            },
-          },
-        })),
-        isActive: true,
-      },
-      take: 3,
+  /**
+   * Get a single assessment by id, scoped to the requesting user.
+   * Flattens aiOutput (the full structured AIAnalysisResult JSON) onto the
+   * top level of the returned object, so consumers can read fields like
+   * .summary, .startingPoint, .mainBottleneck, .priorityFactors directly
+   * instead of reaching into .aiOutput.<field>.
+   */
+  static async getAssessmentById(id: string, userId: string) {
+    const assessment = await prisma.healthAssessment.findFirst({
+      where: { id, userId },
     })
 
-    if (products.length === 0) {
-      return await prisma.product.findMany({
-        where: { isActive: true },
-        take: 3,
-      })
+    if (!assessment) {
+      return null
     }
 
-    return products
-  }
+    const aiOutput = (assessment.aiOutput as Record<string, unknown>) || {}
 
-  private static getRecommendationReason(domain: string): string {
-    const reasons: Record<string, string> = {
-      sleep: 'برای بهبود کیفیت خواب و تنظیم ریتم شبانه‌روزی شما',
-      nutrition: 'برای تقویت تغذیه و افزایش انرژی روزانه شما',
-      activity: 'برای افزایش تحرک و بهبود سلامت جسمانی شما',
-      stress: 'برای کاهش استرس و ایجاد آرامش در زندگی روزمره شما',
-      beauty: 'برای تقویت زیبایی طبیعی و درخشندگی پوست و موی شما',
-      medical: 'برای حمایت از سلامت پایه و پیشگیری از مشکلات آتی',
+    return {
+      ...assessment,
+      ...aiOutput,
     }
-    return reasons[domain] || 'برای بهبود سلامت و افزایش کیفیت زندگی شما'
-  }
-
-  private static async getMaintenanceRecommendations(
-    assessmentId: string,
-  ): Promise<ProductRecommendation[]> {
-    const products = await prisma.product.findMany({
-      where: { isActive: true },
-      take: 3,
-    })
-
-    const recommendations: ProductRecommendation[] = []
-    let priority = 1
-
-    for (const product of products) {
-      await prisma.healthRecommendation.create({
-        data: {
-          healthAssessmentId: assessmentId,
-          productId: product.id,
-          reason: 'برای حفظ سلامت و تداوم حس خوب شما',
-          domain: 'maintenance',
-          priority: priority,
-        },
-      })
-
-      recommendations.push({
-        productId: product.id,
-        reason: 'برای حفظ سلامت و تداوم حس خوب شما',
-        domain: 'maintenance',
-        priority,
-      })
-
-      priority++
-    }
-
-    return recommendations
   }
 }

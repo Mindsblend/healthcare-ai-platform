@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { prisma } from '@/lib/prisma'
 import { requireAuthority } from '@/features/auth/services/sessionService'
+import { AIHealthService } from '@/features/shop/services/AIService'
 
 type Props = {
   params: Promise<{
@@ -17,16 +17,7 @@ export async function GET(req: NextRequest, { params }: Props) {
 
     const { id } = await params
 
-    const assessment = await prisma.healthAssessment.findFirst({
-      where: {
-        id,
-        userId: session.id,
-      },
-
-      include: {
-        recommendations: true,
-      },
-    })
+    const assessment = await AIHealthService.getAssessmentById(id, session.id)
 
     if (!assessment) {
       return NextResponse.json(
