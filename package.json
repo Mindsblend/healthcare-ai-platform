@@ -69,11 +69,8 @@
     "@types/pg": "^8.16.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-<<<<<<< HEAD
     "@types/uuid": "^10.0.0",
-=======
     "autoprefixer": "^10.5.0",
->>>>>>> main
     "baseline-browser-mapping": "^2.10.0",
     "eslint": "^9.39.3",
     "eslint-config-next": "^0.2.4",
