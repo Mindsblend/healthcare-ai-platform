@@ -7,29 +7,24 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(cuid())
-  firstName  String?
-  lastName   String?
-  phone      String? @unique
-  email      String? @unique
-
-  role       UserRole @default(USER)
-
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  aiResponses AiResponse[] // TODO: Delete this since we are taking care of the ai results from the health assessments
-  carts       Cart[]
-  orders      Order[]
-  addresses   Address[]
+  id                String             @id @default(cuid())
+  firstName         String?
+  lastName          String?
+  phone             String?            @unique
+  email             String?            @unique
+  role              UserRole           @default(USER)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  addresses         Address[]
+  aiResponses       AiResponse[]
+  carts             Cart[]
   healthAssessments HealthAssessment[]
+  orders            Order[]
 }
 
 model Address {
   id         String   @id @default(cuid())
   userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
   firstName  String
   lastName   String
   phone      String
@@ -38,83 +33,54 @@ model Address {
   city       String
   address    String
   postalCode String
-  
   isDefault  Boolean  @default(false)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
 
-enum UserRole {
-  USER
-  ADMIN
-}
-
 model Cart {
-  id     String  @id @default(cuid())
-  user   User?   @relation(fields: [userId], references: [id])
-  userId String?
-
-  status CartStatus @default(ACTIVE)
-
-  items  CartItem[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String     @id @default(cuid())
+  userId    String?
+  status    CartStatus @default(ACTIVE)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  user      User?      @relation(fields: [userId], references: [id])
+  items     CartItem[]
   order     Order?
 }
 
-enum CartStatus {
-  ACTIVE
-  CHECKED_OUT
-  ABANDONED
-}
-
 model CartItem {
-  id Int @id @default(autoincrement())
-
-  cart   Cart   @relation(fields: [cartId], references: [id])
-  cartId String
-
-  product   Product @relation(fields: [productId], references: [id])
+  id        Int      @id @default(autoincrement())
+  cartId    String
   productId Int
-
-  quantity Int @default(1)
-  price    Int // قیمت محصول در زمان اضافه شدن به سبد
-
+  quantity  Int      @default(1)
+  price     Int
   createdAt DateTime @default(now())
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
 
   @@unique([cartId, productId])
 }
 
 model Order {
-  id String @id @default(cuid())
-
-  user   User?   @relation(fields: [userId], references: [id])
-  userId String?
-
-  cart   Cart   @relation(fields: [cartId], references: [id])
-  cartId String @unique
-
-  totalPrice Int
-
-  status OrderStatus @default(PENDING)
-
-  // Payment fields
-  paymentMethod       String?   // 'zarinpal' or 'mellat'
-  paymentAuthority    String?   @unique
+  id                  String      @id @default(cuid())
+  userId              String?
+  cartId              String      @unique
+  totalPrice          Int
+  status              OrderStatus @default(PENDING)
+  paymentMethod       String?
+  paymentAuthority    String?     @unique
   paymentRefId        String?
   paymentRequestedAt  DateTime?
   paymentVerifiedAt   DateTime?
   paymentErrorMessage String?
-
-  // Cancellation/Refund fields
   cancellationReason  String?
   canceledAt          DateTime?
   refundReason        String?
   refundedAt          DateTime?
-
   shippingFirstName   String
   shippingLastName    String
   shippingEmail       String
@@ -124,63 +90,46 @@ model Order {
   shippingAddress     String
   shippingPostalCode  String
   shippingNotes       String?
-
-  items OrderItem[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  cart                Cart        @relation(fields: [cartId], references: [id])
+  user                User?       @relation(fields: [userId], references: [id])
+  items               OrderItem[]
 }
 
 model OrderItem {
-  id Int @id @default(autoincrement())
-
-  order   Order   @relation(fields: [orderId], references: [id])
-  orderId String
-
-  product   Product @relation(fields: [productId], references: [id])
+  id        Int      @id @default(autoincrement())
+  orderId   String
   productId Int
-
-  quantity Int
-  price    Int // snapshot of price at purchase
-
+  quantity  Int
+  price     Int
   createdAt DateTime @default(now())
-}
-
-enum OrderStatus {
-  PENDING      // Payment pending / not yet paid
-  PREPARING    // Preparing order for delivery
-  PAID         // Payment successful, order confirmed
-  DELIVERING   // Shipped and on the way to customer
-  DELIVERED    // Successfully delivered to customer
-  FAILED       // Payment failed
-  CANCELED     // Canceled by customer or admin
-  REFUNDED     // Money returned to customer
+  order     Order    @relation(fields: [orderId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
 }
 
 model Product {
-  id          Int      @id @default(autoincrement())
-  title       String   @unique
-  slug        String   @unique
-  solution    String
-  description String
-  price       Int
-  image       String
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  categoryId  Int
-  category    Category     @relation(fields: [categoryId], references: [id])
-  feedCategory   FeedCategory? @relation(fields: [feedCategoryId], references: [id])
-  feedCategoryId Int?
-  icons       Icon[] // Top 3 risk removals or trust signals
-  gains       Gain[] // Top 3 benefits
-  faqs        Faq[] // Frequently asked questions
-  aiResponses AiResponse[] // AI test results or recommendations
-  cartItem    CartItem[]
-  orderItems OrderItem[]
-  healthRecommendations HealthRecommendation[] // Products recommended by AI
+  id                    Int                    @id @default(autoincrement())
+  title                 String                 @unique
+  slug                  String                 @unique
+  solution              String
+  description           String
+  price                 Int
+  image                 String
+  isActive              Boolean                @default(true)
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  categoryId            Int
+  feedCategoryId        Int?
+  aiResponses           AiResponse[]
+  cartItem              CartItem[]
+  faqs                  Faq[]
+  gains                 Gain[]
+  healthRecommendations HealthRecommendation[]
+  icons                 Icon[]
+  orderItems            OrderItem[]
+  category              Category               @relation(fields: [categoryId], references: [id])
+  feedCategory          FeedCategory?          @relation(fields: [feedCategoryId], references: [id])
 }
 
 model Category {
@@ -191,91 +140,76 @@ model Category {
 }
 
 model FeedCategory {
-  id       Int       @id @default(autoincrement())
-  name     String    @unique  // e.g., "Trending", "New Arrivals", "Best Sellers"
-  slug     String    @unique
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  slug        String    @unique
   description String
-  order    Int       @default(0) // For sorting in the feed
-  
-  products Product[]
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
 }
 
 model Icon {
   id          Int     @id @default(autoincrement())
-  product     Product @relation(fields: [productId], references: [id])
   productId   Int
-  title       String // e.g., بدون وابستگی مصرف
-  description String // required, short explanation
+  title       String
+  description String
   iconPath    String?
+  product     Product @relation(fields: [productId], references: [id])
 }
 
 model Gain {
   id          Int     @id @default(autoincrement())
-  product     Product @relation(fields: [productId], references: [id])
   productId   Int
-  title       String // e.g., ضد التهاب
-  ingredient  String // e.g., نیاسینامید
-  description String // e.g., قرمزی و تحریک پوست را کاهش می‌دهد
+  title       String
+  ingredient  String
+  description String
+  product     Product @relation(fields: [productId], references: [id])
 }
 
 model Faq {
   id        Int     @id @default(autoincrement())
-  product   Product @relation(fields: [productId], references: [id])
   productId Int
   question  String
   answer    String
+  product   Product @relation(fields: [productId], references: [id])
 }
 
 model AiResponse {
-  id        Int     @id @default(autoincrement())
-  product   Product @relation(fields: [productId], references: [id])
-  productId Int
-
-  user   User?   @relation(fields: [userId], references: [id])
-  userId String?
-
+  id             Int      @id @default(autoincrement())
+  productId      Int
+  userId         String?
   recommendation String
   explanation    String
   createdAt      DateTime @default(now())
+  product        Product  @relation(fields: [productId], references: [id])
+  user           User?    @relation(fields: [userId], references: [id])
 }
 
 model HealthAssessment {
-  id            String   @id @default(cuid())
-  userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  answers       Json
-
-  sleepScore    Int
-  nutritionScore Int
-  activityScore Int
-  stressScore   Int
-  beautyScore   Int
-  medicalScore  Int
-  overallScore  Int
-
-  // FULL AI STRUCTURED OUTPUT
-  aiOutput      Json?
-
-  // Behavioral insights
-  healthArchetype    String?
-  readinessStage     String?
-  decisionStyle      String?
-  consistencyLevel   String?
-  motivationSource   String?
-
-  // SYSTEM STATE (NEW - CRITICAL)
-  domains        Json?
-
-  // Metadata
-  isActive      Boolean  @default(true)
-  completedAt   DateTime @default(now())
-  lastViewedAt  DateTime?
-
-  recommendations HealthRecommendation[]
+  id               String                 @id @default(cuid())
+  userId           String
+  answers          Json
+  sleepScore       Int
+  nutritionScore   Int
+  activityScore    Int
+  stressScore      Int
+  beautyScore      Int
+  medicalScore     Int
+  overallScore     Int
+  aiOutput         Json?
+  healthArchetype  String?
+  readinessStage   String?
+  decisionStyle    String?
+  consistencyLevel String?
+  motivationSource String?
+  domains          Json?
+  isActive         Boolean                @default(true)
+  completedAt      DateTime               @default(now())
+  lastViewedAt     DateTime?
+  user             User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recommendations  HealthRecommendation[]
 
   @@index([userId])
   @@index([overallScore])
@@ -284,20 +218,16 @@ model HealthAssessment {
 }
 
 model HealthRecommendation {
-  id                 String   @id @default(cuid())
-  healthAssessmentId String
-  healthAssessment   HealthAssessment @relation(fields: [healthAssessmentId], references: [id], onDelete: Cascade)
-
-  productId          Int
-  product            Product  @relation(fields: [productId], references: [id])
-
-  reason             String   @db.Text
-  domain             String
-  priority           Int      @default(1)
-
+  id                    String           @id @default(cuid())
+  healthAssessmentId    String
+  productId             Int
+  reason                String
+  domain                String
+  priority              Int              @default(1)
   recommendationBatchId String?
-
-  createdAt          DateTime @default(now())
+  createdAt             DateTime         @default(now())
+  healthAssessment      HealthAssessment @relation(fields: [healthAssessmentId], references: [id], onDelete: Cascade)
+  product               Product          @relation(fields: [productId], references: [id])
 
   @@unique([healthAssessmentId, productId])
   @@index([healthAssessmentId])
@@ -333,4 +263,26 @@ model Subscription {
   email     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum CartStatus {
+  ACTIVE
+  CHECKED_OUT
+  ABANDONED
+}
+
+enum OrderStatus {
+  PENDING
+  PREPARING
+  PAID
+  DELIVERING
+  DELIVERED
+  FAILED
+  CANCELED
+  REFUNDED
 }

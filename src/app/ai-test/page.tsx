@@ -876,7 +876,7 @@ const Page = () => {
 
   // Questionnaire (UI unchanged except button text logic)
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col overflow-x-hidden">
       {/* Progress Bar - Fixed Top */}
       <div className="fixed top-0 right-0 left-0 z-50 bg-white/80 backdrop-blur-sm">
         <div className="h-1.25 bg-gray-200">
