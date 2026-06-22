@@ -15,7 +15,7 @@ const CallToAction = () => {
           است. آینده‌ای سالم و شاد، تنها یک تصمیم با تو فاصله دارد.
         </p>
 
-        <div className="flex gap-4">
+        <div className="flex flex-wrap items-center justify-center gap-4">
           <Link
             href="/ai"
             className="primary-btn bg-accent-purple flex items-center justify-between rounded-full text-white"

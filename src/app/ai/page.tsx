@@ -3,11 +3,11 @@ import Link from 'next/link'
 
 export default function AI() {
   return (
-    <div className="container flex min-h-[40vh] flex-col items-center justify-center px-4 py-12 text-center sm:px-6 md:px-8">
-      <h1 className="font-aria text-color-title-on-light mt-12 max-w-[280px] text-3xl font-extrabold sm:max-w-md sm:text-4xl md:max-w-lg xl:max-w-120 xl:text-6xl">
+    <div className="container flex flex-col items-center justify-center py-12 text-center">
+      <h1 className="font-aria text-color-title-on-light max-w-70 text-3xl font-extrabold sm:max-w-md sm:text-4xl md:max-w-lg xl:max-w-140 xl:text-6xl">
         رمز انرژی و تعادل بدنت رو همین حالا پیدا کن
       </h1>
-      <p className="font-ray font-regular text-color-body-on-light mt-3 max-w-[280px] text-xs sm:max-w-md sm:text-sm md:max-w-lg xl:max-w-153.25 xl:text-lg">
+      <p className="font-ray font-regular text-color-body-on-light mt-3 max-w-70 text-xs sm:max-w-md sm:text-sm md:max-w-lg xl:max-w-153.25 xl:text-lg">
         ترکیبی از دانش هزارساله علم پزشکی و قدرت هوش مصنوعی. در کمتر از ۳ دقیقه
         یک پروفایل شخصی سلامت دریافت می‌کنی که شامل تیپ بدنی، توصیه‌های غذایی و
         سبک زندگی مخصوص خودت است. راهکارهایی برای افزایش انرژی و بالابردن کیفیت
@@ -54,10 +54,10 @@ export default function AI() {
 
       <Link
         href="/ai-test"
-        className="mt-6.75 flex h-13.5 w-52.5 cursor-pointer items-center justify-between rounded-full bg-black px-2 text-white"
+        className="primary-btn mt-6.75 max-xl:w-41 flex cursor-pointer items-center justify-between rounded-full bg-black text-white"
       >
-        <span className="font-aria pr-2 text-base">شروع تحلیل هوشمند</span>
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white">
+        <span className="font-aria">شروع تحلیل هوشمند</span>
+        <div className="flex xl:h-10 h-7 w-7 xl:w-10 items-center justify-center rounded-full bg-white">
           <Image src="/images/arrow.svg" alt="Arrow" width={20} height={20} />
         </div>
       </Link>
