@@ -837,12 +837,12 @@ const Page = () => {
   // Intro Screen (unchanged)
   if (showIntro) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center px-6">
+      <div className="flex min-h-screen flex-col py-12 items-center justify-center ">
         <div className="mx-auto max-w-4xl">
-          <h1 className="font-aria text-4xl font-extrabold text-black sm:text-5xl lg:text-6xl">
+          <h1 className="font-aria text-3xl font-extrabold text-black sm:text-4xl lg:text-5xl">
             به تست سلامت هوشمند خوش آمدید
           </h1>
-          <p className="font-ray mt-6 text-lg font-medium text-[#555555]">
+          <p className="font-ray mt-6 text-base sm:text-lg font-medium text-[#555555]">
             این تست نتیجه‌ی ترکیب دو دنیا است: از یک طرف، دانش ارزشمند و
             هزارساله‌ی طب سنتی ایرانی که ریشه در شناخت عمیق بدن و تعادل مزاج‌ها
             دارد، و از طرف دیگر، قدرت بی‌نظیر تحلیل داده‌ها توسط هوش مصنوعی. با
@@ -911,33 +911,14 @@ const Page = () => {
               opacity: 0,
             }}
             transition={{ duration: 0.4, ease: 'easeInOut' }}
-            className="w-full px-6"
+            className="w-full"
           >
-            <div className="mx-auto flex w-full max-w-5xl gap-6">
-              {/* Question ID and Clickable Back Arrow */}
-              <div className="flex gap-1 self-start pt-2">
-                <button
-                  onClick={handlePrevious}
-                  disabled={questionPath.length === 1}
-                  className="flex items-center gap-1 focus:outline-none"
-                >
-                  <h2 className="font-aria text-lg text-black">
-                    {currentQuestion.id.toLocaleString('fa-IR')}
-                  </h2>
-                  <Image
-                    src="/images/left-arrow.svg"
-                    width={24}
-                    height={24}
-                    alt="previous"
-                    className={`${questionPath.length === 1 ? 'cursor-not-allowed opacity-30' : 'cursor-pointer'}`}
-                  />
-                </button>
-              </div>
+            <div className="mx-auto flex w-full max-w-5xl gap-3 sm:gap-6">
 
               {/* Question Content */}
-              <div className="flex-1">
+              <div className="flex-1 py-12">
                 <div className="text-black">
-                  <h1 className="font-aria text-6xl font-extrabold">
+                  <h1 className="font-aria text-3xl sm:text-4xl lg:text-5xl font-extrabold">
                     {currentQuestion.title}
                   </h1>
                   <p className="font-ray mt-6 text-lg font-medium text-[#555555]">

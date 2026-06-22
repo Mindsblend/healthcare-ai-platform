@@ -54,9 +54,9 @@ export default function AI() {
 
       <Link
         href="/ai-test"
-        className="primary-btn mt-6.75 max-xl:w-41 flex cursor-pointer items-center justify-between rounded-full bg-black text-white"
+        className="primary-btn mt-6.75 max-xl:w-41 w-49 flex cursor-pointer items-center justify-between rounded-full bg-black text-white"
       >
-        <span className="font-aria">شروع تحلیل هوشمند</span>
+        <span className="font-aria pr-1">شروع تحلیل هوشمند</span>
         <div className="flex xl:h-10 h-7 w-7 xl:w-10 items-center justify-center rounded-full bg-white">
           <Image src="/images/arrow.svg" alt="Arrow" width={20} height={20} />
         </div>
