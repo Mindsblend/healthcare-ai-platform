@@ -1,4 +1,4 @@
-// features/shop/categories/services/feedService.ts
+// features/shop/services/FeedService.ts
 
 import { prisma } from '@/lib/prisma'
 import {
@@ -7,32 +7,21 @@ import {
   FetchFeedCategoryProductsInput,
   FetchUserFeedInput,
   FeedCategoryWithProducts,
+  FeedCategoryProduct,
   FeedCategoryProductsResponse,
   UserFeedResponse,
 } from '../shop.types'
 
 export class FeedService {
-  /**
-   * Get all feed categories with their products
-   * For the main user feed page
-   */
-  static async fetchFeedCategories(
-    input?: FetchFeedCategoriesInput,
-  ): Promise<FeedCategoryWithProducts[]> {
-    const limit = input?.limit || 10
-    return prisma.feedCategory.findMany({
+  static async fetchFeedCategories(input: FetchFeedCategoriesInput): Promise<FeedCategoryWithProducts[]> {
+    const { limit } = input
+
+    const categories = await prisma.feedCategory.findMany({
+      take: limit,
       orderBy: { order: 'asc' },
       include: {
         products: {
-          where: { isActive: true },
-          select: {
-            id: true,
-            title: true,
-            price: true,
-            solution: true,
-            slug: true,
-            image: true,
-            categoryId: true,
+          include: {
             category: {
               select: {
                 name: true,
@@ -40,33 +29,38 @@ export class FeedService {
               },
             },
           },
-          take: limit,
         },
       },
     })
+
+    return categories.map((category: any) => ({
+      id: category.id,
+      name: category.name,
+      slug: category.slug,
+      description: category.description,
+      order: category.order,
+      products: category.products.map((product: any) => ({
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        solution: product.solution,
+        slug: product.slug,
+        image: product.image,
+        description: product.description,
+        categoryId: product.categoryId,
+        category: product.category,
+      })),
+    }))
   }
 
-  /**
-   * Get a single feed category by slug with its products
-   */
-  static async fetchFeedCategoryBySlug(
-    input: FetchFeedCategoryBySlugInput,
-  ): Promise<FeedCategoryWithProducts | null> {
+  static async fetchFeedCategoryBySlug(input: FetchFeedCategoryBySlugInput) {
     const { slug } = input
+
     const category = await prisma.feedCategory.findUnique({
       where: { slug },
       include: {
         products: {
-          where: { isActive: true },
-          select: {
-            id: true,
-            title: true,
-            price: true,
-            solution: true,
-            slug: true,
-            image: true,
-            description: true,
-            categoryId: true,
+          include: {
             category: {
               select: {
                 name: true,
@@ -78,28 +72,32 @@ export class FeedService {
       },
     })
 
-    if (!category) {
-      return null
-    }
+    if (!category) return null
 
     return {
       id: category.id,
       name: category.name,
       slug: category.slug,
-      order: category.order,
       description: category.description,
-      products: category.products,
+      order: category.order,
+      products: category.products.map((product: any) => ({
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        solution: product.solution,
+        slug: product.slug,
+        image: product.image,
+        description: product.description,
+        categoryId: product.categoryId,
+        category: product.category,
+      })),
     }
   }
 
-  /**
-   * Get products for a specific feed category with pagination
-   */
   static async fetchFeedCategoryProducts(
-    input: FetchFeedCategoryProductsInput,
-  ): Promise<FeedCategoryProductsResponse | null> {
-    const { slug, page = 1, limit = 20 } = input
-    const skip = (page - 1) * limit
+    input: FetchFeedCategoryProductsInput
+  ): Promise<FeedCategoryProductsResponse> {
+    const { slug, page = 1, limit = 12 } = input
 
     const category = await prisma.feedCategory.findUnique({
       where: { slug },
@@ -110,84 +108,73 @@ export class FeedService {
     })
 
     if (!category) {
-      return null
+      throw new Error('Feed category not found')
     }
 
-    const products = await prisma.product.findMany({
-      where: {
-        feedCategoryId: category.id,
-        isActive: true,
-      },
-      select: {
-        id: true,
-        title: true,
-        price: true,
-        solution: true,
-        slug: true,
-        image: true,
-        description: true,
-        categoryId: true,
-        category: {
-          select: {
-            name: true,
-            iconPath: true,
+    const skip = (page - 1) * limit
+
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
+        where: {
+          feedCategoryId: category.id,
+          isActive: true,
+        },
+        skip,
+        take: limit,
+        include: {
+          category: {
+            select: {
+              name: true,
+              iconPath: true,
+            },
           },
         },
-      },
-      skip,
-      take: limit,
-    })
-
-    const totalCount = await prisma.product.count({
-      where: {
-        feedCategoryId: category.id,
-        isActive: true,
-      },
-    })
+      }),
+      prisma.product.count({
+        where: {
+          feedCategoryId: category.id,
+          isActive: true,
+        },
+      }),
+    ])
 
     return {
       category: {
         id: category.id,
         name: category.name,
       },
-      products,
+      products: products.map((product: any) => ({
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        solution: product.solution,
+        slug: product.slug,
+        image: product.image,
+        description: product.description,
+        categoryId: product.categoryId,
+        category: product.category,
+      })),
       pagination: {
         page,
         limit,
-        total: totalCount,
-        totalPages: Math.ceil(totalCount / limit),
+        total,
+        totalPages: Math.ceil(total / limit),
       },
     }
   }
-
-  /**
-   * Get user feed (all categories with their products)
-   */
-  static async fetchUserFeed(
-    input?: FetchUserFeedInput,
-  ): Promise<UserFeedResponse> {
-    const limitPerCategory = input?.limitPerCategory || 10
+  
+  static async fetchUserFeed(input: FetchUserFeedInput): Promise<UserFeedResponse> {
+    const { limitPerCategory = 4 } = input
 
     const categories = await prisma.feedCategory.findMany({
-      where: {
-        products: {
-          some: {
-            isActive: true,
-          },
-        },
-      },
       orderBy: { order: 'asc' },
       include: {
         products: {
-          where: { isActive: true },
-          select: {
-            id: true,
-            title: true,
-            price: true,
-            solution: true,
-            slug: true,
-            image: true,
-            categoryId: true,
+          take: limitPerCategory,
+          where: {
+            isActive: true,
+          },
+          include: {
             category: {
               select: {
                 name: true,
@@ -195,18 +182,27 @@ export class FeedService {
               },
             },
           },
-          take: limitPerCategory,
         },
       },
     })
 
-    return categories.map((category) => ({
+    return categories.map((category: any) => ({
       category: {
         id: category.id,
         name: category.name,
         slug: category.slug,
       },
-      products: category.products,
+      products: category.products.map((product: any) => ({
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        solution: product.solution,
+        slug: product.slug,
+        image: product.image,
+        description: product.description,
+        categoryId: product.categoryId,
+        category: product.category,
+      })),
     }))
   }
 }
