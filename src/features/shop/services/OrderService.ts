@@ -26,28 +26,30 @@ export class OrderService {
   }
 
   static async fetchOrderById(
-    input: FetchOrderByIdInput,
-  ): Promise<OrderDetail | null> {
-    const { id } = input
-    return prisma.order.findUnique({
-      where: { id },
-      include: {
-        items: {
-          include: {
-            product: {
-              select: {
-                id: true,
-                title: true,
-                price: true,
-                image: true,
-                slug: true,
-              },
+  input: FetchOrderByIdInput,
+): Promise<OrderDetail | null> {
+  const { id } = input
+  const order = await prisma.order.findUnique({
+    where: { id },
+    include: {
+      items: {
+        include: {
+          product: {
+            select: {
+              id: true,
+              title: true,
+              price: true,
+              image: true,
+              slug: true,
             },
           },
         },
       },
-    })
-  }
+    },
+  })
+  
+  return order as unknown as OrderDetail | null  // این خط رو اضافه کن
+}
 
   static async createOrder(input: CreateOrderInput) {
     const { userId, shippingInfo, paymentMethod } = input

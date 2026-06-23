@@ -184,14 +184,13 @@ export type CreateOrderInput = {
   paymentMethod: 'mellat' | 'zarinpal'
 }
 
-// جدید:
 export type OrderDetail = {
   id: string
   totalPrice: number
   status: string
-  paymentMethod: string
+  paymentMethod: string | null 
   userId: string
-  cartId: string
+  cartId: string | null 
   shippingFirstName: string
   shippingLastName: string
   shippingEmail: string
