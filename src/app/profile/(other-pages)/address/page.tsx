@@ -18,7 +18,7 @@ import {
   validateShippingInfo,
 } from '@/lib/helpers'
 import { ChangeEvent, useEffect, useState } from 'react'
-import { ShippingInfo } from '@/features/shop/shop.types'
+import { Address, ShippingInfo } from '@/features/shop/shop.types'
 import { City } from '@/components/types/types'
 import { useUpdateUserProfile } from '@/features/shop/hooks/profile/updateUserProfile'
 import InformPopup from '@/components/layout/InformPopup'
@@ -260,7 +260,7 @@ const AddressContent = () => {
         </div>
       ) : (
         <div className="space-y-4">
-          {userAddress.addresses.map((address) => (
+          {userAddress.addresses.map((address: Address) => (
             <div
               key={address.id}
               className="rounded-lg border border-[#D9D9D9] p-5"
