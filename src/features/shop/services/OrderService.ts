@@ -77,7 +77,7 @@ export class OrderService {
       if (existingOrder.status === 'FAILED') {
         console.log(`[OrderService] Deleting failed order, allowing retry...`)
 
-        await prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx: any) => {
           await tx.orderItem.deleteMany({
             where: { orderId: existingOrder.id },
           })
@@ -95,7 +95,7 @@ export class OrderService {
       else if (existingOrder.status === 'CANCELED') {
         console.log(`[OrderService] Deleting canceled order, allowing retry...`)
 
-        await prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx: any) => {
           await tx.orderItem.deleteMany({
             where: { orderId: existingOrder.id },
           })
@@ -117,13 +117,13 @@ export class OrderService {
     // تعریف status با تایپ OrderStatus
     const pendingStatus: OrderStatus = 'PENDING'
 
-    const order = await prisma.$transaction(async (tx) => {
+    const order = await prisma.$transaction(async (tx: any) => {
       const newOrder = await tx.order.create({
         data: {
           userId,
           cartId: cart.id,
           totalPrice,
-          status: pendingStatus, // استفاده از متغیر با تایپ مشخص
+          status: pendingStatus,
           paymentMethod,
           shippingFirstName: shippingInfo.firstName,
           shippingLastName: shippingInfo.lastName,
@@ -188,8 +188,7 @@ export class OrderService {
       throw new Error('Order not found for authority: ' + authority)
     }
 
-    const updatedOrder = await prisma.$transaction(async (tx) => {
-      // تعیین وضعیت با تایپ OrderStatus
+    const updatedOrder = await prisma.$transaction(async (tx: any) => {
       const orderStatus: OrderStatus = status === 'PAID' ? 'PAID' : 'FAILED'
 
       const updated = await tx.order.update({
