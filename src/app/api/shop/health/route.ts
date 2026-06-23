@@ -2,6 +2,14 @@ import { NextResponse } from 'next/server'
 import { AIHealthService } from '@/features/shop/services/AIService'
 import { requireAuthority } from '@/features/auth/services/sessionService'
 
+type Recommendation = {
+  productId: number
+  product: any
+  reason: string
+  domain: string
+  priority: number
+}
+
 export async function GET() {
   try {
     // Authenticate user
@@ -43,7 +51,7 @@ export async function GET() {
           healthArchetype: assessment.healthArchetype,
           readinessStage: assessment.readinessStage,
         },
-        recommendations: assessment.recommendations.map((rec) => ({
+        recommendations: assessment.recommendations.map((rec: Recommendation) => ({
           productId: rec.productId,
           product: rec.product,
           reason: rec.reason,

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 
 import { requireAuthority } from '@/features/auth/services/sessionService'
 import { AIHealthService } from '@/features/shop/services/AIService'
@@ -9,7 +9,7 @@ type Props = {
   }>
 }
 
-export async function GET(req: NextRequest, { params }: Props) {
+export async function GET({ params }: Props) {
   try {
     const session = await requireAuthority({
       requiredRole: 'USER',
