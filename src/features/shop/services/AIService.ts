@@ -2,7 +2,6 @@
 
 import axios from 'axios'
 import { prisma } from '@/lib/prisma'
-import { Prisma } from '@prisma/client'
 import {
   DomainScores,
   AIAnalysisResult,
@@ -96,7 +95,7 @@ export class AIHealthService {
     return prisma.healthAssessment.create({
       data: {
         userId,
-        answers,
+        answers: answers as any,
         sleepScore: scores.sleep,
         nutritionScore: scores.nutrition,
         activityScore: scores.activity,
@@ -105,18 +104,18 @@ export class AIHealthService {
         medicalScore: scores.medical,
         overallScore,
 
-        aiOutput: analysis as unknown as Prisma.InputJsonValue,
+        aiOutput: analysis as any,
 
         healthArchetype: analysis.healthArchetype,
         readinessStage: analysis.readinessStage,
 
-        domains: analysis.domains as unknown as Prisma.InputJsonValue,
+        domains: analysis.domains as any, // تغییر از Prisma.InputJsonValue به any
       },
     })
   }
 
   /**
-   * Latest assessment (FIXED)
+   * Latest assessment
    */
   static async getUserLatestAssessment(userId: string) {
     return prisma.healthAssessment.findFirst({
@@ -133,7 +132,7 @@ export class AIHealthService {
   }
 
   /**
-   * Get assessment by id (FIXED + SAFE)
+   * Get assessment by id
    */
   static async getAssessmentById(id: string, userId: string) {
     const assessment = await prisma.healthAssessment.findFirst({
