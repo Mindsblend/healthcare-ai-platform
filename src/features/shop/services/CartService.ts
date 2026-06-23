@@ -8,8 +8,8 @@ import {
   ClearCartInput,
   CartType,
 } from '../shop.types'
- 
-const CartStatus = {
+
+const CART_STATUS = {
   ACTIVE: 'ACTIVE',
   CHECKED_OUT: 'CHECKED_OUT',
   ABANDONED: 'ABANDONED',
@@ -26,7 +26,7 @@ export class CartService {
     const cart = await prisma.cart.findFirst({
       where: {
         userId,
-        status: CartStatus.ACTIVE,
+        status: CART_STATUS.ACTIVE,
       },
       include: {
         items: {
@@ -56,7 +56,7 @@ export class CartService {
       id: cart.id,
       userId: cart.userId,
       status: cart.status,
-      items: cart.items.map((item) => ({
+      items: cart.items.map((item: any) => ({
         id: item.id,
         cartId: item.cartId,
         quantity: item.quantity,
@@ -69,7 +69,7 @@ export class CartService {
           slug: item.product.slug,
           image: item.product.image,
           categoryId: item.product.categoryId,
-          category: item.product.category, // This matches ProductSummary
+          category: item.product.category,
         },
       })),
     }
@@ -79,11 +79,10 @@ export class CartService {
   static async createCart(input: { userId: string }): Promise<CartType | null> {
     const { userId } = input
 
-    // First, check if user already has an active cart
     const existingCart = await prisma.cart.findFirst({
       where: {
         userId,
-        status: CartStatus.ACTIVE,
+        status: CART_STATUS.ACTIVE,
       },
       include: {
         items: {
@@ -106,7 +105,6 @@ export class CartService {
       },
     })
 
-    // If existing cart found, return it
     if (existingCart) {
       console.log(
         '[CartService.createCart] Found existing cart:',
@@ -116,7 +114,7 @@ export class CartService {
         id: existingCart.id,
         userId: existingCart.userId,
         status: existingCart.status,
-        items: existingCart.items.map((item) => ({
+        items: existingCart.items.map((item: any) => ({
           id: item.id,
           cartId: item.cartId,
           quantity: item.quantity,
@@ -138,11 +136,10 @@ export class CartService {
     const cart = await prisma.cart.create({
       data: {
         userId,
-        status: CartStatus.ACTIVE,
+        status: CART_STATUS.ACTIVE,
       },
     })
 
-    // Return cart with empty items array (matches CartType)
     return {
       id: cart.id,
       userId: cart.userId,
@@ -221,6 +218,6 @@ export class CartService {
       where: { cartId },
     })
 
-    return items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+    return items.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0)
   }
 }
