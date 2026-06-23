@@ -2,7 +2,7 @@
 
 import { sign, verify } from 'jsonwebtoken'
 import { cookies } from 'next/headers'
-import type { User } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import { createDomainError, ErrorCode } from '@/lib/errors'
 import { NextRequest } from 'next/server'
 import {
@@ -12,6 +12,8 @@ import {
   CreateSessionInput,
   RequireAuthorityInput,
 } from '../auth.types'
+
+type User = Prisma.UserGetPayload<{}>
 
 const getJwtSecret = (): string => {
   const secret = process.env.JWT_SECRET
