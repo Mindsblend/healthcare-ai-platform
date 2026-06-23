@@ -3,7 +3,7 @@ import { FeedService } from '@/features/shop/services/FeedService'
 
 export async function GET(request: NextRequest) {
   try {
-    const feedCategories = await FeedService.fetchFeedCategories()
+    const feedCategories = await FeedService.fetchFeedCategories({})
     return NextResponse.json(feedCategories)
   } catch (error) {
     console.error('Error fetching feed categories:', error)

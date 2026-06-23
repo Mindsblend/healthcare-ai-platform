@@ -7,7 +7,6 @@ import {
   FetchFeedCategoryProductsInput,
   FetchUserFeedInput,
   FeedCategoryWithProducts,
-  FeedCategoryProduct,
   FeedCategoryProductsResponse,
   UserFeedResponse,
 } from '../shop.types'
