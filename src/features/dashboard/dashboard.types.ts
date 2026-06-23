@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client'
 
 // ============================================
 // ANALYTICS TYPES
@@ -22,8 +21,6 @@ export interface CreateSubscriptionInput {
   email: string
 }
 
-export type SubscriptionPayload = Prisma.SubscriptionGetPayload<{
-  select: {
-    email: true
-  }
-}>
+export type SubscriptionPayload = {
+  email: string
+}
