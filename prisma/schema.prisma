@@ -7,7 +7,6 @@ datasource db {
 }
 
 model User {
-<<<<<<< HEAD
   id                String             @id @default(cuid())
   firstName         String?
   lastName          String?
@@ -67,7 +66,6 @@ model CartItem {
 }
 
 model Order {
-<<<<<<< HEAD
   id                  String      @id @default(cuid())
   userId              String?
   cartId              String      @unique
@@ -111,7 +109,6 @@ model OrderItem {
 }
 
 model Product {
-<<<<<<< HEAD
   id                    Int                    @id @default(autoincrement())
   title                 String                 @unique
   slug                  String                 @unique
@@ -188,7 +185,6 @@ model AiResponse {
   createdAt      DateTime @default(now())
   product        Product  @relation(fields: [productId], references: [id])
   user           User?    @relation(fields: [userId], references: [id])
-<<<<<<< HEAD
 }
 
 model HealthAssessment {
@@ -209,6 +205,16 @@ model HealthAssessment {
   consistencyLevel String?
   motivationSource String?
   domains          Json?
+  summary          String?
+  diagnosis        String?
+  keyInsight       String?
+  whyThisMatters   String?
+  causalChain      Json?
+  mainBottleneck   Json?
+  startingPoint    Json?
+  priorityFactors  Json?
+  futureProjection Json?
+  goals            Json?
   isActive         Boolean                @default(true)
   completedAt      DateTime               @default(now())
   lastViewedAt     DateTime?
@@ -251,7 +257,6 @@ model Blog {
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  authorImage String
 }
 
 model VisitMonth {

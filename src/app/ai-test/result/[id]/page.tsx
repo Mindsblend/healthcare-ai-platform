@@ -87,10 +87,12 @@ const Page = ({ params }: Props) => {
   // Safely access AI analysis fields
   const summary = data?.summary || ''
   const diagnosis = data?.diagnosis || ''
-  const goals = data?.goals || []
+  const futureProjection = data?.futureProjection
+  const whyThisMatters = data?.whyThisMatters || ''
   const mainBottleneck = (data as any)?.mainBottleneck
   const startingPoint = data?.startingPoint
   const priorityFactors = (data as any)?.priorityFactors || []
+  const domains = (data as any)?.domains
   const archetype = data?.healthArchetype || 'The Busy Achiever'
   const readiness = data?.readinessStage || 'Preparation'
   // New causal fields (may be undefined if not yet in DB)
@@ -103,8 +105,10 @@ const Page = ({ params }: Props) => {
     { title: 'انرژی پایدارتر در طول روز' },
   ]
 
-  console.log('startingPoint:', data?.startingPoint)
-
+console.log('useHealthAssessmentResult - data source:', 
+  data?.mainBottleneck || 'unknown'
+)
+console.log('Full data:', JSON.stringify(data, null, 2))
   return (
     <LoadingBar
       loading={loading}
@@ -123,6 +127,7 @@ const Page = ({ params }: Props) => {
                   تصویری از وضعیت فعلی سلامت شما
                 </h1>
                 <p className="font-ray mt-6 max-w-4xl text-base font-medium text-[#555] lg:text-lg">
+                  {summary}
                   {diagnosis}
                 </p>
               </div>
@@ -138,17 +143,12 @@ const Page = ({ params }: Props) => {
                     {insight.length > 0
                       ? insight
                       : 'تمرکز روی یک نقطه اهرمی، کل سیستم را به تعادل نزدیک می‌کند.'}
+                    {whyThisMatters}
                   </p>
                   {causalChain.length > 0 && (
-                    <div className="mt-3 text-xs text-gray-500">
+                    <div className="flex flex-col gap-3 mt-3 text-base w-full text-gray-500">
                       {causalChain.map((item, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
-                          <span>{item}</span>
-
-                          {idx < causalChain.length - 1 && (
-                            <span className="text-gray-400">→</span>
-                          )}
-                        </div>
+                          <span key={idx}>{item}</span>
                       ))}
                     </div>
                   )}
@@ -175,33 +175,33 @@ const Page = ({ params }: Props) => {
                 </div>
 
                 {/* Suggested First Step (from goals) */}
-                <div className="space-y-3.5 rounded-[10px] bg-[#F2F2F2] px-6.25 py-7 text-right text-black">
+                <div className=" rounded-[10px] bg-[#F2F2F2] px-6.25 py-7 text-right text-black">
                   <h1 className="font-aria text-2xl font-extrabold">
                     اولین قدم
                   </h1>
                   {startingPoint ? (
                     <>
-                      <h1 className="font-aria text-2xl font-extrabold">
+                      <h1 className="mt-4 font-aria text-base font-bold">
                         {startingPoint.title}
                       </h1>
 
-                      <p className="font-ray mt-3 text-base text-[#555]">
+                      <p className="mt-1 font-ray text-sm text-[#555]">
                         {startingPoint.description}
                       </p>
 
                       <div className="mt-4">
-                        <h2 className="font-ray text-sm font-semibold text-black">
+                        <h2 className="font-ray text-base font-semibold text-black">
                           اولین اقدام:
                         </h2>
 
-                        <p className="font-ray mt-1 text-sm text-[#555]">
+                        <p className="font-ray mt-1 text-base text-[#555]">
                           {startingPoint.firstAction}
                         </p>
                       </div>
 
                       {startingPoint.expectedBenefits?.length > 0 && (
                         <div className="mt-4">
-                          <h2 className="font-ray text-sm font-semibold text-black">
+                          <h2 className="font-ray text-base font-semibold text-black">
                             نتایج احتمالی:
                           </h2>
 
@@ -319,6 +319,10 @@ const Page = ({ params }: Props) => {
                               {factor.title}
                             </h1>
 
+                            <p className="font-ray mt-3 text-base text-black">
+                              {factor.whyImportant}
+                            </p>
+
                             {/* SYSTEM IMPACT */}
                             <p className="font-ray mt-5 text-lg leading-8 font-medium text-[#555]">
                               {factor.systemImpact}
@@ -405,36 +409,24 @@ const Page = ({ params }: Props) => {
                       </div>
                     ),
                   )}
+                  
                 </div>
-
-                <h2 className="mt-10 font-bold text-black">
-                  اگر این گلوگاه بهبود پیدا کند
-                </h2>
-
-                <p className="mt-4 max-w-2xl text-gray-700">
-                  {mainBottleneck.leverageReason}
-                </p>
+                  {mainBottleneck?.leverageReason && (
+                    <p className="font-ray mt-6 max-w-3xl text-[#555]">
+                      {mainBottleneck.leverageReason}
+                    </p>
+                  )}
               </div>
             )}
 
-            <h1 className="font-aria mt-20 text-2xl font-bold text-black">
+            <h1 className="font-aria mt-10 text-2xl font-bold text-black">
               اگر این گلوگاه بهبود پیدا کند
             </h1>
             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-              {chekcCircle.map((circle, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center justify-center gap-1.5 text-black"
-                >
-                  <Image
-                    src="/images/check-circle.svg"
-                    alt="check circle icon"
-                    width={24}
-                    height={24}
-                  />
-                  <h1 className="font-ray text-lg font-medium">
-                    {circle.title}
-                  </h1>
+              {mainBottleneck.expectedBenefits.map((benefit: string, idx: number) => (
+                <div key={idx} className="flex items-center justify-center gap-1.5 text-black">
+                  <Image src="/images/check-circle.svg" alt="check circle icon" width={24} height={24} />
+                  <h1 className="font-ray text-lg font-medium">{benefit}</h1>
                 </div>
               ))}
             </div>
@@ -452,77 +444,133 @@ const Page = ({ params }: Props) => {
                 در کل سیستم سلامت شما دارد.
               </p>
             </div>
-            <div className="mt-10 flex max-w-88.25 flex-col items-center justify-center space-y-3.5 rounded-[10px] bg-[#F2F2F2] px-7.5 py-5 text-black">
-              <Image
-                src="/images/goal.svg"
-                alt="goal icon"
-                width={30}
-                height={30}
-              />
-              <div className="flex flex-col items-center justify-center">
-                {/* Dynamic Starting Point Card */}
-                {startingPoint ? (
-                  <div className="mt-10 flex max-w-88.25 flex-col items-center justify-center space-y-3.5 rounded-[10px] bg-[#F2F2F2] px-7.5 py-5 text-center text-black">
-                    {/* Title */}
-                    <h1 className="font-aria text-2xl font-extrabold">
-                      {startingPoint.title}
-                    </h1>
+              {/* ================= MAIN BOTTLENECK SECTION ================= */}
+          {mainBottleneck && (
+            <div className="text-center">
+              <div className="mt-10 flex flex-col items-center">
+                <div className="flex items-center justify-center flex-col rounded-xl bg-[#F2F2F2] p-7">
+                  <Image src='/images/goal.svg' alt='goal icon'  width={30} height={30} />
 
-                    {/* Description */}
-                    <p className="font-ray mt-2 text-base font-medium text-[#555]">
-                      {startingPoint.description}
-                    </p>
+                  <h3 className="mt-3 font-aria text-2xl text-black font-extrabold">
+                    {mainBottleneck.title}
+                  </h3>
 
-                    {/* Expected benefits */}
-                    {startingPoint.expectedBenefits?.length > 0 && (
-                      <div className="mt-4 w-full text-right">
-                        <h3 className="font-aria mb-2 text-lg font-bold">
-                          نتایج احتمالی
-                        </h3>
+                  <p className="font-ray mt-4 max-w-xs text-center text-[#555]">
+                    {mainBottleneck.explanation}
+                  </p>
 
-                        <ul className="space-y-2">
-                          {startingPoint.expectedBenefits.map(
-                            (benefit: string, idx: number) => (
-                              <li
-                                key={idx}
-                                className="font-ray flex items-start gap-2 text-sm text-[#555]"
-                              >
-                                <span className="text-green-500">•</span>
-                                {benefit}
-                              </li>
-                            ),
-                          )}
-                        </ul>
-                      </div>
-                    )}
+                  {mainBottleneck.affectedAreas && mainBottleneck.affectedAreas.length > 0 && (
+                    <div className="mt-6">
+                      <h4 className="font-aria text-lg text-black font-bold">حوزه‌های تحت تأثیر:</h4>
+                      <ul className="mt-2 space-y-1 text-[#555]">
+                        {mainBottleneck.affectedAreas.map((area: string, idx: number) => (
+                          <li key={idx}>• {area}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
 
-                    {/* First action (MOST IMPORTANT CTA) */}
-                    <div className="mt-4 w-full rounded-md bg-white px-4 py-3 text-right">
-                      <h3 className="font-aria mb-1 text-lg font-bold">
-                        اولین اقدام
+                  {mainBottleneck?.leverageReason && (
+                    <div className="mt-10 max-w-3xl rounded-xl bg-[#F2F2F2]">
+                      <h3 className="font-aria text-xl font-bold text-black">
+                        چرا این نقطه مهم‌ترین اهرم تغییر است؟
                       </h3>
-                      <p className="font-ray text-sm text-[#333]">
-                        {startingPoint.firstAction}
+
+                      <p className="font-ray mt-3 text-[#555]">
+                        {mainBottleneck.leverageReason}
                       </p>
                     </div>
-                  </div>
-                ) : (
-                  <div className="mt-10 text-gray-500">
-                    در حال آماده‌سازی مسیر شروع...
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
+          )}
           </div>
+
+{domains && (
+  <div className="mt-24">
+    <div className="text-center">
+      <h2 className="font-aria text-4xl font-extrabold text-black">
+        نقشه سیستم سلامت شما
+      </h2>
+    </div>
+
+    <div className="mt-10 grid gap-5 lg:grid-cols-2">
+      {Object.entries(domains).map(([key, domain]: any) => (
+        <div
+          key={key}
+          className="rounded-xl text-black bg-[#F2F2F2] p-6"
+        >
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="font-aria text-2xl font-bold">
+              {getDomainName(key)}
+            </h3>
+
+            <span className="font-bold">
+              {domain.score}/100
+            </span>
+          </div>
+
+          <div className="space-y-4">
+            <p>
+              <strong>بینش:</strong> {domain.insight}
+            </p>
+
+            <p>
+              <strong>نقش در سیستم:</strong>{' '}
+              {domain.roleInSystem}
+            </p>
+
+            <p>
+              <strong>محرک‌ها:</strong>{' '}
+              {domain.whatDrivesIt}
+            </p>
+
+            <p>
+              <strong>اثرها:</strong>{' '}
+              {domain.whatItAffects}
+            </p>
+
+            <div className="rounded-md bg-white p-3">
+              🎯 {domain.microAction}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+          
           {/* Future Projection + CTA */}
           <div className="mt-24 flex flex-col items-center justify-center text-center lg:mt-36">
             <div>
               <h1 className="font-aria text-4xl font-extrabold text-black sm:text-5xl lg:text-6xl">
                 آینده شما در انتظار تصمیم امروز
               </h1>
-              <p className="font-ray mt-6 max-w-4xl text-base font-medium text-[#555] lg:text-lg">
-                ...
-              </p>
+              {futureProjection ? (
+                <div className="mt-10 max-w-4xl space-y-8">
+                  <div>
+                    <h3 className="font-aria text-2xl font-bold text-black">
+                      اگر تغییری ایجاد نشود
+                    </h3>
+                    <p className="font-ray mt-3 text-[#555]">
+                      {futureProjection.ifNoChange}
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-aria text-2xl font-bold text-black">
+                      اگر از همین نقطه شروع کنی
+                    </h3>
+                    <p className="font-ray mt-3 text-[#555]">
+                      {futureProjection.ifImproved}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <p className="font-ray mt-6 max-w-4xl text-base font-medium text-[#555] lg:text-lg">
+                  در حال تحلیل آینده...
+                </p>
+              )}
             </div>
             <Link
               href="/products"

@@ -55,6 +55,8 @@ HARD CONSTRAINTS
 6. No repetition of meaning across fields
 7. Never copy user answers directly
 8. Always infer missing context from system logic
+9. ALL string values MUST be in Persian (فارسی)
+10. NO English text anywhere in the output
 
 --------------------------------------------------
 
@@ -67,7 +69,7 @@ diagnosis → root cause analysis
 keyInsight → single highest leverage insight  
 whyThisMatters → consequence of ignoring insight  
 causalChain → system causality + feedback loop  
-mainBottleneck → biggest limiting factor  
+mainBottleneck → biggest limiting factor, expectedBenefits → outcomes if bottleneck resolved
 startingPoint → best starting intervention  
 priorityFactors → top 3 leverage drivers  
 futureProjection → outcome simulation  
@@ -88,6 +90,7 @@ Required structure constraints:
 - priorityFactors: exactly 3 items
 - goals: exactly 3 items
 - mainBottleneck.affectedAreas: exactly 4 items
+- mainBottleneck.expectedBenefits: exactly 4 items
 
 Never reduce or exceed these counts.
 
@@ -181,7 +184,8 @@ Return ONLY this JSON:
     "title": string,
     "explanation": string,
     "affectedAreas": [string, string, string, string],
-    "leverageReason": string
+    "leverageReason": string,
+    "expectedBenefits": [string, string, string, string]
   },
 
   "startingPoint": {
@@ -191,11 +195,9 @@ Return ONLY this JSON:
     "firstAction": string
   },
 
-  "futureProjection": {
+ "futureProjection": {
     "ifNoChange": string,
-    "ifImproved": string,
-    "expectedTimeframe": string,
-    "confidence": "low" | "medium" | "high"
+    "ifImproved": string
   },
 
   "healthArchetype": string,
@@ -623,20 +625,35 @@ export function getFallbackAnalysis(
     return 'weak'
   }
 
+  function getDomainName(domain: string): string {
+    const names: Record<string, string> = {
+      sleep: 'خواب',
+      nutrition: 'تغذیه',
+      activity: 'تحرک',
+      stress: 'استرس',
+      beauty: 'زیبایی',
+      medical: 'پزشکی',
+      energy: 'انرژی',
+      behavioral: 'رفتاری',
+    }
+    return names[domain] || domain
+  }
+
   const makeNode = (
     domain: keyof DomainScores,
     insight: string,
   ): DomainNode => {
     const score = scores[domain]
+    const domainName = getDomainName(domain)
 
     return {
       score,
       status: makeStatus(score),
       insight,
-      roleInSystem: `${domain} acts as a system regulator influencing downstream health stability`,
-      whatDrivesIt: `${domain} is driven by upstream behavioral and physiological inputs`,
-      whatItAffects: `${domain} influences energy regulation, stress response, and recovery balance`,
-      microAction: 'Take a 5–10 minute corrective action targeting this domain',
+      roleInSystem: `${domainName} به‌عنوان تنظیم‌کننده سیستم، پایداری سلامت را تحت تأثیر قرار می‌دهد`,
+      whatDrivesIt: `${domainName} تحت تأثیر ورودی‌های رفتاری و فیزیولوژیکی بالادستی قرار دارد`,
+      whatItAffects: `${domainName} بر تنظیم انرژی، پاسخ استرس، و تعادل ریکاوری اثر می‌گذارد`,
+      microAction: `یک اقدام ۵ تا ۱۰ دقیقه‌ای برای بهبود ${domainName} انجام دهید`,
     }
   }
 
@@ -645,14 +662,14 @@ export function getFallbackAnalysis(
     diagnosis: getDefaultDiagnosis(weakestDomain, answers),
 
     keyInsight:
-      'The system bottleneck is concentrated in the weakest domain affecting overall stability.',
+      'گلوگاه اصلی سیستم در ضعیف‌ترین حوزه متمرکز شده و پایداری کلی را تحت تأثیر قرار می‌دهد.',
     whyThisMatters:
-      'Small improvements in the weakest node create disproportionate improvements across the system.',
+      'بهبودهای کوچک در ضعیف‌ترین نقطه، بیشترین اثر زنجیره‌ای را در کل سیستم ایجاد می‌کند.',
 
     causalChain: [
-      `${weakestDomain} acts as system bottleneck reducing overall regulation efficiency`,
-      `this creates downstream instability in energy and stress response systems`,
-      `instability feeds back and further weakens ${weakestDomain} performance`,
+      `${getDomainName(weakestDomain)} به‌عنوان گلوگاه سیستم، کارایی تنظیم کلی را کاهش می‌دهد`,
+      `این موضوع بی‌ثباتی در سیستم انرژی و پاسخ به استرس ایجاد می‌کند`,
+      `این بی‌ثباتی دوباره به عملکرد ${getDomainName(weakestDomain)} آسیب می‌زند و چرخه معیوب ایجاد می‌شود`,
     ],
 
     mainBottleneck: {
@@ -667,6 +684,12 @@ export function getFallbackAnalysis(
       ],
       leverageReason:
         'بهبود این بخش بیشترین اثر زنجیره‌ای را روی سایر سیستم‌ها دارد.',
+      expectedBenefits: [
+        'انرژی پایدارتر در طول روز',
+        'تمرکز و عملکرد ذهنی بهتر',
+        'حفظ آسان‌تر عادت‌های سالم',
+        'کیفیت خواب عمیق‌تر',
+      ],
     },
 
     priorityFactors: [
@@ -711,14 +734,8 @@ export function getFallbackAnalysis(
     },
 
     futureProjection: {
-      ifNoChange: `Ongoing ${weakestDomain} dysfunction maintains feedback instability across energy and stress systems.`,
-
-      ifImproved: `Stabilizing ${weakestDomain} initiates cascade improvement across connected health subsystems.`,
-
-      expectedTimeframe:
-        scores[weakestDomain] < 40 ? '10–14 days' : '5–10 days',
-
-      confidence: scores[weakestDomain] < 40 ? 'high' : 'medium',
+      ifNoChange: `اگر این روند ادامه پیدا کند، ${weakestDomain} همچنان به‌عنوان گلوگاه اصلی عمل می‌کند و سیستم انرژی و استرس را ناپایدار نگه می‌دارد.`,
+      ifImproved: `با بهبود ${weakestDomain}، یک زنجیره مثبت در تمام سیستم‌های مرتبط ایجاد می‌شود و پایداری کلی بالا می‌رود.`,
     },
 
     healthArchetype: determineArchetype(scores, answers),
@@ -727,38 +744,14 @@ export function getFallbackAnalysis(
     goals: getDefaultGoals(scores, weakestDomain, answers),
 
     domains: {
-      sleep: makeNode(
-        'sleep',
-        'Sleep quality regulates systemic recovery and energy restoration.',
-      ),
-      energy: makeNode(
-        'energy',
-        'Energy is the central output metric of the health system.',
-      ),
-      stress: makeNode(
-        'stress',
-        'Stress modulates all downstream physiological responses.',
-      ),
-      nutrition: makeNode(
-        'nutrition',
-        'Nutrition acts as the primary input for energy availability.',
-      ),
-      activity: makeNode(
-        'activity',
-        'Activity regulates metabolic flow and stress buffering.',
-      ),
-      behavioral: makeNode(
-        'behavioral',
-        'Behavioral stability determines system consistency.',
-      ),
-      medical: makeNode(
-        'medical',
-        'Medical baseline defines system constraints and risk boundaries.',
-      ),
-      beauty: makeNode(
-        'beauty',
-        'Beauty reflects downstream systemic health signals.',
-      ),
+      sleep: makeNode('sleep', 'کیفیت خواب، بازیابی سیستم و بازسازی انرژی را تنظیم می‌کند.'),
+      energy: makeNode('energy', 'انرژی، شاخص خروجی مرکزی سیستم سلامت است.'),
+      stress: makeNode('stress', 'استرس، تمام پاسخ‌های فیزیولوژیکی پایین‌دستی را تعدیل می‌کند.'),
+      nutrition: makeNode('nutrition', 'تغذیه، ورودی اصلی برای تأمین انرژی پایدار است.'),
+      activity: makeNode('activity', 'فعالیت، جریان متابولیک و تعدیل استرس را تنظیم می‌کند.'),
+      behavioral: makeNode('behavioral', 'پایداری رفتاری، تداوم و ثبات سیستم را تعیین می‌کند.'),
+      medical: makeNode('medical', 'وضعیت پزشکی، محدودیت‌ها و مرزهای ریسک سیستم را مشخص می‌کند.'),
+      beauty: makeNode('beauty', 'زیبایی، بازتابی از سیگنال‌های سلامت سیستمی است.'),
     },
   }
 }

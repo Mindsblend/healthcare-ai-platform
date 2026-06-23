@@ -141,8 +141,9 @@ export interface AIAnalysisResult {
     domain: string
     title: string
     explanation: string
-    affectedAreas: string[]
+    affectedAreas: [string, string, string, string]
     leverageReason: string
+    expectedBenefits: [string, string, string, string]
   }
 
   startingPoint: {
@@ -152,11 +153,9 @@ export interface AIAnalysisResult {
     firstAction: string
   }
 
-  futureProjection: {
+ futureProjection: {
     ifNoChange: string
     ifImproved: string
-    expectedTimeframe: string
-    confidence: 'low' | 'medium' | 'high'
   }
 
   healthArchetype: string
