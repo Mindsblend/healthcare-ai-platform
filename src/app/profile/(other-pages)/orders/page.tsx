@@ -8,6 +8,7 @@ import { OrderStatus, OrderItem } from '@/features/shop/shop.types'
 import { getStatusLabel, toPersianDigit } from '@/lib/helpers'
 import LoadingBar from '@/components/layout/LoadingBar'
 
+// تایپ محلی برای Order - دقیقاً مطابق با ساختار Prisma
 interface LocalOrder {
   id: string
   totalPrice: number
@@ -20,6 +21,7 @@ const OrdersContent = () => {
   const { userOrder, loading, error } = useUserOrder()
   const [activeStatus, setActiveStatus] = useState<string>('all')
 
+  // تعریف گروه‌های وضعیت
   const statusGroups = [
     {
       id: 'all',
@@ -61,22 +63,28 @@ const OrdersContent = () => {
     },
   ]
 
+  // محاسبه تعداد سفارش‌ها در هر وضعیت
   const getStatusCount = (statuses: string[]) => {
     if (!userOrder?.orders) return 0
 
+    // تبدیل به تایپ مشخص
+    const orders = userOrder.orders as unknown as LocalOrder[]
+
     if (statuses.length === 1 && statuses[0] !== 'all') {
       return (
-        userOrder.orders.filter((order) => order.status === statuses[0])
+        orders.filter((order: LocalOrder) => order.status === statuses[0])
           .length || 0
       )
     }
 
-    return userOrder.orders.length
+    return orders.length
   }
 
+  // فیلتر سفارش‌ها بر اساس وضعیت فعال
   const filteredOrders: LocalOrder[] = useMemo(() => {
     if (!userOrder?.orders) return []
 
+    // تبدیل نوع برای سازگاری با تایپ‌های Prisma
     const orders = userOrder.orders as unknown as LocalOrder[]
 
     if (activeStatus === 'all') {
@@ -88,15 +96,17 @@ const OrdersContent = () => {
     )
     if (!selectedGroup) return orders
 
-    return orders.filter((order) =>
+    return orders.filter((order: LocalOrder) =>
       selectedGroup.statuses.includes(order.status)
     )
   }, [userOrder, activeStatus])
 
+  // فرمت قیمت به ریال
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('fa-IR').format(price) + ' تومان'
   }
 
+  // فرمت تاریخ شمسی
   const formatDate = (date: Date | string | undefined) => {
     if (!date) return '-'
     const dateObj = typeof date === 'string' ? new Date(date) : date
@@ -104,6 +114,7 @@ const OrdersContent = () => {
     return dateObj.toLocaleDateString('fa-IR')
   }
 
+  // تعیین رنگ بر اساس وضعیت سفارش
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'DELIVERED':
@@ -132,6 +143,7 @@ const OrdersContent = () => {
               سفارش ها
             </h2>
 
+            {/* فیلترهای وضعیت */}
             <div className="mb-3.75 w-full overflow-x-auto pb-3">
               <div className="flex w-max flex-nowrap items-center gap-5 px-1">
                 {statusGroups.map((group) => (
@@ -169,6 +181,7 @@ const OrdersContent = () => {
 
             <hr className="w-full" />
 
+            {/* لیست سفارش‌ها */}
             <div className="mt-7.5 w-full">
               {filteredOrders.length === 0 ? (
                 <div className="w-full py-10 text-center text-gray-500">
@@ -176,11 +189,12 @@ const OrdersContent = () => {
                 </div>
               ) : (
                 <div className="w-full space-y-5">
-                  {filteredOrders.map((order) => (
+                  {filteredOrders.map((order: LocalOrder) => (
                     <div
                       key={order.id}
                       className="w-full rounded-[10px] border border-[#D9D9D9] p-5"
                     >
+                      {/* نشان وضعیت */}
                       <div className="w-full">
                         <span
                           className={`font-aria inline-block rounded-full px-3 py-1 text-sm font-medium ${getStatusColor(
@@ -191,6 +205,7 @@ const OrdersContent = () => {
                         </span>
                       </div>
 
+                      {/* اطلاعات سفارش */}
                       <div className="font-ray mt-3 flex w-full flex-wrap gap-3">
                         <div className="flex items-center gap-2">
                           <span className="text-sm text-gray-500">تاریخ:</span>
@@ -220,9 +235,10 @@ const OrdersContent = () => {
                         </div>
                       </div>
 
+                      {/* لیست محصولات سفارش */}
                       <div className="mt-4 w-full border-t border-[#D9D9D9] pt-4">
                         {order.items && order.items.length > 0 ? (
-                          order.items.map((item) => (
+                          order.items.map((item: OrderItem) => (
                             <div
                               key={item.id}
                               className="flex w-full flex-col gap-4 border-b border-gray-200 py-4 last:border-b-0 last:pb-0 sm:flex-row sm:items-center"
