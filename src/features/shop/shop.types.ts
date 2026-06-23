@@ -1,37 +1,32 @@
-import { Prisma } from '@prisma/client'
 
 // ============================================
 // BLOG TYPES
 // ============================================
 
-export type BlogPreview = Prisma.BlogGetPayload<{
-  select: {
-    id: true
-    title: true
-    image: true
-    slug: true
-    author: true
-    authorTitle: true
-    authorImage: true
-    description: true
-    createdAt: true
-    updatedAt: true
-  }
-}>
+export type BlogPreview = {
+  id: number
+  title: string
+  image: string
+  slug: string
+  author: string
+  authorTitle: string
+  authorImage: string
+  description: string
+  createdAt: Date
+  updatedAt: Date
+}
 
-// @todo - Add blog content when schema is updated
-export type BlogDetail = Prisma.BlogGetPayload<{
-  select: {
-    id: true
-    title: true
-    image: true
-    author: true
-    authorImage: true
-    description: true
-    createdAt: true
-    updatedAt: true
-  }
-}>
+// جدید:
+export type BlogDetail = {
+  id: number
+  title: string
+  image: string
+  author: string
+  authorImage: string
+  description: string
+  createdAt: Date
+  updatedAt: Date
+}
 
 export type GetBlogsPreviewResponse = BlogSummary[]
 
@@ -79,20 +74,19 @@ export interface GetBlogBySlugResponse {
   updatedAt: Date
 }
 
-export type BlogSummary = Prisma.BlogGetPayload<{
-  select: {
-    id: true
-    title: true
-    slug: true
-    image: true
-    author: true
-    authorImage: true
-    authorTitle: true
-    description: true
-    createdAt: true
-    updatedAt: true
-  }
-}>
+// جدید:
+export type BlogSummary = {
+  id: number
+  title: string
+  slug: string
+  image: string
+  author: string
+  authorImage: string
+  authorTitle: string
+  description: string
+  createdAt: Date
+  updatedAt: Date
+}
 
 // ============================================
 // CART TYPES
@@ -190,43 +184,63 @@ export type CreateOrderInput = {
   paymentMethod: 'mellat' | 'zarinpal'
 }
 
-export type OrderDetail = Prisma.OrderGetPayload<{
-  include: {
-    items: {
-      include: {
-        product: {
-          select: {
-            id: true
-            title: true
-            price: true
-            image: true
-            slug: true
-          }
-        }
-      }
-    }
-  }
-}>
-
-export type OrderItem = Prisma.OrderItemGetPayload<{
-  select: {
-    id: true
-    orderId: true
-    productId: true
-    quantity: true
-    price: true
-    createdAt: true
+// جدید:
+export type OrderDetail = {
+  id: string
+  totalPrice: number
+  status: string
+  paymentMethod: string
+  userId: string
+  cartId: string
+  shippingFirstName: string
+  shippingLastName: string
+  shippingEmail: string
+  shippingPhone: string
+  shippingCity: string
+  shippingProvince: string
+  shippingAddress: string
+  shippingPostalCode: string
+  shippingNotes: string | null
+  paymentAuthority: string | null
+  paymentRefId: string | null
+  paymentRequestedAt: Date | null
+  paymentVerifiedAt: Date | null
+  paymentErrorMessage: string | null
+  createdAt: Date
+  updatedAt: Date
+  items: {
+    id: number
+    orderId: string
+    productId: number
+    quantity: number
+    price: number
+    createdAt: Date
     product: {
-      select: {
-        id: true
-        title: true
-        price: true
-        image: true
-        slug: true
-      }
+      id: number
+      title: string
+      price: number
+      image: string
+      slug: string
     }
+  }[]
+}
+
+// جدید:
+export type OrderItem = {
+  id: number
+  orderId: string
+  productId: number
+  quantity: number
+  price: number
+  createdAt: Date
+  product: {
+    id: number
+    title: string
+    price: number
+    image: string
+    slug: string
   }
-}>
+}
 
 export type OrderStatus =
   | 'PENDING'
@@ -238,17 +252,16 @@ export type OrderStatus =
   | 'DELIVERING'
   | 'DELIVERED'
 
-export type OrderSummary = Prisma.OrderGetPayload<{
-  select: {
-    id: true
-    totalPrice: true
-    shippingFirstName: true
-    shippingLastName: true
-    shippingPhone: true
-    createdAt: true
-    status: true
-  }
-}>
+// جدید:
+export type OrderSummary = {
+  id: string
+  totalPrice: number
+  shippingFirstName: string
+  shippingLastName: string
+  shippingPhone: string
+  createdAt: Date
+  status: string
+}
 
 export type GetOrdersPreviewResponse = OrderSummary[]
 
@@ -325,35 +338,45 @@ export interface UpdateFaqInput {
 // PRODUCT TYPES
 // ============================================
 
-export type ProductSummary = Prisma.ProductGetPayload<{
-  select: {
-    id: true
-    title: true
-    price: true
-    solution: true
-    slug: true
-    image: true
-    categoryId: true
-    category: {
-      select: {
-        name: true
-        iconPath: true
-      }
-    }
+// جدید:
+export type ProductSummary = {
+  id: number
+  title: string
+  price: number
+  solution: string
+  slug: string
+  image: string
+  categoryId: number
+  category: {
+    name: string
+    iconPath: string
   }
-}>
+}
 
-export type ProductDetail = Prisma.ProductGetPayload<{
-  where: { slug: true; isActive: true }
-  include: {
-    icons: true
-    gains: true
-    faqs: true
-    aiResponses: true
-    category: true
-    feedCategoryId: true
+// جدید:
+export type ProductDetail = {
+  id: number
+  title: string
+  price: number
+  solution: string
+  slug: string
+  image: string
+  description: string
+  categoryId: number
+  feedCategoryId: number
+  isActive: boolean
+  category: {
+    id: number
+    name: string
+    iconPath: string
   }
-}>
+  icons: IconType[]
+  gains: GainType[]
+  faqs: FaqType[]
+  aiResponses: any[] 
+  createdAt: Date
+  updatedAt: Date
+}
 
 export type GetProductsPreviewResponse = ProductSummary[]
 
@@ -511,57 +534,72 @@ export type Address = {
   isDefault: boolean
 }
 
-export type UserAddress = Prisma.UserGetPayload<{
-  include: {
-    addresses: true
-  }
-}> & {
+// جدید:
+export type UserAddress = {
+  id: string
+  email: string | null
+  phone: string | null
+  firstName: string | null
+  lastName: string | null
+  role: string
   addresses: Address[]
+  createdAt: Date
+  updatedAt: Date
 }
 
 export type GetUserAddressResponse = UserAddress | null
 
-export type UserInfo = Prisma.UserGetPayload<{
-  select: {
-    id: true
-    firstName: true
-    lastName: true
-    email: true
-    phone: true
-  }
-}>
+// جدید:
+export type UserInfo = {
+  id: string
+  firstName: string | null
+  lastName: string | null
+  email: string | null
+  phone: string | null
+}
 
-export type UserOrder = Prisma.UserGetPayload<{
-  include: {
-    orders: {
-      include: {
-        items: {
-          include: {
-            product: {
-              select: {
-                id: true
-                title: true
-                price: true
-                image: true
-                slug: true
-              }
-            }
-          }
-        }
+// جدید:
+export type UserOrder = {
+  id: string
+  email: string | null
+  phone: string | null
+  firstName: string | null
+  lastName: string | null
+  role: string
+  createdAt: Date
+  updatedAt: Date
+  orders: {
+    id: string
+    totalPrice: number
+    status: string
+    createdAt: Date
+    updatedAt: Date
+    items: {
+      id: number
+      orderId: string
+      productId: number
+      quantity: number
+      price: number
+      createdAt: Date
+      product: {
+        id: number
+        title: string
+        price: number
+        image: string
+        slug: string
       }
-    }
-  }
-}>
+    }[]
+  }[]
+}
 
 export type GetUserOrderResponse = UserOrder | null
 
-export type UserSummary = Prisma.UserGetPayload<{
-  select: {
-    id: true
-    email: true
-    phone: true
-  }
-}>
+// جدید:
+export type UserSummary = {
+  id: string
+  email: string | null
+  phone: string | null
+}
 
 export type GetUserInfoResponse = UserInfo | null
 
@@ -615,26 +653,20 @@ export interface UpdateUserAddressResponse {
 // CATEGORY TYPES
 // ============================================
 
-export type CategorySummary = Prisma.CategoryGetPayload<{
-  select: {
-    id: true
-    name: true
-    iconPath: true
-  }
-}>
+// جدید:
+export type CategorySummary = {
+  id: number
+  name: string
+  iconPath: string
+}
 
-export type CategoryWithProducts = Prisma.CategoryGetPayload<{
-  include: {
-    products: {
-      include: {
-        category: true
-        icons: true
-        gains: true
-        faqs: true
-      }
-    }
-  }
-}>
+// جدید:
+export type CategoryWithProducts = {
+  id: number
+  name: string
+  iconPath: string
+  products: ProductDetail[]
+}
 
 export type GetCategoriesResponse = CategorySummary[]
 
