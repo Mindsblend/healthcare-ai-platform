@@ -1,8 +1,8 @@
 // features/auth/services/sessionService.ts
 
-import { sign, verify, JwtPayload } from 'jsonwebtoken'
+import { sign, verify } from 'jsonwebtoken'
 import { cookies } from 'next/headers'
-import { User } from '@prisma/client'
+import type { User } from '@prisma/client'
 import { createDomainError, ErrorCode } from '@/lib/errors'
 import { NextRequest } from 'next/server'
 import {
