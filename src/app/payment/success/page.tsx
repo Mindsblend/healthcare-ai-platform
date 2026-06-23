@@ -1,10 +1,13 @@
+// src/app/payment/success/page.tsx
+
 'use client'
 
+import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useEffect } from 'react'
 
-export default function PaymentSuccessPage() {
+function SuccessContent() {
   const searchParams = useSearchParams()
   const refId = searchParams.get('refId')
 
@@ -43,5 +46,13 @@ export default function PaymentSuccessPage() {
         </Link>
       </div>
     </div>
+  )
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">در حال بارگذاری...</div>}>
+      <SuccessContent />
+    </Suspense>
   )
 }

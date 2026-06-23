@@ -1,6 +1,8 @@
+// src/app/products/page.tsx
+
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { Suspense, useState, useMemo, useEffect } from 'react'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 import { useProductsPreview } from '@/features/shop/hooks/products/useProductsPreview'
@@ -10,7 +12,7 @@ import PriceRangeSlider from '@/components/domain/shop/product/PriceRangeSlider'
 import LoadingBar from '@/components/layout/LoadingBar'
 import Pagination from '@/components/domain/dashboard/tables/Pagination'
 
-const Page = () => {
+function ProductsContent() {
   const { productsPreview, loading, error } = useProductsPreview()
   const { categories } = useCategories()
   const searchParams = useSearchParams()
@@ -78,7 +80,6 @@ const Page = () => {
   const itemsPerPage = 7
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage)
 
-  // Safe page calculation
   const safePage = totalPages === 0 ? 1 : Math.min(page, totalPages)
 
   const startIndex = (safePage - 1) * itemsPerPage
@@ -179,13 +180,11 @@ const Page = () => {
   return (
     <LoadingBar loading={loading} error={error}>
       <section className="container-wide py-20">
-        {/* ===== Header ===== */}
         <div className="mb-10 flex flex-col items-center text-center">
           <h1 className="font-aria text-color-title-on-light max-w-133 text-[36px] leading-tight font-extrabold sm:text-[54px]">
             کالای دلخواهت را همین حالا پیدا کن
           </h1>
 
-          {/* Search */}
           <div className="relative mx-auto mt-8 w-full max-w-117.25 px-4 sm:px-0">
             <div
               onClick={() => setAppliedSearchQuery(searchQuery)}
@@ -216,13 +215,10 @@ const Page = () => {
           </div>
         </div>
 
-        {/* ===== Main Layout ===== */}
         <div className="flex flex-col gap-8 lg:flex-row lg:gap-10">
-          {/* ===== Sidebar ===== */}
           <aside
             className={`w-full shrink-0 transition-all duration-300 ease-in-out lg:w-72 ${isFilterOpenMobile ? 'opacity-100' : 'opacity-0'} block max-h-full lg:opacity-100`}
           >
-            {/* Title */}
             <div className="mb-6 flex items-center">
               <Image
                 src="/images/filter.svg"
@@ -235,7 +231,6 @@ const Page = () => {
               </h3>
             </div>
 
-            {/* Categories */}
             <div className="space-y-4">
               <div
                 onClick={() => setIsCategoryOpen(!isCategoryOpen)}
@@ -286,7 +281,6 @@ const Page = () => {
               )}
             </div>
 
-            {/* Price Filter */}
             <div className="mt-6">
               <div
                 onClick={() => setIsPriceOpen(!isPriceOpen)}
@@ -354,7 +348,6 @@ const Page = () => {
             </div>
           </aside>
 
-          {/* ===== Products Grid ===== */}
           {currentData.length === 0 ? (
             <EmptyState />
           ) : (
@@ -375,4 +368,10 @@ const Page = () => {
   )
 }
 
-export default Page
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">در حال بارگذاری...</div>}>
+      <ProductsContent />
+    </Suspense>
+  )
+}

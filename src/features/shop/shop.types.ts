@@ -352,7 +352,6 @@ export type ProductSummary = {
   }
 }
 
-// جدید:
 export type ProductDetail = {
   id: number
   title: string
@@ -362,7 +361,7 @@ export type ProductDetail = {
   image: string
   description: string
   categoryId: number
-  feedCategoryId: number
+  feedCategoryId: number | null 
   isActive: boolean
   category: {
     id: number
@@ -372,11 +371,10 @@ export type ProductDetail = {
   icons: IconType[]
   gains: GainType[]
   faqs: FaqType[]
-  aiResponses: any[] 
+  aiResponses?: any[]
   createdAt: Date
   updatedAt: Date
 }
-
 export type GetProductsPreviewResponse = ProductSummary[]
 
 // ============================================

@@ -1,9 +1,12 @@
+// src/app/payment/failure/page.tsx
+
 'use client'
 
+import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function PaymentFailedPage() {
+function FailureContent() {
   const searchParams = useSearchParams()
   const message = searchParams.get('message')
 
@@ -37,5 +40,13 @@ export default function PaymentFailedPage() {
         </Link>
       </div>
     </div>
+  )
+}
+
+export default function PaymentFailedPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">در حال بارگذاری...</div>}>
+      <FailureContent />
+    </Suspense>
   )
 }
