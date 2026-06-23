@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { AIHealthService } from '@/features/shop/services/AIService'
 import { requireAuthority } from '@/features/auth/services/sessionService'
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     // Authenticate user
     const session = await requireAuthority({ requiredRole: 'USER' })
@@ -37,9 +37,9 @@ export async function GET(req: NextRequest) {
           medical: assessment.medicalScore,
         },
         analysis: {
-          summary: assessment.aiSummary,
-          diagnosis: assessment.aiDiagnosis,
-          goals: assessment.aiGoals,
+          summary: assessment.summary,
+          diagnosis: assessment.diagnosis,
+          goals: assessment.goals,
           healthArchetype: assessment.healthArchetype,
           readinessStage: assessment.readinessStage,
         },

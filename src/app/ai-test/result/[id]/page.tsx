@@ -423,7 +423,7 @@ console.log('Full data:', JSON.stringify(data, null, 2))
               اگر این گلوگاه بهبود پیدا کند
             </h1>
             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-              {mainBottleneck.expectedBenefits.map((benefit: string, idx: number) => (
+              {mainBottleneck?.expectedBenefits?.map((benefit: string, idx: number) => (
                 <div key={idx} className="flex items-center justify-center gap-1.5 text-black">
                   <Image src="/images/check-circle.svg" alt="check circle icon" width={24} height={24} />
                   <h1 className="font-ray text-lg font-medium">{benefit}</h1>
