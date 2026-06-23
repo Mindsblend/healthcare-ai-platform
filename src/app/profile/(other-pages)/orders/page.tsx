@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { useUserOrder } from '@/features/shop/hooks/profile/useUserOrder'
-import { OrderStatus } from '@/features/shop/shop.types'
+import { OrderStatus, UserOrder } from '@/features/shop/shop.types'
 import { getStatusLabel, toPersianDigit } from '@/lib/helpers'
 import LoadingBar from '@/components/layout/LoadingBar'
 
@@ -54,12 +54,15 @@ const OrdersContent = () => {
 
   // Get number of orders in each status
   const getStatusCount = (statuses: string[]) => {
+    if (!userOrder?.orders) return 0
+    
     if (statuses[0] === 'all') {
-      return userOrder?.orders.length || 0
+      return userOrder.orders.length
     }
+    
     return (
-      userOrder?.orders.filter((order) =>
-        statuses.includes(order.status as OrderStatus),
+      userOrder.orders.filter((order: { status: string }) =>
+        statuses.includes(order.status),
       ).length || 0
     )
   }
@@ -71,13 +74,14 @@ const OrdersContent = () => {
     if (activeStatus === 'all') {
       return userOrder.orders
     }
+    
     const selectedGroup = statusGroups.find(
       (group) => group.id === activeStatus,
     )
     if (!selectedGroup) return userOrder.orders
 
-    return userOrder.orders.filter((order) =>
-      selectedGroup.statuses.includes(order.status as OrderStatus),
+    return userOrder.orders.filter((order: { status: string }) =>
+      selectedGroup.statuses.includes(order.status),
     )
   }, [userOrder, activeStatus])
 
