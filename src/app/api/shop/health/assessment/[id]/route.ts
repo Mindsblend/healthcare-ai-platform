@@ -1,36 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
-
 import { requireAuthority } from '@/features/auth/services/sessionService'
 import { AIHealthService } from '@/features/shop/services/AIService'
 
-type Props = {
-  params: Promise<{
-    id: string
-  }>
-  req: NextRequest
-}
-
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await requireAuthority({
       requiredRole: 'USER',
     })
 
-    const { id } = params
+    const { id } = await params
 
-    const assessment = await AIHealthService.getAssessmentById(id, session.id)
+    const assessment = await AIHealthService.getAssessmentById(
+      id,
+      session.id,
+    )
 
     if (!assessment) {
       return NextResponse.json(
-        {
-          error: 'Assessment not found',
-        },
-        {
-          status: 404,
-        },
+        { error: 'Assessment not found' },
+        { status: 404 },
       )
     }
 
@@ -39,12 +30,8 @@ export async function GET(
     console.error(error)
 
     return NextResponse.json(
-      {
-        error: 'Internal server error',
-      },
-      {
-        status: 500,
-      },
+      { error: 'Internal server error' },
+      { status: 500 },
     )
   }
 }
