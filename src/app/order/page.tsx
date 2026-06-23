@@ -28,6 +28,7 @@ import { useCreateUserAddress } from '@/features/shop/hooks/profile/createUserAd
 import LoadingBar from '@/components/layout/LoadingBar'
 import { useUpdateUserProfile } from '@/features/shop/hooks/profile/updateUserProfile'
 import InformPopup from '@/components/layout/InformPopup'
+import { Address } from '@/features/shop/shop.types'
 
 const CheckoutPage = () => {
   const { cartItems, loading: cartLoading, error } = useCart()
@@ -84,8 +85,8 @@ const CheckoutPage = () => {
       !isAddingNewAddress
     ) {
       // Find default address
-      const defaultAddress = userAddress.addresses.find(
-        (addr) => addr.isDefault,
+        const defaultAddress = userAddress.addresses.find(
+        (addr: Address) => addr.isDefault,
       )
       // If no default address exists, use the first one
       const addressToSelect = defaultAddress || userAddress.addresses[0]

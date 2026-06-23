@@ -498,11 +498,26 @@ export interface UpdateUserProfileResponse {
   success: boolean
 }
 
+export type Address = {
+  id: string
+  firstName: string
+  lastName: string
+  city: string
+  province: string
+  phone: string
+  postalCode: string
+  address: string
+  email?: string | null
+  isDefault: boolean
+}
+
 export type UserAddress = Prisma.UserGetPayload<{
   include: {
     addresses: true
   }
-}>
+}> & {
+  addresses: Address[]
+}
 
 export type GetUserAddressResponse = UserAddress | null
 
