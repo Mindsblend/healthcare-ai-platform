@@ -4,14 +4,14 @@ import { AIHealthService } from '@/features/shop/services/AIService'
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await requireAuthority({
       requiredRole: 'USER',
     })
 
-    const { id } = await params
+    const { id } = params
 
     const assessment = await AIHealthService.getAssessmentById(
       id,
