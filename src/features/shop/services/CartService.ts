@@ -1,7 +1,6 @@
 // features/shop/cart/services/cartService.ts
 
 import { prisma } from '@/lib/prisma'
-import { CartStatus } from '@prisma/client'
 import {
   AddItemInput,
   UpdateItemQuantityInput,
@@ -9,6 +8,13 @@ import {
   ClearCartInput,
   CartType,
 } from '../shop.types'
+ 
+const CartStatus = {
+  ACTIVE: 'ACTIVE',
+  CHECKED_OUT: 'CHECKED_OUT',
+  ABANDONED: 'ABANDONED',
+  CONVERTED: 'CONVERTED',
+} as const
 
 export class CartService {
   // fetch Active Cart
