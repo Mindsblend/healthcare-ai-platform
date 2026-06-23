@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 import { requireAuthority } from '@/features/auth/services/sessionService'
 import { AIHealthService } from '@/features/shop/services/AIService'
@@ -7,15 +7,19 @@ type Props = {
   params: Promise<{
     id: string
   }>
+  req: NextRequest
 }
 
-export async function GET({ params }: Props) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const session = await requireAuthority({
       requiredRole: 'USER',
     })
 
-    const { id } = await params
+    const { id } = params
 
     const assessment = await AIHealthService.getAssessmentById(id, session.id)
 
