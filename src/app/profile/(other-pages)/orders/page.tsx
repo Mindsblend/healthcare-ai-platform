@@ -1,16 +1,25 @@
+// components/shop/profile/orders/OrdersContent.tsx
+
 'use client'
 
 import { useMemo, useState } from 'react'
 import { useUserOrder } from '@/features/shop/hooks/profile/useUserOrder'
-import { OrderStatus, UserOrder } from '@/features/shop/shop.types'
+import { OrderStatus, OrderItem } from '@/features/shop/shop.types'
 import { getStatusLabel, toPersianDigit } from '@/lib/helpers'
 import LoadingBar from '@/components/layout/LoadingBar'
+
+interface LocalOrder {
+  id: string
+  totalPrice: number
+  status: string
+  createdAt: Date | string
+  items: OrderItem[]
+}
 
 const OrdersContent = () => {
   const { userOrder, loading, error } = useUserOrder()
   const [activeStatus, setActiveStatus] = useState<string>('all')
 
-  // Define status groups
   const statusGroups = [
     {
       id: 'all',
@@ -52,50 +61,66 @@ const OrdersContent = () => {
     },
   ]
 
-  // Get number of orders in each status
   const getStatusCount = (statuses: string[]) => {
     if (!userOrder?.orders) return 0
-    
-    if (statuses[0] === 'all') {
-      return userOrder.orders.length
+
+    if (statuses.length === 1 && statuses[0] !== 'all') {
+      return (
+        userOrder.orders.filter((order) => order.status === statuses[0])
+          .length || 0
+      )
     }
-    
-    return (
-      userOrder.orders.filter((order: { status: string }) =>
-        statuses.includes(order.status),
-      ).length || 0
-    )
+
+    return userOrder.orders.length
   }
 
-  // Get filtered orders based on active status
-  const filteredOrders = useMemo(() => {
+  const filteredOrders: LocalOrder[] = useMemo(() => {
     if (!userOrder?.orders) return []
 
-    if (activeStatus === 'all') {
-      return userOrder.orders
-    }
-    
-    const selectedGroup = statusGroups.find(
-      (group) => group.id === activeStatus,
-    )
-    if (!selectedGroup) return userOrder.orders
+    const orders = userOrder.orders as unknown as LocalOrder[]
 
-    return userOrder.orders.filter((order: { status: string }) =>
-      selectedGroup.statuses.includes(order.status),
+    if (activeStatus === 'all') {
+      return orders
+    }
+
+    const selectedGroup = statusGroups.find(
+      (group) => group.id === activeStatus
+    )
+    if (!selectedGroup) return orders
+
+    return orders.filter((order) =>
+      selectedGroup.statuses.includes(order.status)
     )
   }, [userOrder, activeStatus])
 
-  // Format price
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('fa-IR').format(price) + ' تومان'
   }
 
-  // Format date
   const formatDate = (date: Date | string | undefined) => {
     if (!date) return '-'
     const dateObj = typeof date === 'string' ? new Date(date) : date
     if (isNaN(dateObj.getTime())) return 'تاریخ نامعتبر'
     return dateObj.toLocaleDateString('fa-IR')
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'DELIVERED':
+        return 'bg-green-100 text-green-600'
+      case 'CANCELED':
+        return 'bg-red-100 text-red-600'
+      case 'PENDING':
+        return 'bg-yellow-100 text-yellow-600'
+      case 'REFUNDED':
+        return 'bg-purple-100 text-purple-600'
+      case 'PREPARING':
+        return 'bg-blue-100 text-blue-600'
+      case 'DELIVERING':
+        return 'bg-indigo-100 text-indigo-600'
+      default:
+        return 'bg-gray-100 text-gray-600'
+    }
   }
 
   return (
@@ -107,7 +132,6 @@ const OrdersContent = () => {
               سفارش ها
             </h2>
 
-            {/* Status Filters */}
             <div className="mb-3.75 w-full overflow-x-auto pb-3">
               <div className="flex w-max flex-nowrap items-center gap-5 px-1">
                 {statusGroups.map((group) => (
@@ -157,18 +181,11 @@ const OrdersContent = () => {
                       key={order.id}
                       className="w-full rounded-[10px] border border-[#D9D9D9] p-5"
                     >
-                      {/* Status Badge */}
                       <div className="w-full">
                         <span
-                          className={`font-aria inline-block rounded-full px-3 py-1 text-sm font-medium ${
-                            order.status === 'DELIVERED'
-                              ? 'bg-green-100 text-green-600'
-                              : order.status === 'CANCELED'
-                                ? 'bg-red-100 text-red-600'
-                                : order.status === 'PENDING'
-                                  ? 'bg-yellow-100 text-yellow-600'
-                                  : 'bg-blue-100 text-blue-600'
-                          }`}
+                          className={`font-aria inline-block rounded-full px-3 py-1 text-sm font-medium ${getStatusColor(
+                            order.status
+                          )}`}
                         >
                           {getStatusLabel(order.status as OrderStatus)}
                         </span>
@@ -203,7 +220,6 @@ const OrdersContent = () => {
                         </div>
                       </div>
 
-                      {/* Products List */}
                       <div className="mt-4 w-full border-t border-[#D9D9D9] pt-4">
                         {order.items && order.items.length > 0 ? (
                           order.items.map((item) => (
