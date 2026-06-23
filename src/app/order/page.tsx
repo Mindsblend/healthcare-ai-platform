@@ -357,7 +357,7 @@ const CheckoutPage = () => {
                 </div>
 
                 <div className="space-y-4">
-                  {userAddress.addresses.map((address, index) => (
+                  {userAddress.addresses.map((address: Address, index) => (
                     <div
                       key={address.id || index}
                       className={`cursor-pointer rounded-lg border transition hover:bg-gray-50 ${
