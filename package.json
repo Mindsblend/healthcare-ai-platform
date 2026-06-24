@@ -9,8 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "postinstall": "prisma generate"
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@floating-ui/react": "^0.27.18",
