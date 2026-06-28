@@ -1,39 +1,61 @@
-import { useState } from 'react'
-import { requestPaymentAction } from '../../actions/payment/requestPaymentAction'
-import { PaymentRequestInput } from '../../shop.types'
+// features/shop/hooks/payment/usePayment.ts
+import { useState } from 'react';
+import { requestPaymentAction } from '../../actions/payment/requestPaymentAction';
+import { PaymentRequestInput } from '../../shop.types';
 
 export function usePayment() {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const initiatePayment = async (input: PaymentRequestInput) => {
-    console.log('🔵 initiatePayment called with:', input)
-    setLoading(true)
-    setError(null)
+    console.log('🔵 [usePayment] Initiate payment with:', JSON.stringify(input, null, 2));
+
+    setLoading(true);
+    setError(null);
 
     try {
-      console.log('🔵 Calling requestPaymentAction...')
-      const result = await requestPaymentAction(input)
+      console.log('🔵 [usePayment] Calling requestPaymentAction...');
+      const result = await requestPaymentAction(input);
+      console.log('🔵 [usePayment] Result:', JSON.stringify(result, null, 2));
 
-      console.log('🔵 requestPaymentAction result:', result)
-
-      if (result.success && result.paymentUrl) {
-        console.log('🔵 Redirecting to:', result.paymentUrl)
-        window.location.href = result.paymentUrl
-      } else {
-        console.log('🔵 Payment initiation failed:', result.error)
-        setError(result.error || 'Failed to initiate payment')
+      if (!result.success) {
+        const errorMsg = result.error || 'Failed to initiate payment';
+        console.error('🔵 [usePayment] Payment initiation failed:', errorMsg);
+        setError(errorMsg);
+        setLoading(false);
+        return { success: false, error: errorMsg };
       }
 
-      return result
-    } catch (err: any) {
-      console.error('🔵 Payment error:', err)
-      setError(err.message)
-      return { success: false, error: err.message }
-    } finally {
-      setLoading(false)
-    }
-  }
+      if (!result.authority) {
+        const errorMsg = 'No payment authority received';
+        console.error('🔵 [usePayment]', errorMsg);
+        setError(errorMsg);
+        setLoading(false);
+        return { success: false, error: errorMsg };
+      }
 
-  return { initiatePayment, loading, error }
+      console.log('🔵 [usePayment] Authority received:', result.authority);
+
+      if (!result.paymentUrl) {
+        const errorMsg = 'No payment URL received';
+        console.error('🔵 [usePayment]', errorMsg);
+        setError(errorMsg);
+        setLoading(false);
+        return { success: false, error: errorMsg };
+      }
+
+      console.log('🔵 [usePayment] ✅ Redirecting to payment gateway:', result.paymentUrl);
+      window.location.replace(result.paymentUrl);
+      
+      return result;
+    } catch (err: any) {
+      console.error('🔵 [usePayment] Unexpected error:', err);
+      const errorMsg = err.message || 'An unexpected error occurred';
+      setError(errorMsg);
+      setLoading(false);
+      return { success: false, error: errorMsg };
+    }
+  };
+
+  return { initiatePayment, loading, error };
 }

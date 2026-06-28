@@ -1,14 +1,13 @@
-// src/app/payment/failure/page.tsx
+// app/payment/failed/page.tsx
+'use client';
 
-'use client'
-
-import { Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
-import Link from 'next/link'
+import { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 
 function FailureContent() {
-  const searchParams = useSearchParams()
-  const message = searchParams.get('message')
+  const searchParams = useSearchParams();
+  const message = searchParams.get('message');
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
@@ -40,7 +39,7 @@ function FailureContent() {
         </Link>
       </div>
     </div>
-  )
+  );
 }
 
 export default function PaymentFailedPage() {

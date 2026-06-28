@@ -26,30 +26,30 @@ export class OrderService {
   }
 
   static async fetchOrderById(
-  input: FetchOrderByIdInput,
-): Promise<OrderDetail | null> {
-  const { id } = input
-  const order = await prisma.order.findUnique({
-    where: { id },
-    include: {
-      items: {
-        include: {
-          product: {
-            select: {
-              id: true,
-              title: true,
-              price: true,
-              image: true,
-              slug: true,
+    input: FetchOrderByIdInput,
+  ): Promise<OrderDetail | null> {
+    const { id } = input
+    const order = await prisma.order.findUnique({
+      where: { id },
+      include: {
+        items: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                title: true,
+                price: true,
+                image: true,
+                slug: true,
+              },
             },
           },
         },
       },
-    },
-  })
-  
-  return order as unknown as OrderDetail | null  // این خط رو اضافه کن
-}
+    })
+    
+    return order as unknown as OrderDetail | null
+  }
 
   static async createOrder(input: CreateOrderInput) {
     const { userId, shippingInfo, paymentMethod } = input
@@ -111,12 +111,25 @@ export class OrderService {
     const subtotal = cart.items.reduce(
       (sum: number, item: any) => sum + item.price * item.quantity,
       0,
-    )
-    const TAX_RATE = 0.09
-    const taxAmount = Math.round(subtotal * TAX_RATE)
-    const totalPrice = subtotal + taxAmount
+    );
+    const TAX_RATE = 0.09;
+    const taxAmount = Math.round(subtotal * TAX_RATE);
+    
+    // ✅ محاسبه هزینه ارسال
+    const FREE_SHIPPING_THRESHOLD = 2_000_000;
+    const isFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
+    const deliveryAmount = isFreeShipping ? 0 : 300_000;
+    
+    // ✅ مبلغ نهایی با هزینه ارسال
+    const totalPrice = subtotal + taxAmount + deliveryAmount;
+    
+    console.log('📝 [OrderService] Calculated total:', {
+      subtotal,
+      taxAmount,
+      deliveryAmount,
+      totalPrice,
+    });
 
-    // تعریف status با تایپ OrderStatus
     const pendingStatus: OrderStatus = 'PENDING'
 
     const order = await prisma.$transaction(async (tx: any) => {
@@ -158,19 +171,139 @@ export class OrderService {
   }) {
     const { orderId, authority } = input
 
-    return prisma.order.update({
-      where: { id: orderId },
-      data: {
-        paymentAuthority: authority,
-        paymentRequestedAt: new Date(),
-      },
+    console.log('📝 [OrderService] updateOrderPaymentAuthority called:', {
+      orderId,
+      authority,
+      authorityType: typeof authority,
+      authorityLength: authority?.length,
     })
+
+    try {
+      const existingOrder = await prisma.order.findUnique({
+        where: { id: orderId },
+      })
+
+      if (!existingOrder) {
+        console.error('❌ [OrderService] Order not found:', orderId)
+        throw new Error(`Order with ID ${orderId} not found`)
+      }
+
+      console.log('📝 [OrderService] Current order status:', existingOrder.status)
+
+      const updatedOrder = await prisma.order.update({
+        where: { id: orderId },
+        data: {
+          paymentAuthority: authority,
+          paymentRequestedAt: new Date(),
+        },
+      })
+
+      console.log('✅ [OrderService] Authority updated successfully:', {
+        orderId: updatedOrder.id,
+        authority: updatedOrder.paymentAuthority,
+        status: updatedOrder.status,
+      })
+
+      return updatedOrder
+    } catch (error: any) {
+      console.error('❌ [OrderService] Failed to update authority:', error.message)
+      throw error
+    }
   }
 
   static async findOrderByAuthority(authority: string) {
-    return prisma.order.findFirst({
-      where: { paymentAuthority: authority },
+    console.log('🔍 [OrderService] findOrderByAuthority called:', {
+      authority,
+      authorityType: typeof authority,
+      authorityLength: authority?.length,
     })
+
+    if (!authority) {
+      console.error('❌ [OrderService] Authority is empty or null')
+      return null
+    }
+
+    try {
+      // جستجوی دقیق
+      let order = await prisma.order.findFirst({
+        where: { 
+          paymentAuthority: authority,
+        },
+        include: {
+          items: {
+            include: {
+              product: true,
+            },
+          },
+        },
+      })
+
+      // اگر پیدا نشد، با contains جستجو کن
+      if (!order) {
+        console.log('🔍 [OrderService] Trying contains search...');
+        order = await prisma.order.findFirst({
+          where: {
+            paymentAuthority: {
+              contains: authority,
+            }
+          },
+          include: {
+            items: {
+              include: {
+                product: true,
+              },
+            },
+          },
+        });
+      }
+
+      // اگر باز هم پیدا نشد، با startsWith جستجو کن
+      if (!order) {
+        console.log('🔍 [OrderService] Trying startsWith search...');
+        const first20Chars = authority.substring(0, 20);
+        order = await prisma.order.findFirst({
+          where: {
+            paymentAuthority: {
+              startsWith: first20Chars,
+            }
+          },
+          include: {
+            items: {
+              include: {
+                product: true,
+              },
+            },
+          },
+        });
+      }
+
+      if (order) {
+        console.log('✅ [OrderService] Order found:', {
+          id: order.id,
+          authority: order.paymentAuthority,
+          status: order.status,
+        })
+      } else {
+        console.log('❌ [OrderService] No order found with authority:', authority)
+        
+        const allOrders = await prisma.order.findMany({
+          select: {
+            id: true,
+            paymentAuthority: true,
+            status: true,
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 10,
+        })
+        
+        console.log('📝 [OrderService] Recent orders:', JSON.stringify(allOrders, null, 2))
+      }
+
+      return order
+    } catch (error: any) {
+      console.error('❌ [OrderService] Error finding order:', error.message)
+      throw error
+    }
   }
 
   static async verifyAndFinalizePayment(input: {
@@ -181,39 +314,77 @@ export class OrderService {
   }) {
     const { authority, refId, status, errorMessage } = input
 
-    const order = await prisma.order.findFirst({
-      where: { paymentAuthority: authority },
-      include: { cart: true },
+    console.log('📝 [OrderService] verifyAndFinalizePayment called:', {
+      authority,
+      refId,
+      status,
+      errorMessage,
     })
 
-    if (!order) {
-      throw new Error('Order not found for authority: ' + authority)
-    }
-
-    const updatedOrder = await prisma.$transaction(async (tx: any) => {
-      const orderStatus: OrderStatus = status === 'PAID' ? 'PAID' : 'FAILED'
-
-      const updated = await tx.order.update({
-        where: { id: order.id },
-        data: {
-          status: orderStatus,
-          paymentRefId: refId,
-          paymentVerifiedAt: new Date(),
-          paymentErrorMessage: errorMessage,
-        },
+    try {
+      const order = await prisma.order.findFirst({
+        where: { paymentAuthority: authority },
+        include: { cart: true },
       })
 
-      if (status === 'PAID' && order.cartId) {
-        await tx.cart.update({
-          where: { id: order.cartId },
-          data: { status: 'CHECKED_OUT' },
+      if (!order) {
+        console.error('❌ [OrderService] Order not found for authority:', authority)
+        
+        const allOrders = await prisma.order.findMany({
+          select: {
+            id: true,
+            paymentAuthority: true,
+            status: true,
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 10,
         })
+        
+        console.log('📝 [OrderService] Recent orders:', JSON.stringify(allOrders, null, 2))
+        
+        throw new Error('Order not found for authority: ' + authority)
       }
 
-      return updated
-    })
+      console.log('✅ [OrderService] Order found:', {
+        id: order.id,
+        authority: order.paymentAuthority,
+        status: order.status,
+      })
 
-    return updatedOrder
+      const updatedOrder = await prisma.$transaction(async (tx: any) => {
+        const orderStatus: OrderStatus = status === 'PAID' ? 'PAID' : 'FAILED'
+
+        const updated = await tx.order.update({
+          where: { id: order.id },
+          data: {
+            status: orderStatus,
+            paymentRefId: refId,
+            paymentVerifiedAt: new Date(),
+            paymentErrorMessage: errorMessage,
+          },
+        })
+
+        if (status === 'PAID' && order.cartId) {
+          await tx.cart.update({
+            where: { id: order.cartId },
+            data: { status: 'CHECKED_OUT' },
+          })
+        }
+
+        return updated
+      })
+
+      console.log('✅ [OrderService] Order updated successfully:', {
+        id: updatedOrder.id,
+        status: updatedOrder.status,
+        refId: updatedOrder.paymentRefId,
+      })
+
+      return updatedOrder
+    } catch (error: any) {
+      console.error('❌ [OrderService] Failed to verify payment:', error.message)
+      throw error
+    }
   }
 
   static async updateOrder(input: UpdateOrderInput) {
@@ -230,7 +401,7 @@ export class OrderService {
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
       data: {
-        status: status as OrderStatus, // cast به OrderStatus
+        status: status as OrderStatus,
         shippingNotes,
       },
     })

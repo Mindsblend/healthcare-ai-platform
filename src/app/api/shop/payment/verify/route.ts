@@ -1,125 +1,129 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { OrderService } from '@/features/shop/services/OrderService'
+// app/api/shop/payment/verify/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { OrderService } from '@/features/shop/services/OrderService';
+import { PaymentService } from '@/features/shop/services/PaymentService';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(req: NextRequest) {
+  console.log('🟢 [PAYMENT VERIFY] ========== START ==========');
+
   try {
-    // Get query parameters from Zarinpal redirect
-    const searchParams = req.nextUrl.searchParams
-    const authority = searchParams.get('Authority')
-    const status = searchParams.get('Status')
+    // 1. دریافت پارامترها
+    const searchParams = req.nextUrl.searchParams;
+    const authority = searchParams.get('Authority');
+    const status = searchParams.get('Status');
+    
+    console.log('🟢 [PAYMENT VERIFY] Authority:', authority);
+    console.log('🟢 [PAYMENT VERIFY] Status:', status);
 
-    console.log('[Payment Verify] Authority:', authority)
-    console.log('[Payment Verify] Status:', status)
-
-    // Check if user canceled the payment
+    // 2. بررسی لغو پرداخت
     if (status !== 'OK') {
+      console.log('🟢 [PAYMENT VERIFY] Payment canceled by user');
       return NextResponse.redirect(
-        new URL('/payment/failed?message=کاربر پرداخت را لغو کرد', req.url),
-      )
+        new URL('/payment/failed?message=کاربر پرداخت را لغو کرد', req.url)
+      );
     }
 
-    // Validate authority
+    // 3. اعتبارسنجی Authority
     if (!authority) {
+      console.error('🟢 [PAYMENT VERIFY] ❌ Missing authority');
       return NextResponse.redirect(
-        new URL('/payment/failed?message=شناسه پرداخت معتبر نیست', req.url),
-      )
+        new URL('/payment/failed?message=شناسه پرداخت معتبر نیست', req.url)
+      );
     }
 
-    // Find order by authority using OrderService
-    const order = await OrderService.findOrderByAuthority(authority)
+    // 4. پیدا کردن سفارش
+    console.log('🟢 [PAYMENT VERIFY] Finding order with authority:', authority);
+    
+    const order = await prisma.order.findFirst({
+      where: { paymentAuthority: authority },
+    });
 
     if (!order) {
-      console.error(
-        '[Payment Verify] Order not found for authority:',
-        authority,
-      )
+      console.error('🟢 [PAYMENT VERIFY] ❌ Order not found');
+      
+      const allOrders = await prisma.order.findMany({
+        select: { id: true, paymentAuthority: true, status: true },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+      });
+      console.log('🟢 [PAYMENT VERIFY] Recent orders:', JSON.stringify(allOrders, null, 2));
+      
       return NextResponse.redirect(
-        new URL('/payment/failed?message=سفارش یافت نشد', req.url),
-      )
+        new URL(`/payment/failed?message=سفارش با شناسه ${authority} یافت نشد`, req.url)
+      );
     }
 
-    // Check if order is already PAID (prevent double verification)
+    console.log('🟢 [PAYMENT VERIFY] Order found:', {
+      id: order.id,
+      authority: order.paymentAuthority,
+      status: order.status,
+      totalPrice: order.totalPrice,
+    });
+
+    // 5. بررسی پرداخت قبلی
     if (order.status === 'PAID') {
-      console.log('[Payment Verify] Order already paid:', order.id)
+      console.log('🟢 [PAYMENT VERIFY] Order already paid');
       return NextResponse.redirect(
-        new URL(
-          `/payment/success?refId=${order.paymentRefId || ''}&orderId=${order.id}`,
-          req.url,
-        ),
-      )
+        new URL(`/payment/success?refId=${order.paymentRefId || ''}&orderId=${order.id}`, req.url)
+      );
     }
 
-    // Get merchant ID from environment
-    const merchantId = process.env.ZARINPAL_MERCHANT_ID
-    if (!merchantId) {
-      console.error('[Payment Verify] Missing ZARINPAL_MERCHANT_ID')
+    // 6. تایید پرداخت با زرین‌پال
+    console.log('🟢 [PAYMENT VERIFY] Calling PaymentService.verifyPayment...');
+    console.log('🟢 [PAYMENT VERIFY] Amount:', order.totalPrice);
+    
+    const verifyResult = await PaymentService.verifyPayment({
+      authority: authority,
+      amount: order.totalPrice,
+    });
+
+    console.log('🟢 [PAYMENT VERIFY] Verify result:', JSON.stringify(verifyResult, null, 2));
+
+    // 7. پردازش نتیجه
+    if (verifyResult.success) {
+      console.log('🟢 [PAYMENT VERIFY] ✅ Payment verified successfully');
+      
+      await prisma.order.update({
+        where: { id: order.id },
+        data: {
+          status: 'PAID',
+          paymentRefId: verifyResult.refId?.toString() || '',
+          paymentVerifiedAt: new Date(),
+        },
+      });
+
+      if (order.cartId) {
+        await prisma.cart.update({
+          where: { id: order.cartId },
+          data: { status: 'CHECKED_OUT' },
+        });
+      }
+      
       return NextResponse.redirect(
-        new URL('/payment/failed?message=خطا در تنظیمات درگاه پرداخت', req.url),
-      )
-    }
-
-    // Get amount from order (in Rials)
-    const amount = order.totalPrice
-
-    // Determine API URL (sandbox or production)
-    const isSandbox = process.env.ZARINPAL_SANDBOX === 'true'
-    const apiUrl = isSandbox
-      ? 'https://sandbox.zarinpal.com/pg/v4/payment/verify.json'
-      : 'https://api.zarinpal.com/pg/v4/payment/verify.json'
-
-    // Call Zarinpal verification API
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        merchant_id: merchantId,
-        amount: amount,
-        authority: authority,
-      }),
-    })
-
-    const result = await response.json()
-    console.log('[Payment Verify] Zarinpal response:', result.data)
-
-    // Handle verification result using OrderService
-    if (result.data.code === 100) {
-      // Payment verified successfully - Update order from PENDING to PAID
-      await OrderService.verifyAndFinalizePayment({
-        authority: authority,
-        refId: result.data.ref_id.toString(),
-        status: 'PAID',
-      })
-
-      // Redirect to success page
-      return NextResponse.redirect(
-        new URL(
-          `/payment/success?refId=${result.data.ref_id}&orderId=${order.id}`,
-          req.url,
-        ),
-      )
+        new URL(`/payment/success?refId=${verifyResult.refId}&orderId=${order.id}`, req.url)
+      );
     } else {
-      // Payment verification failed - Update order from PENDING to FAILED
-      await OrderService.verifyAndFinalizePayment({
-        authority: authority,
-        refId: '',
-        status: 'FAILED',
-        errorMessage:
-          result.data.message ||
-          `Verification failed with code: ${result.data.code}`,
-      })
+      console.error('🟢 [PAYMENT VERIFY] ❌ Payment verification failed:', verifyResult.message);
+      
+      await prisma.order.update({
+        where: { id: order.id },
+        data: {
+          status: 'FAILED',
+          paymentErrorMessage: verifyResult.message || 'Payment verification failed',
+        },
+      });
 
-      // Redirect to failure page
       return NextResponse.redirect(
-        new URL(
-          `/payment/failed?message=${encodeURIComponent(result.data.message || 'پرداخت تأیید نشد')}`,
-          req.url,
-        ),
-      )
+        new URL(`/payment/failed?message=${encodeURIComponent(verifyResult.message || 'پرداخت تأیید نشد')}`, req.url)
+      );
     }
-  } catch (error) {
-    console.error('[Payment Verify] Error:', error)
+  } catch (error: any) {
+    console.error('🟢 [PAYMENT VERIFY] ❌ Error:', error.message);
+    if (error.stack) console.error('🟢 [PAYMENT VERIFY] Stack:', error.stack);
+    
     return NextResponse.redirect(
-      new URL('/payment/failed?message=خطا در تأیید پرداخت', req.url),
-    )
+      new URL('/payment/failed?message=خطا در تأیید پرداخت', req.url)
+    );
   }
 }

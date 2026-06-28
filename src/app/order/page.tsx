@@ -221,100 +221,126 @@ const CheckoutPage = () => {
   }
 
   // Updated handleSubmit to integrate payment
-  const handleSubmit = async (shouldCreateNewAddress: boolean = true) => {
-    // Mark all fields as touched
-    const allTouched = Object.keys(shippingInfo).reduce(
-      (acc, key) => {
-        acc[key] = true
-        return acc
-      },
-      {} as Record<string, boolean>,
-    )
-    setTouchedFields(allTouched)
+// app/shop/checkout/page.tsx - بخش handleSubmit
 
-    // Validate all shipping info
-    const validation = await validateShippingInfo(
-      shippingInfo,
-      provinces,
-      getCitiesByProvince,
-    )
+const handleSubmit = async (shouldCreateNewAddress: boolean = true) => {
+  // 1. مارک کردن تمام فیلدها به عنوان touched
+  const allTouched = Object.keys(shippingInfo).reduce(
+    (acc, key) => {
+      acc[key] = true;
+      return acc;
+    },
+    {} as Record<string, boolean>
+  );
+  setTouchedFields(allTouched);
 
-    if (!validation.isValid) {
-      const errors = getValidationErrorsObject(validation.errors)
-      setFieldErrors(errors)
+  // 2. اعتبارسنجی کامل اطلاعات
+  const validation = await validateShippingInfo(
+    shippingInfo,
+    provinces,
+    getCitiesByProvince
+  );
 
-      // Scroll to first error
-      const firstErrorField = validation.errors[0]?.field
-      if (firstErrorField) {
-        const element = document.querySelector(`[name="${firstErrorField}"]`)
-        element?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      }
+  if (!validation.isValid) {
+    const errors = getValidationErrorsObject(validation.errors);
+    setFieldErrors(errors);
 
-      return
+    // اسکرول به اولین خطا
+    const firstErrorField = validation.errors[0]?.field;
+    if (firstErrorField) {
+      const element = document.querySelector(`[name="${firstErrorField}"]`);
+      element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    try {
-      // If its the first time the user is placing an order and user has no addresses, update user profile with the data provided
-      if (!userAddress?.addresses && isAddingNewAddress) {
-        await updateUserProfile({
-          firstName: shippingInfo.firstName,
-          lastName: shippingInfo.lastName,
-          email: shippingInfo.email,
-          phone: shippingInfo.phone,
-        })
-      }
-
-      // If user wants to create a new address (either from form or "Add New Address" button)
-      if (shouldCreateNewAddress && !selectedAddressId) {
-        await createUserAddress({
-          firstName: shippingInfo.firstName,
-          lastName: shippingInfo.lastName,
-          city: shippingInfo.city,
-          province: shippingInfo.province,
-          email: shippingInfo.email,
-          phone: shippingInfo.phone,
-          address: shippingInfo.address,
-          postalCode: shippingInfo.postalCode,
-        })
-      }
-
-      // Create order with PENDING status
-      console.log('1. Creating order...')
-      const orderResult = await createOrder({
-        shippingInfo,
-        paymentMethod: activeBtn,
-      })
-
-      console.log('2. Order created:', orderResult)
-
-      if (!orderResult?.id) {
-        throw new Error('Failed to create order')
-      }
-
-      // Calculate total amount in Rials (Toman × 10)
-      const finalTotal = (totalAmount + deliveryAmount) * 10
-      console.log('3. Total amount (Rials):', finalTotal)
-
-      console.log('4. Initiating payment...')
-      // Initiate payment
-      const paymentResult = await initiatePayment({
-        amount: finalTotal,
-        description: `سفارش شماره ${orderResult.id}`,
-        orderId: orderResult.id,
-        email: shippingInfo.email,
-        mobile: shippingInfo.phone,
-      })
-
-      console.log('5. Payment result:', paymentResult)
-
-      // Note: The user will be redirected to Zarinpal by the initiatePayment function
-      // The code after this won't execute immediately due to redirect
-    } catch (err) {
-      console.error('Order creation error:', err)
-      setErrorMessage('خطا در ثبت سفارش، لطفا دوباره تلاش کنید.')
-    }
+    return;
   }
 
+  try {
+    // 3. بروزرسانی پروفایل کاربر (در صورت نیاز)
+    if (!userAddress?.addresses && isAddingNewAddress) {
+      await updateUserProfile({
+        firstName: shippingInfo.firstName,
+        lastName: shippingInfo.lastName,
+        email: shippingInfo.email,
+        phone: shippingInfo.phone,
+      });
+    }
+
+    // 4. ایجاد آدرس جدید (در صورت نیاز)
+    if (shouldCreateNewAddress && !selectedAddressId) {
+      await createUserAddress({
+        firstName: shippingInfo.firstName,
+        lastName: shippingInfo.lastName,
+        city: shippingInfo.city,
+        province: shippingInfo.province,
+        email: shippingInfo.email,
+        phone: shippingInfo.phone,
+        address: shippingInfo.address,
+        postalCode: shippingInfo.postalCode,
+      });
+    }
+
+    // 5. ایجاد سفارش
+    console.log('📝 1. Creating order...');
+    const orderResult = await createOrder({
+      shippingInfo,
+      paymentMethod: activeBtn,
+    });
+
+    console.log('✅ 2. Order created:', orderResult);
+
+    if (!orderResult?.id) {
+      throw new Error('Failed to create order');
+    }
+
+    // ✅ 6. محاسبه مجدد مبلغ (همانند OrderService)
+    const subtotal = cartItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
+    const TAX_RATE = 0.09;
+    const taxAmount = Math.round(subtotal * TAX_RATE);
+    const FREE_SHIPPING_THRESHOLD = 2_000_000;
+    const isFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
+    const deliveryAmount = isFreeShipping ? 0 : 300_000;
+    const totalAmountInTomans = subtotal + taxAmount + deliveryAmount;
+    const totalAmountInRials = totalAmountInTomans * 10;
+
+    console.log('💰 3. Order total from DB:', orderResult.totalPrice);
+    console.log('💰 4. Calculated total (Tomans):', totalAmountInTomans);
+    console.log('💰 5. Calculated total (Rials):', totalAmountInRials);
+
+    // ✅ بررسی تطابق مبلغ
+    if (orderResult.totalPrice !== totalAmountInTomans) {
+      console.error('❌ Amount mismatch!', {
+        orderTotal: orderResult.totalPrice,
+        calculatedTotal: totalAmountInTomans,
+        difference: totalAmountInTomans - orderResult.totalPrice,
+      });
+      // ادامه می‌دهیم ولی لاگ می‌کنیم
+    }
+
+    // 7. شروع فرآیند پرداخت با مبلغ محاسبه شده
+    console.log('💳 6. Initiating payment...');
+    const paymentResult = await initiatePayment({
+      amount: totalAmountInRials, // ✅ استفاده از مبلغ محاسبه شده مجدد
+      description: `سفارش شماره ${orderResult.id}`,
+      orderId: orderResult.id,
+      email: shippingInfo.email,
+      mobile: shippingInfo.phone,
+    });
+
+    console.log('📊 7. Payment result:', paymentResult);
+
+    // 8. اگر به اینجا رسیدیم یعنی ریدایرکت انجام نشده و خطایی رخ داده
+    if (!paymentResult.success) {
+      setErrorMessage(paymentResult.error || 'خطا در اتصال به درگاه پرداخت');
+    }
+  } catch (err) {
+    console.error('❌ Order creation error:', err);
+    setErrorMessage('خطا در ثبت سفارش، لطفا دوباره تلاش کنید.');
+  }
+};
   // Check if user has addresses
   if (
     userAddress?.addresses &&
