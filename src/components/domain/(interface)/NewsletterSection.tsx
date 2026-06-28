@@ -27,7 +27,7 @@ const NewsletterSection = () => {
   }
 
   return (
-    <div className="container px-4 py-12 md:px-6 lg:px-0">
+    <div className="container">
       <div className="bg-section text-color-title-on-dark flex w-full flex-col items-center justify-center rounded-2xl px-6 py-10 text-center md:px-10 lg:px-14 lg:py-14">
         <h1 className="font-aria mb-2 text-2xl font-bold sm:text-3xl md:text-4xl xl:text-5xl">
           دانشی که سلامتی فردای تو را می‌سازد
@@ -45,7 +45,7 @@ const NewsletterSection = () => {
           onSubmit={handleSubscribe}
           className="mt-9 flex w-full max-w-3xl items-center rounded-2xl text-black"
         >
-          <div className="bg-section-deep flex w-full flex-col items-center gap-3 rounded-2xl px-4 py-3 md:flex-row md:gap-0 xl:py-4">
+          <div className="bg-section-deep flex w-full flex-col items-center gap-4 rounded-2xl px-4 py-3 md:flex-row md:gap-0 xl:py-4">
             {/* Input */}
             <input
               type="email"

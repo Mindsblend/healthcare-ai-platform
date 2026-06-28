@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import Link from 'next/link'
 
 const Footer = () => {
   return (
@@ -27,24 +28,30 @@ const Footer = () => {
           <div className="font-aria text-color-title-on-light flex flex-wrap justify-center gap-3 text-lg font-normal sm:justify-start sm:gap-6">
             {/* Social Media */}
             <div className="flex justify-end gap-4">
-              <Image
-                src="/images/whatsapp.svg"
-                width={22}
-                height={22}
-                alt="Whatsapp"
-              />
-              <Image
-                src="/images/telegram.svg"
-                width={22}
-                height={22}
-                alt="Telegram"
-              />
-              <Image
-                src="/images/instagram.svg"
-                width={22}
-                height={22}
-                alt="Instagram"
-              />
+              <Link href='#'>
+                <Image
+                  src="/images/whatsapp.svg"
+                  width={22}
+                  height={22}
+                  alt="Whatsapp"
+                />
+              </Link>
+              <Link href='#'>
+                <Image
+                  src="/images/telegram.svg"
+                  width={22}
+                  height={22}
+                  alt="Telegram"
+                />
+              </Link>
+              <Link href='#'>
+                <Image
+                  src="/images/instagram.svg"
+                  width={22}
+                  height={22}
+                  alt="Instagram"
+                />
+              </Link>
             </div>
             <span className="font-ray sm:text-sm xl:text-xl">۰۲۱۶۶۴۳۱۹۵۵</span>
             <span className="font-ray sm:text-sm xl:text-xl">۰۹۱۲۸۴۵۵۹۰۷</span>

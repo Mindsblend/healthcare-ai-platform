@@ -3,9 +3,6 @@
 import Image from 'next/image'
 import { useMemo } from 'react'
 import { useOrdersPreview } from '@/features/shop/hooks/orders/useOrdersPreview'
-import Badge from '../../../ui/badge/Badge'
-import ArrowDownIcon from '../../../../../public/images/arrow-down.svg'
-import ArrowUpIcon from '../../../../../public/images/arrow-up.svg'
 import EyeIcon from '../../../../../public/images/eye.svg'
 import DiamondIcon from '../../../../../public/images/diamond.svg'
 import PaperPlaneIcon from '../../../../../public/images/paper-plane.svg'
@@ -88,7 +85,7 @@ export const EcommerceMetrics = () => {
               بازدید کننده ها
             </span>
             {visits.map((visit) => (
-              <h4 className="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">
+              <h4 key={visit.id} className="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">
                 {visit.visits.toLocaleString('fa-IR')}
               </h4>
             ))}

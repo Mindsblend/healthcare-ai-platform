@@ -5,6 +5,7 @@ import Blog from '@/components/layout/Blog'
 import { BlogPreview } from '@/features/shop/shop.types'
 import Image from 'next/image'
 import LoadingBar from '@/components/layout/LoadingBar'
+import Link from 'next/link'
 
 const page = () => {
   const { blogs, loading, error } = useBlogsPreview()
@@ -13,8 +14,12 @@ const page = () => {
     (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
   )
 
-  const latestBlog: BlogPreview = sortedBlogs[0]
+  const latestBlog: BlogPreview | undefined = sortedBlogs[0]
   const remainingBlogs: BlogPreview[] = sortedBlogs.slice(1)
+
+  if (!latestBlog || !latestBlog.slug) {
+    return null 
+  }
 
   return (
     <LoadingBar
@@ -69,12 +74,11 @@ const page = () => {
 
               {/* footer */}
               <div className="mt-auto flex flex-col-reverse gap-4 pt-6 lg:flex-row lg:items-center lg:justify-between">
-                <a
-                  href="#"
+                <Link href={'/blogs/' + latestBlog.slug}
                   className="text-color-title-on-dark font-ray flex h-12 w-full shrink-0 items-center justify-center rounded-3xl bg-black px-7 whitespace-nowrap lg:w-41.25"
                 >
                   مطالعه بیشتر
-                </a>
+                </Link>
 
                 <div className="flex shrink-0 items-center gap-2.5">
                   <Image
