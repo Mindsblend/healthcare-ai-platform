@@ -187,9 +187,14 @@ const AddBlog = () => {
               {/* Blog Image Uploader */}
               <ImageUploader
                 label="عکس بلاگ"
-                imageUrl={form.image}
-                onUpload={(url) => setForm((prev) => ({ ...prev, image: url }))}
-                onClear={() => setForm((prev) => ({ ...prev, image: '' }))}
+                images={form.image ? [form.image] : []}
+                onImagesChange={(urls) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    image: urls[0] || '',
+                  }))
+                }
+                maxImages={1}
                 id="blog-image-upload"
                 setErrorMessage={setErrorMessage}
               />
@@ -197,13 +202,14 @@ const AddBlog = () => {
               {/* Author Image Uploader */}
               <ImageUploader
                 label="عکس نویسنده"
-                imageUrl={form.authorImage}
-                onUpload={(url) =>
-                  setForm((prev) => ({ ...prev, authorImage: url }))
+                images={form.authorImage ? [form.authorImage] : []}
+                onImagesChange={(urls) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    authorImage: urls[0] || '',
+                  }))
                 }
-                onClear={() =>
-                  setForm((prev) => ({ ...prev, authorImage: '' }))
-                }
+                maxImages={1}
                 id="author-image-upload"
                 setErrorMessage={setErrorMessage}
               />
