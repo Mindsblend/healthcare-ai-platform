@@ -559,6 +559,15 @@ export interface UpdateCollectionInput {
   productIds?: (string | number)[]
 }
 
+export interface DeleteCollectionInput {
+  id: string
+}
+
+export interface DeleteCollectionResponse {
+  success: boolean
+  message: string
+}
+
 // ============================================
 // PROFILE ADDRESS TYPES
 // ============================================
