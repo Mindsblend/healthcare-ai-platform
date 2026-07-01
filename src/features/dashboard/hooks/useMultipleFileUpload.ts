@@ -1,4 +1,3 @@
-// hooks/useMultipleUpload.ts
 import { useState } from 'react'
 import { uploadMultipleFilesAction } from '../actions/uploadMultipleFilesAction'
 import {
@@ -20,20 +19,16 @@ export function useMultipleUpload() {
     files: File[],
     options?: FileInputOptions,
   ): string | null => {
-    // Check max files
     if (options?.maxFiles && files.length > options.maxFiles) {
       return `Maximum ${options.maxFiles} files allowed`
     }
 
-    // Check each file
     for (const file of files) {
-      // Check file size
       if (options?.maxSize && file.size > options.maxSize) {
         const maxSizeMB = options.maxSize / (1024 * 1024)
         return `File "${file.name}" exceeds ${maxSizeMB}MB limit`
       }
 
-      // Check file type
       if (options?.accept) {
         const acceptedTypes = options.accept
           .split(',')
@@ -66,7 +61,6 @@ export function useMultipleUpload() {
     folder?: string,
     options?: FileInputOptions,
   ): Promise<UploadResult[] | null> => {
-    // Validate before uploading
     const validationError = validateFiles(files, options)
     if (validationError) {
       setState({
@@ -86,13 +80,20 @@ export function useMultipleUpload() {
     })
 
     try {
-      // Use MultipleFilesInput interface
+      // Use the MultipleFilesInput type
       const input: MultipleFilesInput = {
         files: files,
-        folder: folder || 'general',
+        folder: folder || 'products',
       }
 
-      const result = await uploadMultipleFilesAction(input)
+      // Create FormData from the input
+      const formData = new FormData()
+      input.files.forEach((file) => {
+        formData.append('files', file)
+      })
+      formData.append('folder', input.folder || 'products')
+
+      const result = await uploadMultipleFilesAction(formData)
 
       if (!result.success) {
         throw new Error(result.error)
@@ -105,7 +106,6 @@ export function useMultipleUpload() {
         success: true,
       })
 
-      // Return the array of uploaded files data
       return result.data || null
     } catch (error: any) {
       setState({

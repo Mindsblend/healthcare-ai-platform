@@ -1,25 +1,32 @@
-import { LocalUploadService } from '../services/UploadService'
-import { FileInput, DeleteUploadResponse } from '@/components/types/types'
-import { revalidatePath } from 'next/cache'
+import { DeleteFileInput, DeleteUploadResponse } from '@/components/types/types'
 
 export async function deleteFileAction(
-  input: FileInput,
+  input: DeleteFileInput,
 ): Promise<DeleteUploadResponse> {
-  const { folder, filename } = input
-
   try {
-    const deleted = await LocalUploadService.deleteFile(folder, filename)
+    const { folder, filename } = input
 
-    if (!deleted) {
-      return { success: false, error: 'File not found' }
+    if (!folder || !filename) {
+      return { success: false, error: 'Folder and filename are required' }
     }
 
-    // Revalidate your actual dashboard routes
-    revalidatePath('/dashboard/addProduct')
-    revalidatePath('/dashboard/addBlog')
+    // Call the API route
+    const response = await fetch(
+      `/api/upload/delete?folder=${folder}&filename=${filename}`,
+      {
+        method: 'DELETE',
+      },
+    )
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      return { success: false, error: result.error || 'Delete failed' }
+    }
 
     return { success: true }
   } catch (error: any) {
-    return { success: false, error: error.message }
+    console.error('Delete file error:', error)
+    return { success: false, error: error.message || 'Failed to delete file' }
   }
 }

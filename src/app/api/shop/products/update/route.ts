@@ -10,6 +10,7 @@ export async function POST(req: NextRequest) {
       id,
       title,
       price,
+      discount,
       slug,
       solution,
       image,
@@ -23,10 +24,7 @@ export async function POST(req: NextRequest) {
     } = body
 
     if (!id) {
-      return NextResponse.json(
-        { error: 'id is required' },
-        { status: 400 },
-      )
+      return NextResponse.json({ error: 'id is required' }, { status: 400 })
     }
 
     await requireAuthority({ requiredRole: 'ADMIN' })
@@ -35,6 +33,7 @@ export async function POST(req: NextRequest) {
     const allowedUpdates: any = {}
     if (title !== undefined) allowedUpdates.title = title
     if (price !== undefined) allowedUpdates.price = price
+    if (discount !== undefined) allowedUpdates.discount = discount
     if (slug !== undefined) allowedUpdates.slug = slug
     if (solution !== undefined) allowedUpdates.solution = solution
     if (image !== undefined) allowedUpdates.image = image

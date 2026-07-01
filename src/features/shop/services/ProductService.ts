@@ -19,6 +19,8 @@ export class ProductService {
         id: true,
         title: true,
         price: true,
+        discount: true,
+        discountedPrice: true,
         solution: true,
         slug: true,
         image: true,

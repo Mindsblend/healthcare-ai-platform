@@ -1,21 +1,31 @@
 'use client'
 
 import { useFeedCategories } from '@/features/shop/hooks/feed/useFeedCategories'
+import { useCollections } from '@/features/shop/hooks/collections/useCollections'
 import ShopHeroSection from '@/components/domain/shop/ShopHeroSection'
 import ProductCategorySection from '@/components/domain/shop/ProductCategorySection'
 import ShopProductsSection from '@/components/domain/shop/ShopProductsSection'
 import ShopBundle from '@/components/domain/shop/ShopBundle'
 import LoadingBar from '@/components/layout/LoadingBar'
 
+// 🎯 The feed category slug after which the bundle should appear
+const TARGET_CATEGORY_SLUG = 'aaa'
+
 export default function Feed() {
-  const { feedCategories, loading, error } = useFeedCategories()
+  const {
+    feedCategories,
+    loading: categoriesLoading,
+    error: categoriesError,
+  } = useFeedCategories()
+  const { collections, loading: collectionsLoading } = useCollections()
 
-  // Find special offers for the bundle
-  const specialOffers = feedCategories?.find(
-    (cat) => cat.slug === 'limited-offers',
-  )
+  // ✅ Get all active collections that have at least one product (price > 0 implies products)
+  const activeCollections =
+    collections?.filter(
+      (cat) => cat.isActive === true && cat.price > 0,
+    ) || []
 
-  // Filter out categories that have no products (excluding limited-offers)
+  // Filter categories with products (excluding the limited-offers category if empty)
   const categoriesWithProducts =
     feedCategories?.filter(
       (cat) =>
@@ -24,16 +34,17 @@ export default function Feed() {
         cat.products.length > 0,
     ) || []
 
+  const isLoading = categoriesLoading || collectionsLoading
+
   return (
     <div>
       <ShopHeroSection />
       <ProductCategorySection />
 
-      {/* Dynamically map through all categories with products */}
-      <LoadingBar loading={loading} error={error}>
+      <LoadingBar loading={isLoading} error={categoriesError}>
         {categoriesWithProducts.map((category) => {
-          // Check if this is the best-sellers category to show bundle after it
-          const showBundle = category.slug === 'best-sellers'
+          // Show bundle after the TARGET_CATEGORY_SLUG category
+          const showBundle = category.slug === TARGET_CATEGORY_SLUG
 
           return (
             <div key={category.id}>
@@ -42,11 +53,9 @@ export default function Feed() {
                 description={category.description || ''}
                 products={category.products}
               />
-              {showBundle &&
-                specialOffers &&
-                specialOffers.products.length > 0 && (
-                  <ShopBundle products={specialOffers.products} />
-                )}
+              {showBundle && activeCollections.length > 0 && (
+                <ShopBundle collections={activeCollections} />
+              )}
             </div>
           )
         })}

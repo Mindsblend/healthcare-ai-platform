@@ -1,42 +1,34 @@
-// actions/uploadMultipleFilesAction.ts
-'use server'
+import { MultipleUploadResponse } from '@/components/types/types'
 
-import {
-  MultipleFilesInput,
-  MultipleUploadResponse,
-} from '@/components/types/types'
-import { LocalUploadService } from '../services/UploadService'
-import { revalidatePath } from 'next/cache'
-
-// Version that accepts the interface (recommended)
 export async function uploadMultipleFilesAction(
-  input: MultipleFilesInput,
+  formData: FormData,
 ): Promise<MultipleUploadResponse> {
   try {
-    const { files, folder = 'general' } = input
+    const files = formData.getAll('files') as File[]
+    const folder = (formData.get('folder') as string) || 'products'
 
     if (!files || files.length === 0) {
       return { success: false, error: 'No files uploaded' }
     }
 
-    const results = await LocalUploadService.uploadMultipleFiles(files, {
-      folder,
+    // Call the API route
+    const response = await fetch('/api/upload/local/multiple', {
+      method: 'POST',
+      body: formData,
     })
 
-    // Revalidate your actual dashboard routes
-    revalidatePath('/dashboard/addProduct')
-    revalidatePath('/dashboard/addBlog')
+    const result = await response.json()
+
+    if (!response.ok) {
+      return { success: false, error: result.error || 'Upload failed' }
+    }
 
     return {
       success: true,
-      data: results.map((r) => ({
-        url: r.url,
-        filename: r.filename,
-        originalName: r.originalName,
-        size: r.size,
-      })),
+      data: result.data || [],
     }
   } catch (error: any) {
-    return { success: false, error: error.message }
+    console.error('Multiple upload error:', error)
+    return { success: false, error: error.message || 'Upload failed' }
   }
 }

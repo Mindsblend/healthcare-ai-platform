@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useCreateProduct } from '@/features/shop/hooks/products/createProduct'
 import { useCategories } from '@/features/shop/hooks/categories/useCategories'
 import {
@@ -19,6 +19,7 @@ const AddProduct = () => {
   const [form, setForm] = useState<CreateProductInput>({
     title: '',
     price: 0,
+    discount: 0,
     slug: '',
     solution: '',
     description: '',
@@ -50,6 +51,25 @@ const AddProduct = () => {
   const { feedCategories } = useFeedCategories()
 
   const [errorMessage, setErrorMessage] = useState<string | null>()
+  const [discountedPrice, setDiscountedPrice] = useState<number | null>(null)
+
+  // Auto-calculate discounted price when price or discount changes
+  useEffect(() => {
+    const priceNum = Number(form.price)
+    const discountNum = Number(form.discount)
+
+    if (
+      !isNaN(priceNum) &&
+      priceNum > 0 &&
+      !isNaN(discountNum) &&
+      discountNum > 0
+    ) {
+      const calculated = priceNum - (priceNum * discountNum) / 100
+      setDiscountedPrice(Math.round(calculated))
+    } else {
+      setDiscountedPrice(null)
+    }
+  }, [form.price, form.discount])
 
   type AnyField = keyof CreateProductInput
   type AnyArrayKey = keyof IconType | keyof GainType | keyof FaqType
@@ -86,6 +106,7 @@ const AddProduct = () => {
       await create({
         title: form.title,
         price: Number(form.price),
+        discount: Number(form.discount) || 0,
         slug: form.slug,
         solution: form.solution,
         image: form.image,
@@ -100,6 +121,7 @@ const AddProduct = () => {
       setForm({
         title: '',
         price: 0,
+        discount: 0,
         slug: '',
         solution: '',
         description: '',
@@ -110,6 +132,7 @@ const AddProduct = () => {
         gains: [],
         faqs: [],
       })
+      setDiscountedPrice(null)
     } catch (err) {
       console.error(err)
       setErrorMessage('Create failed')
@@ -231,10 +254,10 @@ const AddProduct = () => {
                   </select>
                 </div>
 
-                {/* Price */}
+                {/* Price and Discount Row */}
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    قیمت
+                    قیمت (تومان)
                   </label>
                   <input
                     type="number"
@@ -244,6 +267,34 @@ const AddProduct = () => {
                     className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
                   />
                 </div>
+
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    تخفیف (درصد)
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="مثال: 15"
+                    min="0"
+                    max="100"
+                    value={form.discount}
+                    onChange={(e) => handleChange('discount', e.target.value)}
+                    className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    قیمت پس از تخفیف به‌طور خودکار محاسبه می‌شود
+                  </p>
+                </div>
+
+                {/* Discounted Price Preview */}
+                {discountedPrice !== null && (
+                  <div className="col-span-full rounded-lg bg-green-50 p-3 dark:bg-green-900/20">
+                    <p className="text-sm text-green-700 dark:text-green-300">
+                      <span className="font-semibold">قیمت پس از تخفیف:</span>{' '}
+                      {discountedPrice.toLocaleString('fa-IR')} تومان
+                    </p>
+                  </div>
+                )}
 
                 {/* Product Image Upload - Using reusable ImageUploader */}
                 <ImageUploader

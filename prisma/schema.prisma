@@ -1,10 +1,9 @@
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
 generator client {
   provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
 }
 
 model User {
@@ -116,6 +115,8 @@ model Product {
   solution              String
   description           String
   price                 Int
+  discount              Int?                   @default(0)
+  discountedPrice       Int?                            
   image                 String
   isActive              Boolean                @default(true)
   createdAt             DateTime               @default(now())
@@ -131,6 +132,35 @@ model Product {
   orderItems            OrderItem[]
   category              Category               @relation(fields: [categoryId], references: [id])
   feedCategory          FeedCategory?          @relation(fields: [feedCategoryId], references: [id])
+  collectionProducts    CollectionProduct[]
+}
+
+model Collection {
+  id          Int                 @id @default(autoincrement())
+  name        String              @unique
+  slug        String              @unique
+  subtitle    String?
+  description String
+  image       String
+  price       Int                 // Total original price of all products
+  isActive    Boolean             @default(true)
+  featured    Boolean             @default(false)
+  order       Int                 @default(0)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  products    CollectionProduct[]
+}
+
+model CollectionProduct {
+  id           Int        @id @default(autoincrement())
+  collectionId Int
+  productId    Int
+  order        Int        @default(0)
+  createdAt    DateTime   @default(now())
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  product      Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([collectionId, productId])
 }
 
 model Category {

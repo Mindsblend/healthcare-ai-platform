@@ -3,14 +3,14 @@
 import { useState, useMemo } from 'react'
 import Image from 'next/image'
 import { useCategories } from '@/features/shop/hooks/categories/useCategories'
-import BundleSwiper from '@/components/layout/BundleSwiper'
-import { ProductSummary } from '@/features/shop/shop.types'
+import CollectionSwiper from '@/components/layout/CollectionSwiper'
+import { CollectionSummary } from '@/features/shop/shop.types'
 
 interface ShopBundleProps {
-  products: ProductSummary[]
+  collections: CollectionSummary[]
 }
 
-const ShopBundle = ({ products }: ShopBundleProps) => {
+const ShopBundle = ({ collections }: ShopBundleProps) => {
   const { categories } = useCategories()
   const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null)
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false)
@@ -23,12 +23,14 @@ const ShopBundle = ({ products }: ShopBundleProps) => {
     return category?.name || null
   }, [activeCategoryId, categories])
 
-  const filteredProducts = useMemo(() => {
-    if (!activeCategoryId) return products
-    return products.filter((product) => product.categoryId === activeCategoryId)
-  }, [products, activeCategoryId])
+  const filteredCollections = useMemo(() => {
+    if (!activeCategoryId) return collections
+    return collections.filter(
+      (collection) => collection.categoryId === activeCategoryId,
+    )
+  }, [collections, activeCategoryId])
 
-  if (!products.length) return null
+  if (!collections.length) return null
 
   return (
     <div className="relative container mt-20 pb-52 lg:mt-28">
@@ -168,8 +170,8 @@ const ShopBundle = ({ products }: ShopBundleProps) => {
           <div className="px-4">
             <hr className="my-5 w-full border border-[#E9E9E8] sm:my-7" />
           </div>
-          {filteredProducts.length > 0 ? (
-            <BundleSwiper products={filteredProducts} />
+          {filteredCollections.length > 0 ? (
+            <CollectionSwiper collections={filteredCollections} />
           ) : (
             <div className="mt-8 flex w-full flex-col items-center justify-center py-24 text-center sm:py-32 lg:py-40">
               <div className="mb-4 rounded-full bg-gray-100 p-4">
@@ -190,8 +192,8 @@ const ShopBundle = ({ products }: ShopBundleProps) => {
               </div>
               <h3 className="mb-2 text-xl font-bold text-gray-800">
                 {activeCategoryName
-                  ? `محصولی در دسته ${activeCategoryName} یافت نشد`
-                  : 'محصولی یافت نشد'}
+                  ? `مجموعه‌ای در دسته ${activeCategoryName} یافت نشد`
+                  : 'مجموعه‌ای یافت نشد'}
               </h3>
               <p className="text-gray-500">
                 لطفاً دسته‌بندی دیگری را انتخاب کنید.
@@ -200,7 +202,7 @@ const ShopBundle = ({ products }: ShopBundleProps) => {
                 onClick={() => setActiveCategoryId(null)}
                 className="mt-6 cursor-pointer rounded-full bg-black px-6 py-2 text-white transition hover:bg-gray-800"
               >
-                مشاهده همه محصولات
+                مشاهده همه مجموعه‌ها
               </button>
             </div>
           )}

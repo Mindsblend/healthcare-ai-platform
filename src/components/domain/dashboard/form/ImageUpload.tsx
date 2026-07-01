@@ -1,117 +1,188 @@
-import { useUpload } from '@/features/dashboard/hooks/useFileUpload'
+'use client'
 
-// ImageUploader component
+import { useState, useCallback } from 'react'
+import Image from 'next/image'
+import { useMultipleUpload } from '@/features/dashboard/hooks/useMultipleFileUpload'
+
 interface ImageUploaderProps {
   label: string
-  imageUrl: string | null
-  onUpload: (url: string) => void
-  onClear: () => void
+  images: string[] // array of image URLs
+  onImagesChange: (urls: string[]) => void
+  maxImages?: number // default 3
   id: string
-  setErrorMessage: (message: string | null) => void // Allow null
+  setErrorMessage: (msg: string | null) => void
 }
 
 export const ImageUploader: React.FC<ImageUploaderProps> = ({
   label,
-  imageUrl,
-  onUpload,
-  onClear,
+  images,
+  onImagesChange,
+  maxImages = 3,
   id,
   setErrorMessage,
 }) => {
-  const { isUploading, uploadFile } = useUpload()
+  const { isUploading, uploadMultipleFiles } = useMultipleUpload()
+  const [isDragging, setIsDragging] = useState(false)
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+  const handleFiles = useCallback(
+    async (files: FileList | null) => {
+      if (!files) return
+      const fileArray = Array.from(files)
+      const remainingSlots = maxImages - images.length
+      if (fileArray.length > remainingSlots) {
+        setErrorMessage(
+          `حداکثر ${remainingSlots} عکس دیگر می‌توانید آپلود کنید.`,
+        )
+        return
+      }
 
-    setErrorMessage(null)
+      // Validate each file
+      const validTypes = [
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'image/gif',
+        'image/svg+xml',
+      ]
+      for (const file of fileArray) {
+        if (!validTypes.includes(file.type)) {
+          setErrorMessage(
+            'فرمت فایل پشتیبانی نمی‌شود. فقط JPG، PNG، GIF یا SVG.',
+          )
+          return
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          setErrorMessage('حجم هر فایل نباید بیشتر از ۵ مگابایت باشد.')
+          return
+        }
+      }
 
-    // اعتبارسنجی نوع فایل
-    const validTypes = [
-      'image/jpeg',
-      'image/jpg',
-      'image/png',
-      'image/gif',
-      'image/svg+xml',
-    ]
-    if (!validTypes.includes(file.type)) {
-      setErrorMessage(
-        'فرمت فایل پشتیبانی نمی‌شود. لطفاً از فرمت‌های JPG، PNG، GIF یا SVG استفاده کنید.',
-      )
-      return
-    }
+      setErrorMessage(null)
+      const uploaded = await uploadMultipleFiles(fileArray, 'products', {
+        maxFiles: remainingSlots,
+        accept: 'image/jpeg,image/jpg,image/png,image/gif,image/svg+xml',
+        maxSize: 5 * 1024 * 1024,
+      })
 
-    // اعتبارسنجی حجم فایل (حداکثر 5 مگابایت)
-    if (file.size > 5 * 1024 * 1024) {
-      setErrorMessage('حجم فایل نباید بیشتر از 5 مگابایت باشد.')
-      return
-    }
+      if (uploaded && uploaded.length > 0) {
+        const newUrls = uploaded.map((u) => u.url)
+        onImagesChange([...images, ...newUrls])
+      } else {
+        setErrorMessage('خطا در آپلود تصاویر. لطفاً دوباره تلاش کنید.')
+      }
+    },
+    [images, maxImages, onImagesChange, setErrorMessage, uploadMultipleFiles],
+  )
 
-    const result = await uploadFile(file, 'blogs')
+  const removeImage = (indexToRemove: number) => {
+    const newImages = images.filter((_, idx) => idx !== indexToRemove)
+    onImagesChange(newImages)
+  }
 
-    if (result) {
-      onUpload(result.url)
-    } else {
-      setErrorMessage('خطا در آپلود تصویر. لطفاً دوباره تلاش کنید.')
-    }
+  const moveImage = (from: number, to: number) => {
+    const newImages = [...images]
+    const [moved] = newImages.splice(from, 1)
+    newImages.splice(to, 0, moved)
+    onImagesChange(newImages)
+  }
 
-    // پاک کردن مقدار input برای امکان آپلود مجدد همان فایل
-    e.target.value = ''
+  const triggerFileInput = () => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.multiple = true
+    input.accept = 'image/jpeg,image/jpg,image/png,image/gif,image/svg+xml'
+    input.onchange = (e) => handleFiles((e.target as HTMLInputElement).files)
+    input.click()
   }
 
   return (
     <div className="col-span-full">
       <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-        {label}
+        {label} (حداکثر {maxImages})
       </label>
 
-      {imageUrl ? (
-        // نمایش پیش‌نمایش تصویر
-        <div className="relative overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
-          <img
-            src={imageUrl}
-            alt={label}
-            className="h-48 w-full object-cover"
-          />
-          <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-0 transition-opacity hover:opacity-100">
-            <label
-              htmlFor={id}
-              className="cursor-pointer rounded-lg bg-white px-4 py-2 text-sm font-medium text-gray-800 shadow-lg hover:bg-gray-100"
+      {/* Preview Grid (if any images uploaded) */}
+      {images.length > 0 && (
+        <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+          {images.map((url, idx) => (
+            <div
+              key={url}
+              className="group relative aspect-square overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700"
             >
-              تغییر تصویر
-            </label>
-            <button
-              type="button"
-              onClick={onClear}
-              className="rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white shadow-lg hover:bg-red-600"
-            >
-              حذف تصویر
-            </button>
-          </div>
-          <input
-            type="file"
-            id={id}
-            accept="image/jpeg,image/jpg,image/png,image/gif,image/svg+xml"
-            className="hidden"
-            onChange={handleFileChange}
-            disabled={isUploading}
-          />
+              <Image
+                src={url}
+                alt={`Preview ${idx}`}
+                fill
+                className="object-cover"
+              />
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+                <button
+                  type="button"
+                  onClick={() => removeImage(idx)}
+                  className="rounded-full bg-red-600 px-2 py-1 text-xs text-white"
+                >
+                  حذف
+                </button>
+                <div className="flex gap-1">
+                  {idx > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => moveImage(idx, idx - 1)}
+                      className="rounded-full bg-white px-2 py-1 text-xs text-black"
+                    >
+                      ↑
+                    </button>
+                  )}
+                  {idx < images.length - 1 && (
+                    <button
+                      type="button"
+                      onClick={() => moveImage(idx, idx + 1)}
+                      className="rounded-full bg-white px-2 py-1 text-xs text-black"
+                    >
+                      ↓
+                    </button>
+                  )}
+                </div>
+              </div>
+              {idx === 0 && (
+                <span className="absolute top-1 left-1 rounded bg-black px-1 text-xs text-white">
+                  اصلی
+                </span>
+              )}
+            </div>
+          ))}
         </div>
-      ) : (
-        // حالت آپلود
+      )}
+
+      {/* Upload Area (only shown if less than maxImages) */}
+      {images.length < maxImages && (
         <div>
-          <label
-            htmlFor={id}
+          <div
+            onClick={triggerFileInput}
+            onDragOver={(e) => {
+              e.preventDefault()
+              setIsDragging(true)
+            }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={(e) => {
+              e.preventDefault()
+              setIsDragging(false)
+              handleFiles(e.dataTransfer.files)
+            }}
             className={`shadow-theme-xs group block cursor-pointer rounded-lg border-2 border-dashed transition ${
               isUploading
                 ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20'
-                : 'hover:border-brand-500 border-gray-300 dark:border-gray-800'
+                : `border-gray-300 dark:border-gray-800 ${
+                    isDragging
+                      ? 'border-brand-500 bg-brand-50'
+                      : 'hover:border-brand-500'
+                  }`
             }`}
           >
             <div className="flex justify-center p-10">
               <div className="flex max-w-65 flex-col items-center gap-4">
                 {isUploading ? (
-                  // لودر در حال آپلود
+                  // Loading state
                   <>
                     <div className="inline-flex h-13 w-13 items-center justify-center">
                       <svg
@@ -136,14 +207,14 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                       </svg>
                     </div>
                     <p className="text-brand-600 dark:text-brand-400 text-center text-sm font-medium">
-                      در حال آپلود تصویر...
+                      در حال آپلود...
                     </p>
                     <div className="h-1.5 w-48 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
                       <div className="bg-brand-500 h-full w-2/3 animate-pulse rounded-full"></div>
                     </div>
                   </>
                 ) : (
-                  // حالت عادی آپلود
+                  // Default state
                   <>
                     <div className="inline-flex h-13 w-13 items-center justify-center rounded-full border border-gray-200 text-gray-700 transition dark:border-gray-800 dark:text-gray-400">
                       <svg
@@ -151,38 +222,30 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
                       >
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth="2"
                           d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        ></path>
+                        />
                       </svg>
                     </div>
                     <p className="text-center text-sm text-gray-500 dark:text-gray-400">
                       <span className="font-medium text-gray-800 dark:text-white/90">
                         برای بارگذاری کلیک کنید
                       </span>{' '}
-                      یا بگیرید و بکشید SVG, PNG, JPG یا GIF
+                      یا بگیرید و بکشید (چند فایل)
                     </p>
                     <p className="text-xs text-gray-400 dark:text-gray-500">
-                      حداکثر حجم: ۵ مگابایت
+                      حداکثر {maxImages - images.length} عکس دیگر – هر فایل
+                      حداکثر ۵ مگابایت
                     </p>
                   </>
                 )}
               </div>
             </div>
-            <input
-              type="file"
-              id={id}
-              accept="image/jpeg,image/jpg,image/png,image/gif,image/svg+xml"
-              className="hidden"
-              onChange={handleFileChange}
-              disabled={isUploading}
-            />
-          </label>
+          </div>
         </div>
       )}
     </div>

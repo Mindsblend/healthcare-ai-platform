@@ -1,24 +1,27 @@
-'use server'
-
-import { FileInput, SingleUploadResponse } from '@/components/types/types'
-import { LocalUploadService } from '../services/UploadService'
-import { revalidatePath } from 'next/cache'
+import { SingleUploadResponse } from '@/components/types/types'
 
 export async function uploadFileAction(
-  input: FileInput,
+  formData: FormData,
 ): Promise<SingleUploadResponse> {
   try {
-    const { file, folder = 'general' } = input
+    const file = formData.get('file') as File
+    const folder = (formData.get('folder') as string) || 'products'
 
     if (!file) {
       return { success: false, error: 'No file uploaded' }
     }
 
-    const result = await LocalUploadService.uploadFile(file, { folder })
+    // Call the API route
+    const response = await fetch('/api/upload/local/single', {
+      method: 'POST',
+      body: formData,
+    })
 
-    // Revalidate your actual dashboard routes
-    revalidatePath('/dashboard/addProduct')
-    revalidatePath('/dashboard/addBlog')
+    const result = await response.json()
+
+    if (!response.ok) {
+      return { success: false, error: result.error || 'Upload failed' }
+    }
 
     return {
       success: true,
@@ -30,6 +33,7 @@ export async function uploadFileAction(
       },
     }
   } catch (error: any) {
-    return { success: false, error: error.message }
+    console.error('Upload error:', error)
+    return { success: false, error: error.message || 'Upload failed' }
   }
 }

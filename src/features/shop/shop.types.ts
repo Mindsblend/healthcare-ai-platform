@@ -1,4 +1,3 @@
-
 // ============================================
 // BLOG TYPES
 // ============================================
@@ -188,9 +187,9 @@ export type OrderDetail = {
   id: string
   totalPrice: number
   status: string
-  paymentMethod: string | null 
+  paymentMethod: string | null
   userId: string
-  cartId: string | null 
+  cartId: string | null
   shippingFirstName: string
   shippingLastName: string
   shippingEmail: string
@@ -342,6 +341,8 @@ export type ProductSummary = {
   id: number
   title: string
   price: number
+  discount?: number | null
+  discountedPrice?: number | null
   solution: string
   slug: string
   image: string
@@ -356,12 +357,14 @@ export type ProductDetail = {
   id: number
   title: string
   price: number
+  discount?: number | null
+  discountedPrice?: number | null
   solution: string
   slug: string
   image: string
   description: string
   categoryId: number
-  feedCategoryId: number | null 
+  feedCategoryId: number | null
   isActive: boolean
   category: {
     id: number
@@ -384,6 +387,7 @@ export type GetProductsPreviewResponse = ProductSummary[]
 export interface CreateProductInput {
   title: string
   price: number
+  discount?: number
   slug: string
   solution: string
   image: string
@@ -442,6 +446,8 @@ export interface GetProductsByCategoryResponse {
   id: number
   title: string
   price: number
+  discount?: number | null
+  discountedPrice?: number | null
   slug: string
   image: string
   categoryId: number
@@ -460,6 +466,8 @@ export interface GetProductBySlugResponse {
   id: number
   title: string
   price: number
+  discount: number | null
+  discountedPrice: number | null
   slug: string
   solution: string
   image: string
@@ -474,6 +482,81 @@ export interface GetProductBySlugResponse {
   icons: IconType[]
   gains: GainType[]
   faqs: FaqType[]
+}
+
+// features/shop/shop.types.ts
+
+// ============================================
+// COLLECTION TYPES
+// ============================================
+
+export interface CollectionSummary {
+  id: number
+  name: string
+  slug: string
+  subtitle: string | null
+  description: string | null
+  image: string
+  price: number
+  featured: boolean
+  order: number
+  isActive: boolean
+  createdAt: Date
+  // optional filtering field
+  categoryId?: number
+}
+
+export interface CollectionDetail extends CollectionSummary {
+  products: {
+    id: number
+    collectionId: number
+    productId: number
+    order: number
+    product: {
+      id: number
+      title: string
+      price: number
+      description: string | null
+      image: string | null
+      slug: string
+      categoryId: number
+      feedCategoryId: number | null
+      category?: {
+        id: number
+        name: string
+      } | null
+      feedCategory?: {
+        id: number
+        name: string
+      } | null
+    }
+  }[]
+}
+
+export interface CreateCollectionInput {
+  name: string
+  slug: string
+  subtitle?: string
+  description?: string
+  image?: string
+  price?: number
+  featured?: boolean
+  order?: number
+  productIds: (string | number)[]
+}
+
+export interface UpdateCollectionInput {
+  id: number
+  name?: string
+  slug?: string
+  subtitle?: string
+  description?: string
+  image?: string
+  price?: number
+  featured?: boolean
+  order?: number
+  isActive?: boolean
+  productIds?: (string | number)[]
 }
 
 // ============================================
@@ -747,7 +830,7 @@ export type UserFeedResponse = Array<{
 // ============================================
 
 export interface PaymentRequestInput {
-  amount: number // Amount in Rials (Toman × 10)
+  amount: number // Amount in Tomans
   description: string // Order description
   orderId: string // Your order ID
   email?: string // Optional: user email

@@ -35,6 +35,12 @@ export interface UploadData {
   size: number
 }
 
+export interface UploadOptions {
+  folder: string
+  allowedFormats?: string[]
+  maxSize?: number // in bytes
+}
+
 // Separate response types for single vs multiple uploads
 export interface SingleUploadResponse {
   success: boolean
@@ -153,7 +159,7 @@ export interface AIAnalysisResult {
     firstAction: string
   }
 
- futureProjection: {
+  futureProjection: {
     ifNoChange: string
     ifImproved: string
   }
@@ -274,4 +280,3 @@ export interface HealthAssessmentResult {
     priority: number
   }> | null
 }
-

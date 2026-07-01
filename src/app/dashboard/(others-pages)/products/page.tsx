@@ -45,6 +45,8 @@ const Products = () => {
   const [productId, setProductId] = useState<number>(0)
   const [title, setTitle] = useState<string>('')
   const [price, setPrice] = useState<string>('')
+  const [discount, setDiscount] = useState<string>('')
+  const [discountedPrice, setDiscountedPrice] = useState<number | null>(null)
   const [slug, setSlug] = useState<string>('')
   const [solution, setSolution] = useState<string>('')
   const [image, setImage] = useState<string>('')
@@ -64,12 +66,27 @@ const Products = () => {
   // Ref for debounce timer
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
+  // Auto-calculate discounted price when price or discount changes
+  useEffect(() => {
+    const priceNum = parseInt(price)
+    const discountNum = parseInt(discount)
+
+    if (!isNaN(priceNum) && !isNaN(discountNum) && discountNum > 0) {
+      const calculated = priceNum - (priceNum * discountNum) / 100
+      setDiscountedPrice(Math.round(calculated))
+    } else {
+      setDiscountedPrice(null)
+    }
+  }, [price, discount])
+
   // Effect to update form when selectedProduct changes
   useEffect(() => {
     if (selectedProduct && !isFetchingProduct) {
       setProductId(selectedProduct.id)
       setTitle(selectedProduct.title)
       setPrice(selectedProduct.price.toString())
+      setDiscount(selectedProduct.discount?.toString() || '')
+      setDiscountedPrice(selectedProduct.discountedPrice || null)
       setSlug(selectedProduct.slug)
       setSolution(selectedProduct.solution)
       setImage(selectedProduct.image)
@@ -81,15 +98,13 @@ const Products = () => {
 
   // Debounce search input
   const handleSearchChange = useCallback((value: string) => {
-    // Clear previous timer
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current)
     }
 
-    // Set new timer
     debounceTimerRef.current = setTimeout(() => {
       setDebouncedSearchValue(value)
-      setPage(1) // Reset to first page when search changes
+      setPage(1)
     }, 500)
   }, [])
 
@@ -161,6 +176,8 @@ const Products = () => {
       setSelectedProduct(fullProduct)
       setTitle(fullProduct.title)
       setPrice(fullProduct.price.toString())
+      setDiscount(fullProduct.discount?.toString() || '')
+      setDiscountedPrice(fullProduct.discountedPrice || null)
       setSlug(fullProduct.slug)
       setSolution(fullProduct.solution)
       setImage(fullProduct.image)
@@ -177,18 +194,37 @@ const Products = () => {
   const handleApplyChanges = async () => {
     if (!selectedProduct) return
 
+    // Parse price - must be a valid number
+    const parsedPrice = parseInt(price)
+    if (isNaN(parsedPrice)) {
+      console.error('Invalid price')
+      return
+    }
+
+    // Parse discount - ALWAYS send a number (0 if empty or invalid)
+    let parsedDiscount = 0
+    if (discount !== null && discount !== undefined && discount !== '') {
+      const discountValue = parseInt(discount)
+      if (!isNaN(discountValue)) {
+        parsedDiscount = discountValue
+      }
+    }
+
+    const updateData = {
+      id: selectedProduct.id,
+      title,
+      price: parsedPrice,
+      discount: parsedDiscount,
+      slug,
+      solution,
+      image,
+      description,
+      categoryId: categoryId!,
+      feedCategoryId: feedCategoryId,
+    }
+
     try {
-      await updateProduct({
-        id: selectedProduct.id,
-        title,
-        price: parseInt(price),
-        slug,
-        solution,
-        image,
-        description,
-        categoryId: categoryId!,
-        feedCategoryId: feedCategoryId,
-      })
+      await updateProduct(updateData)
       setIsModalOpen(false)
       router.refresh()
     } catch (error) {
@@ -245,7 +281,6 @@ const Products = () => {
                   />
                 </div>
 
-                {/* Clear search button */}
                 {searchValue && (
                   <button
                     onClick={clearSearch}
@@ -568,18 +603,47 @@ const Products = () => {
                     />
                   </div>
 
-                  {/* Price */}
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      قیمت (تومان)
-                    </label>
-                    <input
-                      type="number"
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
-                      className="w-full rounded-lg border border-gray-300 p-2.5 text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:text-white/90"
-                    />
+                  {/* Price and Discount Row */}
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        قیمت (تومان)
+                      </label>
+                      <input
+                        type="number"
+                        value={price}
+                        onChange={(e) => setPrice(e.target.value)}
+                        className="w-full rounded-lg border border-gray-300 p-2.5 text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:text-white/90"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        تخفیف (درصد)
+                      </label>
+                      <input
+                        type="number"
+                        value={discount}
+                        onChange={(e) => setDiscount(e.target.value)}
+                        placeholder="مثال: 15"
+                        min="0"
+                        max="100"
+                        className="w-full rounded-lg border border-gray-300 p-2.5 text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:text-white/90"
+                      />
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        قیمت پس از تخفیف به‌طور خودکار محاسبه می‌شود
+                      </p>
+                    </div>
                   </div>
+
+                  {/* Discounted Price Preview */}
+                  {discountedPrice && (
+                    <div className="rounded-lg bg-green-50 p-3 dark:bg-green-900/20">
+                      <p className="text-sm text-green-700 dark:text-green-300">
+                        <span className="font-semibold">قیمت پس از تخفیف:</span>{' '}
+                        {discountedPrice.toLocaleString('fa-IR')} تومان
+                      </p>
+                    </div>
+                  )}
 
                   {/* Product Category Dropdown */}
                   <div>
@@ -661,7 +725,6 @@ const Products = () => {
                       تصویر محصول
                     </label>
 
-                    {/* Current Image Preview */}
                     {image && (
                       <div className="mb-3">
                         <p className="mb-2 text-sm text-gray-500">
@@ -682,7 +745,6 @@ const Products = () => {
                       </div>
                     )}
 
-                    {/* File Upload */}
                     <input
                       type="file"
                       accept="image/*"

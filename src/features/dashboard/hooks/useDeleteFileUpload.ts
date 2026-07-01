@@ -1,9 +1,5 @@
-// actions/deleteFileAction.ts
-'use server'
-
 import { DeleteFileInput, DeleteUploadResponse } from '@/components/types/types'
 import { LocalUploadService } from '../services/UploadService'
-import { revalidatePath } from 'next/cache'
 
 export async function deleteFileAction(
   input: DeleteFileInput, // Change this from FileInput to DeleteFileInput

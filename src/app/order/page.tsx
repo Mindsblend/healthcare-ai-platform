@@ -85,7 +85,7 @@ const CheckoutPage = () => {
       !isAddingNewAddress
     ) {
       // Find default address
-        const defaultAddress = userAddress.addresses.find(
+      const defaultAddress = userAddress.addresses.find(
         (addr: Address) => addr.isDefault,
       )
       // If no default address exists, use the first one
@@ -106,7 +106,7 @@ const CheckoutPage = () => {
         })
       }
     }
-  }, [userAddress, isAddingNewAddress]) // Re-run when userAddress loads or when exiting add new address mode
+  }, [userAddress, isAddingNewAddress])
 
   // Update cities when province changes
   useEffect(() => {
@@ -220,127 +220,124 @@ const CheckoutPage = () => {
     }
   }
 
-  // Updated handleSubmit to integrate payment
-// app/shop/checkout/page.tsx - بخش handleSubmit
+  // Handle form submission with payment integration
+  const handleSubmit = async (shouldCreateNewAddress: boolean = true) => {
+    // 1. Mark all fields as touched
+    const allTouched = Object.keys(shippingInfo).reduce(
+      (acc, key) => {
+        acc[key] = true
+        return acc
+      },
+      {} as Record<string, boolean>,
+    )
+    setTouchedFields(allTouched)
 
-const handleSubmit = async (shouldCreateNewAddress: boolean = true) => {
-  // 1. مارک کردن تمام فیلدها به عنوان touched
-  const allTouched = Object.keys(shippingInfo).reduce(
-    (acc, key) => {
-      acc[key] = true;
-      return acc;
-    },
-    {} as Record<string, boolean>
-  );
-  setTouchedFields(allTouched);
-
-  // 2. اعتبارسنجی کامل اطلاعات
-  const validation = await validateShippingInfo(
-    shippingInfo,
-    provinces,
-    getCitiesByProvince
-  );
-
-  if (!validation.isValid) {
-    const errors = getValidationErrorsObject(validation.errors);
-    setFieldErrors(errors);
-
-    // اسکرول به اولین خطا
-    const firstErrorField = validation.errors[0]?.field;
-    if (firstErrorField) {
-      const element = document.querySelector(`[name="${firstErrorField}"]`);
-      element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-
-    return;
-  }
-
-  try {
-    // 3. بروزرسانی پروفایل کاربر (در صورت نیاز)
-    if (!userAddress?.addresses && isAddingNewAddress) {
-      await updateUserProfile({
-        firstName: shippingInfo.firstName,
-        lastName: shippingInfo.lastName,
-        email: shippingInfo.email,
-        phone: shippingInfo.phone,
-      });
-    }
-
-    // 4. ایجاد آدرس جدید (در صورت نیاز)
-    if (shouldCreateNewAddress && !selectedAddressId) {
-      await createUserAddress({
-        firstName: shippingInfo.firstName,
-        lastName: shippingInfo.lastName,
-        city: shippingInfo.city,
-        province: shippingInfo.province,
-        email: shippingInfo.email,
-        phone: shippingInfo.phone,
-        address: shippingInfo.address,
-        postalCode: shippingInfo.postalCode,
-      });
-    }
-
-    // 5. ایجاد سفارش
-    console.log('📝 1. Creating order...');
-    const orderResult = await createOrder({
+    // 2. Validate all shipping information
+    const validation = await validateShippingInfo(
       shippingInfo,
-      paymentMethod: activeBtn,
-    });
+      provinces,
+      getCitiesByProvince,
+    )
 
-    console.log('✅ 2. Order created:', orderResult);
+    if (!validation.isValid) {
+      const errors = getValidationErrorsObject(validation.errors)
+      setFieldErrors(errors)
 
-    if (!orderResult?.id) {
-      throw new Error('Failed to create order');
+      // Scroll to first error
+      const firstErrorField = validation.errors[0]?.field
+      if (firstErrorField) {
+        const element = document.querySelector(`[name="${firstErrorField}"]`)
+        element?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+
+      return
     }
 
-    // ✅ 6. محاسبه مجدد مبلغ (همانند OrderService)
-    const subtotal = cartItems.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0,
-    );
-    const TAX_RATE = 0.09;
-    const taxAmount = Math.round(subtotal * TAX_RATE);
-    const FREE_SHIPPING_THRESHOLD = 2_000_000;
-    const isFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
-    const deliveryAmount = isFreeShipping ? 0 : 300_000;
-    const totalAmountInTomans = subtotal + taxAmount + deliveryAmount;
-    const totalAmountInRials = totalAmountInTomans * 10;
+    try {
+      // 3. Update user profile if needed
+      if (!userAddress?.addresses && isAddingNewAddress) {
+        await updateUserProfile({
+          firstName: shippingInfo.firstName,
+          lastName: shippingInfo.lastName,
+          email: shippingInfo.email,
+          phone: shippingInfo.phone,
+        })
+      }
 
-    console.log('💰 3. Order total from DB:', orderResult.totalPrice);
-    console.log('💰 4. Calculated total (Tomans):', totalAmountInTomans);
-    console.log('💰 5. Calculated total (Rials):', totalAmountInRials);
+      // 4. Create new address if needed
+      if (shouldCreateNewAddress && !selectedAddressId) {
+        await createUserAddress({
+          firstName: shippingInfo.firstName,
+          lastName: shippingInfo.lastName,
+          city: shippingInfo.city,
+          province: shippingInfo.province,
+          email: shippingInfo.email,
+          phone: shippingInfo.phone,
+          address: shippingInfo.address,
+          postalCode: shippingInfo.postalCode,
+        })
+      }
 
-    // ✅ بررسی تطابق مبلغ
-    if (orderResult.totalPrice !== totalAmountInTomans) {
-      console.error('❌ Amount mismatch!', {
-        orderTotal: orderResult.totalPrice,
-        calculatedTotal: totalAmountInTomans,
-        difference: totalAmountInTomans - orderResult.totalPrice,
-      });
-      // ادامه می‌دهیم ولی لاگ می‌کنیم
+      // 5. Create order
+      console.log('📝 1. Creating order...')
+      const orderResult = await createOrder({
+        shippingInfo,
+        paymentMethod: activeBtn,
+      })
+
+      console.log('✅ 2. Order created:', orderResult)
+
+      if (!orderResult?.id) {
+        throw new Error('Failed to create order')
+      }
+
+      // 6. Recalculate total amount (matching OrderService)
+      const subtotal = cartItems.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0,
+      )
+      const TAX_RATE = 0.09
+      const taxAmount = Math.round(subtotal * TAX_RATE)
+      const FREE_SHIPPING_THRESHOLD = 2_000_000
+      const isFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD
+      const deliveryAmount = isFreeShipping ? 0 : 300_000
+      const totalAmountInTomans = subtotal + taxAmount + deliveryAmount
+
+      console.log('💰 3. Order total from DB:', orderResult.totalPrice)
+      console.log('💰 4. Calculated total (Tomans):', totalAmountInTomans)
+
+      // Check if amounts match
+      if (orderResult.totalPrice !== totalAmountInTomans) {
+        console.error('❌ Amount mismatch!', {
+          orderTotal: orderResult.totalPrice,
+          calculatedTotal: totalAmountInTomans,
+          difference: totalAmountInTomans - orderResult.totalPrice,
+        })
+        // Continue anyway but log it
+      }
+
+      // 7. Initiate payment with amount in Toman
+      console.log('💳 6. Initiating payment...')
+      const paymentResult = await initiatePayment({
+        amount: totalAmountInTomans, // Send in Toman
+        description: `سفارش شماره ${orderResult.id}`,
+        orderId: orderResult.id,
+        email: shippingInfo.email,
+        mobile: shippingInfo.phone,
+      })
+
+      console.log('📊 7. Payment result:', paymentResult)
+
+      // 8. If we reach here, redirect didn't happen and an error occurred
+      if (!paymentResult.success) {
+        setErrorMessage(paymentResult.error || 'خطا در اتصال به درگاه پرداخت')
+      }
+    } catch (err) {
+      console.error('❌ Order creation error:', err)
+      setErrorMessage('خطا در ثبت سفارش، لطفا دوباره تلاش کنید.')
     }
-
-    // 7. شروع فرآیند پرداخت با مبلغ محاسبه شده
-    console.log('💳 6. Initiating payment...');
-    const paymentResult = await initiatePayment({
-      amount: totalAmountInRials, // ✅ استفاده از مبلغ محاسبه شده مجدد
-      description: `سفارش شماره ${orderResult.id}`,
-      orderId: orderResult.id,
-      email: shippingInfo.email,
-      mobile: shippingInfo.phone,
-    });
-
-    console.log('📊 7. Payment result:', paymentResult);
-
-    // 8. اگر به اینجا رسیدیم یعنی ریدایرکت انجام نشده و خطایی رخ داده
-    if (!paymentResult.success) {
-      setErrorMessage(paymentResult.error || 'خطا در اتصال به درگاه پرداخت');
-    }
-  } catch (err) {
-    console.error('❌ Order creation error:', err);
-    setErrorMessage('خطا در ثبت سفارش، لطفا دوباره تلاش کنید.');
   }
-};
+
   // Check if user has addresses
   if (
     userAddress?.addresses &&
@@ -383,57 +380,59 @@ const handleSubmit = async (shouldCreateNewAddress: boolean = true) => {
                 </div>
 
                 <div className="space-y-4">
-                  {userAddress.addresses.map((address: Address, index: number) => (
-                    <div
-                      key={address.id || index}
-                      className={`cursor-pointer rounded-lg border transition hover:bg-gray-50 ${
-                        selectedAddressId === address.id
-                          ? 'border-2 border-black'
-                          : 'border border-[#D9D9D9]'
-                      }`}
-                      onClick={() => {
-                        setSelectedAddressId(address.id)
-                        // Set selected address to shippingInfo
-                        setShippingInfo({
-                          firstName: address.firstName,
-                          lastName: address.lastName,
-                          city: address.city,
-                          province: address.province,
-                          email: address.email || '',
-                          phone: address.phone,
-                          address: address.address,
-                          postalCode: address.postalCode,
-                          notes: shippingInfo.notes,
-                        })
-                      }}
-                    >
-                      <div className="p-5">
-                        <div className="font-ray flex items-start justify-between text-lg font-medium">
-                          <div className="space-y-2">
-                            {address.isDefault && (
-                              <span className="inline-block rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-600">
-                                آدرس پیش‌فرض
+                  {userAddress.addresses.map(
+                    (address: Address, index: number) => (
+                      <div
+                        key={address.id || index}
+                        className={`cursor-pointer rounded-lg border transition hover:bg-gray-50 ${
+                          selectedAddressId === address.id
+                            ? 'border-2 border-black'
+                            : 'border border-[#D9D9D9]'
+                        }`}
+                        onClick={() => {
+                          setSelectedAddressId(address.id)
+                          // Set selected address to shippingInfo
+                          setShippingInfo({
+                            firstName: address.firstName,
+                            lastName: address.lastName,
+                            city: address.city,
+                            province: address.province,
+                            email: address.email || '',
+                            phone: address.phone,
+                            address: address.address,
+                            postalCode: address.postalCode,
+                            notes: shippingInfo.notes,
+                          })
+                        }}
+                      >
+                        <div className="p-5">
+                          <div className="font-ray flex items-start justify-between text-lg font-medium">
+                            <div className="space-y-2">
+                              {address.isDefault && (
+                                <span className="inline-block rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-600">
+                                  آدرس پیش‌فرض
+                                </span>
+                              )}
+                              <p className="text-black">{address.address}</p>
+                              <div className="flex flex-col space-y-2 text-black">
+                                <span>شهر: {address.city}</span>
+                                <span>استان: {address.province}</span>
+                              </div>
+                              <span className="flex text-black">
+                                کد پستی: {toPersianDigit(address.postalCode)}
                               </span>
-                            )}
-                            <p className="text-black">{address.address}</p>
-                            <div className="flex flex-col space-y-2 text-black">
-                              <span>شهر: {address.city}</span>
-                              <span>استان: {address.province}</span>
-                            </div>
-                            <span className="flex text-black">
-                              کد پستی: {toPersianDigit(address.postalCode)}
-                            </span>
-                            <div className="flex gap-1 text-black">
-                              <span>
-                                گیرنده: {address.firstName} {address.lastName}
-                              </span>
-                              |<span>{toPersianDigit(address.phone)}</span>
+                              <div className="flex gap-1 text-black">
+                                <span>
+                                  گیرنده: {address.firstName} {address.lastName}
+                                </span>
+                                |<span>{toPersianDigit(address.phone)}</span>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ),
+                  )}
                 </div>
                 {/* Notes */}
                 <div className="mt-5 md:col-span-2">

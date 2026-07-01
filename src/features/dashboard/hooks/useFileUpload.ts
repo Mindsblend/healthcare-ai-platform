@@ -1,7 +1,6 @@
-// hooks/useUpload.ts
 import { useState } from 'react'
 import { uploadFileAction } from '../actions/uploadFileAction'
-import { UploadState, UploadResult } from '@/components/types/types'
+import { UploadState, UploadResult, FileInput } from '@/components/types/types'
 
 export function useUpload() {
   const [state, setState] = useState<UploadState>({
@@ -23,7 +22,6 @@ export function useUpload() {
     })
 
     try {
-      // Simulate progress
       const progressInterval = setInterval(() => {
         setState((prev) => ({
           ...prev,
@@ -31,12 +29,20 @@ export function useUpload() {
         }))
       }, 200)
 
-      // Use FileInput interface instead of FormData
-      const result = await uploadFileAction({
+      // Use the FileInput type
+      const input: FileInput = {
         file: file,
-        folder: folder || 'general',
+        folder: folder || 'products',
         filename: file.name,
-      })
+      }
+
+      // Create FormData from the input
+      const formData = new FormData()
+      formData.append('file', input.file)
+      formData.append('folder', input.folder)
+      formData.append('filename', input.filename)
+
+      const result = await uploadFileAction(formData)
 
       clearInterval(progressInterval)
 
@@ -51,12 +57,7 @@ export function useUpload() {
         success: true,
       })
 
-      // Return the uploaded file data
-      if (result.data) {
-        return result.data
-      }
-
-      return null
+      return result.data || null
     } catch (error: any) {
       setState({
         isUploading: false,
