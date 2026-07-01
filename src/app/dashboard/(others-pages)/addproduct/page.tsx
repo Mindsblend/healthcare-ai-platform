@@ -299,9 +299,14 @@ const AddProduct = () => {
                 {/* Product Image Upload - Using reusable ImageUploader */}
                 <ImageUploader
                   label="عکس محصول"
-                  imageUrl={form.image}
-                  onUpload={(url) => handleChange('image', url)}
-                  onClear={() => handleChange('image', '')}
+                  images={form.image ? [form.image] : []}
+                  onImagesChange={(urls) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      image: urls[0] || '',
+                    }))
+                  }
+                  maxImages={1}
                   id="product-image-upload"
                   setErrorMessage={setErrorMessage}
                 />
@@ -323,14 +328,18 @@ const AddProduct = () => {
                 <div key={idx} className="space-y-4">
                   {/* Icon Upload */}
                   <ImageUploader
-                    label={`آیکن ${idx + 1}`}
-                    imageUrl={icon.iconPath}
-                    onUpload={(url) => handleIconUpload(idx, url)}
-                    onClear={() => handleIconUpload(idx, '')}
-                    id={`icon-upload-${idx}`}
+                    label="عکس محصول"
+                    images={form.image ? [form.image] : []}
+                    onImagesChange={(urls) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        image: urls[0] || '',
+                      }))
+                    }
+                    maxImages={1}
+                    id="product-image-upload"
                     setErrorMessage={setErrorMessage}
                   />
-
                   {/* Icon Title */}
                   <div>
                     <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
