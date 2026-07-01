@@ -82,8 +82,7 @@ const CollectionCard = ({
                 )}
               </div>
 
-              <Link
-                href={`/collections/${collection.slug}`}
+              <div
                 className="flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-[#F2F2F2] px-4 text-sm font-medium text-black transition hover:bg-gray-200 sm:w-auto sm:px-6"
               >
                 مشاهده مجموعه
@@ -96,7 +95,7 @@ const CollectionCard = ({
                     className="h-4 w-4"
                   />
                 </div>
-              </Link>
+              </div>
             </div>
           </div>
         </div>
