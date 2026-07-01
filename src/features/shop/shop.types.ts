@@ -560,7 +560,7 @@ export interface UpdateCollectionInput {
 }
 
 export interface DeleteCollectionInput {
-  id: string
+  id: number
 }
 
 export interface DeleteCollectionResponse {

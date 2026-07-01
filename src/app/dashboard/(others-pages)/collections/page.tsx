@@ -19,7 +19,6 @@ import Pagination from '@/components/domain/dashboard/tables/Pagination'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { CollectionDetail, CollectionSummary } from '@/features/shop/shop.types'
-import LoadingBar from '@/components/layout/LoadingBar'
 import ConfirmPopup from '@/components/layout/ConfirmPopup'
 import { useCollectionBySlug } from '@/features/shop/hooks/collections/useCollectionBySlug'
 
