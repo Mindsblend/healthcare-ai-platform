@@ -17,10 +17,6 @@ const page = () => {
   const latestBlog: BlogPreview | undefined = sortedBlogs[0]
   const remainingBlogs: BlogPreview[] = sortedBlogs.slice(1)
 
-  if (!latestBlog || !latestBlog.slug) {
-    return null 
-  }
-
   return (
     <LoadingBar
       loading={loading}
