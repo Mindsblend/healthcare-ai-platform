@@ -140,7 +140,10 @@ function useCartState(isAuthenticated: boolean): CartContextValue {
 
     if (!createCartRequest.current) {
       createCartRequest.current = createCart()
-        .then((newCart) => applyCart(newCart))
+        .then((newCart) => {
+          applyCart(newCart)
+          return newCart
+        })
         .finally(() => {
           createCartRequest.current = null
         })
@@ -170,7 +173,8 @@ function useCartState(isAuthenticated: boolean): CartContextValue {
           await refreshCart()
           setError(null)
         } catch (err: unknown) {
-          const message = err instanceof Error ? err.message : 'Failed to add item'
+          const message =
+            err instanceof Error ? err.message : 'Failed to add item'
           setError(message)
           throw err
         }
@@ -194,7 +198,8 @@ function useCartState(isAuthenticated: boolean): CartContextValue {
         await removeItemAction(input)
         await refreshCart()
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Failed to remove item'
+        const message =
+          err instanceof Error ? err.message : 'Failed to remove item'
         setError(message)
         throw err
       }
