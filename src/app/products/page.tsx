@@ -77,7 +77,7 @@ function ProductsContent() {
     appliedSearchQuery,
   ])
 
-  const itemsPerPage = 7
+  const itemsPerPage = 9
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage)
 
   const safePage = totalPages === 0 ? 1 : Math.min(page, totalPages)
@@ -179,9 +179,9 @@ function ProductsContent() {
 
   return (
     <LoadingBar loading={loading} error={error}>
-      <section className="container-wide py-20">
+      <section className="container-wide py-12">
         <div className="mb-10 flex flex-col items-center text-center">
-          <h1 className="font-aria text-color-title-on-light max-w-133 text-[36px] leading-tight font-extrabold sm:text-[54px]">
+          <h1 className="font-aria text-color-title-on-light max-w-133 text-4xl leading-tight font-extrabold sm:text-[54px]">
             کالای دلخواهت را همین حالا پیدا کن
           </h1>
 
@@ -351,7 +351,7 @@ function ProductsContent() {
           {currentData.length === 0 ? (
             <EmptyState />
           ) : (
-            <div className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4 sm:grid-cols-2 sm:gap-6 lg:gap-8 xl:grid-cols-3">
+            <div className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {currentData.map((product) => (
                 <Product key={product.id} product={product} />
               ))}

@@ -16,7 +16,11 @@ export async function GET(request: NextRequest) {
 
     // Otherwise return all products
     const products = await ProductService.fetchProductsPreview()
-    return NextResponse.json(products)
+    return NextResponse.json(products, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+      },
+    })
   } catch (error) {
     console.error('Error fetching products:', error)
     return NextResponse.json(

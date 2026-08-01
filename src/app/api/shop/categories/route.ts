@@ -3,7 +3,12 @@ import { CategoryService } from '@/features/shop/services/CategoryService'
 export async function GET() {
   try {
     const categories = await CategoryService.fetchPreviewCategories()
-    return new Response(JSON.stringify(categories), { status: 200 })
+    return new Response(JSON.stringify(categories), {
+      status: 200,
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+      },
+    })
   } catch (error) {
     return new Response(
       JSON.stringify({ error: 'Failed to fetch categories' }),

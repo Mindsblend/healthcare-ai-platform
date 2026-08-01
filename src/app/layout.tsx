@@ -3,6 +3,8 @@ import localFont from 'next/font/local'
 import '../../globals.css'
 import PageViewTracker from '@/components/layout/PageViewTracker'
 import { SessionRefresher } from '@/components/layout/SessionRefresher'
+import { CartProvider } from '@/features/shop/hooks/cart/useCart'
+import { getSession } from '@/features/auth/services/sessionService'
 
 /* ============================
    Headers: Aria Font Family
@@ -112,11 +114,13 @@ export const metadata: Metadata = {
   description: 'An AI integrated healthcare platform',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const session = await getSession()
+
   return (
     <html lang="fa" dir="rtl">
       <body
@@ -131,12 +135,14 @@ export default function RootLayout({
             // add more custom colors here
           } as React.CSSProperties
         }
-      >
-        <main>
-          <SessionRefresher />
-          <PageViewTracker />
-          {children}
-        </main>
+        >
+        <CartProvider isAuthenticated={Boolean(session)}>
+          <main>
+            <SessionRefresher />
+            <PageViewTracker />
+            {children}
+          </main>
+        </CartProvider>
       </body>
     </html>
   )

@@ -149,33 +149,53 @@ export class CartService {
   }
 
   /** Add to Cart */
-  static async addItem(input: AddItemInput) {
+  static async addItem(input: AddItemInput, userId: string) {
     const { cartId, productId, quantity = 1 } = input
 
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
-    })
-
-    if (!product) {
-      throw new Error('Product not found')
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      throw new Error('Quantity must be a positive integer')
     }
 
-    return prisma.cartItem.upsert({
-      where: {
-        cartId_productId: {
+    return prisma.$transaction(async (tx) => {
+      const cart = await tx.cart.findFirst({
+        where: {
+          id: cartId,
+          userId,
+          status: CART_STATUS.ACTIVE,
+        },
+        select: { id: true },
+      })
+
+      if (!cart) {
+        throw new Error('Active cart not found')
+      }
+
+      const product = await tx.product.findFirst({
+        where: { id: productId, isActive: true },
+        select: { price: true },
+      })
+
+      if (!product) {
+        throw new Error('Product not found')
+      }
+
+      return tx.cartItem.upsert({
+        where: {
+          cartId_productId: {
+            cartId,
+            productId,
+          },
+        },
+        update: {
+          quantity: { increment: quantity },
+        },
+        create: {
           cartId,
           productId,
+          quantity,
+          price: product.price,
         },
-      },
-      update: {
-        quantity: { increment: quantity },
-      },
-      create: {
-        cartId,
-        productId,
-        quantity,
-        price: product.price,
-      },
+      })
     })
   }
 

@@ -131,7 +131,7 @@ const CartItem = ({
             </div>
           )}
           <div className="mr-6">
-            <h1 className="font-aria text-color-title-on-light text-xl font-bold xl:text-2xl xl:font-extrabold">
+            <h1 className="font-aria text-color-title-on-light text-lgnpm, font-bold xl:font-extrabold">
               {title}
             </h1>
             <p className="font-ray text-color-body-on-light mt-1.5 line-clamp-2 max-w-40 text-sm font-medium">

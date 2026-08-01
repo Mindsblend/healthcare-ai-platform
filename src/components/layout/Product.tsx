@@ -3,24 +3,35 @@ import Link from 'next/link'
 import { ProductSummary } from '@/features/shop/shop.types'
 import { useCart } from '@/features/shop/hooks/cart/useCart'
 import { useRouter } from 'next/navigation'
-import { useUserInfo } from '@/features/shop/hooks/profile/useUserInfo'
+import { useState } from 'react'
 
 interface Props {
   product: ProductSummary
 }
 
 const Product = ({ product }: Props) => {
-  const { addToCart, cart, loading: cartLoading } = useCart()
-  const { userInfo } = useUserInfo()
+  const { addToCart, isAuthenticated } = useCart()
+  const [isAdding, setIsAdding] = useState(false)
+  const [addError, setAddError] = useState<string | null>(null)
 
   const router = useRouter()
 
   const handleAddToCart = async () => {
-    if (cartLoading) return
-    if (userInfo?.id) {
+    if (isAdding) return
+
+    if (isAuthenticated) {
+      setIsAdding(true)
+      setAddError(null)
+
+      try {
       await addToCart(product.id, 1)
+      } catch {
+        setAddError('افزودن به سبد خرید ناموفق بود. دوباره تلاش کنید.')
+      } finally {
+        setIsAdding(false)
+      }
     } else {
-      router.push(`/auth?redirect=${encodeURIComponent('/feed')}`)
+      router.push(`/auth?from=${encodeURIComponent('/products')}`)
     }
   }
 
@@ -48,10 +59,11 @@ const Product = ({ product }: Props) => {
           <div className="absolute bottom-1 flex w-full flex-col gap-y-1 px-1 sm:flex-row sm:items-center sm:justify-between lg:bottom-2 lg:px-2">
             <button
               onClick={handleAddToCart}
-              disabled={cartLoading}
-              className="text-color-title-on-dark font-ray flex h-10 w-full cursor-pointer items-center justify-center gap-3 rounded-full bg-black pr-4 pl-1 text-sm font-medium whitespace-nowrap transition hover:bg-gray-800 sm:w-auto 2xl:h-12 2xl:pr-5 2xl:text-base"
+              disabled={isAdding}
+              aria-label={`افزودن ${product.title} به سبد خرید`}
+              className="text-color-title-on-dark font-ray flex h-10 w-full cursor-pointer items-center justify-center gap-3 rounded-full bg-black pr-4 pl-1 text-sm font-medium whitespace-nowrap transition hover:bg-gray-800 disabled:cursor-wait disabled:opacity-70 sm:w-auto 2xl:h-12 2xl:pr-5 2xl:text-base"
             >
-              افزودن به سبد خرید
+              {isAdding ? 'در حال افزودن...' : 'افزودن به سبد خرید'}
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white 2xl:h-10 2xl:w-10">
                 <Image
                   src="/images/add-to-cart.svg"
@@ -62,7 +74,13 @@ const Product = ({ product }: Props) => {
               </div>
             </button>
 
-            <div className="text-color-title-on-light font-ray flex h-10 w-full items-center justify-center rounded-3xl bg-[#F2F2F2] px-5 text-sm font-extrabold sm:w-auto 2xl:h-12 2xl:px-7 2xl:text-base">
+            {addError && (
+              <p role="alert" className="font-ray text-xs text-red-600">
+                {addError}
+              </p>
+            )}
+
+            <div className="text-color-title-on-light font-ray flex h-10 w-full items-center justify-center rounded-3xl bg-[#F2F2F2] px-5  text-sm font-extrabold sm:w-auto 2xl:h-12 2xl:text-base">
               {product.price.toLocaleString('fa-IR')}
               <span className="pr-1">تومان</span>
             </div>
@@ -85,10 +103,11 @@ const Product = ({ product }: Props) => {
           <div className="absolute bottom-1 flex w-full flex-col gap-y-1 px-1 sm:flex-row sm:items-center sm:justify-between lg:bottom-2 lg:px-2">
             <button
               onClick={handleAddToCart}
-              disabled={cartLoading}
-              className="text-color-title-on-dark font-ray flex h-10 w-full cursor-pointer items-center justify-center gap-3 rounded-full bg-black pr-4 pl-1 text-sm font-medium whitespace-nowrap transition hover:bg-gray-800 sm:w-auto 2xl:h-12 2xl:pr-5 2xl:text-base"
+              disabled={isAdding}
+              aria-label={`افزودن ${product.title} به سبد خرید`}
+              className="text-color-title-on-dark font-ray flex h-10 w-full cursor-pointer items-center justify-center gap-3 rounded-full bg-black pr-4 pl-1 text-sm font-medium whitespace-nowrap transition hover:bg-gray-800 disabled:cursor-wait disabled:opacity-70 sm:w-auto 2xl:h-12 2xl:pr-5 2xl:text-base"
             >
-              افزودن به سبد خرید
+              {isAdding ? 'در حال افزودن...' : 'افزودن به سبد خرید'}
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white 2xl:h-10 2xl:w-10">
                 <Image
                   src="/images/add-to-cart.svg"
@@ -98,6 +117,12 @@ const Product = ({ product }: Props) => {
                 />
               </div>
             </button>
+
+            {addError && (
+              <p role="alert" className="font-ray text-xs text-red-600">
+                {addError}
+              </p>
+            )}
 
             <div className="text-color-title-on-light font-ray flex h-10 w-full items-center justify-center rounded-3xl bg-[#F2F2F2] px-5 text-sm font-extrabold sm:w-auto 2xl:h-12 2xl:px-7 2xl:text-base">
               {product.price.toLocaleString('fa-IR')}

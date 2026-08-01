@@ -1,6 +1,14 @@
-// features/shop/cart/hooks/useCart.ts
+'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react'
 import { getCart } from '../../actions/cart/getCartAction'
 import { addItem as addItemAction } from '../../actions/cart/addItemAction'
 import { removeItem as removeItemAction } from '../../actions/cart/removeItemAction'
@@ -14,185 +22,219 @@ import {
   UpdateItemQuantityInput,
 } from '../../shop.types'
 
+type CartContextValue = {
+  cart: CartType | null
+  cartItems: CartItemType[]
+  loading: boolean
+  error: string | null
+  isAdding: boolean
+  isAuthenticated: boolean
+  addToCart: (productId: number, quantity?: number) => Promise<void>
+  removeFromCart: (cartItemId: number) => Promise<void>
+  updateQuantity: (cartItemId: number, quantity: number) => Promise<void>
+  refreshCart: () => Promise<CartType | null>
+}
+
+const CartContext = createContext<CartContextValue | null>(null)
+
+export function CartProvider({
+  children,
+  isAuthenticated,
+}: {
+  children: ReactNode
+  isAuthenticated: boolean
+}) {
+  const value = useCartState(isAuthenticated)
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>
+}
+
 export function useCart() {
+  const context = useContext(CartContext)
+
+  if (!context) {
+    throw new Error('useCart must be used within CartProvider')
+  }
+
+  return context
+}
+
+function useCartState(isAuthenticated: boolean): CartContextValue {
   const [cart, setCart] = useState<CartType | null>(null)
   const [cartItems, setCartItems] = useState<CartItemType[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(isAuthenticated)
   const [error, setError] = useState<string | null>(null)
+  const [pendingAddCount, setPendingAddCount] = useState(0)
 
-  // Add refs to prevent race conditions
-  const creatingCart = useRef(false)
-  const cartPromise = useRef<Promise<CartType> | null>(null)
-  const addQueue = useRef<Array<{ productId: number; quantity: number }>>([])
-  const isProcessingAdds = useRef(false)
+  // Refs keep asynchronous operations in sync even before React has rendered
+  // the state update. One provider means product cards no longer create
+  // competing carts or repeat the same initial requests.
+  const cartRef = useRef<CartType | null>(null)
+  const cartRequest = useRef<Promise<CartType | null> | null>(null)
+  const createCartRequest = useRef<Promise<CartType> | null>(null)
+  const addQueue = useRef<Promise<void>>(Promise.resolve())
 
-  useEffect(() => {
-    async function load() {
-      try {
-        let activeCart = await getCart()
-        setCart(activeCart)
-      } catch (err: any) {
-        setError(err.message)
-      } finally {
-        setLoading(false)
-      }
-    }
-    load()
+  const applyCart = useCallback((nextCart: CartType | null) => {
+    cartRef.current = nextCart
+    setCart(nextCart)
+    setCartItems(nextCart?.items ?? [])
+    return nextCart
   }, [])
 
-  // Helper to refresh cart data
-  const refreshCart = async () => {
+  const fetchCart = useCallback(async () => {
+    if (!isAuthenticated) {
+      return applyCart(null)
+    }
+
+    const activeCart = await getCart()
+    return applyCart(activeCart)
+  }, [applyCart, isAuthenticated])
+
+  const loadCartOnce = useCallback(async () => {
+    if (!isAuthenticated) return applyCart(null)
+
+    if (!cartRequest.current) {
+      cartRequest.current = fetchCart().finally(() => {
+        cartRequest.current = null
+      })
+    }
+
+    return cartRequest.current
+  }, [applyCart, fetchCart, isAuthenticated])
+
+  useEffect(() => {
+    setError(null)
+
+    if (!isAuthenticated) {
+      setLoading(false)
+      applyCart(null)
+      return
+    }
+
+    setLoading(true)
+    void loadCartOnce()
+      .catch((err: unknown) => {
+        setError(err instanceof Error ? err.message : 'Failed to load cart')
+      })
+      .finally(() => setLoading(false))
+  }, [applyCart, isAuthenticated, loadCartOnce])
+
+  const refreshCart = useCallback(async () => {
     try {
-      const refreshedCart = await getCart()
-      setCart(refreshedCart)
-      setCartItems(refreshedCart?.items ?? [])
-      return refreshedCart
-    } catch (err: any) {
-      setError(err.message)
-      return null
+      return await fetchCart()
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to refresh cart')
+      throw err
     }
-  }
+  }, [fetchCart])
 
-  // Get or create cart - ensures only ONE cart exists
-  const getOrCreateCart = async (): Promise<CartType> => {
-    // If we already have a cart in state, use it
-    if (cart) {
-      return cart
+  const getOrCreateCart = useCallback(async (): Promise<CartType> => {
+    if (!isAuthenticated) {
+      throw new Error('AUTH_REQUIRED')
     }
 
-    // If cart creation is already in progress, wait for it
-    if (creatingCart.current && cartPromise.current) {
-      console.log('[getOrCreateCart] Waiting for existing cart creation...')
-      return await cartPromise.current
+    if (cartRef.current) return cartRef.current
+
+    const existingCart = await loadCartOnce()
+    if (existingCart) return existingCart
+
+    if (!createCartRequest.current) {
+      createCartRequest.current = createCart()
+        .then((newCart) => applyCart(newCart))
+        .finally(() => {
+          createCartRequest.current = null
+        })
     }
 
-    // Check server for existing cart (in case state is stale)
-    console.log('[getOrCreateCart] Checking for existing cart...')
-    const existingCart = await getCart()
-    if (existingCart) {
-      console.log('[getOrCreateCart] Found existing cart:', existingCart.id)
-      setCart(existingCart)
-      return existingCart
-    }
+    return createCartRequest.current
+  }, [applyCart, isAuthenticated, loadCartOnce])
 
-    // Create new cart
-    console.log('[getOrCreateCart] Creating new cart...')
-    creatingCart.current = true
-    cartPromise.current = createCart()
-
-    try {
-      const newCart = await cartPromise.current
-      if (!newCart) throw new Error('Failed to create cart')
-      console.log('[getOrCreateCart] Created cart:', newCart.id)
-      setCart(newCart)
-      return newCart
-    } finally {
-      creatingCart.current = false
-      cartPromise.current = null
-    }
-  }
-
-  // Process queued adds
-  const processAddQueue = async () => {
-    if (isProcessingAdds.current || addQueue.current.length === 0) return
-
-    isProcessingAdds.current = true
-
-    try {
-      // Get or create cart once for all queued items
-      const activeCart = await getOrCreateCart()
-
-      // Process all queued adds
-      while (addQueue.current.length > 0) {
-        const add = addQueue.current.shift()
-        if (!add) continue
-
-        console.log(
-          '[processAddQueue] Adding product:',
-          add.productId,
-          'to cart:',
-          activeCart.id,
-        )
-
-        const input: AddItemInput = {
-          cartId: activeCart.id,
-          productId: add.productId,
-          quantity: add.quantity,
-        }
-        await addItemAction(input)
+  const addToCart = useCallback(
+    (productId: number, quantity = 1) => {
+      if (!isAuthenticated) {
+        return Promise.reject(new Error('AUTH_REQUIRED'))
       }
 
-      // Single refresh after all adds are done
-      await refreshCart()
-    } catch (err: any) {
-      console.error('[processAddQueue] Error:', err)
-      setError(err.message)
-    } finally {
-      isProcessingAdds.current = false
-    }
-  }
+      setPendingAddCount((count) => count + 1)
 
-  const addToCart = async (productId: number, quantity = 1) => {
-    // Add to queue
-    addQueue.current.push({ productId, quantity })
+      const task = addQueue.current.then(async () => {
+        try {
+          const activeCart = await getOrCreateCart()
+          const input: AddItemInput = {
+            cartId: activeCart.id,
+            productId,
+            quantity,
+          }
 
-    // Start processing queue
-    await processAddQueue()
-  }
+          await addItemAction(input)
+          await refreshCart()
+          setError(null)
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : 'Failed to add item'
+          setError(message)
+          throw err
+        }
+      })
 
-  const removeFromCart = async (cartItemId: number) => {
-    try {
-      setLoading(true)
-      const input: RemoveItemInput = { cartItemId }
-      await removeItemAction(input)
-      await refreshCart()
-    } catch (err: any) {
-      console.error('[removeFromCart] Error:', err)
-      setError(err.message)
-      throw err
-    } finally {
-      setLoading(false)
-    }
-  }
+      // A failed add should be reported to its caller, but must not prevent
+      // a later click from being processed.
+      addQueue.current = task.catch(() => undefined)
 
-  const updateQuantity = async (cartItemId: number, quantity: number) => {
-    if (quantity < 1) return
+      return task.finally(() => {
+        setPendingAddCount((count) => Math.max(0, count - 1))
+      })
+    },
+    [getOrCreateCart, isAuthenticated, refreshCart],
+  )
 
-    try {
-      setLoading(true)
+  const removeFromCart = useCallback(
+    async (cartItemId: number) => {
+      try {
+        const input: RemoveItemInput = { cartItemId }
+        await removeItemAction(input)
+        await refreshCart()
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Failed to remove item'
+        setError(message)
+        throw err
+      }
+    },
+    [refreshCart],
+  )
 
-      // Optimistic update: local state first
+  const updateQuantity = useCallback(
+    async (cartItemId: number, quantity: number) => {
+      if (quantity < 1) return
+
+      const previousItems = cartItems
       setCartItems((items) =>
         items.map((item) =>
           item.id === cartItemId ? { ...item, quantity } : item,
         ),
       )
 
-      // Send to backend
-      const input: UpdateItemQuantityInput = { cartItemId, quantity }
-      await updateItemAction(input)
-
-      // Refresh cart to ensure consistency
-      await refreshCart()
-    } catch (err: any) {
-      console.error('[updateQuantity] Error:', err)
-      setError(err.message)
-      // Revert optimistic update by refreshing on error
-      await refreshCart()
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    setCartItems(cart?.items ?? [])
-  }, [cart])
+      try {
+        const input: UpdateItemQuantityInput = { cartItemId, quantity }
+        await updateItemAction(input)
+        await refreshCart()
+      } catch (err: unknown) {
+        setCartItems(previousItems)
+        const message =
+          err instanceof Error ? err.message : 'Failed to update quantity'
+        setError(message)
+        throw err
+      }
+    },
+    [cartItems, refreshCart],
+  )
 
   return {
     cart,
+    cartItems,
     loading,
     error,
-    cartItems,
+    isAdding: pendingAddCount > 0,
+    isAuthenticated,
     addToCart,
     removeFromCart,
     updateQuantity,

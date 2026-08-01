@@ -36,7 +36,7 @@ const page = () => {
       loadingText="در حال بارگذاری سبد خرید..."
       showOnlyOnInitialLoad
     >
-      <div className="container mt-16">
+      <div className="container mt-5">
         <h1 className="font-aria text-color-title-on-light text-4xl font-extrabold">
           سبد خرید شما
         </h1>
