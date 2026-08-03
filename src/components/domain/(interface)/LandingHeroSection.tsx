@@ -25,7 +25,7 @@ const HeroSection = () => {
             <span className="font-ray pr-2 font-medium">شروع سفر سلامتی</span>
             <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white xl:h-10 xl:w-10">
               <Image
-                src="/public/images/arrow.svg"
+                src="/images/arrow.svg"
                 alt="Top Right Image"
                 width={20}
                 height={20}
@@ -43,7 +43,7 @@ const HeroSection = () => {
 
         <div className="order-2 my-6 flex w-full flex-col justify-between max-lg:items-center">
           <Image
-            src="/images/mini-products.svg"
+            src="/images/mini-products.webp"
             alt="Mini Products"
             width={140}
             height={50}
