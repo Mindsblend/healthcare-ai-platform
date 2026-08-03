@@ -94,7 +94,7 @@ const ProductSwiper = memo(({ products, categories }: ProductSwiperProps) => {
               className="secondary-btn flex items-center justify-center gap-1 rounded-full border border-black bg-black px-4 py-2 font-medium whitespace-nowrap text-white"
             >
               <Image
-                src="/images/discover_tune.svg"
+                src="/images/discover_tune.webp"
                 width={15}
                 height={15}
                 alt="discover tune image"
@@ -167,7 +167,7 @@ const ProductSwiper = memo(({ products, categories }: ProductSwiperProps) => {
               className="flex h-11.25 w-11.25 cursor-pointer items-center justify-center rounded-full bg-black xl:h-15 xl:w-15"
             >
               <Image
-                src="/images/arrow-white.svg"
+                src="/images/arrow-white.webp"
                 alt="prev"
                 width={30}
                 height={30}
@@ -180,7 +180,7 @@ const ProductSwiper = memo(({ products, categories }: ProductSwiperProps) => {
               className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-[#D9D9D9] xl:h-12.5 xl:w-12.5"
             >
               <Image
-                src="/images/arrow-white.svg"
+                src="/images/arrow-white.webp"
                 alt="next"
                 width={20}
                 height={20}

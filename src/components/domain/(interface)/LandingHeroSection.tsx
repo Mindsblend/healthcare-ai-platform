@@ -25,7 +25,7 @@ const HeroSection = () => {
             <span className="font-ray pr-2 font-medium">شروع سفر سلامتی</span>
             <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white xl:h-10 xl:w-10">
               <Image
-                src="/images/arrow.svg"
+                src="/public/images/arrow.svg"
                 alt="Top Right Image"
                 width={20}
                 height={20}
@@ -73,11 +73,11 @@ const HeroSection = () => {
       {/* Left: Image - aligned to bottom */}
       <div className="hidden lg:flex lg:items-end">
         <Image
-          src="/images/hero.svg"
+          src="/images/hero.webp"
           alt="Healthy Lifestyle"
           width={660}
           height={100}
-          className="h-auto w-full"
+          className="h-auto w-full max-w-xl"
           priority
         />
       </div>

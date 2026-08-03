@@ -465,7 +465,7 @@ const CheckoutPage = () => {
                       }`}
                     >
                       <Image
-                        src="/images/zarinpal.svg"
+                        src="/images/zarinpal.webp"
                         alt="zarinpal"
                         width={38}
                         height={50}
@@ -824,7 +824,7 @@ const CheckoutPage = () => {
                   }`}
                 >
                   <Image
-                    src="/images/zarinpal.svg"
+                    src="/images/zarinpal.webp"
                     alt="zarinpal"
                     width={38}
                     height={50}

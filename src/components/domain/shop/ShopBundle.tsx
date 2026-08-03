@@ -36,14 +36,14 @@ const ShopBundle = ({ collections }: ShopBundleProps) => {
     <div className="relative container mt-20 pb-52 lg:mt-28">
       <div className="bg-section relative h-105 w-full rounded-3xl px-6 py-10 sm:py-12 md:h-142.5 md:px-24">
         <Image
-          src="/images/discount.svg"
+          src="/public/images/discount.svg"
           alt="discount image"
           width={700}
           height={200}
           className="absolute right-0"
         />
         <Image
-          src="/images/discount.svg"
+          src="/public/images/discount.svg"
           alt="discount image"
           width={700}
           height={200}
@@ -99,7 +99,7 @@ const ShopBundle = ({ collections }: ShopBundleProps) => {
                 className="secondary-btn flex items-center justify-center gap-1 rounded-full border border-black bg-black px-4 py-2 font-medium whitespace-nowrap text-white"
               >
                 <Image
-                  src="/images/discover_tune.svg"
+                  src="/public/images/discover_tune.svg"
                   width={15}
                   height={15}
                   alt="discover tune image"

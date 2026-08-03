@@ -4,6 +4,7 @@
 
 import { useMemo, useState } from 'react'
 import { useUserOrder } from '@/features/shop/hooks/profile/useUserOrder'
+import Image from 'next/image'
 import { OrderStatus, OrderItem } from '@/features/shop/shop.types'
 import { getStatusLabel, toPersianDigit } from '@/lib/helpers'
 import LoadingBar from '@/components/layout/LoadingBar'
@@ -244,7 +245,7 @@ const OrdersContent = () => {
                               className="flex w-full flex-col gap-4 border-b border-gray-200 py-4 last:border-b-0 last:pb-0 sm:flex-row sm:items-center"
                             >
                               {item.product?.image && (
-                                <img
+                                <Image
                                   src={item.product.image}
                                   alt={item.product.title}
                                   className="h-16 w-16 rounded-md object-cover"

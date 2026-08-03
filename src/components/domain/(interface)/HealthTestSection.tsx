@@ -48,7 +48,7 @@ const HealthTestSection = () => {
           <div className="flex flex-col items-center rounded-2xl bg-white p-3 xl:p-5">
             {/* Image */}
             <Image
-              src="/images/health-test-one.png"
+              src="/images/health-test-one.webp"
               alt="Card Image"
               width={705}
               height={627}
@@ -74,7 +74,7 @@ const HealthTestSection = () => {
           <div className="flex flex-col items-center rounded-2xl bg-white p-3 xl:p-5">
             {/* Image */}
             <Image
-              src="/images/health-test-two.png"
+              src="/images/health-test-two.webp"
               alt="Card Image"
               width={705}
               height={627}

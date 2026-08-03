@@ -9,7 +9,7 @@ const PainPointSection = () => {
         <div className="mb-8 w-full lg:mb-0 lg:w-5/12">
           <div className="relative aspect-video w-full overflow-hidden rounded-2xl lg:aspect-4/3 lg:rounded-3xl">
             <Image
-              src="/images/pain-point-one.svg"
+              src="/images/pain-point-one.webp"
               alt="Section 1 Image"
               fill
               className="object-contain transition-transform duration-500 hover:scale-105"
@@ -48,7 +48,7 @@ const PainPointSection = () => {
         <div className="mb-8 w-full lg:mb-0 lg:w-5/12">
           <div className="relative aspect-video w-full overflow-hidden rounded-2xl lg:aspect-4/3 lg:rounded-3xl">
             <Image
-              src="/images/pain-point-two.svg"
+              src="/images/pain-point-two.webp"
               alt="Section 2 Image"
               fill
               className="object-contain transition-transform duration-500 hover:scale-105"
