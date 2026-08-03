@@ -30,7 +30,7 @@ const FaqItem = ({ item, isOpen, onToggle }: FaqItemProps) => {
           className="shrink-0"
         >
           <Image
-            src="/images/arrow.webp"
+            src="/images/arrow.svg"
             alt="arrow icon"
             width={20}
             height={20}

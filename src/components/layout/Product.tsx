@@ -66,7 +66,7 @@ const Product = ({ product }: Props) => {
               {isAdding ? 'در حال افزودن...' : 'افزودن به سبد خرید'}
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white 2xl:h-10 2xl:w-10">
                 <Image
-                  src="/images/add-to-cart.webp"
+                  src="/images/add-to-cart.svg"
                   alt="Add to cart"
                   width={20}
                   height={20}
@@ -110,7 +110,7 @@ const Product = ({ product }: Props) => {
               {isAdding ? 'در حال افزودن...' : 'افزودن به سبد خرید'}
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white 2xl:h-10 2xl:w-10">
                 <Image
-                  src="/images/add-to-cart.webp"
+                  src="/images/add-to-cart.svg"
                   alt="Add to cart"
                   width={20}
                   height={20}
