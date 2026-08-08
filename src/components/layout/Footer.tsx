@@ -3,12 +3,12 @@ import Link from 'next/link'
 
 const Footer = () => {
   return (
-    <footer className="bg-page text-color-title-on-light container pt-12 pb-5">
-      <div className="flex flex-col items-center justify-center sm:flex-row sm:justify-between">
+    <footer className="bg-page text-color-title-on-light container pb-5">
+      <div className="flex flex-col sm:flex-row sm:justify-between">
         {/* RIGHT SIDE — Logo + Paragraph + Social Icons + Numbers */}
-        <div className="flex w-full max-w-sm flex-col items-center justify-between sm:items-start sm:text-right">
+        <div className="flex w-full max-w-sm flex-col justify-between sm:items-start sm:text-right">
           {/* Logo */}
-          <div className="flex justify-center sm:justify-start">
+          <div className="flex justify-start">
             <Image
               src="/images/logo.svg"
               alt="Logo"
@@ -19,13 +19,13 @@ const Footer = () => {
           </div>
 
           {/* Paragraph */}
-          <p className="font-ray text-color-title-on-light mb-2.5 text-center text-wrap sm:max-w-2xs sm:text-right sm:text-sm xl:max-w-lg xl:text-xl">
+          <p className="font-ray text-color-title-on-light mb-2.5 text-wrap sm:max-w-2xs sm:text-right sm:text-sm xl:max-w-lg xl:text-xl">
             انتخاب ارگانیک امروز، یعنی هدیه‌دادن آینده‌ای سالم‌تر به فرزندان؛ با
             عادت‌های درست و بدنی پاک‌تر و محیطی سبزتر.
           </p>
 
           {/* Numbers */}
-          <div className="font-aria text-color-title-on-light flex flex-wrap justify-center gap-3 text-lg font-normal sm:justify-start sm:gap-6">
+          <div className="font-aria text-color-title-on-light flex flex-wrap gap-3 text-lg font-normal sm:justify-start sm:gap-6">
             {/* Social Media */}
             <div className="flex justify-end gap-4">
               <Link href='#'>
@@ -59,9 +59,9 @@ const Footer = () => {
         </div>
 
         {/* LEFT SIDE — 3 Categories */}
-        <div className="flex justify-center gap-12.5 max-sm:mt-5 max-sm:flex-wrap sm:justify-end sm:gap-x-10 xl:gap-x-20">
+        <div className="flex gap-x-12.5 items-center gap-y-5 max-sm:mt-5 max-sm:flex-wrap sm:justify-end sm:gap-x-10 xl:gap-x-20">
           {/* Category 1 */}
-          <div className="text-center sm:text-right">
+          <div className="text-right">
             <h3 className="font-aria mb-2.5 font-extrabold sm:text-base xl:text-xl">
               صفحه اصلی
             </h3>
@@ -118,7 +118,7 @@ const Footer = () => {
           </div>
 
           {/* Category 3 */}
-          <div className="text-center sm:text-right">
+          <div className="text-right">
             <h3 className="font-aria mb-2 font-extrabold sm:text-base xl:text-xl">
               ارتباط با ما
             </h3>
@@ -147,11 +147,11 @@ const Footer = () => {
       <div className="my-2.5 h-px w-full bg-[#D9D9D9]"></div>
 
       {/* Footer Bottom Links - Centered for mobile/tablet */}
-      <div className="font-ray flex flex-col items-center justify-center gap-4 font-bold text-black sm:flex-row sm:justify-between sm:gap-0 sm:text-sm xl:text-xl">
+      <div className="font-ray flex flex-col text-sm items-center justify-center gap-2 font-bold text-black sm:flex-row sm:justify-between sm:gap-0 sm:text-sm xl:text-xl">
         <a href="#" className="text-center transition hover:text-gray-500">
           © ۲۰۲۵ زیستیار – تمامی حقوق محفوظ است
         </a>
-        <div className="flex flex-wrap justify-center gap-4 sm:gap-5 xl:gap-8">
+        <div className="flex flex-wrap text-sm sm:text-base justify-center gap-2 sm:gap-5 xl:gap-8">
           <a
             href="/legal/privacy-policy"
             className="transition hover:text-gray-500"

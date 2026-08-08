@@ -15,7 +15,7 @@ const CallToAction = () => {
           است. آینده‌ای سالم و شاد، تنها یک تصمیم با تو فاصله دارد.
         </p>
 
-        <div className="flex flex-wrap items-center justify-center gap-4">
+        <div className="flex items-center justify-center gap-2">
           <Link
             href="/ai"
             className="primary-btn bg-accent-purple flex items-center justify-between rounded-full text-white"
@@ -32,6 +32,7 @@ const CallToAction = () => {
                 alt="Top Right Image"
                 width={20}
                 height={20}
+                className=''
               />
             </div>
           </Link>

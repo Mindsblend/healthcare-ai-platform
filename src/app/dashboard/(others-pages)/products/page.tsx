@@ -450,12 +450,12 @@ const Products = () => {
                             <Image
                               src={product.image}
                               alt="product image"
-                              width={80}
-                              height={80}
-                              className="h-20 w-20 rounded-2xl object-cover"
+                              width={60}
+                              height={60}
+                              className="rounded-2xl object-cover"
                             />
                           ) : (
-                            <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gray-100">
+                            <div className="flex h-15 w-15 items-center justify-center rounded-2xl bg-gray-100">
                               <span className="text-xs text-gray-400">
                                 بدون تصویر
                               </span>

@@ -39,7 +39,7 @@ const FeaturesSection = () => {
   ]
 
   return (
-    <div className="container flex w-full justify-between gap-5 py-12 max-sm:flex-col max-sm:items-center xl:gap-16">
+    <div className="container flex w-full justify-between py-12 max-sm:flex-col max-sm:items-center xl:gap-16">
       {/* Right side (sticky title + paragraph) */}
       <div className="top-24 h-fit max-sm:mb-10 max-sm:flex max-sm:flex-col max-sm:text-center sm:sticky sm:w-1/2">
         <h2 className="font-aria text-color-title-on-light mb-4 text-3xl font-extrabold max-sm:max-w-lg xl:text-5xl">
@@ -57,7 +57,7 @@ const FeaturesSection = () => {
         {items.map((item, i) => (
           <div
             key={i}
-            className="flex items-center gap-2 pb-6 max-sm:flex-col max-sm:text-center sm:gap-4"
+            className="flex items-center gap-2 sm:pb-6 max-sm:flex-col max-sm:text-center sm:gap-4"
           >
             {/* Icon */}
             <img

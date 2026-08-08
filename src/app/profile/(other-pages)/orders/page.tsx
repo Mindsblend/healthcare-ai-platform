@@ -248,6 +248,8 @@ const OrdersContent = () => {
                                 <Image
                                   src={item.product.image}
                                   alt={item.product.title}
+                                  width={40}
+                                  height={40}
                                   className="h-16 w-16 rounded-md object-cover"
                                 />
                               )}

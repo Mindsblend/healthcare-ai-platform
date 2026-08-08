@@ -346,7 +346,7 @@ const CheckoutPage = () => {
   ) {
     return (
       <LoadingBar loading={cartLoading || paymentLoading} error={error}>
-        <div className="container mt-10">
+        <div className="container my-10">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 xl:grid-cols-3">
             {/* RIGHT: Address Selection */}
             <div className="col-span-1 xl:col-span-2">
