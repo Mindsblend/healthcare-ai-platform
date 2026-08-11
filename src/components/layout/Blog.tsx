@@ -8,7 +8,7 @@ interface Props {
 
 const Blog = ({ blog }: Props) => {
   return (
-    <div className="bg-page flex w-full flex-col rounded-3xl border border-black/25 px-2.5 py-2.5">
+    <div className="bg-page flex w-full flex-col rounded-3xl border border-black/25 p-2.5">
       {/* top image */}
       <div
         className="relative aspect-square w-full rounded-3xl bg-cover bg-center bg-no-repeat"

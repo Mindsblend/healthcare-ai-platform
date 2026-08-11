@@ -1,6 +1,8 @@
 'use client'
 
 import { useParams } from 'next/navigation'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import Questions from '@/components/ui/Questions'
@@ -16,7 +18,12 @@ export default function ProductPage() {
   const slug = decodeURIComponent(params.slug as string)
 
   const { product, loading, error } = useProductBySlug({ slug })
-  const { addToCart, loading: cartLoading } = useCart()
+  const { addToCart, isAuthenticated } = useCart()
+
+  const [isAdding, setIsAdding] = useState(false)
+  const [addError, setAddError] = useState<string | null>(null)
+
+  const router = useRouter()
 
   const { productsByCategoryId: relatedProducts, loading: relatedLoading } =
     useProductsByCategoryId({ categoryId: product?.categoryId || 0 })
@@ -24,9 +31,28 @@ export default function ProductPage() {
   // Get the category icon path, fallback to default
   const categoryIcon = product?.category?.iconPath || '/images/makeup.svg'
 
-  const handleAddToCart = async () => {
-    if (cartLoading || !product) return
-    await addToCart(product.id, 1)
+  const handleAddToCart = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (isAdding || !product) return
+
+    if (isAuthenticated) {
+      setIsAdding(true)
+      setAddError(null)
+
+      try {
+        await addToCart(product.id, 1)
+      } catch {
+        setAddError('افزودن به سبد خرید ناموفق بود. دوباره تلاش کنید.')
+      } finally {
+        setIsAdding(false)
+      }
+    } else {
+      router.push(
+        `/auth?from=${encodeURIComponent(`/products/${product.slug}`)}`,
+      )
+    }
   }
 
   return (
@@ -101,28 +127,21 @@ export default function ProductPage() {
                 )}
               </div>
               <div className="mt-5 flex items-center gap-3.5">
-                <button
-                  onClick={() => handleAddToCart()}
-                  className="primary-btn text-color-title-on-dark font-ray flex items-center justify-between rounded-full bg-black font-medium whitespace-nowrap transition hover:bg-gray-800"
-                >
-                  <span className="pr-2">افزودن به سبد خرید</span>
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white xl:h-10 xl:w-10">
-                    <Image
-                      src="/images/add-to-cart.svg"
-                      alt="Arrow"
-                      width={20}
-                      height={20}
-                      className="max-xl:h-3.75 max-xl:w-3.75"
-                    />
+                <div className="flex w-full gap-x-5 sm:items-center">
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={isAdding}
+                    aria-label={`افزودن ${product.title} به سبد خرید`}
+                    className="text-color-title-on-dark font-ray flex h-10 w-auto cursor-pointer items-center justify-center gap-3 rounded-full bg-black px-4 text-sm font-medium whitespace-nowrap transition hover:bg-gray-800 disabled:cursor-wait disabled:opacity-70 2xl:h-12 2xl:text-base"
+                  >
+                    {isAdding ? 'در حال افزودن...' : 'افزودن به سبد خرید'}
+                  </button>
+
+                  <div className="text-color-title-on-light font-ray flex items-center justify-center text-sm font-extrabold 2xl:text-base">
+                    {product.price.toLocaleString('fa-IR')}
+                    <span className="pr-1">تومان</span>
                   </div>
-                </button>
-                <Link
-                  href="/"
-                  className="secondary-btn text-color-title-on-light flex items-center justify-center rounded-full bg-[#F2F2F2] font-extrabold"
-                >
-                  {product.price?.toLocaleString('fa-IR')}
-                  <span className="pr-1">تومان</span>
-                </Link>
+                </div>
               </div>
             </div>
             <div className="w-full max-lg:order-first lg:max-w-xl">

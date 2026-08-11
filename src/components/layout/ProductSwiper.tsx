@@ -62,7 +62,7 @@ const ProductSwiper = memo(({ products, categories }: ProductSwiperProps) => {
                     : 'bg-[#D9D9D9] text-black'
                 }`}
               >
-                <span className="font-aria text-[16px] font-bold">همه</span>
+                <span className={`font-aria text-base font-bold ${activeCategoryId === null ? 'text-white' : 'text-[#555]'}`}>همه</span>
               </div>
 
               {categories!.map((category) => (
@@ -79,7 +79,9 @@ const ProductSwiper = memo(({ products, categories }: ProductSwiperProps) => {
                       : 'bg-[#D9D9D9] text-black'
                   }`}
                 >
-                  <span className="font-aria text-[16px] font-bold">
+                  <span
+                    className={`font-aria text-base font-bold ${activeCategoryId === category.id ? 'text-white' : 'text-[#555]'}`}
+                  >
                     {category.name}
                   </span>
                 </div>
@@ -207,6 +209,7 @@ const ProductSwiper = memo(({ products, categories }: ProductSwiperProps) => {
           320: { slidesPerView: 1 },
           640: { slidesPerView: 2 },
           1024: { slidesPerView: 3 },
+          1440: { slidesPerView: 4 },
         }}
         className="mt-4 w-full"
       >
