@@ -13,8 +13,8 @@ const ProductCategorySection = () => {
   }
 
   return (
-    <div className="container mb-48">
-      <div className="text-color-title-on-light mt-6 flex flex-wrap items-center justify-center gap-4 gap-y-14 md:gap-17">
+    <div className="container pb-12">
+      <div className="text-color-title-on-light flex flex-wrap items-center justify-center gap-4 gap-y-14 md:gap-17">
         {categories.map((category) => (
           <div
             key={category.id}

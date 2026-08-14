@@ -19,7 +19,7 @@ const Footer = () => {
           </div>
 
           {/* Paragraph */}
-          <p className="font-ray text-color-title-on-light mb-2.5 text-wrap sm:max-w-2xs sm:text-right sm:text-sm xl:max-w-lg xl:text-xl">
+          <p className="font-ray text-color-title-on-light mb-4 text-wrap sm:max-w-2xs sm:text-right sm:text-sm xl:max-w-lg xl:text-xl">
             انتخاب ارگانیک امروز، یعنی هدیه‌دادن آینده‌ای سالم‌تر به فرزندان؛ با
             عادت‌های درست و بدنی پاک‌تر و محیطی سبزتر.
           </p>
@@ -28,7 +28,7 @@ const Footer = () => {
           <div className="font-aria text-color-title-on-light flex flex-wrap gap-3 text-lg font-normal sm:justify-start sm:gap-6">
             {/* Social Media */}
             <div className="flex justify-end gap-4">
-              <Link href='#'>
+              <Link href="#">
                 <Image
                   src="/images/whatsapp.svg"
                   width={22}
@@ -36,7 +36,7 @@ const Footer = () => {
                   alt="Whatsapp"
                 />
               </Link>
-              <Link href='#'>
+              <Link href="#">
                 <Image
                   src="/images/telegram.svg"
                   width={22}
@@ -44,7 +44,7 @@ const Footer = () => {
                   alt="Telegram"
                 />
               </Link>
-              <Link href='#'>
+              <Link href="#">
                 <Image
                   src="/images/instagram.svg"
                   width={22}
@@ -59,7 +59,7 @@ const Footer = () => {
         </div>
 
         {/* LEFT SIDE — 3 Categories */}
-        <div className="flex gap-x-12.5 items-center gap-y-5 max-sm:mt-5 max-sm:flex-wrap sm:justify-end sm:gap-x-10 xl:gap-x-20">
+        <div className="flex items-center gap-x-12.5 gap-y-5 max-sm:mt-5 max-sm:flex-wrap sm:justify-end sm:gap-x-10 xl:gap-x-20">
           {/* Category 1 */}
           <div className="text-right">
             <h3 className="font-aria mb-2.5 font-extrabold sm:text-base xl:text-xl">
@@ -144,14 +144,17 @@ const Footer = () => {
       </div>
 
       {/* Separator Line */}
-      <div className="my-2.5 h-px w-full bg-[#D9D9D9]"></div>
+      <div className="my-4 h-px w-full bg-[#D9D9D9]"></div>
 
       {/* Footer Bottom Links - Centered for mobile/tablet */}
-      <div className="font-ray flex flex-col text-sm items-center justify-center gap-2 font-bold text-black sm:flex-row sm:justify-between sm:gap-0 sm:text-sm xl:text-xl">
-        <a href="#" className="text-center transition hover:text-gray-500">
+      <div className="font-ray flex flex-col items-center justify-center gap-2 text-sm font-bold text-black sm:flex-row sm:justify-between sm:gap-0 sm:text-sm xl:text-xl">
+        <a
+          href="#"
+          className="text-center text-sm transition hover:text-gray-500 sm:text-base"
+        >
           © ۲۰۲۵ دیجی سلامت – تمامی حقوق محفوظ است
         </a>
-        <div className="flex flex-wrap text-sm sm:text-base justify-center gap-2 sm:gap-5 xl:gap-8">
+        <div className="flex flex-wrap justify-center gap-2 text-sm sm:gap-5 sm:text-base xl:gap-8">
           <a
             href="/legal/privacy-policy"
             className="transition hover:text-gray-500"

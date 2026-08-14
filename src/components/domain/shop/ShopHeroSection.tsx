@@ -3,9 +3,9 @@ import Link from 'next/link'
 
 const ShopHeroSection = () => {
   return (
-    <div className="container mt-5 flex h-[40vh] w-full flex-col items-center justify-center text-center md:h-[40vh] lg:min-h-[60vh]">
+    <div className="container mt-10 flex h-[40vh] w-full flex-col items-center justify-center text-center md:h-[40vh] lg:min-h-[60vh]">
       <div className="flex flex-col items-center justify-center">
-        <h1 className="font-aria text-color-title-on-light max-w-2xl text-4xl font-extrabold sm:text-[40px] xl:text-[64px]">
+        <h1 className="font-aria text-color-title-on-light max-w-2xl text-4xl font-extrabold sm:text-[40px] xl:text-[60px]">
           انتخاب‌های سالم منتظر شماست
         </h1>
         <p className="font-ray text-color-body-on-light mt-3.75 max-w-80 text-sm font-medium sm:max-w-md md:max-w-lg xl:max-w-xl xl:text-lg">

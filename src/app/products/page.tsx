@@ -178,9 +178,9 @@ function ProductsContent() {
   }
 
   return (
-    <>
-      <section className="container-wide py-12">
-        <div className="mb-10 flex flex-col items-center text-center">
+    <div className="pb-10">
+      <section className="container-wide pt-15.5 pb-10 sm:pt-20.75 xl:pt-25">
+        <div className="mb-10 xl:mb-25 flex flex-col items-center text-center">
           <h1 className="font-aria text-color-title-on-light max-w-133 text-4xl leading-tight font-extrabold sm:text-[54px]">
             کالای دلخواهت را همین حالا پیدا کن
           </h1>
@@ -367,7 +367,7 @@ function ProductsContent() {
         totalPages={totalPages}
         onPageChange={handlePageChange}
       />
-    </>
+    </div>
   )
 }
 

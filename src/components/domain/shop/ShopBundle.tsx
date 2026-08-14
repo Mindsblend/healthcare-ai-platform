@@ -33,7 +33,7 @@ const ShopBundle = ({ collections }: ShopBundleProps) => {
   if (!collections.length) return null
 
   return (
-    <div className="relative container mt-20 pb-52 lg:mt-28">
+    <div className="relative container mt-12.5 sm:mt-20">
       <div className="bg-section relative h-105 w-full rounded-3xl px-6 py-10 sm:py-12 md:h-142.5 md:px-24">
         <Image
           src="/public/images/discount.svg"

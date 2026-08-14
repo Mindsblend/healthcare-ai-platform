@@ -28,9 +28,9 @@ const page = () => {
           <p>هیچ بلاگی یافت نشد</p>
         </div>
       ) : (
-        <div className="container mt-14 xl:mt-28">
+        <div className="container pt-15.5 sm:pt-20.75 xl:pt-25">
           <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="font-aria text-color-title-on-light max-w-lg text-3xl font-extrabold sm:text-4xl xl:max-w-3xl xl:text-6xl">
+            <h1 className="font-aria text-color-title-on-light max-w-lg text-3xl font-extrabold sm:text-4xl xl:max-w-3xl xl:text-[50px]">
               راهنمای کامل برای زندگی با انرژی و طول عمر بیشتر
             </h1>
             <p className="font-ray text-color-title-on-light mt-5 max-w-xl text-xs sm:text-sm xl:text-lg">
@@ -70,7 +70,8 @@ const page = () => {
 
               {/* footer */}
               <div className="mt-auto flex flex-col-reverse gap-4 pt-6 lg:flex-row lg:items-center lg:justify-between">
-                <Link href={'/blogs/' + latestBlog.slug}
+                <Link
+                  href={'/blogs/' + latestBlog.slug}
                   className="text-color-title-on-dark font-ray flex h-12 w-full shrink-0 items-center justify-center rounded-3xl bg-black px-7 whitespace-nowrap lg:w-41.25"
                 >
                   مطالعه بیشتر

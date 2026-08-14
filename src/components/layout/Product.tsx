@@ -44,15 +44,15 @@ const Product = ({ product }: Props) => {
   return (
     <Link
       href={'/products/' + product.slug}
-      className="bg-page flex max-h-min w-full flex-col rounded-[25px] border border-black/25 p-2.5"
+      className="bg-page flex max-h-min w-full flex-col rounded-[20px] border border-black/25 p-2.5"
     >
       {/* Image Section */}
       {product.image && product.image.trim() !== '' ? (
         <div
-          className="relative aspect-square w-full rounded-3xl bg-cover bg-center bg-no-repeat"
+          className="relative aspect-square w-full rounded-[16.5px] bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${product.image})` }}
         >
-          <div className="bg-page absolute top-3.5 right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full p-2.5">
+          <div className="bg-page absolute top-3.5 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full p-2.5">
             <Image
               src={categoryIcon}
               alt="Product icon"
@@ -62,8 +62,8 @@ const Product = ({ product }: Props) => {
           </div>
         </div>
       ) : (
-        <div className="relative flex aspect-square w-full items-center justify-center rounded-3xl bg-gray-100">
-          <div className="bg-page absolute top-3.5 right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full p-2.5">
+        <div className="relative flex aspect-square w-full items-center justify-center rounded-[16.5px] bg-gray-100">
+          <div className="bg-page absolute top-3.5 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full p-2.5">
             <Image
               src={categoryIcon}
               alt="Product icon"
@@ -93,7 +93,7 @@ const Product = ({ product }: Props) => {
               </div>
             </button>
 
-            <div className="text-color-title-on-light font-ray flex h-10 w-full items-center justify-center rounded-3xl bg-[#F2F2F2] px-5 text-sm font-extrabold sm:w-auto 2xl:h-12 2xl:px-7 2xl:text-base">
+            <div className="text-color-title-on-light font-ray flex h-10 w-full items-center justify-center rounded-[16.5px] bg-[#F2F2F2] px-5 text-sm font-extrabold sm:w-auto 2xl:h-12 2xl:px-7 2xl:text-base">
               {product.price.toLocaleString('fa-IR')}
               <span className="pr-1">تومان</span>
             </div>
@@ -102,7 +102,7 @@ const Product = ({ product }: Props) => {
       )}
 
       {/* Info Section */}
-      <div className="mt-2.5 flex flex-col gap-4 rounded-3xl bg-[#F2F2F2] px-6 py-4 lg:justify-between">
+      <div className="mt-2.5 flex flex-col gap-4 rounded-[16.5px] bg-[#F2F2F2] px-6 py-4 lg:justify-between">
         <div className="text-color-title-on-light">
           <h1 className="font-ray text-lg font-extrabold sm:text-xl">
             {product.title}

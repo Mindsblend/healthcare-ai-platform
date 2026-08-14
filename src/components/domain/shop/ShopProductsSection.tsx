@@ -42,7 +42,7 @@ const ShopProductsSection = ({
   }, [])
 
   return (
-    <div ref={sectionRef} className="container mt-20 flex flex-col lg:mt-28">
+    <div ref={sectionRef} className="container mt-12.5 sm:mt-20 flex flex-col">
       <div className="text-color-title-on-light flex w-full flex-wrap items-center justify-between text-right">
         <div className="flex max-w-xl flex-col items-start">
           <h1 className="font-aria text-color-title-on-light mt-3 text-3xl font-extrabold xl:text-[40px]">

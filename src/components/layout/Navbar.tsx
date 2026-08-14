@@ -10,7 +10,7 @@ export default function Navbar({ user }: { user: any }) {
 
   return (
     <>
-      <nav className="relative container flex w-full items-center justify-between bg-white py-4 text-black">
+      <nav className="relative container flex w-full items-center justify-between bg-white pt-4 text-black">
         {/* Navigation + Logo */}
         <div className="font-ray flex items-center gap-8 text-[16px] font-medium text-black">
           {/* Hamburger Menu */}

@@ -58,7 +58,7 @@ export default function ProductPage() {
   return (
     <LoadingBar loading={loading} error={error}>
       {product && (
-        <div className="container mt-5 sm:mt-14">
+        <div className="container mt-5 sm:mt-12.5">
           <div className="flex items-center justify-between gap-x-6 max-lg:flex-col">
             <div className="shrink-2 max-lg:w-full max-lg:pt-5">
               <h1 className="font-aria text-color-title-on-light text-4xl font-extrabold sm:text-[40px]">
@@ -145,18 +145,18 @@ export default function ProductPage() {
               </div>
             </div>
             <div className="w-full max-lg:order-first lg:max-w-xl">
-              <div className="bg-page mx-auto w-full rounded-[37px] border border-black/25 p-3.5">
+              <div className="bg-page mx-auto w-full rounded-[35px] border border-black/25 p-3.5">
                 {product.image && product.image.trim() !== '' ? (
                   <div
                     className="relative aspect-4/3 w-full rounded-[25px] bg-cover bg-center bg-no-repeat sm:aspect-square xl:h-full xl:w-full"
                     style={{ backgroundImage: `url(${product.image})` }}
                   >
-                    <div className="bg-page absolute top-4.25 right-4.25 z-10 h-12 w-12 rounded-full p-2.25">
+                    <div className="bg-page absolute top-4.25 right-4.25 z-10 flex h-12 w-12 items-center justify-center rounded-full p-2.25">
                       <Image
                         src={categoryIcon}
                         alt="Product icon"
-                        width={30}
-                        height={30}
+                        width={25}
+                        height={25}
                       />
                     </div>
                   </div>

@@ -1,5 +1,4 @@
 import Footer from '@/components/layout/Footer'
-import CallToAction from '@/components/layout/CallToAction'
 import NavbarWrapper from '@/components/layout/NavbarWrapper'
 
 export default function ProductsLayout({
@@ -11,7 +10,6 @@ export default function ProductsLayout({
     <>
       <NavbarWrapper />
       {children}
-      <CallToAction />
       <Footer />
     </>
   )
