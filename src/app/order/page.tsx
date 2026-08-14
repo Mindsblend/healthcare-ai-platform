@@ -31,7 +31,7 @@ import InformPopup from '@/components/layout/InformPopup'
 import { Address } from '@/features/shop/shop.types'
 
 const CheckoutPage = () => {
-  const { cartItems, loading: cartLoading, error } = useCart()
+  const { cartItems, loading: cartLoading, error, waitForCartSync } = useCart()
   const [activeBtn, setActiveBtn] = useState<'mellat' | 'zarinpal'>('zarinpal')
   const { createOrder, loading: orderLoading } = useCreateOrder()
   const { createUserAddress } = useCreateUserAddress()
@@ -67,14 +67,19 @@ const CheckoutPage = () => {
     (sum, item) => sum + item.price * item.quantity,
     0,
   )
+
   const TAX_RATE = 0.09
   const taxAmount = Math.round(subtotal * TAX_RATE)
+
   const totalAmount = subtotal + taxAmount
+
   const FREE_SHIPPING_THRESHOLD = 2_000_000
+
   const isFreeShipping = getFreeShippingStatus(
     subtotal,
     FREE_SHIPPING_THRESHOLD,
   )
+
   const deliveryAmount = isFreeShipping ? 0 : 300_000
 
   // Auto-select default address when userAddress loads
@@ -220,9 +225,11 @@ const CheckoutPage = () => {
     }
   }
 
-  // Handle form submission with payment integration
   const handleSubmit = async (shouldCreateNewAddress: boolean = true) => {
-    // 1. Mark all fields as touched
+    // =========================================================
+    // 1. Touch all fields
+    // =========================================================
+
     const allTouched = Object.keys(shippingInfo).reduce(
       (acc, key) => {
         acc[key] = true
@@ -230,9 +237,13 @@ const CheckoutPage = () => {
       },
       {} as Record<string, boolean>,
     )
+
     setTouchedFields(allTouched)
 
-    // 2. Validate all shipping information
+    // =========================================================
+    // 2. Validate shipping information
+    // =========================================================
+
     const validation = await validateShippingInfo(
       shippingInfo,
       provinces,
@@ -241,20 +252,39 @@ const CheckoutPage = () => {
 
     if (!validation.isValid) {
       const errors = getValidationErrorsObject(validation.errors)
+
       setFieldErrors(errors)
 
-      // Scroll to first error
       const firstErrorField = validation.errors[0]?.field
+
       if (firstErrorField) {
         const element = document.querySelector(`[name="${firstErrorField}"]`)
-        element?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+
+        element?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
       }
 
       return
     }
 
     try {
-      // 3. Update user profile if needed
+      // =======================================================
+      // 3. IMPORTANT:
+      // Wait until every pending cart mutation is finished.
+      // =======================================================
+
+      console.log('🛒 Waiting for cart synchronization...')
+
+      await waitForCartSync()
+
+      console.log('✅ Cart synchronization completed')
+
+      // =======================================================
+      // 4. Update profile if needed
+      // =======================================================
+
       if (!userAddress?.addresses && isAddingNewAddress) {
         await updateUserProfile({
           firstName: shippingInfo.firstName,
@@ -264,7 +294,10 @@ const CheckoutPage = () => {
         })
       }
 
-      // 4. Create new address if needed
+      // =======================================================
+      // 5. Create address if needed
+      // =======================================================
+
       if (shouldCreateNewAddress && !selectedAddressId) {
         await createUserAddress({
           firstName: shippingInfo.firstName,
@@ -278,63 +311,66 @@ const CheckoutPage = () => {
         })
       }
 
-      // 5. Create order
-      console.log('📝 1. Creating order...')
+      // =======================================================
+      // 6. Create order
+      // =======================================================
+
+      console.log('📝 Creating order...')
+
       const orderResult = await createOrder({
         shippingInfo,
         paymentMethod: activeBtn,
       })
 
-      console.log('✅ 2. Order created:', orderResult)
+      console.log('✅ Order created:', orderResult)
 
       if (!orderResult?.id) {
         throw new Error('Failed to create order')
       }
 
-      // 6. Recalculate total amount (matching OrderService)
-      const subtotal = cartItems.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0,
-      )
-      const TAX_RATE = 0.09
-      const taxAmount = Math.round(subtotal * TAX_RATE)
-      const FREE_SHIPPING_THRESHOLD = 2_000_000
-      const isFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD
-      const deliveryAmount = isFreeShipping ? 0 : 300_000
-      const totalAmountInTomans = subtotal + taxAmount + deliveryAmount
+      // =======================================================
+      // 7. Server Order is the source of truth
+      // =======================================================
 
-      console.log('💰 3. Order total from DB:', orderResult.totalPrice)
-      console.log('💰 4. Calculated total (Tomans):', totalAmountInTomans)
+      const orderTotal = Number(orderResult.totalPrice)
 
-      // Check if amounts match
-      if (orderResult.totalPrice !== totalAmountInTomans) {
-        console.error('❌ Amount mismatch!', {
-          orderTotal: orderResult.totalPrice,
-          calculatedTotal: totalAmountInTomans,
-          difference: totalAmountInTomans - orderResult.totalPrice,
-        })
-        // Continue anyway but log it
+      console.log('💰 Final order total:', {
+        orderId: orderResult.id,
+        totalPrice: orderResult.totalPrice,
+        normalizedTotal: orderTotal,
+      })
+
+      if (!Number.isFinite(orderTotal) || orderTotal <= 0) {
+        throw new Error('مبلغ سفارش معتبر نیست')
       }
 
-      // 7. Initiate payment with amount in Toman
-      console.log('💳 6. Initiating payment...')
+      // =======================================================
+      // 8. Payment
+      // =======================================================
+
+      console.log('💳 Initiating payment...')
+
       const paymentResult = await initiatePayment({
-        amount: totalAmountInTomans, // Send in Toman
+        amount: orderTotal,
         description: `سفارش شماره ${orderResult.id}`,
         orderId: orderResult.id,
         email: shippingInfo.email,
         mobile: shippingInfo.phone,
       })
 
-      console.log('📊 7. Payment result:', paymentResult)
+      console.log('📊 Payment result:', paymentResult)
 
-      // 8. If we reach here, redirect didn't happen and an error occurred
       if (!paymentResult.success) {
         setErrorMessage(paymentResult.error || 'خطا در اتصال به درگاه پرداخت')
       }
     } catch (err) {
-      console.error('❌ Order creation error:', err)
-      setErrorMessage('خطا در ثبت سفارش، لطفا دوباره تلاش کنید.')
+      console.error('❌ Checkout error:', err)
+
+      setErrorMessage(
+        err instanceof Error
+          ? err.message
+          : 'خطا در ثبت سفارش، لطفا دوباره تلاش کنید.',
+      )
     }
   }
 
@@ -516,7 +552,14 @@ const CheckoutPage = () => {
                         </p>
                       </div>
                       <div className="font-aria text-color-title-on-light shrink-0 text-base font-extrabold">
-                        {item.price.toLocaleString('fa-IR')} تومان
+                        <p>
+                          {(item.price * item.quantity).toLocaleString('fa-IR')}{' '}
+                          تومان
+                        </p>
+
+                        <p className="mt-1 text-sm font-medium text-gray-500">
+                          تعداد: {item.quantity}
+                        </p>
                       </div>
                     </div>
                   ))}

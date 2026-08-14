@@ -1,20 +1,27 @@
 'use client'
 
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useCart } from '@/features/shop/hooks/cart/useCart'
 import CartItem from '@/components/domain/cart/CartItem'
 import FreeShippingProgressBar from '@/components/domain/cart/FreeShippingProgressBar'
 import Image from 'next/image'
-import Link from 'next/link'
 import LoadingBar from '@/components/layout/LoadingBar'
 
-const page = () => {
+const Page = () => {
+  const router = useRouter()
+
   const {
     cartItems,
     error,
     updateQuantity,
     removeFromCart,
     loading: cartLoading,
+    isSyncing,
+    waitForCartSync,
   } = useCart()
+
+  const [isCheckoutLoading, setIsCheckoutLoading] = useState(false)
 
   const subtotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -29,6 +36,54 @@ const page = () => {
 
   const FREE_SHIPPING_THRESHOLD = 2_000_000
 
+  const handleCheckout = async () => {
+    /**
+     * Prevent double click
+     */
+    if (isCheckoutLoading) {
+      return
+    }
+
+    /**
+     * Empty cart
+     */
+    if (cartItems.length === 0) {
+      return
+    }
+
+    try {
+      setIsCheckoutLoading(true)
+
+      /**
+       * IMPORTANT:
+       *
+       * Wait until every pending cart mutation
+       * has finished on the backend.
+       *
+       * For example:
+       *
+       * + + + + +
+       *
+       * UI may already show 6,
+       * but this waits until backend also has 6.
+       */
+      await waitForCartSync()
+
+      /**
+       * Only after backend is synchronized
+       * do we navigate to order page.
+       */
+      router.push('/order')
+    } catch (err) {
+      console.error('Could not continue to checkout:', err)
+    } finally {
+      setIsCheckoutLoading(false)
+    }
+  }
+
+  const checkoutDisabled =
+    cartLoading || isCheckoutLoading || cartItems.length === 0
+
   return (
     <LoadingBar
       loading={cartLoading}
@@ -40,13 +95,18 @@ const page = () => {
         <h1 className="font-aria text-color-title-on-light text-4xl font-extrabold">
           سبد خرید شما
         </h1>
+
         <div className="my-10 flex flex-col items-center justify-between gap-5 sm:flex-row xl:gap-10">
+          {/* CART */}
           <div className="flex h-113 w-full max-w-7xl flex-col rounded-3xl border-2 border-[#d9d9d9]">
-            {/* HEADER (fixed height) */}
+            {/* HEADER */}
             <div className="font-aria hidden shrink-0 grid-cols-[2fr_1fr_1fr_40px] border-b-2 px-8 py-5 text-xl font-bold lg:grid">
               <span className="text-color-title-on-light">نام محصول</span>
+
               <span className="text-color-title-on-light mr-6">تعداد</span>
+
               <span className="text-color-title-on-light">قیمت</span>
+
               <span className="text-color-title-on-light">حذف</span>
             </div>
 
@@ -88,52 +148,69 @@ const page = () => {
             </div>
           </div>
 
+          {/* ORDER SUMMARY */}
           <div className="flex h-113 w-full flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-9 lg:max-w-92.5">
             <h1 className="font-aria text-color-title-on-light mt-9 text-center text-2xl font-extrabold">
               خلاصه سفارشات
             </h1>
+
             <div className="space-y-5">
               <div className="flex items-center justify-between">
                 <h1 className="font-aria text-color-title-on-light font-extrabold">
                   جمع خرید
                 </h1>
+
                 <h1 className="font-aria text-color-title-on-light font-extrabold">
                   {subtotal.toLocaleString('fa-IR')} تومان
                 </h1>
               </div>
+
               <div className="flex items-center justify-between">
                 <h1 className="font-aria text-color-title-on-light font-extrabold">
                   مالیات
                 </h1>
+
                 <h1 className="font-aria text-color-title-on-light font-extrabold">
                   {taxAmount.toLocaleString('fa-IR')} تومان
                 </h1>
               </div>
+
               <div className="flex items-center justify-between">
                 <FreeShippingProgressBar
                   subtotal={subtotal}
                   threshold={FREE_SHIPPING_THRESHOLD}
                 />
               </div>
+
               <hr className="border" />
+
               <div className="flex items-center justify-between">
                 <h1 className="font-aria text-color-title-on-light font-extrabold">
                   جمع کل
                 </h1>
+
                 <h1 className="font-aria text-color-title-on-light font-extrabold">
                   {totalAmount.toLocaleString('fa-IR')} تومان
                 </h1>
               </div>
             </div>
+
+            {/* CHECKOUT */}
             <div className="pb-6">
-              <Link href="/order">
-                <button
-                  disabled={!cartItems?.length}
-                  className={`text-color-title-on-dark font-ray h-13.5 w-full cursor-pointer rounded-4xl bg-black font-medium transition hover:bg-gray-800 ${cartItems.length === 0 ? 'bg-gray-800' : ''}`}
-                >
-                  تکمیل سفارش
-                </button>
-              </Link>
+              <button
+                type="button"
+                onClick={handleCheckout}
+                disabled={checkoutDisabled}
+                className={`text-color-title-on-dark font-ray h-13.5 w-full rounded-4xl font-medium transition ${
+                  checkoutDisabled
+                    ? 'cursor-not-allowed bg-gray-400'
+                    : 'cursor-pointer bg-black hover:bg-gray-800'
+                } `}
+              >
+                {isCheckoutLoading || isSyncing
+                  ? 'در حال بروزرسانی سبد...'
+                  : 'تکمیل سفارش'}
+              </button>
             </div>
           </div>
         </div>
@@ -142,4 +219,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page

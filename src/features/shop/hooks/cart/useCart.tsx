@@ -27,14 +27,23 @@ import {
 type CartContextValue = {
   cart: CartType | null
   cartItems: CartItemType[]
+
   loading: boolean
   error: string | null
+
   isAdding: boolean
+  isSyncing: boolean
   isAuthenticated: boolean
+
   addToCart: (productId: number, quantity?: number) => Promise<void>
+
   removeFromCart: (cartItemId: number) => Promise<void>
+
   updateQuantity: (cartItemId: number, quantity: number) => Promise<void>
+
   refreshCart: () => Promise<CartType | null>
+
+  waitForCartSync: () => Promise<void>
 }
 
 const CartContext = createContext<CartContextValue | null>(null)
@@ -63,25 +72,89 @@ export function useCart() {
 
 function useCartState(isAuthenticated: boolean): CartContextValue {
   const [cart, setCart] = useState<CartType | null>(null)
+
   const [cartItems, setCartItems] = useState<CartItemType[]>([])
+
   const [loading, setLoading] = useState(isAuthenticated)
+
   const [error, setError] = useState<string | null>(null)
+
   const [pendingAddCount, setPendingAddCount] = useState(0)
 
-  const cartRef = useRef<CartType | null>(null)
-  const cartRequest = useRef<Promise<CartType | null> | null>(null)
-  const createCartRequest = useRef<Promise<CartType> | null>(null)
-  const addQueue = useRef<Promise<void>>(Promise.resolve())
+  const [pendingMutationCount, setPendingMutationCount] = useState(0)
 
-  // IDs that are currently being removed
-  const removingItems = useRef<Set<number>>(new Set())
+  // =========================================================
+  // Refs
+  // =========================================================
+
+  const cartRef = useRef<CartType | null>(null)
+
+  const cartRequest = useRef<Promise<CartType | null> | null>(null)
+
+  const createCartRequest = useRef<Promise<CartType> | null>(null)
+
+  /**
+   * All mutations are serialized:
+   *
+   * ADD
+   * UPDATE
+   * REMOVE
+   *
+   * cannot hit the backend simultaneously.
+   */
+  const mutationQueue = useRef<Promise<void>>(Promise.resolve())
+
+  /**
+   * Latest desired quantity for every cart item.
+   *
+   * Example:
+   *
+   * 1 → 2 → 3 → 4 → 5
+   *
+   * backend ultimately receives:
+   *
+   * 5
+   */
+  const quantityTargets = useRef(new Map<number, number>())
+
+  /**
+   * Tracks active update worker for each cart item.
+   */
+  const quantityWorkers = useRef(new Map<number, Promise<void>>())
+
+  /**
+   * Every mutation receives a version.
+   */
+  const mutationVersion = useRef(0)
+  const completedVersion = useRef(0)
+
+  /**
+   * IMPORTANT:
+   *
+   * Unlike mutationQueue, these promises preserve
+   * the real mutation result/rejection.
+   *
+   * waitForCartSync() uses this collection so
+   * a failed mutation cannot be silently swallowed.
+   */
+  const pendingMutationPromises = useRef(new Set<Promise<unknown>>())
+
+  // =========================================================
+  // Cart state helpers
+  // =========================================================
 
   const applyCart = useCallback((nextCart: CartType | null) => {
     cartRef.current = nextCart
+
     setCart(nextCart)
     setCartItems(nextCart?.items ?? [])
+
     return nextCart
   }, [])
+
+  // =========================================================
+  // Fetch cart
+  // =========================================================
 
   const fetchCart = useCallback(async () => {
     if (!isAuthenticated) {
@@ -107,6 +180,10 @@ function useCartState(isAuthenticated: boolean): CartContextValue {
     return cartRequest.current
   }, [applyCart, fetchCart, isAuthenticated])
 
+  // =========================================================
+  // Initial cart load
+  // =========================================================
+
   useEffect(() => {
     setError(null)
 
@@ -127,6 +204,10 @@ function useCartState(isAuthenticated: boolean): CartContextValue {
       })
   }, [applyCart, isAuthenticated, loadCartOnce])
 
+  // =========================================================
+  // Refresh cart
+  // =========================================================
+
   const refreshCart = useCallback(async () => {
     try {
       return await fetchCart()
@@ -136,6 +217,10 @@ function useCartState(isAuthenticated: boolean): CartContextValue {
       throw err
     }
   }, [fetchCart])
+
+  // =========================================================
+  // Get / Create Cart
+  // =========================================================
 
   const getOrCreateCart = useCallback(async (): Promise<CartType> => {
     if (!isAuthenticated) {
@@ -166,15 +251,58 @@ function useCartState(isAuthenticated: boolean): CartContextValue {
     return createCartRequest.current
   }, [applyCart, isAuthenticated, loadCartOnce])
 
+  // =========================================================
+  // Mutation helpers
+  // =========================================================
+
+  const startMutation = useCallback(() => {
+    mutationVersion.current += 1
+
+    setPendingMutationCount((count) => count + 1)
+
+    return mutationVersion.current
+  }, [])
+
+  const finishMutation = useCallback((version: number) => {
+    completedVersion.current = Math.max(completedVersion.current, version)
+
+    setPendingMutationCount((count) => Math.max(0, count - 1))
+  }, [])
+
+  /**
+   * Add a mutation promise to the set and automatically
+   * remove it when it settles.
+   */
+  const trackMutationPromise = useCallback(<T,>(promise: Promise<T>) => {
+    pendingMutationPromises.current.add(promise)
+
+    promise.then(
+      () => {
+        pendingMutationPromises.current.delete(promise)
+      },
+      () => {
+        pendingMutationPromises.current.delete(promise)
+      },
+    )
+
+    return promise
+  }, [])
+
+  // =========================================================
+  // ADD TO CART
+  // =========================================================
+
   const addToCart = useCallback(
-    (productId: number, quantity = 1) => {
+    (productId: number, quantity = 1): Promise<void> => {
       if (!isAuthenticated) {
         return Promise.reject(new Error('AUTH_REQUIRED'))
       }
 
+      const version = startMutation()
+
       setPendingAddCount((count) => count + 1)
 
-      const task = addQueue.current.then(async () => {
+      const task = mutationQueue.current.then(async () => {
         try {
           const activeCart = await getOrCreateCart()
 
@@ -199,146 +327,282 @@ function useCartState(isAuthenticated: boolean): CartContextValue {
         }
       })
 
-      addQueue.current = task.catch(() => undefined)
+      /**
+       * Queue continues even when current mutation fails.
+       */
+      mutationQueue.current = task.catch(() => undefined)
 
-      return task.finally(() => {
+      const publicTask = task.finally(() => {
         setPendingAddCount((count) => Math.max(0, count - 1))
+
+        finishMutation(version)
       })
+
+      return trackMutationPromise(publicTask)
     },
-    [getOrCreateCart, isAuthenticated, refreshCart],
+    [
+      finishMutation,
+      getOrCreateCart,
+      isAuthenticated,
+      refreshCart,
+      startMutation,
+      trackMutationPromise,
+    ],
   )
 
-  const removeFromCart = useCallback(
-    async (cartItemId: number) => {
-      // Prevent duplicate requests for the same item
-      if (removingItems.current.has(cartItemId)) {
-        return
-      }
-
-      const currentCart = cartRef.current
-
-      if (!currentCart) {
-        return
-      }
-
-      const currentItems = currentCart.items
-
-      const itemExists = currentItems.some((item) => item.id === cartItemId)
-
-      if (!itemExists) {
-        return
-      }
-
-      // Mark item as being removed
-      removingItems.current.add(cartItemId)
-
-      // Save previous state for rollback
-      const previousCart = currentCart
-
-      // Remove immediately from UI
-      const optimisticItems = currentItems.filter(
-        (item) => item.id !== cartItemId,
-      )
-
-      const optimisticCart: CartType = {
-        ...currentCart,
-        items: optimisticItems,
-      }
-
-      applyCart(optimisticCart)
-
-      try {
-        const input: RemoveItemInput = {
-          cartItemId,
-        }
-
-        // Request is sent immediately
-        await removeItemAction(input)
-
-        setError(null)
-      } catch (err: unknown) {
-        // Restore item if server deletion failed
-        applyCart(previousCart)
-
-        const message =
-          err instanceof Error ? err.message : 'Failed to remove item'
-
-        setError(message)
-
-        throw err
-      } finally {
-        removingItems.current.delete(cartItemId)
-      }
-    },
-    [applyCart],
-  )
+  // =========================================================
+  // UPDATE QUANTITY
+  // =========================================================
 
   const updateQuantity = useCallback(
-    async (cartItemId: number, quantity: number) => {
-      if (quantity < 1) return
-
-      const currentCart = cartRef.current
-
-      if (!currentCart) return
-
-      const currentItem = currentCart.items.find(
-        (item) => item.id === cartItemId,
-      )
-
-      if (!currentItem) return
-
-      const previousCart = currentCart
-
-      // Optimistic update
-      const optimisticItems = currentCart.items.map((item) =>
-        item.id === cartItemId
-          ? {
-              ...item,
-              quantity,
-            }
-          : item,
-      )
-
-      const optimisticCart: CartType = {
-        ...currentCart,
-        items: optimisticItems,
+    (cartItemId: number, quantity: number): Promise<void> => {
+      if (quantity < 1) {
+        return Promise.resolve()
       }
 
-      // تغییر فوری UI
-      applyCart(optimisticCart)
+      const version = startMutation()
 
-      try {
-        await updateItemAction({
-          cartItemId,
-          quantity,
+      /**
+       * Latest desired quantity.
+       */
+      quantityTargets.current.set(cartItemId, quantity)
+
+      /**
+       * Optimistic UI.
+       */
+      setCartItems((items) =>
+        items.map((item) =>
+          item.id === cartItemId
+            ? {
+                ...item,
+                quantity,
+              }
+            : item,
+        ),
+      )
+
+      /**
+       * Existing worker for this item:
+       * return it instead of creating another worker.
+       */
+      const existingWorker = quantityWorkers.current.get(cartItemId)
+
+      if (existingWorker) {
+        const publicTask = existingWorker.finally(() => {
+          finishMutation(version)
         })
 
-        setError(null)
-      } catch (err: unknown) {
-        // Rollback
-        applyCart(previousCart)
-
-        const message =
-          err instanceof Error ? err.message : 'Failed to update quantity'
-
-        setError(message)
-
-        throw err
+        return trackMutationPromise(publicTask)
       }
+
+      /**
+       * Create worker.
+       */
+      const task = mutationQueue.current.then(async () => {
+        try {
+          while (true) {
+            const target = quantityTargets.current.get(cartItemId)
+
+            if (target === undefined) {
+              break
+            }
+
+            /**
+             * Consume target.
+             */
+            quantityTargets.current.delete(cartItemId)
+
+            const input: UpdateItemQuantityInput = {
+              cartItemId,
+              quantity: target,
+            }
+
+            await updateItemAction(input)
+
+            /**
+             * Another quantity was requested
+             * while the request was in progress.
+             */
+            if (quantityTargets.current.has(cartItemId)) {
+              continue
+            }
+
+            break
+          }
+
+          setError(null)
+        } catch (err: unknown) {
+          const mutationError =
+            err instanceof Error ? err : new Error('Failed to update quantity')
+
+          setError(mutationError.message)
+
+          /**
+           * Restore real backend state.
+           */
+          try {
+            await refreshCart()
+          } catch {
+            // Keep original mutation error.
+          }
+
+          throw mutationError
+        }
+      })
+
+      /**
+       * Keep queue alive after failure.
+       */
+      const safeTask = task.catch(() => undefined)
+
+      mutationQueue.current = safeTask
+
+      /**
+       * Track worker promise that preserves
+       * the actual rejection.
+       */
+      const workerPromise = task
+
+      quantityWorkers.current.set(cartItemId, workerPromise)
+
+      /**
+       * Cleanup worker map.
+       */
+      workerPromise.then(
+        () => {
+          if (quantityWorkers.current.get(cartItemId) === workerPromise) {
+            quantityWorkers.current.delete(cartItemId)
+          }
+        },
+        () => {
+          if (quantityWorkers.current.get(cartItemId) === workerPromise) {
+            quantityWorkers.current.delete(cartItemId)
+          }
+        },
+      )
+
+      const publicTask = workerPromise.finally(() => {
+        finishMutation(version)
+      })
+
+      return trackMutationPromise(publicTask)
     },
-    [applyCart],
+    [finishMutation, refreshCart, startMutation, trackMutationPromise],
   )
+
+  // =========================================================
+  // REMOVE FROM CART
+  // =========================================================
+
+  const removeFromCart = useCallback(
+    (cartItemId: number): Promise<void> => {
+      const version = startMutation()
+
+      const task = mutationQueue.current.then(async () => {
+        try {
+          const input: RemoveItemInput = {
+            cartItemId,
+          }
+
+          await removeItemAction(input)
+
+          await refreshCart()
+
+          setError(null)
+        } catch (err: unknown) {
+          const message =
+            err instanceof Error ? err.message : 'Failed to remove item'
+
+          setError(message)
+
+          throw err
+        }
+      })
+
+      /**
+       * Keep queue usable after failure.
+       */
+      mutationQueue.current = task.catch(() => undefined)
+
+      const publicTask = task.finally(() => {
+        finishMutation(version)
+      })
+
+      return trackMutationPromise(publicTask)
+    },
+    [finishMutation, refreshCart, startMutation, trackMutationPromise],
+  )
+
+  // =========================================================
+  // WAIT FOR CART SYNC
+  // =========================================================
+
+  const waitForCartSync = useCallback(async () => {
+    while (true) {
+      const targetVersion = mutationVersion.current
+
+      /**
+       * Snapshot current pending mutations.
+       *
+       * These promises preserve rejection.
+       */
+      const pending = Array.from(pendingMutationPromises.current)
+
+      if (pending.length > 0) {
+        /**
+         * If ANY mutation failed, checkout must stop.
+         */
+        await Promise.all(pending)
+      }
+
+      /**
+       * Wait for queue as a final guarantee.
+       */
+      await mutationQueue.current
+
+      /**
+       * If a mutation happened while we were
+       * waiting, loop again.
+       */
+      if (completedVersion.current < targetVersion) {
+        continue
+      }
+
+      if (mutationVersion.current !== targetVersion) {
+        continue
+      }
+
+      break
+    }
+
+    /**
+     * Final single server refresh.
+     */
+    await refreshCart()
+  }, [refreshCart])
+
+  // =========================================================
+  // Return
+  // =========================================================
 
   return {
     cart,
     cartItems,
+
     loading,
     error,
+
     isAdding: pendingAddCount > 0,
+
+    isSyncing: pendingMutationCount > 0,
+
     isAuthenticated,
+
     addToCart,
     removeFromCart,
     updateQuantity,
+
     refreshCart,
+    waitForCartSync,
   }
 }

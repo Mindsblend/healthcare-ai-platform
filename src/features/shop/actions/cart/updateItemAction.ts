@@ -1,5 +1,3 @@
-// features/shop/cart/actions/updateItemQuantity.ts
-
 import {
   UpdateItemQuantityInput,
   UpdateItemQuantityResponse,
@@ -16,11 +14,9 @@ export async function updateItemQuantity(
     body: JSON.stringify(input),
   })
 
-  const data = await res.json().catch(() => null)
-
   if (!res.ok) {
-    throw new Error(data?.error || 'Failed to update item')
+    throw new Error('Failed to update item')
   }
 
-  return data
+  return res.json()
 }

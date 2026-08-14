@@ -8,7 +8,6 @@ export function usePayment() {
   const [error, setError] = useState<string | null>(null);
 
   const initiatePayment = async (input: PaymentRequestInput) => {
-    console.log('🔵 [usePayment] Initiate payment with:', JSON.stringify(input, null, 2));
 
     setLoading(true);
     setError(null);

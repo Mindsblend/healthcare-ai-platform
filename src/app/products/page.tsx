@@ -178,7 +178,7 @@ function ProductsContent() {
   }
 
   return (
-    <LoadingBar loading={loading} error={error}>
+    <>
       <section className="container-wide py-12">
         <div className="mb-10 flex flex-col items-center text-center">
           <h1 className="font-aria text-color-title-on-light max-w-133 text-4xl leading-tight font-extrabold sm:text-[54px]">
@@ -347,16 +347,19 @@ function ProductsContent() {
               )}
             </div>
           </aside>
-
-          {currentData.length === 0 ? (
-            <EmptyState />
-          ) : (
-            <div className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {currentData.map((product) => (
-                <Product key={product.id} product={product} />
-              ))}
-            </div>
-          )}
+          <div className="flex-1">
+            <LoadingBar loading={loading} error={error}>
+              {currentData.length === 0 ? (
+                <EmptyState />
+              ) : (
+                <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  {currentData.map((product) => (
+                    <Product key={product.id} product={product} />
+                  ))}
+                </div>
+              )}
+            </LoadingBar>
+          </div>
         </div>
       </section>
       <Pagination
@@ -364,13 +367,19 @@ function ProductsContent() {
         totalPages={totalPages}
         onPageChange={handlePageChange}
       />
-    </LoadingBar>
+    </>
   )
 }
 
 export default function Page() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">در حال بارگذاری...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          در حال بارگذاری...
+        </div>
+      }
+    >
       <ProductsContent />
     </Suspense>
   )

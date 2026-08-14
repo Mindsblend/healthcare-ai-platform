@@ -149,7 +149,7 @@ const Footer = () => {
       {/* Footer Bottom Links - Centered for mobile/tablet */}
       <div className="font-ray flex flex-col text-sm items-center justify-center gap-2 font-bold text-black sm:flex-row sm:justify-between sm:gap-0 sm:text-sm xl:text-xl">
         <a href="#" className="text-center transition hover:text-gray-500">
-          © ۲۰۲۵ زیستیار – تمامی حقوق محفوظ است
+          © ۲۰۲۵ دیجی سلامت – تمامی حقوق محفوظ است
         </a>
         <div className="flex flex-wrap text-sm sm:text-base justify-center gap-2 sm:gap-5 xl:gap-8">
           <a
