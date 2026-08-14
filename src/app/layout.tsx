@@ -110,7 +110,7 @@ const RayFont = localFont({
 
 /* App Info and Metadata */
 export const metadata: Metadata = {
-  title: 'زیستیار',
+  title: 'دیجی سلامت',
   description: 'An AI integrated healthcare platform',
 }
 
