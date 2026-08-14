@@ -5,7 +5,7 @@ const HeroSection = () => {
   return (
     <div className="container flex items-end justify-between">
       {/* Right: Text + Buttons */}
-      <div className="flex flex-col justify-end max-lg:items-center max-lg:text-center">
+      <div className="flex flex-col justify-end mt-10 max-lg:items-center max-lg:text-center">
         <h1 className="font-aria text-color-title-on-light max-w-118.25 text-4xl font-extrabold sm:text-5xl xl:text-6xl">
           سلامتی امروز، پلی به فردایی شادتر
         </h1>

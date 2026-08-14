@@ -15,7 +15,7 @@ export default function Navbar({ user }: { user: any }) {
         <div className="font-ray flex items-center gap-8 text-[16px] font-medium text-black">
           {/* Hamburger Menu */}
           <button
-            className="relative z-20 block lg:hidden"
+            className="relative cursor-pointer z-20 block lg:hidden"
             onClick={() => setIsMenuOpen(true)}
           >
             <Image
