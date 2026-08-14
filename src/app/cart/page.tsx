@@ -92,10 +92,6 @@ const Page = () => {
       showOnlyOnInitialLoad
     >
       <div className="container mt-5">
-        <h1 className="font-aria text-color-title-on-light text-4xl font-extrabold">
-          سبد خرید شما
-        </h1>
-
         <div className="my-10 flex flex-col items-center justify-between gap-5 sm:flex-row xl:gap-10">
           {/* CART */}
           <div className="flex h-113 w-full max-w-7xl flex-col rounded-3xl border-2 border-[#d9d9d9]">
@@ -149,18 +145,18 @@ const Page = () => {
           </div>
 
           {/* ORDER SUMMARY */}
-          <div className="flex h-113 w-full flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-9 lg:max-w-92.5">
-            <h1 className="font-aria text-color-title-on-light mt-9 text-center text-2xl font-extrabold">
+          <div className="flex h-113 w-full flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-7 lg:max-w-92.5">
+            <h1 className="font-aria text-color-title-on-light mt-12.5 text-center text-2xl font-extrabold">
               خلاصه سفارشات
             </h1>
 
-            <div className="space-y-5">
+            <div className="space-y-5 mt-5">
               <div className="flex items-center justify-between">
                 <h1 className="font-aria text-color-title-on-light font-extrabold">
                   جمع خرید
                 </h1>
 
-                <h1 className="font-aria text-color-title-on-light font-extrabold">
+                <h1 className="font-ray text-color-title-on-light font-bold text-lg">
                   {subtotal.toLocaleString('fa-IR')} تومان
                 </h1>
               </div>
@@ -170,7 +166,7 @@ const Page = () => {
                   مالیات
                 </h1>
 
-                <h1 className="font-aria text-color-title-on-light font-extrabold">
+                <h1 className="font-ray text-color-title-on-light font-bold text-lg">
                   {taxAmount.toLocaleString('fa-IR')} تومان
                 </h1>
               </div>
@@ -182,7 +178,7 @@ const Page = () => {
                 />
               </div>
 
-              <hr className="border" />
+              <hr className="border mb-6" />
 
               <div className="flex items-center justify-between">
                 <h1 className="font-aria text-color-title-on-light font-extrabold">
@@ -196,12 +192,12 @@ const Page = () => {
             </div>
 
             {/* CHECKOUT */}
-            <div className="pb-6">
+            <div className="pb-10">
               <button
                 type="button"
                 onClick={handleCheckout}
                 disabled={checkoutDisabled}
-                className={`text-color-title-on-dark font-ray h-13.5 w-full rounded-4xl font-medium transition ${
+                className={`text-color-title-on-dark font-ray h-13.5 w-full rounded-[10px] font-medium transition ${
                   checkoutDisabled
                     ? 'cursor-not-allowed bg-gray-400'
                     : 'cursor-pointer bg-black hover:bg-gray-800'

@@ -199,7 +199,7 @@ const CartItem = ({
             disabled={count <= 1 || isRemoving}
             aria-disabled={count <= 1 || isRemoving}
             onClick={handleDecrement}
-            className="flex h-8 w-8 items-center justify-center pl-2 text-gray-600 transition hover:bg-gray-100 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-8 w-8 items-center cursor-pointer justify-center pl-2 text-gray-600 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Image
               src="/images/minimize.svg"

@@ -523,41 +523,42 @@ const CheckoutPage = () => {
                   {cartItems.map((item) => (
                     <div
                       key={item.id}
-                      className="flex justify-between rounded-xl border-b pb-5 last:border-b-0 max-sm:flex-col max-sm:space-y-3 sm:items-center"
+                      className="rounded-xl border-b pb-5 last:border-b-0"
                     >
-                      <div className="shrink-0">
-                        {item.product.image &&
-                        item.product.image.trim() !== '' ? (
-                          <Image
-                            src={item.product.image}
-                            alt={item.product.title}
-                            width={80}
-                            height={80}
-                            className="h-20 w-20 rounded-2xl object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gray-100">
-                            <span className="text-xs text-gray-400">
-                              بدون تصویر
-                            </span>
-                          </div>
-                        )}
+                      <div className="flex justify-between gap-3 max-sm:space-y-3 sm:items-center">
+                        <div className="shrink-0">
+                          {item.product.image &&
+                          item.product.image.trim() !== '' ? (
+                            <Image
+                              src={item.product.image}
+                              alt={item.product.title}
+                              width={80}
+                              height={80}
+                              className="h-20 w-20 rounded-2xl object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gray-100">
+                              <span className="text-xs text-gray-400">
+                                بدون تصویر
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 sm:px-4">
+                          <h3 className="font-aria text-color-title-on-light text-base sm:text-lg font-extrabold">
+                            {item.product.title}
+                          </h3>
+                          <p className="font-ray text-color-body-on-light mt-1 line-clamp-2 text-xs font-medium">
+                            {item.product.solution}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex-1 sm:px-4">
-                        <h3 className="font-aria text-color-title-on-light text-lg font-extrabold">
-                          {item.product.title}
-                        </h3>
-                        <p className="font-ray text-color-body-on-light mt-1 line-clamp-2 text-xs font-medium">
-                          {item.product.solution}
-                        </p>
-                      </div>
-                      <div className="font-aria text-color-title-on-light shrink-0 text-base font-extrabold">
+                      <div className="font-aria text-color-title-on-light mt-2 flex shrink-0 items-center justify-between text-base font-extrabold">
                         <p>
                           {(item.price * item.quantity).toLocaleString('fa-IR')}{' '}
                           تومان
                         </p>
-
-                        <p className="mt-1 text-sm font-medium text-gray-500">
+                        <p className="ml-3 text-base font-medium text-gray-500">
                           تعداد: {item.quantity}
                         </p>
                       </div>

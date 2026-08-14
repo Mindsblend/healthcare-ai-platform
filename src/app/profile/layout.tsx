@@ -9,7 +9,7 @@ export default function CartLayout({
   return (
     <div>
       <NavbarWrapper />
-      <div className="container mx-auto mt-12">
+      <div className="container mx-auto my-12">
         <div className="flex flex-col gap-6 lg:flex-row">
           <Sidebar />
           {children}
