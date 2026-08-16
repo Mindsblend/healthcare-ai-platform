@@ -41,48 +41,46 @@ const CollectionSwiper = ({
         </div>
       )}
 
-      <div className="rounded-3xl bg-gray-50/50 px-4 py-6">
-        <Swiper
-          onSwiper={(swiper) => {
-            swiperRef.current = swiper
-          }}
-          modules={[Pagination, Autoplay]}
-          spaceBetween={20}
-          slidesPerView={1}
-          centeredSlides={false}
-          autoplay={{
-            delay: 5000,
-            disableOnInteraction: false,
-            pauseOnMouseEnter: true,
-          }}
-          pagination={{
-            clickable: true,
-            el: '.collection-pagination',
-            bulletClass: 'swiper-pagination-bullet',
-            bulletActiveClass: 'swiper-pagination-bullet-active',
-          }}
-          breakpoints={{
-            480: { slidesPerView: 1 },
-            640: { slidesPerView: 2 },
-            768: { slidesPerView: 2 },
-            1024: { slidesPerView: 3 },
-            1280: { slidesPerView: 3 },
-          }}
-          className="pb-12"
-        >
-          {collections.map((collection) => (
-            <SwiperSlide key={collection.id}>
-              <div className="flex w-full justify-center px-1">
-                <CollectionCard
-                  collection={collection}
-                  hasDiscount={forceDiscount}
-                />
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-        <div className="collection-pagination mt-6 flex justify-center gap-2" />
-      </div>
+      <Swiper
+        onSwiper={(swiper) => {
+          swiperRef.current = swiper
+        }}
+        modules={[Pagination, Autoplay]}
+        spaceBetween={20}
+        slidesPerView={1}
+        centeredSlides={false}
+        autoplay={{
+          delay: 5000,
+          disableOnInteraction: false,
+          pauseOnMouseEnter: true,
+        }}
+        pagination={{
+          clickable: true,
+          el: '.collection-pagination',
+          bulletClass: 'swiper-pagination-bullet',
+          bulletActiveClass: 'swiper-pagination-bullet-active',
+        }}
+        breakpoints={{
+          480: { slidesPerView: 1 },
+          640: { slidesPerView: 2 },
+          768: { slidesPerView: 2 },
+          1024: { slidesPerView: 3 },
+          1280: { slidesPerView: 3 },
+        }}
+        className="pb-12"
+      >
+        {collections.map((collection) => (
+          <SwiperSlide key={collection.id}>
+            <div className="flex w-full justify-center px-1">
+              <CollectionCard
+                collection={collection}
+                hasDiscount={forceDiscount}
+              />
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+      <div className="collection-pagination mt-6 flex justify-center gap-2" />
     </div>
   )
 }

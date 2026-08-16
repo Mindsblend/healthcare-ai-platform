@@ -36,14 +36,14 @@ const ShopBundle = ({ collections }: ShopBundleProps) => {
     <div className="relative container mt-12.5 sm:mt-20">
       <div className="bg-section relative h-105 w-full rounded-3xl px-6 py-10 sm:py-12 md:h-142.5 md:px-24">
         <Image
-          src="/public/images/discount.svg"
+          src="/images/discount.svg"
           alt="discount image"
           width={700}
           height={200}
           className="absolute right-0"
         />
         <Image
-          src="/public/images/discount.svg"
+          src="/images/discount.svg"
           alt="discount image"
           width={700}
           height={200}
@@ -168,7 +168,7 @@ const ShopBundle = ({ collections }: ShopBundleProps) => {
             </div>
           </div>
           <div className="px-4">
-            <hr className="my-5 w-full border border-[#E9E9E8] sm:my-7" />
+            <hr className="my-3 w-full border border-[#E9E9E8] sm:my-4" />
           </div>
           {filteredCollections.length > 0 ? (
             <CollectionSwiper collections={filteredCollections} />

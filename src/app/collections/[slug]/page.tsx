@@ -103,7 +103,7 @@ export default function CollectionDetailPage() {
           className="object-cover"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/30 to-transparent" />
 
         <div className="absolute right-0 bottom-0 left-0">
           <div className="container mx-auto px-4 py-8 sm:py-12 md:py-16">
@@ -131,18 +131,18 @@ export default function CollectionDetailPage() {
       </div>
 
       {/* Stats Bar */}
-      <div className="sticky top-0 z-10 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
+      <div className="sm:sticky top-0 z-10 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
         <div className="container mx-auto px-4">
           <div
             id="collection-stats-bar"
-            className="flex flex-col flex-wrap items-center justify-between gap-3 py-3 sm:flex-row sm:gap-4 sm:py-4"
+            className="flex flex-col flex-wrap items-center justify-between sm:flex-row"
           >
             {/* Share Button */}
             <div className="flex w-full justify-start sm:w-auto">
               <button
                 onClick={handleShare}
                 disabled={isSharing || showShareSuccess}
-                className="flex h-11 cursor-pointer items-center gap-2 rounded-full border border-gray-300 px-4 py-2 text-sm transition hover:bg-gray-50 sm:px-6"
+                className="flex h-11 cursor-pointer items-center gap-2 text-black rounded-full border border-gray-300 px-4 py-2 text-sm transition hover:bg-gray-50 sm:px-6"
                 aria-label="اشتراک‌گذاری"
               >
                 <AnimatePresence mode="wait">
@@ -229,7 +229,7 @@ export default function CollectionDetailPage() {
               )}
             </div>
 
-            {/* Add All Button */}
+            {/* Add All Button */}ب
             <div className="flex w-full justify-end sm:w-auto">
               <button
                 onClick={handleAddAllToCart}
@@ -281,32 +281,7 @@ export default function CollectionDetailPage() {
         </div>
       </div>
 
-      {/* Responsive grid fix */}
-      <style>{`
-        @media (min-width: 640px) and (max-width: 1024px) {
-          #collection-stats-bar {
-            display: grid !important;
-            grid-template-columns: 1fr 1fr !important;
-            gap: 0.75rem !important;
-            align-items: start !important;
-          }
-          #collection-stats-bar > div:nth-child(2) {
-            grid-column: 1 / -1;
-            order: 0;
-            margin-bottom: 0.5rem;
-          }
-          #collection-stats-bar > div:first-child {
-            grid-column: 1 / 2;
-            order: 1;
-            justify-self: start;
-          }
-          #collection-stats-bar > div:last-child {
-            grid-column: 2 / 3;
-            order: 1;
-            justify-self: end;
-          }
-        }
-      `}</style>
+      
 
       {/* Products Grid - Using CollectionCard for each product */}
       <div className="container mx-auto px-4 py-12 md:py-16 lg:py-20">

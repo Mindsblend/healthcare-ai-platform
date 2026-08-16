@@ -1,21 +1,26 @@
-'use client' // Add this at the top
+'use client'
 
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
+import { useCart } from '@/features/shop/hooks/cart/useCart'
 
 // Now this accepts user as a prop
 export default function Navbar({ user }: { user: any }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
+  const { cartItems } = useCart()
+
+  const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0)
+
   return (
     <>
       <nav className="relative container flex w-full items-center justify-between bg-white pt-4 text-black">
         {/* Navigation + Logo */}
-        <div className="font-ray flex items-center gap-8 text-[16px] font-medium text-black">
+        <div className="font-ray flex items-center gap-8 text-base font-medium text-black">
           {/* Hamburger Menu */}
           <button
-            className="relative cursor-pointer z-20 block lg:hidden"
+            className="relative z-20 block cursor-pointer lg:hidden"
             onClick={() => setIsMenuOpen(true)}
           >
             <Image
@@ -90,19 +95,28 @@ export default function Navbar({ user }: { user: any }) {
           {/* Left: Menu button */}
           {user ? (
             <div className="flex justify-center gap-6">
-              <Link href={'/cart'}>
+              <Link
+                href="/cart"
+                className="relative flex items-center justify-center"
+              >
                 <Image
                   src="/images/cart.svg"
-                  alt="Arrow"
+                  alt="سبد خرید"
                   width={32}
                   height={32}
                 />
+
+                {cartCount > 0 && (
+                  <span className="font-ray absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-0.5 text-xs leading-none font-bold text-white">
+                    {cartCount > 99 ? '۹۹+' : cartCount.toLocaleString('fa-IR')}
+                  </span>
+                )}
               </Link>
 
-              <Link href={'/profile'}>
+              <Link href="/profile">
                 <Image
                   src="/images/profile.svg"
-                  alt="Arrow"
+                  alt="پروفایل"
                   width={32}
                   height={32}
                 />
