@@ -102,7 +102,7 @@ const Product = ({ product }: Props) => {
       )}
 
       {/* Info Section */}
-      <div className="mt-2.5 flex flex-col gap-4 rounded-[16.5px] bg-[#F2F2F2] px-4 sm:px-5 py-3 sm:py-4 lg:justify-between">
+      <div className="mt-2.5 flex flex-col gap-4 rounded-[16.5px] bg-[#F2F2F2] px-3 sm:px-5 py-3 sm:py-4 lg:justify-between">
         <div className="text-color-title-on-light">
           <h1 className="font-ray text-lg font-extrabold sm:text-xl">
             {product.title}
@@ -113,7 +113,7 @@ const Product = ({ product }: Props) => {
         </div>
 
         {/* Bottom Actions */}
-        <div className="flex w-full justify-between gap-x-3 sm:items-center xl:gap-x-5">
+        <div className="flex w-full justify-between gap-x-1 sm:items-center xl:gap-x-5">
           <button
             onClick={handleAddToCart}
             disabled={isAdding}
