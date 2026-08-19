@@ -377,7 +377,7 @@ function ProductsContent() {
         </div>
 
         <div className="flex flex-col gap-8 lg:flex-row lg:gap-10">
-          {/* Desktop sidebar — hidden on mobile & tablet */}
+          {/* Desktop sidebar */}
           <aside className="hidden w-72 shrink-0 lg:block">
             <div className="mb-6 flex items-center">
               <Image
@@ -386,6 +386,7 @@ function ProductsContent() {
                 width={24}
                 height={24}
               />
+
               <h3 className="font-aria text-color-title-on-light pr-2 text-[20px] font-bold">
                 فیلترها
               </h3>
@@ -394,12 +395,12 @@ function ProductsContent() {
             {filterContent}
           </aside>
 
-          <div className="flex flex-1 items-center justify-center">
+          <div className="min-w-0 flex-1">
             <LoadingBar loading={loading} error={error}>
               {currentData.length === 0 ? (
                 <EmptyState />
               ) : (
-                <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                   {currentData.map((product) => (
                     <Product key={product.id} product={product} />
                   ))}

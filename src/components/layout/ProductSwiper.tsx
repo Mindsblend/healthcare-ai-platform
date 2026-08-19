@@ -48,7 +48,7 @@ const ProductSwiper = memo(({ products, categories }: ProductSwiperProps) => {
   }, [isCategoryMenuOpen])
 
   return (
-    <div className="mt-3 flex w-full flex-col xl:mt-6">
+    <div className="flex w-full flex-col xl:mt-6">
       {/* Category Header */}
       <div className="mb-3 flex w-full items-center justify-between">
         <div className="hidden flex-1 items-center lg:flex">
@@ -208,14 +208,14 @@ const ProductSwiper = memo(({ products, categories }: ProductSwiperProps) => {
         autoplay={
           filteredProducts.length > 1
             ? {
-                delay: 3000,
+                delay: 5000,
                 disableOnInteraction: false,
               }
             : false
         }
         breakpoints={{
           320: {
-            slidesPerView: 1.2,
+            slidesPerView: 1.5,
           },
           640: {
             slidesPerView: 2.4,

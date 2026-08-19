@@ -64,7 +64,7 @@ export default function ProductPage() {
     <LoadingBar loading={loading} error={error}>
       {product && (
         <>
-          <div className="mt-5 sm:container sm:mt-12.5">
+          <div className="mt-5 sm:mt-12.5">
             {/* =====================================================
                 MOBILE / TABLET
                 ===================================================== */}
@@ -402,9 +402,9 @@ export default function ProductPage() {
               <Questions faqs={product.faqs} />
             </div>
 
-            <div className="mt-11 flex w-full flex-col">
-              <div className="text-color-title-on-light flex flex-col items-center text-center">
-                <h1 className="font-aria text-3xl font-extrabold xl:text-4xl">
+            <div className="container mt-11 flex w-full flex-col">
+              <div className="text-color-title-on-light flex flex-col ">
+                <h1 className="font-aria text-2xl font-extrabold xl:text-4xl">
                   محصولات مشابه
                 </h1>
               </div>
@@ -430,7 +430,7 @@ export default function ProductPage() {
                   onClick={handleAddToCart}
                   disabled={isAdding}
                   aria-label={`افزودن ${product.title} به سبد خرید`}
-                  className="text-color-title-on-dark font-ray flex h-11 w-[150px] cursor-pointer items-center justify-center rounded-[5px] bg-black px-5 text-sm font-medium transition hover:bg-gray-800 disabled:cursor-wait disabled:opacity-70"
+                  className="text-color-title-on-dark font-ray flex h-11 w-37.5 cursor-pointer items-center justify-center rounded-[5px] bg-black px-5 text-sm font-medium transition hover:bg-gray-800 disabled:cursor-wait disabled:opacity-70"
                 >
                   {isAdding ? 'در حال افزودن...' : 'افزودن به سبد خرید'}
                 </button>
