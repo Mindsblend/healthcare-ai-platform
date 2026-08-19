@@ -394,7 +394,7 @@ function ProductsContent() {
             {filterContent}
           </aside>
 
-          <div className="flex-1">
+          <div className="flex flex-1 items-center justify-center">
             <LoadingBar loading={loading} error={error}>
               {currentData.length === 0 ? (
                 <EmptyState />

@@ -44,7 +44,7 @@ const Product = ({ product }: Props) => {
   return (
     <Link
       href={'/products/' + product.slug}
-      className="bg-page flex max-h-min max-sm:max-w-[300px] w-full flex-col rounded-[20px] border border-black/25 p-2.5"
+      className="bg-page flex max-h-min w-full flex-col rounded-[20px] border border-black/25 p-2.5 max-sm:max-w-77.5"
     >
       {/* Image Section */}
       {product.image && product.image.trim() !== '' ? (
@@ -102,7 +102,7 @@ const Product = ({ product }: Props) => {
       )}
 
       {/* Info Section */}
-      <div className="mt-2.5 flex flex-col gap-4 rounded-[16.5px] bg-[#F2F2F2] px-6 py-4 lg:justify-between">
+      <div className="mt-2.5 flex flex-col gap-4 rounded-[16.5px] bg-[#F2F2F2] px-4 sm:px-5 py-3 sm:py-4 lg:justify-between">
         <div className="text-color-title-on-light">
           <h1 className="font-ray text-lg font-extrabold sm:text-xl">
             {product.title}
@@ -113,7 +113,7 @@ const Product = ({ product }: Props) => {
         </div>
 
         {/* Bottom Actions */}
-        <div className="flex w-full justify-between gap-x-5 sm:items-center">
+        <div className="flex w-full justify-between gap-x-3 sm:items-center xl:gap-x-5">
           <button
             onClick={handleAddToCart}
             disabled={isAdding}
@@ -125,7 +125,14 @@ const Product = ({ product }: Props) => {
 
           <div className="text-color-title-on-light font-ray flex items-center justify-center text-sm font-extrabold 2xl:text-base">
             {product.price.toLocaleString('fa-IR')}
-            <span className="pr-1">تومان</span>
+            <span className="pr-1">
+              <Image
+                src="/images/toman.svg"
+                alt="tomen"
+                width={20}
+                height={20}
+              />
+            </span>
           </div>
         </div>
       </div>

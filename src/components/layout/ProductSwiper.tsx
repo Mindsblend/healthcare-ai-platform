@@ -62,7 +62,11 @@ const ProductSwiper = memo(({ products, categories }: ProductSwiperProps) => {
                     : 'bg-[#D9D9D9] text-black'
                 }`}
               >
-                <span className={`font-aria text-base font-bold ${activeCategoryId === null ? 'text-white' : 'text-[#555]'}`}>همه</span>
+                <span
+                  className={`font-aria text-base font-bold ${activeCategoryId === null ? 'text-white' : 'text-[#555]'}`}
+                >
+                  همه
+                </span>
               </div>
 
               {categories!.map((category) => (
@@ -200,16 +204,31 @@ const ProductSwiper = memo(({ products, categories }: ProductSwiperProps) => {
         }}
         modules={[Autoplay]}
         spaceBetween={20}
+        slidesPerView={1}
         autoplay={
           filteredProducts.length > 1
-            ? { delay: 3000, disableOnInteraction: false }
+            ? {
+                delay: 3000,
+                disableOnInteraction: false,
+              }
             : false
         }
         breakpoints={{
-          320: { slidesPerView: 1 },
-          640: { slidesPerView: 2 },
-          1024: { slidesPerView: 3 },
-          1440: { slidesPerView: 4 },
+          320: {
+            slidesPerView: 1.2,
+          },
+          640: {
+            slidesPerView: 2.4,
+          },
+          1024: {
+            slidesPerView: 3.3,
+          },
+          1280: {
+            slidesPerView: 4.1,
+          },
+          1440: {
+            slidesPerView: 4.4,
+          },
         }}
         className="mt-4 w-full"
       >
