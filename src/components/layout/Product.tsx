@@ -113,7 +113,7 @@ const Product = ({ product }: Props) => {
         </div>
 
         {/* Bottom Actions */}
-        <div className="flex w-full justify-between gap-x-1 sm:items-center xl:gap-x-5">
+        <div className="flex w-full justify-between gap-x-1 sm:items-center xl:gap-x-3">
           <button
             onClick={handleAddToCart}
             disabled={isAdding}

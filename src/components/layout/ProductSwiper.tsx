@@ -227,7 +227,7 @@ const ProductSwiper = memo(({ products, categories }: ProductSwiperProps) => {
             slidesPerView: 4.1,
           },
           1440: {
-            slidesPerView: 4.4,
+            slidesPerView: 4.3,
           },
         }}
         className="mt-4 w-full"
