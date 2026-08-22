@@ -8,7 +8,7 @@ interface Props {
 
 const Blog = ({ blog }: Props) => {
   return (
-    <div className="bg-page xs:max-w-77.5 flex w-full flex-col rounded-3xl border border-black/25 p-2.5">
+    <Link href={'/blogs/' + blog.slug} className="bg-page xs:max-w-77.5 flex max-h-min w-full flex-col rounded-[20px] border border-black/25 p-2.5">
       {/* top image */}
       <div
         className="relative aspect-square w-full rounded-3xl bg-cover bg-center bg-no-repeat"
@@ -35,7 +35,7 @@ const Blog = ({ blog }: Props) => {
           <div className="font-ray mt-1.5 text-sm font-medium">
             <div dangerouslySetInnerHTML={{ __html: blog.description }}></div>
 
-            <Link href={'/blogs/' + blog.slug}>
+            {/* <div>
               <span className="text-color-body-on-light mr-1.5 inline-flex cursor-pointer items-center">
                 ادامه مطلب
                 <Image
@@ -45,19 +45,12 @@ const Blog = ({ blog }: Props) => {
                   height={16}
                 />
               </span>
-            </Link>
+            </div> */}
           </div>
         </div>
 
         {/* footer */}
         <div className="mt-3.5 flex flex-col-reverse gap-4 xl:flex-row xl:items-center xl:justify-between">
-          <Link
-            href={'/blogs/' + blog.slug}
-            className="text-color-title-on-dark font-ray flex h-12 w-full items-center justify-center rounded-3xl bg-black px-7 xl:w-41.25"
-          >
-            مطالعه بیشتر
-          </Link>
-
           <div className="flex items-center gap-2.5 2xl:ml-5">
             <Image
               src={blog.authorImage || '/images/default-avatar.png'}
@@ -77,7 +70,7 @@ const Blog = ({ blog }: Props) => {
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   )
 }
 

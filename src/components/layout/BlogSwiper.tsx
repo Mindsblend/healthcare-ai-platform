@@ -68,23 +68,34 @@ export default function BlogSwiper() {
             swiper.params.navigation.nextEl = nextRef.current
           }
         }}
-        breakpoints={{
-          320: { slidesPerView: 1 },
-          640: { slidesPerView: 2 },
-          1024: { slidesPerView: 3 },
-          1440: { slidesPerView: 4 },
-        }}
         autoplay={{
           delay: 3000,
-          disableOnInteraction: false, // keeps autoplay running even after user interacts
+          disableOnInteraction: false,
         }}
         spaceBetween={20}
-        slidesPerView={3}
+        slidesPerView={1}
+        breakpoints={{
+          320: {
+            slidesPerView: 1.2,
+          },
+          640: {
+            slidesPerView: 2.4,
+          },
+          1024: {
+            slidesPerView: 3.3,
+          },
+          1280: {
+            slidesPerView: 4.1,
+          },
+          1440: {
+            slidesPerView: 4.3,
+          },
+        }}
         className="w-full"
       >
         {blogs.map((blog) => (
           <SwiperSlide key={blog.id}>
-            <div className="mt-4 flex justify-center">
+            <div className="flex justify-center">
               <Blog blog={blog} />
             </div>
           </SwiperSlide>

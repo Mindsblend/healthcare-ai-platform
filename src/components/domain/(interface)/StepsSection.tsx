@@ -6,7 +6,7 @@ import Link from 'next/link'
 const StepsSection = () => {
   return (
     <div className="text-color-title-on-light bg-section">
-      <div className="container flex flex-col sm:flex-row justify-between pt-20">
+      <div className="container flex flex-col justify-between pt-20 sm:flex-row">
         <div className="text-center sm:text-right">
           <h1 className="font-aria text-color-title-on-dark max-w-sm text-3xl font-bold xl:max-w-2xl xl:text-5xl">
             راهکار کامل شما برای سلامتی، بدون پیچیدگی و دغدغه
@@ -45,7 +45,7 @@ const StepsSection = () => {
             </Link>
           </div>
         </div>
-        <div className="mx-auto grid grid-cols-2 justify-center gap-x-18 sm:gap-x-10 lg:gap-x-16 max-sm:mt-8 sm:mx-0">
+        <div className="mx-auto grid grid-cols-2 justify-center gap-x-18 max-sm:mt-8 sm:mx-0 sm:gap-x-10 lg:gap-x-16">
           <div className="flex items-center gap-3">
             <div>
               <h1 className="font-aria text-color-title-on-dark text-left text-3xl font-black xl:max-w-2xl xl:text-5xl">
@@ -112,7 +112,7 @@ const StepsSection = () => {
           </div>
         </div>
       </div>
-      <div className="container max-w-[1400px] w-full">
+      <div className="container w-full max-w-350">
         <div className="hidden sm:block">
           <ScrollStepsTimeline />
         </div>
