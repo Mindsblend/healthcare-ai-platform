@@ -5,7 +5,7 @@ const HeroSection = () => {
   return (
     <div className="container flex items-end justify-between">
       {/* Right: Text + Buttons */}
-      <div className="flex flex-col justify-end mt-10 max-lg:items-center max-lg:text-center">
+      <div className="mt-10 flex flex-col justify-end max-lg:items-center max-lg:text-center">
         <h1 className="font-aria text-color-title-on-light max-w-118.25 text-4xl font-extrabold sm:text-5xl xl:text-6xl">
           سلامتی امروز، پلی به فردایی شادتر
         </h1>
@@ -41,12 +41,13 @@ const HeroSection = () => {
           </Link>
         </div>
 
-        <div className="order-2 my-6 flex w-full flex-col justify-between max-lg:items-center">
+        <div className="order-2 my-6 flex flex-col justify-between max-lg:items-center">
           <Image
             src="/images/mini-products.webp"
             alt="Mini Products"
-            width={140}
-            height={50}
+            width={145}
+            height={55}
+            className="h-[55px] w-[145px]"
           />
         </div>
 

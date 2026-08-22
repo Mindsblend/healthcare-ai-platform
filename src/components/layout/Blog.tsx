@@ -8,62 +8,56 @@ interface Props {
 
 const Blog = ({ blog }: Props) => {
   return (
-    <Link href={'/blogs/' + blog.slug} className="bg-page xs:max-w-77.5 flex max-h-min w-full flex-col rounded-[20px] border border-black/25 p-2.5">
+    <Link
+      href={'/blogs/' + blog.slug}
+      className="bg-page flex max-h-min w-full flex-col rounded-[16.5px] border border-black/25 p-2.5"
+    >
       {/* top image */}
       <div
-        className="relative aspect-square w-full rounded-3xl bg-cover bg-center bg-no-repeat"
+        className="relative aspect-square w-full rounded-[16.5px] bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `url(${blog.image || '/images/default-blog.png'})`,
         }}
       >
-        <div className="bg-page absolute top-3.5 right-4 z-10 h-12 w-12 rounded-full p-2.5">
+        <div className="bg-page absolute top-3 right-3 z-10 flex h-9.5 w-9.5 items-center justify-center rounded-full">
           <Image
             src="/images/binoculars.svg"
             alt="Product icon"
-            width={30}
-            height={30}
+            width={23}
+            height={23}
           />
         </div>
       </div>
 
       {/* content */}
-      <div className="mt-2 flex grow flex-col justify-between rounded-3xl bg-[#F2F2F2] p-4.25">
+      <div className="mt-2 flex grow flex-col justify-between rounded-[16.5px] bg-[#F2F2F2] p-2.5">
         <div className="text-color-title-on-light">
-          <h1 className="font-ray text-xl font-extrabold xl:text-2xl">
+          <h1 className="font-ray text-base font-extrabold sm:text-lg">
             {blog.title}
           </h1>
-          <div className="font-ray mt-1.5 text-sm font-medium">
+          <div className="font-ray mt-1.5 line-clamp-2 text-xs font-medium">
             <div dangerouslySetInnerHTML={{ __html: blog.description }}></div>
-
-            {/* <div>
-              <span className="text-color-body-on-light mr-1.5 inline-flex cursor-pointer items-center">
-                ادامه مطلب
-                <Image
-                  src="/images/left-arrow.svg"
-                  alt="read more"
-                  width={16}
-                  height={16}
-                />
-              </span>
-            </div> */}
           </div>
         </div>
 
         {/* footer */}
-        <div className="mt-3.5 flex flex-col-reverse gap-4 xl:flex-row xl:items-center xl:justify-between">
-          <div className="flex items-center gap-2.5 2xl:ml-5">
+        <div className="mt-2.5 flex gap-2 xl:flex-row xl:items-center">
+          <button className="text-color-title-on-dark font-ray flex h-10 w-full max-w-[120px] flex-1 cursor-pointer items-center justify-center rounded-3xl bg-black text-xs whitespace-nowrap transition hover:bg-gray-800">
+            مطالعه بیشتر
+          </button>
+          <div className="flex items-center gap-1.25">
             <Image
               src={blog.authorImage || '/images/default-avatar.png'}
               alt="writer image"
-              width={46}
-              height={46}
-              className="rounded-full"
+              width={35}
+              height={35}
+              className="h-8.75 w-8.75 rounded-full bg-cover"
             />
             <div>
-              <h1 className="font-aria text-color-title-on-light text-[16px] font-extrabold">
+              <h1 className="font-aria text-color-title-on-light text-sm font-extrabold">
                 {blog.author}
               </h1>
-              <p className="font-ray text-color-title-on-light text-[14px]">
+              <p className="font-ray text-color-title-on-light text-xs">
                 {blog.authorTitle}
               </p>
             </div>

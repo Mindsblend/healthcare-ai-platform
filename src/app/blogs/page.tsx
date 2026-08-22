@@ -43,7 +43,7 @@ const page = () => {
           </div>
 
           {/* Latest Blog */}
-          <div className="bg-page mt-14 flex w-full flex-col gap-4 rounded-3xl border border-black/25 px-2 py-3 lg:min-h-135.5 lg:flex-row lg:gap-7">
+          <div className="bg-page mt-14  flex w-full flex-col gap-4 rounded-3xl border border-black/25 px-2 py-3 lg:min-h-135.5 lg:flex-row lg:gap-7">
             {/* content */}
             <div className="order-2 flex flex-col rounded-3xl bg-[#F2F2F2] px-5 py-4 lg:order-0 lg:grow lg:px-12 lg:py-6">
               {/* text */}
