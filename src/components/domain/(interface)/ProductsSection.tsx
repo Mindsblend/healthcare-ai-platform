@@ -5,7 +5,7 @@ export default async function ProductsSection() {
   const products = await ProductService.fetchProductsPreview()
 
   return (
-    <div className="container mt-24 mb-12 flex w-full flex-col">
+    <div className="container mt-12 sm:mt-24 mb-12 flex w-full flex-col">
       {/* only this block is centered */}
       <div className="text-color-title-on-light flex flex-col items-center text-center">
         <h1 className="font-aria text-xl font-bold">انتخابی سالم</h1>
