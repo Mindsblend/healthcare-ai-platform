@@ -65,17 +65,11 @@ export default function ProductPage() {
       {product && (
         <>
           <div className="mt-5 sm:mt-12.5">
-            {/* =====================================================
-                MOBILE / TABLET
-                ===================================================== */}
+            {/* mobile */}
 
             <div className="relative lg:hidden">
-              {/* =========================
-                  HERO IMAGE
-                  ========================= */}
-
               <div className="sticky top-0 z-0 w-full">
-                <div className="bg-page mx-auto w-full overflow-hidden rounded-[35px] px-6.25 pb-6.25 sm:border sm:border-black/25">
+                <div className="bg-page mx-auto w-full overflow-hidden rounded-[35px] px-6.25 pb-6.25">
                   {product.image && product.image.trim() !== '' ? (
                     <div
                       className="relative aspect-4/3 w-full overflow-hidden rounded-[25px] bg-cover bg-center bg-no-repeat sm:aspect-square"
@@ -165,7 +159,7 @@ export default function ProductPage() {
                         <div className="flex items-center gap-2.5">
                           <div className="h-10 w-10 rounded-full bg-[#D9D9D9] p-2.5">
                             <Image
-                              src="/images/usermd.png"
+                              src="/images/usermd.svg"
                               width={18}
                               height={18}
                               alt="police user"
@@ -177,7 +171,7 @@ export default function ProductPage() {
                             </h1>
                             <div className="flex items-center gap-1.25">
                               <Image
-                                src="/images/check-shield.png"
+                                src="/images/check-shield.svg"
                                 alt="check shield"
                                 width={13}
                                 height={13}
@@ -202,7 +196,7 @@ export default function ProductPage() {
                         <div className="flex items-center gap-2.5">
                           <div className="h-10 w-10 rounded-full bg-[#D9D9D9] p-2.5">
                             <Image
-                              src="/images/truck.png"
+                              src="/images/truck.svg"
                               width={18}
                               height={18}
                               alt="truck"
@@ -214,7 +208,7 @@ export default function ProductPage() {
                             </h1>
                             <div className="flex items-center gap-1.25">
                               <Image
-                                src="/images/light-bulb.png"
+                                src="/images/light-bulb.svg"
                                 alt="light bulb"
                                 width={13}
                                 height={13}
@@ -239,7 +233,7 @@ export default function ProductPage() {
                         <div className="flex items-center gap-2.5">
                           <div className="h-10 w-10 rounded-full bg-[#D9D9D9] p-2.5">
                             <Image
-                              src="/images/message-exclamation.png"
+                              src="/images/message-exclamation.svg"
                               width={18}
                               height={18}
                               alt="message-exclamation"
@@ -251,7 +245,7 @@ export default function ProductPage() {
                             </h1>
                             <div className="flex items-center gap-1.25">
                               <Image
-                                src="/images/siren.png"
+                                src="/images/siren.svg"
                                 alt="serin"
                                 width={13}
                                 height={13}
@@ -277,72 +271,230 @@ export default function ProductPage() {
               </div>
             </div>
 
-            {/* =====================================================
-                DESKTOP
-                ===================================================== */}
+            {/* DESKTOP */}
 
-            <div className="hidden items-center justify-between lg:flex">
-              <div className="shrink-2">
-                <h1 className="font-aria text-color-title-on-light text-4xl font-extrabold sm:text-[40px]">
-                  {product.title}
-                </h1>
+            <div className="container hidden flex-col items-center lg:flex">
+              <div className="flex w-full items-center justify-between gap-5">
+                {/* Products image */}
+                <div className="w-full lg:max-w-sm">
+                  <div className="bg-page mx-auto w-full overflow-hidden rounded-[25px]">
+                    {product.image && product.image.trim() !== '' ? (
+                      <div
+                        className="relative aspect-square w-full rounded-[25px] bg-cover bg-center bg-no-repeat"
+                        style={{
+                          backgroundImage: `url(${product.image})`,
+                        }}
+                      >
+                        <div className="bg-page absolute top-4.25 right-4.25 z-10 flex h-10 w-10 items-center justify-center rounded-full p-2.25">
+                          <Image
+                            src={categoryIcon}
+                            alt="Product icon"
+                            width={20}
+                            height={20}
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="relative flex aspect-square w-full items-center justify-center rounded-[25px] bg-gray-100">
+                        <div className="bg-page absolute top-4.25 right-4.25 z-10 flex h-10 w-10 items-center justify-center rounded-full p-2.25">
+                          <Image
+                            src={categoryIcon}
+                            alt="Product icon"
+                            width={20}
+                            height={20}
+                          />
+                        </div>
 
-                {/* ICONS */}
-
-                <div className="mt-5 flex items-center gap-x-3">
-                  {product.icons?.map(({ id, title, iconPath }: IconType) => (
-                    <div key={id} className="flex gap-1">
-                      {iconPath && iconPath.trim() !== '' ? (
-                        <Image
-                          src={iconPath}
-                          alt={title || 'icon'}
-                          width={13}
-                          height={13}
-                        />
-                      ) : (
-                        <span className="text-xs text-gray-400">
-                          بدون آیکون
+                        <span className="text-sm text-gray-400">
+                          بدون تصویر
                         </span>
-                      )}
-
-                      <h1 className="font-ray text-color-title-on-light text-xs font-medium xl:text-base">
-                        {title}
-                      </h1>
-                    </div>
-                  ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                <p className="font-ray text-color-body-on-light mt-5 max-w-xl text-xs sm:text-sm xl:text-lg">
-                  {product.description}
-                </p>
+                {/* content */}
+                <div className="max-xl:max-w-[430px]">
+                  <h1 className="font-aria text-color-title-on-light text-2xl font-extrabold sm:text-[32px]">
+                    {product.title}
+                  </h1>
 
-                <div className="mt-7 flex flex-col gap-5">
-                  {product.gains?.map(
-                    ({ id, title, ingredient, description }: GainType) => (
-                      <div key={id} className="flex items-center gap-1.5">
-                        <Image
-                          src="/images/add_circle.svg"
-                          alt="add circle icon"
-                          width={19.5}
-                          height={19.5}
-                        />
+                  {/* ICONS */}
 
-                        <h1 className="font-ray text-color-title-on-light text-xs font-medium sm:text-sm xl:text-base">
-                          <span className="font-extrabold">{title}: </span>
-                          {ingredient} — {description}
+                  <div className="mt-3 flex items-center gap-x-3">
+                    {product.icons?.map(({ id, title, iconPath }: IconType) => (
+                      <div key={id} className="flex gap-1">
+                        {iconPath && iconPath.trim() !== '' ? (
+                          <Image
+                            src={iconPath}
+                            alt={title || 'icon'}
+                            width={13}
+                            height={13}
+                          />
+                        ) : (
+                          <span className="text-xs text-gray-400">
+                            بدون آیکون
+                          </span>
+                        )}
+
+                        <h1 className="font-ray text-color-title-on-light text-xs font-medium xl:text-base">
+                          {title}
                         </h1>
                       </div>
-                    ),
-                  )}
+                    ))}
+                  </div>
+
+                  <div className="mt-5 flex flex-col gap-5">
+                    {product.gains?.map(
+                      ({ id, title, ingredient, description }: GainType) => (
+                        <div key={id} className="flex items-center gap-1.5">
+                          <Image
+                            src="/images/add_circle.svg"
+                            alt="add circle icon"
+                            width={19.5}
+                            height={19.5}
+                          />
+
+                          <h1 className="font-ray text-color-title-on-light text-xs font-medium sm:text-sm xl:text-base">
+                            <span className="font-extrabold">{title}: </span>
+                            {ingredient} — {description}
+                          </h1>
+                        </div>
+                      ),
+                    )}
+                  </div>
+
+                  <div className="mt-5">
+                    <h1 className="font-aria text-xl font-extrabold text-black">
+                      توضیحات
+                    </h1>
+                    <p className="font-ray text-color-body-on-light mt-2.5 max-w-xl text-xs sm:text-sm xl:text-base">
+                      {product.description}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="mt-5 flex items-center gap-3.5">
-                  <div className="flex w-full gap-x-5 sm:items-center">
+                <div className="flex w-full max-w-[400px] min-w-[300px] flex-1 flex-col items-center gap-4.5">
+                  <div className="font-aria text-color-title-on-light w-full text-lg font-extrabold">
+                    <h1>فروشنده</h1>
+                    <div className="mt-3.75 rounded-md bg-[#F2F2F2] px-3.75 py-5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <div className="h-10 w-10 rounded-full bg-[#D9D9D9] p-2.5">
+                            <Image
+                              src="/images/usermd.svg"
+                              width={18}
+                              height={18}
+                              alt="police user"
+                            />
+                          </div>
+                          <div>
+                            <h1 className="font-ray text-sm font-extrabold text-black">
+                              روش و هزینه ارسال
+                            </h1>
+                            <div className="flex items-center gap-1.25">
+                              <Image
+                                src="/images/check-shield.svg"
+                                alt="check shield"
+                                width={13}
+                                height={13}
+                              />
+                              <p className="mt-1.25 text-xs font-medium text-black">
+                                توسط سایت
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        <Image
+                          src="/images/chevron-left.svg"
+                          alt="left arrow"
+                          width={20}
+                          height={20}
+                        />
+                      </div>
+
+                      <hr className="my-3.75 border border-[#D9D9D9]" />
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <div className="h-10 w-10 rounded-full bg-[#D9D9D9] p-2.5">
+                            <Image
+                              src="/images/truck.svg"
+                              width={18}
+                              height={18}
+                              alt="truck"
+                            />
+                          </div>
+                          <div>
+                            <h1 className="font-ray text-sm font-extrabold text-black">
+                              شرایط و قوانین ارسال رایگان
+                            </h1>
+                            <div className="flex items-center gap-1.25">
+                              <Image
+                                src="/images/light-bulb.svg"
+                                alt="light bulb"
+                                width={13}
+                                height={13}
+                              />
+                              <p className="mt-1.25 text-xs font-medium text-black">
+                                قوانین
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        <Image
+                          src="/images/chevron-left.svg"
+                          alt="left arrow"
+                          width={20}
+                          height={20}
+                        />
+                      </div>
+
+                      <hr className="my-3.75 border border-[#D9D9D9]" />
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <div className="h-10 w-10 rounded-full bg-[#D9D9D9] p-2.5">
+                            <Image
+                              src="/images/message-exclamation.svg"
+                              width={18}
+                              height={18}
+                              alt="message-exclamation"
+                            />
+                          </div>
+                          <div>
+                            <h1 className="font-ray text-sm font-extrabold text-black">
+                              روش و هزینه ارسال
+                            </h1>
+                            <div className="flex items-center gap-1.25">
+                              <Image
+                                src="/images/siren.svg"
+                                alt="serin"
+                                width={13}
+                                height={13}
+                              />
+                              <p className="mt-1.25 text-xs font-medium text-black">
+                                توسط سایت
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        <Image
+                          src="/images/chevron-left.svg"
+                          alt="left arrow"
+                          width={20}
+                          height={20}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex w-full justify-between gap-x-5 sm:items-center">
                     <button
                       onClick={handleAddToCart}
                       disabled={isAdding}
                       aria-label={`افزودن ${product.title} به سبد خرید`}
-                      className="text-color-title-on-dark font-ray flex h-10 w-auto cursor-pointer items-center justify-center gap-3 rounded-full bg-black px-4 text-sm font-medium whitespace-nowrap transition hover:bg-gray-800 disabled:cursor-wait disabled:opacity-70 2xl:h-12 2xl:text-base"
+                      className="text-color-title-on-dark font-ray flex h-10 w-45 cursor-pointer items-center justify-center gap-3 rounded-full bg-black px-4 text-sm font-medium whitespace-nowrap transition hover:bg-gray-800 disabled:cursor-wait disabled:opacity-70 2xl:h-12 2xl:text-base"
                     >
                       {isAdding ? 'در حال افزودن...' : 'افزودن به سبد خرید'}
                     </button>
@@ -362,49 +514,14 @@ export default function ProductPage() {
                 )}
               </div>
 
-              <div className="w-full lg:max-w-xl">
-                <div className="bg-page mx-auto w-full overflow-hidden rounded-[35px] px-6.25 pb-6.25 sm:border sm:border-black/25">
-                  {product.image && product.image.trim() !== '' ? (
-                    <div
-                      className="relative aspect-square w-full rounded-[25px] bg-cover bg-center bg-no-repeat"
-                      style={{
-                        backgroundImage: `url(${product.image})`,
-                      }}
-                    >
-                      <div className="bg-page absolute top-4.25 right-4.25 z-10 flex h-12 w-12 items-center justify-center rounded-full p-2.25">
-                        <Image
-                          src={categoryIcon}
-                          alt="Product icon"
-                          width={25}
-                          height={25}
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="relative flex aspect-square w-full items-center justify-center rounded-[25px] bg-gray-100">
-                      <div className="bg-page absolute top-4.25 right-4.25 z-10 flex h-12 w-12 items-center justify-center rounded-full p-2.25">
-                        <Image
-                          src={categoryIcon}
-                          alt="Product icon"
-                          width={30}
-                          height={30}
-                        />
-                      </div>
-
-                      <span className="text-sm text-gray-400">بدون تصویر</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
               {/* Question */}
 
               <Questions faqs={product.faqs} />
             </div>
 
             <div className="container mt-11 flex w-full flex-col">
-              <div className="text-color-title-on-light flex flex-col ">
-                <h1 className="font-aria text-2xl font-extrabold xl:text-4xl">
+              <div className="text-color-title-on-light flex flex-col">
+                <h1 className="font-aria text-2xl font-extrabold xl:text-[32px]">
                   محصولات مشابه
                 </h1>
               </div>

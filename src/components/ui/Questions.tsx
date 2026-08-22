@@ -16,10 +16,10 @@ const FaqItem = ({ item, isOpen, onToggle }: FaqItemProps) => {
     <div>
       {/* Question */}
       <div
-        className="flex cursor-pointer items-start justify-between gap-4 pt-3"
+        className="flex cursor-pointer items-start justify-between gap-4"
         onClick={onToggle}
       >
-        <h2 className="font-aria text-color-title-on-light text-xl font-extrabold sm:text-2xl">
+        <h2 className="font-aria text-color-title-on-light text-base sm:text-xl font-extrabold">
           {item.question}
         </h2>
 
@@ -32,8 +32,8 @@ const FaqItem = ({ item, isOpen, onToggle }: FaqItemProps) => {
           <Image
             src="/images/arrow.svg"
             alt="arrow icon"
-            width={20}
-            height={20}
+            width={10}
+            height={10}
             className="h-5 w-5"
           />
         </motion.span>
@@ -49,7 +49,7 @@ const FaqItem = ({ item, isOpen, onToggle }: FaqItemProps) => {
             transition={{ duration: 0.35, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
-            <p className="font-ray text-color-body-on-light max-w-full pt-2 pb-4 text-base font-medium sm:max-w-[596px] sm:text-lg">
+            <p className="font-ray text-color-body-on-light max-w-full pt-3.5 pb-3 text-xs sm:text-base font-medium sm:max-w-[596px]">
               {item.answer}
             </p>
           </motion.div>
@@ -84,7 +84,7 @@ const Questions = ({ faqs }: QuestionsProps) => {
                 onToggle={() => setActiveId(isOpen ? null : item.id)}
               />
               {index !== leftFaqs.length - 1 && (
-                <hr className="border-color-title-on-light mt-1 border" />
+                <hr className="border-color-title-on-light my-2.5 border" />
               )}
             </div>
           )
@@ -104,7 +104,7 @@ const Questions = ({ faqs }: QuestionsProps) => {
                 onToggle={() => setActiveId(isOpen ? null : item.id)}
               />
               {index !== rightFaqs.length - 1 && (
-                <hr className="border-color-title-on-light mt-1 border" />
+                <hr className="border-color-title-on-light my-2.5 border" />
               )}
             </div>
           )

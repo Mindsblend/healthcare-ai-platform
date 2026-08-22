@@ -44,7 +44,7 @@ const Product = ({ product }: Props) => {
   return (
     <Link
       href={'/products/' + product.slug}
-      className="bg-page flex max-h-min w-full flex-col rounded-[20px] border border-black/25 p-2.5 max-sm:max-w-77.5"
+      className="bg-page flex max-h-min w-full flex-col rounded-[20px] border border-black/25 p-2.5 xs:max-w-77.5"
     >
       {/* Image Section */}
       {product.image && product.image.trim() !== '' ? (

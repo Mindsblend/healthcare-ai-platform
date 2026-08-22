@@ -48,7 +48,7 @@ const ProductSwiper = memo(({ products, categories }: ProductSwiperProps) => {
   }, [isCategoryMenuOpen])
 
   return (
-    <div className="flex w-full flex-col xl:mt-6">
+    <div className="flex w-full flex-col xl:mt-3">
       {/* Category Header */}
       <div className="mb-3 flex w-full items-center justify-between">
         <div className="hidden flex-1 items-center lg:flex">
@@ -230,7 +230,7 @@ const ProductSwiper = memo(({ products, categories }: ProductSwiperProps) => {
             slidesPerView: 4.3,
           },
         }}
-        className="mt-4 w-full"
+        className="w-full"
       >
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
