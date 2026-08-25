@@ -144,16 +144,16 @@ export default function ProductPage() {
                   )}
 
                   <div>
-                    <h1 className="font-aria text-color-title-on-light text-lg font-extrabold">
+                    <h2 className="font-aria text-color-title-on-light text-lg font-extrabold">
                       توضیحات
-                    </h1>
+                    </h2>
                     <p className="font-ray text-color-body-on-light mt-2.5 max-w-xl text-xs leading-5 sm:text-sm">
                       {product.description}
                     </p>
                   </div>
 
                   <div className="font-aria text-color-title-on-light text-lg font-extrabold">
-                    <h1>فروشنده</h1>
+                    <h2>فروشنده</h2>
                     <div className="mt-3.75 rounded-md bg-[#F2F2F2] px-3.75 py-5">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
@@ -166,9 +166,9 @@ export default function ProductPage() {
                             />
                           </div>
                           <div>
-                            <h1 className="font-ray text-sm font-extrabold text-black">
+                            <h3 className="font-ray text-sm font-extrabold text-black">
                               روش و هزینه ارسال
-                            </h1>
+                            </h3>
                             <div className="flex items-center gap-1.25">
                               <Image
                                 src="/images/check-shield.svg"
@@ -203,9 +203,9 @@ export default function ProductPage() {
                             />
                           </div>
                           <div>
-                            <h1 className="font-ray text-sm font-extrabold text-black">
+                            <h3 className="font-ray text-sm font-extrabold text-black">
                               شرایط و قوانین ارسال رایگان
-                            </h1>
+                            </h3>
                             <div className="flex items-center gap-1.25">
                               <Image
                                 src="/images/light-bulb.svg"
@@ -240,9 +240,9 @@ export default function ProductPage() {
                             />
                           </div>
                           <div>
-                            <h1 className="font-ray text-sm font-extrabold text-black">
+                            <h3 className="font-ray text-sm font-extrabold text-black">
                               روش و هزینه ارسال
-                            </h1>
+                            </h3>
                             <div className="flex items-center gap-1.25">
                               <Image
                                 src="/images/siren.svg"
@@ -365,9 +365,9 @@ export default function ProductPage() {
                   </div>
 
                   <div className="mt-5">
-                    <h1 className="font-aria text-xl font-extrabold text-black">
+                    <h2 className="font-aria text-xl font-extrabold text-black">
                       توضیحات
-                    </h1>
+                    </h2>
                     <p className="font-ray text-color-body-on-light mt-2.5 max-w-xl text-xs sm:text-sm xl:text-base">
                       {product.description}
                     </p>
@@ -376,7 +376,7 @@ export default function ProductPage() {
 
                 <div className="flex w-full max-w-[400px] min-w-[300px] flex-1 flex-col items-center gap-4.5">
                   <div className="font-aria text-color-title-on-light w-full text-lg font-extrabold">
-                    <h1>فروشنده</h1>
+                    <h2>فروشنده</h2>
                     <div className="mt-3.75 rounded-md bg-[#F2F2F2] px-3.75 py-5">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
@@ -389,9 +389,9 @@ export default function ProductPage() {
                             />
                           </div>
                           <div>
-                            <h1 className="font-ray text-sm font-extrabold text-black">
+                            <h2 className="font-ray text-sm font-extrabold text-black">
                               روش و هزینه ارسال
-                            </h1>
+                            </h2>
                             <div className="flex items-center gap-1.25">
                               <Image
                                 src="/images/check-shield.svg"
@@ -426,9 +426,9 @@ export default function ProductPage() {
                             />
                           </div>
                           <div>
-                            <h1 className="font-ray text-sm font-extrabold text-black">
+                            <h2 className="font-ray text-sm font-extrabold text-black">
                               شرایط و قوانین ارسال رایگان
-                            </h1>
+                            </h2>
                             <div className="flex items-center gap-1.25">
                               <Image
                                 src="/images/light-bulb.svg"
@@ -463,9 +463,9 @@ export default function ProductPage() {
                             />
                           </div>
                           <div>
-                            <h1 className="font-ray text-sm font-extrabold text-black">
+                            <h2 className="font-ray text-sm font-extrabold text-black">
                               روش و هزینه ارسال
-                            </h1>
+                            </h2>
                             <div className="flex items-center gap-1.25">
                               <Image
                                 src="/images/siren.svg"
@@ -521,9 +521,9 @@ export default function ProductPage() {
 
             <div className="container mt-11 flex w-full flex-col">
               <div className="text-color-title-on-light flex flex-col">
-                <h1 className="font-aria text-2xl font-extrabold xl:text-[32px]">
+                <h2 className="font-aria text-2xl font-extrabold xl:text-[32px]">
                   محصولات مشابه
-                </h1>
+                </h2>
               </div>
 
               <div className="flex items-center justify-center pb-10">

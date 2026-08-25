@@ -42,7 +42,7 @@ const Blog = ({ blog }: Props) => {
 
         {/* footer */}
         <div className="mt-2.5 flex gap-2 xl:flex-row xl:items-center">
-          <button className="text-color-title-on-dark font-ray flex h-10 w-full max-w-[120px] flex-1 cursor-pointer items-center justify-center rounded-3xl bg-black text-xs whitespace-nowrap transition hover:bg-gray-800">
+          <button className="text-color-title-on-dark font-ray flex h-10 w-full max-w-30 flex-1 cursor-pointer items-center justify-center rounded-3xl bg-black text-xs whitespace-nowrap transition hover:bg-gray-800">
             مطالعه بیشتر
           </button>
           <div className="flex items-center gap-1.25">

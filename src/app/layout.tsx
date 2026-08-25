@@ -108,7 +108,6 @@ const RayFont = localFont({
   display: 'swap',
 })
 
-/* App Info and Metadata */
 export const metadata: Metadata = {
   title: 'دیجی سلامت',
   description: 'An AI integrated healthcare platform',
@@ -135,7 +134,7 @@ export default async function RootLayout({
             // add more custom colors here
           } as React.CSSProperties
         }
-        >
+      >
         <CartProvider isAuthenticated={Boolean(session)}>
           <main>
             <SessionRefresher />
