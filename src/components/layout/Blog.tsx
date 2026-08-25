@@ -13,12 +13,14 @@ const Blog = ({ blog }: Props) => {
       className="bg-page flex max-h-min w-full flex-col rounded-[16.5px] border border-black/25 p-2.5"
     >
       {/* top image */}
-      <div
-        className="relative aspect-square w-full rounded-[16.5px] bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url(${blog.image || '/images/default-blog.png'})`,
-        }}
-      >
+      <div className="relative aspect-square w-full overflow-hidden rounded-[16.5px]">
+        <Image
+          src={blog.image || '/images/default-blog.png'}
+          alt={blog.title}
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
+          className="object-cover"
+        />
         <div className="bg-page absolute top-3 right-3 z-10 flex h-9.5 w-9.5 items-center justify-center rounded-full">
           <Image
             src="/images/binoculars.svg"
@@ -32,9 +34,9 @@ const Blog = ({ blog }: Props) => {
       {/* content */}
       <div className="mt-2 flex grow flex-col justify-between rounded-[16.5px] bg-[#F2F2F2] p-2.5">
         <div className="text-color-title-on-light">
-          <h1 className="font-ray text-base font-extrabold sm:text-lg">
+          <h2 className="font-ray text-base font-extrabold sm:text-lg">
             {blog.title}
-          </h1>
+          </h2>
           <div className="font-ray mt-1.5 line-clamp-2 text-xs font-medium">
             <div dangerouslySetInnerHTML={{ __html: blog.description }}></div>
           </div>
@@ -54,9 +56,9 @@ const Blog = ({ blog }: Props) => {
               className="h-8.75 w-8.75 rounded-full bg-cover"
             />
             <div>
-              <h1 className="font-aria text-color-title-on-light text-sm font-extrabold">
+              <h3 className="font-aria text-color-title-on-light text-sm font-extrabold">
                 {blog.author}
-              </h1>
+              </h3>
               <p className="font-ray text-color-title-on-light text-xs">
                 {blog.authorTitle}
               </p>

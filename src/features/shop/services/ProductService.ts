@@ -38,9 +38,13 @@ export class ProductService {
   static async fetchProductBySlug(
     input: GetProductBySlugInput,
   ): Promise<ProductDetail | null> {
-    const { slug } = input
-    return prisma.product.findUnique({
-      where: { slug, isActive: true },
+    const slug = decodeURIComponent(input.slug).trim()
+
+    return prisma.product.findFirst({
+      where: {
+        slug,
+        isActive: true,
+      },
       include: {
         icons: true,
         gains: true,

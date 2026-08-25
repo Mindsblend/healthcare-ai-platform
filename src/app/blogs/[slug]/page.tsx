@@ -68,9 +68,9 @@ export default function ProductPage() {
                 className="rounded-full"
               />
               <div>
-                <h1 className="font-aria text-color-title-on-light text-[16px] font-extrabold">
+                <h2 className="font-aria text-color-title-on-light text-[16px] font-extrabold">
                   {blog.author}
-                </h1>
+                </h2>
                 <p className="font-ray text-color-title-on-light text-[14px]">
                   نویسنده و پژوهشگر
                 </p>

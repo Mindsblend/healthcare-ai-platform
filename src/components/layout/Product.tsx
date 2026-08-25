@@ -44,14 +44,18 @@ const Product = ({ product }: Props) => {
   return (
     <Link
       href={'/products/' + product.slug}
-      className="bg-page flex max-h-min w-full flex-col rounded-[20px] border border-black/25 p-2.5 xs:max-w-77.5"
+      className="bg-page xs:max-w-77.5 flex max-h-min w-full flex-col rounded-[20px] border border-black/25 p-2.5"
     >
       {/* Image Section */}
       {product.image && product.image.trim() !== '' ? (
-        <div
-          className="relative aspect-square w-full rounded-[16.5px] bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${product.image})` }}
-        >
+        <div className="relative aspect-square w-full overflow-hidden rounded-[16.5px]">
+          <Image
+            src={product.image}
+            alt={product.title}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
+            className="object-cover"
+          />
           <div className="bg-page absolute top-3.5 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full p-2.5">
             <Image
               src={categoryIcon}
@@ -102,11 +106,11 @@ const Product = ({ product }: Props) => {
       )}
 
       {/* Info Section */}
-      <div className="mt-2.5 flex flex-col gap-4 rounded-[16.5px] bg-[#F2F2F2] px-3 sm:px-5 py-3 sm:py-4 lg:justify-between">
+      <div className="mt-2.5 flex flex-col gap-4 rounded-[16.5px] bg-[#F2F2F2] px-3 py-3 sm:px-5 sm:py-4 lg:justify-between">
         <div className="text-color-title-on-light">
-          <h1 className="font-ray text-lg font-extrabold sm:text-xl">
+          <h2 className="font-ray text-lg font-extrabold sm:text-xl">
             {product.title}
-          </h1>
+          </h2>
           <p className="font-ray mt-0.5 text-xs font-medium text-[#555555] sm:max-w-75 sm:text-sm">
             {product.solution}
           </p>

@@ -5,6 +5,8 @@ import PageViewTracker from '@/components/layout/PageViewTracker'
 import { SessionRefresher } from '@/components/layout/SessionRefresher'
 import { CartProvider } from '@/features/shop/hooks/cart/useCart'
 import { getSession } from '@/features/auth/services/sessionService'
+import { defaultDescription, siteName, siteUrl } from '@/lib/seo'
+import { JsonLd } from '@/components/seo/JsonLd'
 
 /* ============================
    Headers: Aria Font Family
@@ -109,8 +111,28 @@ const RayFont = localFont({
 })
 
 export const metadata: Metadata = {
-  title: 'دیجی سلامت',
-  description: 'An AI integrated healthcare platform',
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: `${siteName} | محصولات سالم و ارگانیک`,
+    template: `%s | ${siteName}`,
+  },
+  description: defaultDescription,
+  applicationName: siteName,
+  category: 'فروشگاه محصولات سالم و ارگانیک',
+  alternates: { canonical: '/' },
+  openGraph: {
+    type: 'website',
+    locale: 'fa_IR',
+    siteName,
+    title: `${siteName} | محصولات سالم و ارگانیک`,
+    description: defaultDescription,
+    url: '/',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `${siteName} | محصولات سالم و ارگانیک`,
+    description: defaultDescription,
+  },
 }
 
 export default async function RootLayout({
@@ -135,6 +157,16 @@ export default async function RootLayout({
           } as React.CSSProperties
         }
       >
+        <JsonLd
+          data={{
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name: siteName,
+            url: siteUrl,
+            logo: `${siteUrl}/images/logo.svg`,
+            description: defaultDescription,
+          }}
+        />
         <CartProvider isAuthenticated={Boolean(session)}>
           <main>
             <SessionRefresher />

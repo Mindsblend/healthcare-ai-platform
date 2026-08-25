@@ -21,9 +21,7 @@ export default function Feed() {
 
   // ✅ Get all active collections that have at least one product (price > 0 implies products)
   const activeCollections =
-    collections?.filter(
-      (cat) => cat.isActive === true && cat.price > 0,
-    ) || []
+    collections?.filter((cat) => cat.isActive === true && cat.price > 0) || []
 
   // Filter categories with products (excluding the limited-offers category if empty)
   const categoriesWithProducts =
@@ -53,9 +51,7 @@ export default function Feed() {
                 description={category.description || ''}
                 products={category.products}
               />
-              {showBundle && activeCollections.length > 0 && (
-                <ShopBundle collections={activeCollections} />
-              )}
+              <ShopBundle collections={activeCollections} />{' '}
             </div>
           )
         })}

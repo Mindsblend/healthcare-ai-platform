@@ -4,14 +4,10 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export default function CartLayout({
+export default function PaymentLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return (
-    <>
-      <div className="container">{children}</div>
-    </>
-  )
+  return children
 }
