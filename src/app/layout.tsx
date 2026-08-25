@@ -118,7 +118,6 @@ export const metadata: Metadata = {
   },
   description: defaultDescription,
   applicationName: siteName,
-  category: 'فروشگاه محصولات سالم و ارگانیک',
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
