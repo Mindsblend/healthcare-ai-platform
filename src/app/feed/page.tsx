@@ -51,7 +51,7 @@ export default function Feed() {
                 description={category.description || ''}
                 products={category.products}
               />
-              <ShopBundle collections={activeCollections} />{' '}
+              {/* <ShopBundle collections={activeCollections} />{' '} */}
             </div>
           )
         })}

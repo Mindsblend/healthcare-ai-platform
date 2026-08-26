@@ -1,5 +1,3 @@
-import Footer from '@/components/layout/Footer'
-import NavbarWrapper from '@/components/layout/NavbarWrapper'
 import type { Metadata } from 'next'
 
 import { JsonLd } from '@/components/seo/JsonLd'
@@ -162,7 +160,6 @@ export default async function ProductLayout({ children, params }: Props) {
           ]}
         />
       )}
-
       {children}
     </>
   )
