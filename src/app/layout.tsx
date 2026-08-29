@@ -114,7 +114,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: `${siteName} | محصولات سالم و ارگانیک`,
-    template: `%s | ${siteName}`,
+    template: `${siteName} | %s`,
   },
   description: defaultDescription,
   applicationName: siteName,

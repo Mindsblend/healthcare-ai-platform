@@ -5,7 +5,6 @@ import { useCollections } from '@/features/shop/hooks/collections/useCollections
 import ShopHeroSection from '@/components/domain/shop/ShopHeroSection'
 import ProductCategorySection from '@/components/domain/shop/ProductCategorySection'
 import ShopProductsSection from '@/components/domain/shop/ShopProductsSection'
-import ShopBundle from '@/components/domain/shop/ShopBundle'
 import LoadingBar from '@/components/layout/LoadingBar'
 
 // 🎯 The feed category slug after which the bundle should appear
