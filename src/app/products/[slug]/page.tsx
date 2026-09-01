@@ -339,13 +339,19 @@ function ProductPrice({
     <div
       className={
         mobile
-          ? 'text-color-title-on-light font-ray flex shrink-0 items-end text-base font-extrabold max-sm:flex-col'
+          ? 'text-color-title-on-light font-ray flex shrink-0 items-center text-lg font-bold'
           : 'text-color-title-on-light font-ray flex items-center justify-center text-sm font-extrabold 2xl:text-base'
       }
     >
       {price.toLocaleString('fa-IR')}
 
-      <span className="pr-1">تومان</span>
+      <Image
+        src="/images/toman.svg"
+        width={25}
+        height={25}
+        className="pr-1"
+        alt="toman"
+      />
     </div>
   )
 }

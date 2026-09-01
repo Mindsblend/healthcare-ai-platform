@@ -163,7 +163,7 @@ function ProductsContent() {
     }
 
     return (
-      <div className="col-span-full min-h-screen flex w-full flex-col items-center justify-center py-20 text-center">
+      <div className="col-span-full flex min-h-screen w-full flex-col items-center justify-center py-20 text-center">
         <div className="mb-6 rounded-full bg-gray-100 p-6">
           <svg
             className="h-16 w-16 text-gray-400"
@@ -470,15 +470,5 @@ function ProductsContent() {
 }
 
 export default function Page() {
-  return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center">
-          در حال بارگذاری...
-        </div>
-      }
-    >
-      <ProductsContent />
-    </Suspense>
-  )
+  return <ProductsContent />
 }
