@@ -2,13 +2,17 @@
 import https from 'https'
 import { createDomainError, ErrorCode } from '@/lib/errors'
 import { generateOtp } from '@/lib/helpers'
+import { SendSmsInput, SmsProviderResponse, SmsApiPayload } from '../auth.types'
 
 const SMSIR_API_KEY = process.env.SMSIR_API_KEY!
 
-export async function sendOtpViaSms(phone: string): Promise<string> {
+export async function sendOtpViaSms(
+  input: SendSmsInput,
+): Promise<SmsProviderResponse> {
+  const { phone } = input
   const code = generateOtp()
 
-  const payload = JSON.stringify({
+  const payload: SmsApiPayload = {
     mobile: phone,
     templateId: 137663,
     parameters: [
@@ -17,7 +21,9 @@ export async function sendOtpViaSms(phone: string): Promise<string> {
         value: code,
       },
     ],
-  })
+  }
+
+  const payloadString = JSON.stringify(payload)
 
   return new Promise((resolve, reject) => {
     const req = https.request(
@@ -29,7 +35,7 @@ export async function sendOtpViaSms(phone: string): Promise<string> {
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': SMSIR_API_KEY,
-          'Content-Length': Buffer.byteLength(payload),
+          'Content-Length': Buffer.byteLength(payloadString),
         },
       },
       (res) => {
@@ -66,7 +72,7 @@ export async function sendOtpViaSms(phone: string): Promise<string> {
           }
 
           console.log('[SMS.IR] OTP sent:', phone)
-          resolve(code)
+          resolve({ success: true, code })
         })
       },
     )
@@ -79,7 +85,7 @@ export async function sendOtpViaSms(phone: string): Promise<string> {
       )
     })
 
-    req.write(payload)
+    req.write(payloadString)
     req.end()
   })
 }

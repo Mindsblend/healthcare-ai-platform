@@ -2,13 +2,13 @@ import { NextResponse } from 'next/server'
 import { sendOtpViaSms } from '@/features/auth/services/sendSmsOtpService'
 import { saveOtp } from '@/features/auth/services/lifeCycleOtpService'
 import { createDomainError, ErrorCode } from '@/lib/errors'
-import { validateIdentifier } from '@/lib/helpers'
+import { validateAuthenticationIdentifier } from '@/lib/helpers'
 import { sendOtpViaEmail } from '@/features/auth/services/sendEmailOtpService'
 
 export async function POST(req: Request) {
   try {
     const { identifier } = await req.json()
-    const { type, value } = await validateIdentifier(identifier)
+    const { type, value } = await validateAuthenticationIdentifier(identifier)
 
     let code: string
 
@@ -29,7 +29,8 @@ export async function POST(req: Request) {
         console.log(`[SMS] OTP request for: ${value}`)
 
         // Send OTP
-        code = await sendOtpViaSms(value)
+        const smsResponse = await sendOtpViaSms({ phone: value })
+        code = smsResponse.code
         console.log('[SMS] OTP code sent')
 
         // Store OTP
@@ -38,7 +39,7 @@ export async function POST(req: Request) {
         break
 
       default:
-        // This should never happen if validateIdentifier is robust
+        // This should never happen if validateAuthenticationIdentifier is robust
         return NextResponse.json(
           { error: createDomainError(ErrorCode.UNKNOWN_IDENTIFIER) },
           { status: 400 },

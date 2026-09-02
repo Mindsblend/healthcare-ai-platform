@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useOtpAuth } from '@/features/auth/hooks/useOtpAuth'
-import ErrorPopup from '@/components/layout/ErrorPopup'
+import InformPopup from '@/components/layout/InformPopup'
 
 export default function AuthFormSection() {
   const [identifier, setIdentifier] = useState('')
@@ -17,7 +17,7 @@ export default function AuthFormSection() {
       <div className="flex flex-col items-center gap-4 px-4 text-center">
         <Image src="/images/logo.svg" alt="Logo" width={200} height={40} />
 
-        <h1 className="font-aria text-color-title-on-light mt-8 max-w-xs text-3xl font-extrabold sm:max-w-xl sm:text-5xl">
+        <h1 className="font-aria text-color-title-on-light max-w-xs mt-2 text-3xl font-extrabold sm:max-w-xl sm:text-5xl">
           سفر سلامتی‌ات از همین‌جا ادامه پیدا می‌کند
         </h1>
 
@@ -69,7 +69,7 @@ export default function AuthFormSection() {
           </button>
 
           {/* Error Popup in case of facing errors */}
-          <ErrorPopup error={error} />
+          <InformPopup message={error} />
         </div>
       </div>
     </div>

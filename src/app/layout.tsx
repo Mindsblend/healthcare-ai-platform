@@ -2,6 +2,11 @@ import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import '../../globals.css'
 import PageViewTracker from '@/components/layout/PageViewTracker'
+import { SessionRefresher } from '@/components/layout/SessionRefresher'
+import { CartProvider } from '@/features/shop/hooks/cart/useCart'
+import { getSession } from '@/features/auth/services/sessionService'
+import { defaultDescription, siteName, siteUrl } from '@/lib/seo'
+import { JsonLd } from '@/components/seo/JsonLd'
 
 /* ============================
    Headers: Aria Font Family
@@ -105,19 +110,39 @@ const RayFont = localFont({
   display: 'swap',
 })
 
-/* App Info and Metadata */
 export const metadata: Metadata = {
-  title: 'Attari24h',
-  description: 'An AI integrated healthcare platform',
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: `${siteName} | محصولات سالم و ارگانیک`,
+    template: `${siteName} | %s`,
+  },
+  description: defaultDescription,
+  applicationName: siteName,
+  alternates: { canonical: '/' },
+  openGraph: {
+    type: 'website',
+    locale: 'fa_IR',
+    siteName,
+    title: `${siteName} | محصولات سالم و ارگانیک`,
+    description: defaultDescription,
+    url: '/',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `${siteName} | محصولات سالم و ارگانیک`,
+    description: defaultDescription,
+  },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const session = await getSession()
+
   return (
-    <html lang="en" dir="rtl">
+    <html lang="fa" dir="rtl">
       <body
         className={`${AriaFont.variable} ${RayFont.variable} antialiased`}
         style={
@@ -131,8 +156,23 @@ export default function RootLayout({
           } as React.CSSProperties
         }
       >
-        <PageViewTracker />
-        {children}
+        <JsonLd
+          data={{
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name: siteName,
+            url: siteUrl,
+            logo: `${siteUrl}/images/logo.svg`,
+            description: defaultDescription,
+          }}
+        />
+        <CartProvider isAuthenticated={Boolean(session)}>
+          <main>
+            <SessionRefresher />
+            <PageViewTracker />
+            {children}
+          </main>
+        </CartProvider>
       </body>
     </html>
   )

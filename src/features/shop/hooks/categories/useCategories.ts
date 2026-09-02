@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { getCategories } from '../../actions/categories/getCategoriesAction'
-import { CategoryType } from '@/components/types/types'
+import { CategorySummary } from '../../shop.types'
 
 export function useCategories() {
-  const [categories, setcategories] = useState<CategoryType[]>([])
+  const [categories, setcategories] = useState<CategorySummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

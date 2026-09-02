@@ -1,8 +1,13 @@
+// src/app/dashboard/(ui-elements)/buttons/page.tsx
+
 import ComponentCard from '@/components/domain/dashboard/common/ComponentCard'
 import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
 import Button from '@/components/ui/Button'
-import { BoxIcon } from '../../../../../public/images'
+import Image from 'next/image'
+import BoxIconSrc from '../../../../../public/images/box.svg'
 import { Metadata } from 'next'
+
+const BoxIcon = () => <Image src={BoxIconSrc} alt="" width={16} height={16} />
 
 export const metadata: Metadata = {
   title: 'Next.js Buttons | TailAdmin - Next.js Dashboard Template',

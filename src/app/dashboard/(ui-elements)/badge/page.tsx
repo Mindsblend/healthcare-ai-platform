@@ -1,6 +1,5 @@
 import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
 import Badge from '@/components/ui/badge/Badge'
-import { PlusIcon } from '../../../../../public/images'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -9,6 +8,8 @@ export const metadata: Metadata = {
     'This is Next.js Badge page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template',
   // other metadata
 }
+
+const PlusIcon = () => <span>+</span>
 
 export default function BadgePage() {
   return (

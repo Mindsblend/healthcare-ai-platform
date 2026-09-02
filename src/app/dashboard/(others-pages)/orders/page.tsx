@@ -1,8 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
-import { useOrders } from '@/features/dashboard/hooks/useOrders'
+import Image from 'next/image'
+import { useOrdersPreview } from '@/features/shop/hooks/orders/useOrdersPreview'
+import { getOrderById } from '@/features/shop/actions/orders/getOrderByIdAction'
+import { useUpdateOrder } from '@/features/shop/hooks/orders/updateOrder'
 import PageBreadcrumb from '@/components/domain/dashboard/common/PageBreadCrumb'
 import {
   Table,
@@ -13,268 +16,773 @@ import {
 } from '../../../../components/ui/table'
 import Badge from '../../../../components/ui/badge/Badge'
 import Pagination from '@/components/domain/dashboard/tables/Pagination'
+import {
+  getStatusLabel,
+  getStatusColor,
+  getFreeShippingStatus,
+  toPersianDigit,
+} from '@/lib/helpers'
+import {
+  OrderSummary,
+  OrderStatus,
+  OrderItem,
+  GetOrderByIdResponse,
+} from '@/features/shop/shop.types'
+import { useRouter } from 'next/navigation'
+import LoadingBar from '@/components/layout/LoadingBar'
 
 const Orders = () => {
-  const { orders, loading, error } = useOrders()
+  const router = useRouter()
+  const { orders, loading, error } = useOrdersPreview()
+  const { updateOrder, loading: updating } = useUpdateOrder()
 
-  const sortedOrders = [...orders].sort((a, b) => {
-    const dateA = new Date(a.createdAt).getTime()
-    const dateB = new Date(b.createdAt).getTime()
+  const TAX_RATE = 0.09
+  const FREE_SHIPPING_THRESHOLD = 2_000_000
 
-    return dateB - dateA
+  const [orderSubtotal, setOrderSubtotal] = useState<number>(0)
+  const [orderTaxAmount, setOrderTaxAmount] = useState<number>(0)
+  const [orderDeliveryAmount, setOrderDeliveryAmount] = useState<number>(0)
+
+  // Form state for editing order
+  const [orderId, setOrderId] = useState<string>('')
+  const [shippingFirstName, setShippingFirstName] = useState<string>('')
+  const [shippingLastName, setShippingLastName] = useState<string>('')
+  const [shippingEmail, setShippingEmail] = useState<string>('')
+  const [shippingPhone, setShippingPhone] = useState<string>('')
+  const [shippingCity, setShippingCity] = useState<string>('')
+  const [shippingProvince, setShippingProvince] = useState<string>('')
+  const [shippingAddress, setShippingAddress] = useState<string>('')
+  const [shippingPostalCode, setShippingPostalCode] = useState<string>('')
+  const [selectedStatus, setSelectedStatus] = useState<OrderStatus>('PAID')
+  const [shippingNotes, setShippingNotes] = useState<string | undefined>(
+    undefined,
+  )
+  const [createdAt, setCreatedAt] = useState<string>(new Date().toISOString())
+  const [items, setItems] = useState<OrderItem[]>([])
+
+  // Search state
+  const [searchValue, setSearchValue] = useState<string>('')
+  const [debouncedSearchValue, setDebouncedSearchValue] = useState<string>('')
+
+  // Pagination state
+  const [page, setPage] = useState<number>(1)
+
+  // Ref for debounce timer
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  const [selectedOrder, setSelectedOrder] =
+    useState<GetOrderByIdResponse | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [isFetchingOrder, setIsFetchingOrder] = useState<boolean>(false)
+
+  // Debounce search input
+  const handleSearchChange = useCallback((value: string) => {
+    // Clear previous timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+    }
+
+    // Set new timer
+    debounceTimerRef.current = setTimeout(() => {
+      setDebouncedSearchValue(value)
+      setPage(1) // Reset to first page when search changes
+    }, 500)
+  }, [])
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+    }
+  }, [])
+
+  // Update search value when debounced value changes
+  const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setSearchValue(value)
+    handleSearchChange(value)
+  }
+
+  // Filter orders based on debounced search value
+  const filteredOrders = orders.filter((order: OrderSummary) => {
+    if (!debouncedSearchValue.trim()) return true
+
+    const searchTerm = debouncedSearchValue.toLowerCase().trim()
+
+    return (
+      order.id?.toLowerCase().includes(searchTerm) ||
+      order.shippingFirstName?.toLowerCase().includes(searchTerm) ||
+      order.shippingLastName?.toLowerCase().includes(searchTerm) ||
+      order.shippingPhone?.includes(searchTerm) ||
+      getStatusLabel(order.status)?.toLowerCase().includes(searchTerm) ||
+      order.totalPrice?.toString().includes(searchTerm)
+    )
   })
 
-  const [page, setPage] = useState(1)
+  const sortedOrders = [...filteredOrders].sort(
+    (a: OrderSummary, b: OrderSummary) => {
+      const dateA = new Date(a.createdAt).getTime()
+      const dateB = new Date(b.createdAt).getTime()
+      return dateB - dateA
+    },
+  )
 
   const itemsPerPage = 7
   const startIndex = (page - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
   const currentData = sortedOrders.slice(startIndex, endIndex)
 
-  if (loading) return <div>در حال بارگذاری سفارشات...</div>
+  // Effect to update form when fetchedOrder changes
+  useEffect(() => {
+    if (selectedOrder && !isFetchingOrder) {
+      setSelectedOrder(selectedOrder)
+      setSelectedStatus(selectedOrder.status)
+      setShippingNotes(selectedOrder.shippingNotes || '')
+      setIsFetchingOrder(false)
+    }
+  }, [selectedOrder])
 
-  if (error) return <div>خطا در بارگذاری سفارشات: {error}</div>
+  const handleViewOrder = async (order: OrderSummary) => {
+    setIsFetchingOrder(true)
+    setIsModalOpen(true)
 
-  if (!sortedOrders.length) {
+    try {
+      const fullOrder = await getOrderById({ id: order.id })
+
+      setSelectedOrder(fullOrder)
+      setOrderId(fullOrder.id)
+      setShippingFirstName(fullOrder.shippingFirstName)
+      setShippingLastName(fullOrder.shippingLastName)
+      setShippingEmail(fullOrder.shippingEmail)
+      setShippingPhone(fullOrder.shippingPhone)
+      setShippingCity(fullOrder.shippingCity)
+      setShippingProvince(fullOrder.shippingProvince)
+      setShippingAddress(fullOrder.shippingAddress)
+      setShippingPostalCode(fullOrder.shippingPostalCode)
+      setSelectedStatus(fullOrder.status)
+      setShippingNotes(fullOrder.shippingNotes)
+      setItems(fullOrder.items)
+      setCreatedAt(fullOrder.createdAt)
+    } catch (error) {
+      console.error('Failed to fetch order details:', error)
+    } finally {
+      setIsFetchingOrder(false)
+    }
+  }
+
+  useEffect(() => {
+    if (selectedOrder && Array.isArray(selectedOrder.items)) {
+      const calculatedSubtotal = selectedOrder.items.reduce(
+        (itemSum, item) => itemSum + item.price * item.quantity,
+        0,
+      )
+      setOrderSubtotal(calculatedSubtotal)
+
+      const calculatedTax = Math.round(calculatedSubtotal * TAX_RATE)
+      setOrderTaxAmount(calculatedTax)
+
+      const isFreeShipping = getFreeShippingStatus(
+        calculatedSubtotal,
+        FREE_SHIPPING_THRESHOLD,
+      )
+      const calculatedDeliveryAmount = isFreeShipping ? 0 : 300_000
+      setOrderDeliveryAmount(calculatedDeliveryAmount)
+    } else {
+      setOrderSubtotal(0)
+      setOrderTaxAmount(0)
+      setOrderDeliveryAmount(0)
+    }
+  }, [selectedOrder])
+
+  const handleApplyChanges = async () => {
+    if (!selectedOrder) return
+
+    try {
+      await updateOrder({
+        orderId: selectedOrder.id,
+        status: selectedStatus,
+        shippingNotes,
+      })
+      setIsModalOpen(false)
+      router.refresh()
+    } catch (error) {
+      console.error('Failed to update order:', error)
+    }
+  }
+
+  // Clear search
+  const clearSearch = () => {
+    setSearchValue('')
+    setDebouncedSearchValue('')
+    setPage(1)
+  }
+
+  if (!sortedOrders.length && !debouncedSearchValue) {
     return (
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pt-4 pb-3 sm:px-6 dark:border-gray-800 dark:bg-white/[0.03]">
-        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            سفارشات اخیر
-          </h3>
+      <LoadingBar loading={loading} error={error}>
+        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pt-4 pb-3 sm:px-6 dark:border-gray-800 dark:bg-white/[0.03]">
+          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+              سفارشات اخیر
+            </h3>
 
-          <Link
-            href="/dashboard/orders"
-            className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
-          >
-            مشاهده کامل
-          </Link>
-        </div>
+            <Link
+              href="/dashboard/orders"
+              className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+            >
+              مشاهده کامل
+            </Link>
+          </div>
 
-        <div className="max-w-full overflow-x-auto">
-          <Table>
-            <TableHeader className="border-y border-gray-100 dark:border-gray-800">
-              <TableRow>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  شماره سفارش
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  نام مشتری
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  ایمیل
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  تاریخ سفارش
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  وضعیت
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  جمع کل
-                </TableCell>
-              </TableRow>
-            </TableHeader>
+          <div className="max-w-full overflow-x-auto">
+            <Table>
+              <TableHeader className="border-y border-gray-100 dark:border-gray-800">
+                <TableRow>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    شماره سفارش
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    مشاهده جزئیات
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    نام مشتری
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    شماره تلفن
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    تاریخ سفارش
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    وضعیت
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    جمع کل
+                  </TableCell>
+                </TableRow>
+              </TableHeader>
 
-            <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-              <TableRow>
-                <td colSpan={6} className="h-64 text-center">
-                  <div className="flex flex-col items-center justify-center">
-                    <div className="mb-4 text-gray-400">
-                      <svg
-                        width="48"
-                        height="48"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M3 7l9-4 9 4v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
-                        <path d="M3 7l9 6 9-6" />
-                      </svg>
+              <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
+                <TableRow>
+                  <td colSpan={7} className="h-64 text-center">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="mb-4 text-gray-400">
+                        <svg
+                          width="48"
+                          height="48"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M3 7l9-4 9 4v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
+                          <path d="M3 7l9 6 9-6" />
+                        </svg>
+                      </div>
+
+                      <h3 className="text-color-title-on-light mb-2 text-lg font-semibold">
+                        سفارشی وجود ندارد
+                      </h3>
+
+                      <p className="text-sm text-gray-500">
+                        هنوز هیچ سفارشی ثبت نشده است.
+                      </p>
                     </div>
-
-                    <h3 className="text-color-title-on-light mb-2 text-lg font-semibold">
-                      سفارشی وجود ندارد
-                    </h3>
-
-                    <p className="text-sm text-gray-500">
-                      هنوز هیچ سفارشی ثبت نشده است.
-                    </p>
-                  </div>
-                </td>
-              </TableRow>
-            </TableBody>
-          </Table>
+                  </td>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
         </div>
-      </div>
+      </LoadingBar>
     )
   }
 
   return (
-    <div>
-      <PageBreadcrumb pageTitle="سفارشات" />
+    <>
+      <div>
+        <PageBreadcrumb pageTitle="سفارشات" />
 
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white pt-4 pb-3 dark:border-gray-800 dark:bg-white/[0.03]">
-        <div className="mb-4 flex flex-col gap-2 px-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-              سفارشات اخیر
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              سفارشات چند روز اخیر شما
-            </p>
+        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white pt-4 pb-3 dark:border-gray-800 dark:bg-white/[0.03]">
+          <div className="mb-4 flex flex-col gap-2 px-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+                سفارشات اخیر
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                سفارشات چند روز اخیر شما
+              </p>
+            </div>
+
+            <div className="relative flex gap-2">
+              <div className="relative flex-1">
+                <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2">
+                  <svg
+                    className="fill-gray-500 dark:fill-gray-400"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z"
+                      fill=""
+                    />
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  placeholder="جست و جو کنید..."
+                  value={searchValue}
+                  onChange={handleSearchInput}
+                  className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden xl:w-[430px] dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
+                />
+              </div>
+
+              {/* Clear search button */}
+              {searchValue && (
+                <button
+                  onClick={clearSearch}
+                  className="flex h-11 items-center justify-center rounded-lg border border-gray-200 bg-white px-3 text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
+                  aria-label="پاک کردن جستجو"
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M18 6L6 18M6 6L18 18"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
 
-          <div className="relative">
-            <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2">
-              <svg
-                className="fill-gray-500 dark:fill-gray-400"
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                  d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z"
-                  fill=""
-                />
-              </svg>
-            </span>
-            <input
-              type="text"
-              placeholder="جست و جو کنید..."
-              className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden xl:w-[430px] dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
+          <div className="max-w-full overflow-x-auto">
+            <Table>
+              <TableHeader className="border-y border-gray-100 dark:border-gray-800">
+                <TableRow>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 pr-4 text-start font-medium text-gray-500 sm:pr-6 dark:text-gray-400"
+                  >
+                    شماره سفارش
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    مشاهده جزئیات
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    نام مشتری
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    شماره تلفن
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    تاریخ سفارش
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    وضعیت
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    جمع کل
+                  </TableCell>
+                </TableRow>
+              </TableHeader>
+
+              <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
+                {currentData.length === 0 && debouncedSearchValue ? (
+                  <TableRow>
+                    <td colSpan={7} className="h-64 text-center">
+                      <div className="flex flex-col items-center justify-center">
+                        <div className="mb-4 text-gray-400">
+                          <svg
+                            width="48"
+                            height="48"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              clipRule="evenodd"
+                              d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363Z"
+                            />
+                          </svg>
+                        </div>
+                        <h3 className="text-color-title-on-light mb-2 text-lg font-semibold">
+                          نتیجه‌ای یافت نشد
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          سفارشی با "{debouncedSearchValue}" پیدا نشد.
+                        </p>
+                        <button
+                          onClick={clearSearch}
+                          className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+                        >
+                          پاک کردن جستجو
+                        </button>
+                      </div>
+                    </td>
+                  </TableRow>
+                ) : (
+                  currentData.map((order) => (
+                    <TableRow key={order.id}>
+                      <TableCell className="text-theme-sm py-3 pr-4 font-medium text-gray-800 sm:pr-6 dark:text-white/90">
+                        {order.id}
+                      </TableCell>
+
+                      <TableCell className="text-theme-sm h-24 px-8 py-3 text-center font-medium text-gray-800 dark:text-white/90">
+                        <div className="flex h-full w-full items-center justify-center">
+                          <button onClick={() => handleViewOrder(order)}>
+                            <Image
+                              src="/images/eye.svg"
+                              alt="مشاهده جزئیات"
+                              width={24}
+                              height={24}
+                              className="opacity-70 transition-opacity hover:opacity-100"
+                            />
+                          </button>
+                        </div>
+                      </TableCell>
+
+                      <TableCell className="py-3">
+                        <div className="flex flex-col">
+                          <span className="text-theme-sm font-medium text-gray-800 dark:text-white/90">
+                            {order.shippingFirstName} {order.shippingLastName}
+                          </span>
+                        </div>
+                      </TableCell>
+
+                      <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
+                        {toPersianDigit(order.shippingPhone)}
+                      </TableCell>
+
+                      <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
+                        {new Date(order.createdAt).toLocaleDateString('fa-IR')}
+                      </TableCell>
+
+                      <TableCell className="text-theme-sm py-3">
+                        <Badge size="sm" color={getStatusColor(order.status)}>
+                          {getStatusLabel(order.status)}
+                        </Badge>
+                      </TableCell>
+
+                      <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
+                        {order.totalPrice.toLocaleString('fa-IR')} تومان
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          <hr />
+
+          <div className="pt-3">
+            <Pagination
+              currentPage={page}
+              totalPages={Math.ceil(sortedOrders.length / itemsPerPage)}
+              onPageChange={(newPage: number) => setPage(newPage)}
             />
           </div>
         </div>
-
-        <div className="max-w-full overflow-x-auto">
-          <Table>
-            <TableHeader className="border-y border-gray-100 dark:border-gray-800">
-              <TableRow>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 pr-4 text-start font-medium text-gray-500 sm:pr-6 dark:text-gray-400"
-                >
-                  شماره سفارش
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  نام مشتری
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  ایمیل
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  تاریخ سفارش
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  وضعیت
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="text-theme-xs py-3 text-start font-medium text-gray-500 dark:text-gray-400"
-                >
-                  جمع کل
-                </TableCell>
-              </TableRow>
-            </TableHeader>
-
-            <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-              {currentData.map((order) => (
-                <TableRow key={order.id}>
-                  {/* ID */}
-                  <TableCell className="text-theme-sm py-3 pr-4 font-medium text-gray-800 sm:pr-6 dark:text-white/90">
-                    {order.id}
-                  </TableCell>
-
-                  {/* Full Name */}
-                  <TableCell className="py-3">
-                    <div className="flex flex-col">
-                      <span className="text-theme-sm font-medium text-gray-800 dark:text-white/90">
-                        {order.shippingFirstName} {order.shippingLastName}
-                      </span>
-                    </div>
-                  </TableCell>
-
-                  {/* Email */}
-                  <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
-                    {order.shippingEmail}
-                  </TableCell>
-
-                  {/* Date */}
-                  <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
-                    {new Date(order.createdAt).toLocaleDateString('fa-IR')}
-                  </TableCell>
-
-                  {/* Status */}
-                  <TableCell className="text-theme-sm py-3">
-                    <Badge
-                      size="sm"
-                      color={
-                        order.status === 'PAID'
-                          ? 'success'
-                          : order.status === 'PENDING'
-                            ? 'warning'
-                            : 'error'
-                      }
-                    >
-                      {order.status}
-                    </Badge>
-                  </TableCell>
-
-                  {/* جمع کل */}
-                  <TableCell className="text-theme-sm py-3 text-gray-500 dark:text-gray-400">
-                    {order.totalPrice.toLocaleString('fa-IR')} تومان
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-        <hr />
-        <div className="pt-3">
-          <Pagination
-            currentPage={page}
-            totalPages={Math.ceil(sortedOrders.length / itemsPerPage)}
-            onPageChange={(newPage) => setPage(newPage)}
-          />
-        </div>
       </div>
-    </div>
+
+      {/* Modal Popup - same as before */}
+      {isModalOpen && selectedOrder && (
+        <div className="fixed inset-0 z-100000 flex items-center justify-center bg-black/50">
+          <div className="mx-4 max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white dark:bg-gray-900">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b p-4">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+                جزئیات سفارش - {orderId}
+              </h2>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Content - same as before */}
+            <div className="space-y-6 p-4">
+              {/* Customer Information */}
+              <div>
+                <h3 className="mb-3 text-lg font-semibold text-gray-800 dark:text-white/90">
+                  اطلاعات مشتری
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      نام و نام خانوادگی
+                    </p>
+                    <p className="font-medium text-gray-800 dark:text-white/90">
+                      {shippingFirstName} {shippingLastName}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      ایمیل
+                    </p>
+                    <p className="font-medium text-gray-800 dark:text-white/90">
+                      {shippingEmail}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      تلفن
+                    </p>
+                    <p className="font-medium text-gray-800 dark:text-white/90">
+                      {toPersianDigit(shippingPhone)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      تاریخ سفارش
+                    </p>
+                    <p className="font-medium text-gray-800 dark:text-white/90">
+                      {new Date(createdAt).toLocaleDateString('fa-IR')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Shipping Address */}
+              <div>
+                <h3 className="mb-3 text-lg font-semibold text-gray-800 dark:text-white/90">
+                  آدرس تحویل
+                </h3>
+                <div className="space-y-2 text-gray-800 dark:text-white/90">
+                  <p>{shippingAddress}</p>
+                  <p>
+                    {shippingCity}، {shippingProvince}
+                  </p>
+                  <p>کد پستی: {toPersianDigit(shippingPostalCode)}</p>
+                </div>
+              </div>
+
+              {/* Order Items */}
+              <div>
+                <h3 className="mb-3 text-lg font-semibold text-gray-800 dark:text-white/90">
+                  محصولات
+                </h3>
+                <div className="space-y-3">
+                  {items && items.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-4 py-2 text-right text-sm font-medium text-gray-500 dark:text-gray-400">
+                              محصول
+                            </th>
+                            <th className="px-4 py-2 text-center text-sm font-medium text-gray-500 dark:text-gray-400">
+                              تعداد
+                            </th>
+                            <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                              قیمت واحد
+                            </th>
+                            <th className="px-4 py-2 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
+                              جمع
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
+                          {items.map((item, index) => (
+                            <tr key={index}>
+                              <td className="px-4 py-3 text-sm text-gray-800 dark:text-white/90">
+                                {item.product.title}
+                              </td>
+                              <td className="px-4 py-3 text-center text-sm text-gray-800 dark:text-white/90">
+                                {item.quantity}
+                              </td>
+                              <td className="px-4 py-3 text-left text-sm text-gray-800 dark:text-white/90">
+                                {item.price.toLocaleString('fa-IR')} تومان
+                              </td>
+                              <td className="px-4 py-3 text-left text-sm font-medium text-gray-800 dark:text-white/90">
+                                {(item.price * item.quantity).toLocaleString(
+                                  'fa-IR',
+                                )}{' '}
+                                تومان
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                        <tfoot className="bg-gray-50">
+                          <tr>
+                            <td
+                              colSpan={3}
+                              className="px-4 py-3 text-left text-sm font-semibold text-gray-800 dark:text-white/90"
+                            >
+                              مجموعه سفارش:
+                            </td>
+                            <td className="px-4 py-3 text-left text-sm font-semibold text-gray-800 dark:text-white/90">
+                              {orderSubtotal.toLocaleString('fa-IR')} تومان
+                            </td>
+                          </tr>
+                        </tfoot>
+                        <tfoot className="bg-gray-50">
+                          <tr>
+                            <td
+                              colSpan={3}
+                              className="px-4 py-3 text-left text-sm font-semibold text-gray-800 dark:text-white/90"
+                            >
+                              هزینه ارسال:
+                            </td>
+                            <td className="px-4 py-3 text-left text-sm font-semibold text-gray-800 dark:text-white/90">
+                              {orderDeliveryAmount == 0
+                                ? 'ارسال رایگان 🎉'
+                                : orderDeliveryAmount.toLocaleString('fa-IR') +
+                                  ' تومان'}
+                            </td>
+                          </tr>
+                        </tfoot>
+                        <tfoot className="bg-gray-50">
+                          <tr>
+                            <td
+                              colSpan={3}
+                              className="px-4 py-3 text-left text-sm font-semibold text-gray-800 dark:text-white/90"
+                            >
+                              مالیات:
+                            </td>
+                            <td className="px-4 py-3 text-left text-sm font-semibold text-gray-800 dark:text-white/90">
+                              {orderTaxAmount.toLocaleString('fa-IR')} تومان
+                            </td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 dark:text-gray-400">
+                      هیچ محصولی برای این سفارش یافت نشد.
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Status Update */}
+              <div>
+                <h3 className="mb-3 text-lg font-semibold text-gray-800 dark:text-white/90">
+                  تغییر وضعیت
+                </h3>
+                <select
+                  value={selectedStatus}
+                  onChange={(e) =>
+                    setSelectedStatus(e.target.value as OrderStatus)
+                  }
+                  className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:text-white/90"
+                >
+                  <option value="PENDING">در حال آماده‌سازی</option>
+                  <option value="PAID">پرداخت شده</option>
+                  <option value="DELIVERING">در حال ارسال</option>
+                  <option value="DELIVERED">تحویل داده شد</option>
+                  <option value="FAILED">ناموفق</option>
+                  <option value="CANCELED">لغو شده</option>
+                  <option value="REFUNDED">مرجوع شده</option>
+                </select>
+              </div>
+
+              {/* Notes */}
+              <div>
+                <h3 className="mb-3 text-lg font-semibold text-gray-800 dark:text-white/90">
+                  یادداشت سفارش
+                </h3>
+                <textarea
+                  value={shippingNotes}
+                  onChange={(e) => setShippingNotes(e.target.value)}
+                  rows={4}
+                  className="w-full rounded-lg border border-gray-300 p-2 text-gray-800 dark:text-white/90"
+                  placeholder="یادداشت‌های سفارش..."
+                />
+              </div>
+
+              {/* Total */}
+              <div className="border-t pt-4">
+                <div className="flex justify-between">
+                  <span className="text-lg font-semibold text-gray-800">
+                    جمع کل:
+                  </span>
+                  <span className="text-xl font-bold text-gray-800">
+                    {selectedOrder.totalPrice.toLocaleString('fa-IR')} تومان
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end gap-3 border-t p-4">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-gray-800 hover:bg-gray-50 dark:text-white/90 dark:hover:bg-gray-800"
+              >
+                انصراف
+              </button>
+              <button
+                onClick={handleApplyChanges}
+                disabled={updating}
+                className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+              >
+                {updating ? 'در حال ذخیره...' : 'اعمال تغییرات'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 

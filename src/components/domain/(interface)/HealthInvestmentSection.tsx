@@ -2,7 +2,7 @@ import Image from 'next/image'
 
 const HealthInvestmentSection = () => {
   return (
-    <div className="bg-section">
+    <div className="bg-section mb-12">
       <div className="container flex w-full flex-col items-center justify-center">
         {/* Title */}
         <h2 className="font-aria text-color-title-on-dark mt-16 mb-8 max-w-xl text-center text-4xl font-bold xl:mb-16 xl:max-w-2xl xl:text-5xl">

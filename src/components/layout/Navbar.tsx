@@ -1,83 +1,122 @@
-import { getSession } from '@/features/auth/services/sessionService'
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
+import { useState } from 'react'
+import { useCart } from '@/features/shop/hooks/cart/useCart'
 
-export default async function Navbar() {
-  const user = await getSession()
+// Now this accepts user as a prop
+export default function Navbar({ user }: { user: any }) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  const { cartItems } = useCart()
+
+  const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0)
 
   return (
-    <div>
-      <nav className="container flex w-full items-center justify-between bg-white py-4 text-black">
+    <>
+      <nav className="relative container flex w-full items-center justify-between bg-white pt-4 text-black">
         {/* Navigation + Logo */}
-        <div className="font-ray flex items-center gap-8 text-[16px] font-medium text-black">
-          {/* Logo */}
-          <div>
+        <div className="font-ray flex items-center gap-8 text-base font-medium text-black">
+          {/* Hamburger Menu */}
+          <button
+            className="relative z-20 block cursor-pointer lg:hidden"
+            onClick={() => setIsMenuOpen(true)}
+          >
+            <Image
+              src="/images/hamburger.svg"
+              alt="Menu"
+              width={30}
+              height={30}
+              className="lg:block"
+            />
+          </button>
+
+          {/* Logo - centered on medium/small screens */}
+          <div className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0">
             <Link href="/">
+              {/* Small logo - visible on mobile/tablet, hidden on large screens */}
+              <Image
+                src="/images/Logo-Small.svg"
+                alt="Logo"
+                width={45}
+                height={20}
+                className="lg:hidden"
+              />
+              {/* Large logo - hidden on mobile/tablet, visible on large screens */}
               <Image
                 src="/images/logo.svg"
                 alt="Logo"
-                width={190}
+                width={140}
                 height={20}
+                className="hidden lg:block"
               />
             </Link>
           </div>
-          {/* Navigation links */}
-          {user && (
-            <>
-              <ul className="hidden gap-6 font-medium md:flex">
-                <li>
-                  <a
-                    href="/"
-                    className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black active:text-black"
-                  >
-                    خانه
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/ai"
-                    className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black active:text-black"
-                  >
-                    تست هوش مصنوعی
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/blogs"
-                    className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black active:text-black"
-                  >
-                    وبلاگ
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/products"
-                    className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black active:text-black"
-                  >
-                    محصولات
-                  </a>
-                </li>
-              </ul>
-            </>
-          )}
+
+          {/* Navigation links - hide on small screens */}
+          <ul className="hidden gap-6 font-medium lg:flex">
+            <li>
+              <a
+                href="/"
+                className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black active:text-black"
+              >
+                خانه
+              </a>
+            </li>
+            <li>
+              <a
+                href="/ai"
+                className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black active:text-black"
+              >
+                تست هوش مصنوعی
+              </a>
+            </li>
+            <li>
+              <a
+                href="/blogs"
+                className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black active:text-black"
+              >
+                وبلاگ
+              </a>
+            </li>
+            <li>
+              <a
+                href="/products"
+                className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black active:text-black"
+              >
+                محصولات
+              </a>
+            </li>
+          </ul>
         </div>
+
         <div className="flex justify-center gap-3">
           {/* Left: Menu button */}
           {user ? (
             <div className="flex justify-center gap-6">
-              <Link href={'/cart'}>
+              <Link
+                href="/cart"
+                className="relative flex items-center justify-center"
+              >
                 <Image
                   src="/images/cart.svg"
-                  alt="Arrow"
+                  alt="سبد خرید"
                   width={32}
                   height={32}
                 />
+
+                {cartCount > 0 && (
+                  <span className="font-ray absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-0.5 text-xs leading-none font-bold text-white">
+                    {cartCount > 99 ? '۹۹+' : cartCount.toLocaleString('fa-IR')}
+                  </span>
+                )}
               </Link>
 
-              <Link href={'/profile'}>
+              <Link href="/profile">
                 <Image
                   src="/images/profile.svg"
-                  alt="Arrow"
+                  alt="پروفایل"
                   width={32}
                   height={32}
                 />
@@ -87,7 +126,7 @@ export default async function Navbar() {
             <div className="flex gap-3 lg:gap-7.5">
               <Link
                 href="/ai"
-                className="bg-page flex cursor-pointer items-center justify-between gap-1 rounded-full text-white"
+                className="bg-page hidden cursor-pointer items-center justify-between gap-1 rounded-full text-white lg:flex"
               >
                 {/* Button text */}
                 <span className="font-ray text-color-title-on-light mr-3.5 text-xs font-medium whitespace-nowrap lg:text-base">
@@ -109,7 +148,7 @@ export default async function Navbar() {
               {/* Button text */}
               <Link
                 href={'/auth'}
-                className="primary-btn flex items-center justify-between rounded-full bg-black whitespace-nowrap"
+                className="primary-btn hidden items-center justify-between rounded-full bg-black whitespace-nowrap lg:flex"
               >
                 <span className="font-ray pr-2 font-medium text-white">
                   ورود به حساب کاربری
@@ -125,10 +164,113 @@ export default async function Navbar() {
                   />
                 </div>
               </Link>
+
+              {/* Mobile icon buttons - visible only on mobile */}
+              <div className="flex gap-3 lg:hidden">
+                <Link
+                  href="/ai"
+                  className="bg-page flex items-center justify-center rounded-full p-2 text-white"
+                >
+                  <Image
+                    src="/images/ai-small.svg"
+                    alt="AI Test"
+                    width={30}
+                    height={30}
+                  />
+                </Link>
+                <Link
+                  href="/auth"
+                  className="flex items-center justify-center rounded-full p-2"
+                >
+                  <Image
+                    src="/images/login-small.svg"
+                    alt="Login"
+                    width={30}
+                    height={30}
+                  />
+                </Link>
+              </div>
             </div>
           )}
         </div>
       </nav>
-    </div>
+
+      {/* Side Drawer Menu */}
+      {isMenuOpen && (
+        <>
+          {/* Backdrop overlay */}
+          <div
+            className="bg-opacity-50 fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 lg:hidden"
+            onClick={() => setIsMenuOpen(false)}
+          />
+
+          {/* Drawer panel */}
+          <div className="fixed top-0 right-0 z-50 h-full w-64 transform bg-white shadow-xl transition-transform duration-300 ease-in-out lg:hidden">
+            {/* Close button */}
+            <button
+              className="absolute top-4 left-4 rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
+            {/* Menu Links */}
+            <div className="mt-16 flex flex-col gap-2 p-6">
+              <Link
+                href="/"
+                className="rounded-lg px-4 py-3 text-black no-underline transition-colors hover:bg-gray-50 hover:text-gray-600"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                خانه
+              </Link>
+              <Link
+                href="/ai"
+                className="rounded-lg px-4 py-3 text-black no-underline transition-colors hover:bg-gray-50 hover:text-gray-600"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                تست هوش مصنوعی
+              </Link>
+              <Link
+                href="/blogs"
+                className="rounded-lg px-4 py-3 text-black no-underline transition-colors hover:bg-gray-50 hover:text-gray-600"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                وبلاگ
+              </Link>
+              <Link
+                href="/products"
+                className="rounded-lg px-4 py-3 text-black no-underline transition-colors hover:bg-gray-50 hover:text-gray-600"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                محصولات
+              </Link>
+              {!user ? (
+                <>
+                  <Link
+                    href="/auth"
+                    className="rounded-lg px-4 py-3 text-black no-underline transition-colors hover:bg-gray-50 hover:text-gray-600"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    ورود به حساب کاربری
+                  </Link>
+                </>
+              ) : null}
+            </div>
+          </div>
+        </>
+      )}
+    </>
   )
 }

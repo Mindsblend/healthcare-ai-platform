@@ -75,10 +75,9 @@ export default function ScrollStepsTimeline() {
         <div className="relative w-full">
           <svg
             viewBox={`0 0 1000 530`}
-            className="h-full w-full"
-            preserveAspectRatio="xMidYMax meet"
+            className="h-auto w-full"
+            preserveAspectRatio="xMidYMid meet"
           >
-            {/* ARC ROAD */}
             <path
               d={`M 0 ${CENTER_Y} A ${ARC_RADIUS} ${ARC_RADIUS} 0 0 1 1000 ${CENTER_Y}`}
               fill="none"
@@ -88,12 +87,11 @@ export default function ScrollStepsTimeline() {
             />
 
             {/* --- STATIC UI LINE --- */}
-            {/* This line stays still in the center. The cars rotate into position above it. */}
             <line
               x1={CENTER_X}
-              y1={CENTER_Y - ARC_RADIUS + 50} // Starts 50px below the arc path (gap from circle)
+              y1={CENTER_Y - ARC_RADIUS + 50}
               x2={CENTER_X}
-              y2={CENTER_Y - ARC_RADIUS / 2 - 40} // Ends 20px above the text area (gap from text)
+              y2={CENTER_Y - ARC_RADIUS / 2 - 40}
               fill="none"
               stroke="white"
               strokeWidth="2"
@@ -110,8 +108,6 @@ export default function ScrollStepsTimeline() {
                 angle,
                 (a) => CENTER_Y - ARC_RADIUS * Math.sin(a),
               )
-
-              const isCurrent = i === currentStep
 
               return (
                 <motion.g key={i}>
@@ -143,17 +139,17 @@ export default function ScrollStepsTimeline() {
 
             {/* Title & description inside the half circle */}
             <foreignObject
-              x={CENTER_X - 150}
-              y={CENTER_Y - ARC_RADIUS / 2 - 20}
-              width={300}
-              height={200}
+              x={CENTER_X - 180}
+              y={CENTER_Y - ARC_RADIUS / 2 - 40}
+              width={360}
+              height={250}
             >
-              <div className="flex flex-col items-center justify-center text-center">
+              <div className="flex flex-col items-center justify-center px-4 text-center">
                 <motion.h2
                   key={`title-${currentStep}`}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="font-aria text-2xl font-bold text-white"
+                  className="font-aria text-base font-bold text-white sm:text-lg md:text-xl lg:text-2xl"
                 >
                   {steps[currentStep].title}
                 </motion.h2>
@@ -162,7 +158,7 @@ export default function ScrollStepsTimeline() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
-                  className="font-ray text-color-body-on-dark mt-2 text-base"
+                  className="font-ray text-color-body-on-dark mt-2 text-xs sm:text-sm md:text-base"
                 >
                   {steps[currentStep].description}
                 </motion.p>

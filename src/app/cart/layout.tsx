@@ -1,5 +1,12 @@
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import NavbarWrapper from '@/components/layout/NavbarWrapper'
+
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+}
 
 export default function CartLayout({
   children,
@@ -8,7 +15,7 @@ export default function CartLayout({
 }) {
   return (
     <>
-      <Navbar />
+      <NavbarWrapper />
       {children}
       <Footer />
     </>

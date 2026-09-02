@@ -1,3 +1,4 @@
+// errors.ts
 export type DomainError = {
   code: string
   message: string
@@ -28,6 +29,32 @@ export const ErrorCode = {
     code: 'TOO_MANY_ATTEMPTS',
     message:
       'تعداد تلاش‌های ناموفق زیاد بوده است. لطفاً کمی بعد دوباره امتحان کنید.',
+  },
+
+  // Form Validation Errors (Added for checkout form)
+  MISSING_FIELD: {
+    code: 'MISSING_FIELD',
+    message: 'این فیلد الزامی است',
+  },
+  INVALID_POSTAL_CODE: {
+    code: 'INVALID_POSTAL_CODE',
+    message: 'کد پستی معتبر نیست (۱۰ رقم)',
+  },
+  INVALID_ADDRESS: {
+    code: 'INVALID_ADDRESS',
+    message: 'آدرس وارد شده معتبر نیست',
+  },
+  INVALID_NAME: {
+    code: 'INVALID_NAME',
+    message: 'نام وارد شده معتبر نیست',
+  },
+  INVALID_CITY: {
+    code: 'INVALID_CITY',
+    message: 'شهر انتخاب شده معتبر نیست',
+  },
+  INVALID_PROVINCE: {
+    code: 'INVALID_PROVINCE',
+    message: 'استان انتخاب شده معتبر نیست',
   },
 
   // POLICY / RATE LIMIT ERRORS

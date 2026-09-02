@@ -1,4 +1,6 @@
-export async function createCart() {
+import { CreateCartResponse } from '../../shop.types'
+
+export async function createCart(): Promise<CreateCartResponse> {
   const res = await fetch('/api/shop/cart/create', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -9,8 +11,6 @@ export async function createCart() {
 
   if (!res.ok) {
     console.error('[createCart] error object:', data?.error)
-
-    // Throw a real JS Error with the service/domain error code
     throw new Error(data?.error?.code || 'UNKNOWN')
   }
 

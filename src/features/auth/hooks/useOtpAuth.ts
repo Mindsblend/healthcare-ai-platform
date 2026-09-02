@@ -19,7 +19,7 @@ export function useOtpAuth() {
     setLoading(true)
     setError(null)
     try {
-      await requestOtp(identifier)
+      await requestOtp({ identifier: identifier })
       setStage('sent')
     } catch (e: any) {
       setError(getErrorMessage(e.message))
@@ -32,7 +32,7 @@ export function useOtpAuth() {
     setLoading(true)
     setError(null)
     try {
-      await verifyOtp(identifier, code)
+      await verifyOtp({ identifier: identifier, code })
       setStage('verified')
       return true
     } catch (e: any) {

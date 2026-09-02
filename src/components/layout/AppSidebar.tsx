@@ -5,13 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useSidebar } from '../context/SidebarContext'
-
-type NavItem = {
-  name: string
-  icon: string
-  path?: string
-  subItems?: { name: string; path: string }[]
-}
+import { NavItem } from '../types/types'
 
 const navItems: NavItem[] = [
   { icon: '/images/binoculars.svg', name: 'داشبورد', path: '/dashboard' },
@@ -24,11 +18,20 @@ const navItems: NavItem[] = [
       { name: 'ساخت محصول', path: '/dashboard/addproduct' },
     ],
   },
+  {
+    icon: '/images/folder.svg',
+    name: 'مدیریت مجموعه‌ها',
+    path: '/dashboard/collections',
+    subItems: [
+      { name: 'مجموعه‌ها', path: '/dashboard/collections' },
+      { name: 'ساخت مجموعه', path: '/dashboard/addcollection' },
+    ],
+  },
   { icon: '/images/file.svg', name: 'سفارشات', path: '/dashboard/orders' },
   {
     icon: '/images/pencil.svg',
     name: 'مدیریت بلاگ ها',
-    path: '/dashboard/products',
+    path: '/dashboard/blogs',
     subItems: [
       { name: 'بلاگ', path: '/dashboard/blogs' },
       { name: 'ساخت بلاگ', path: '/dashboard/addblog' },
@@ -51,9 +54,6 @@ const AppSidebar: React.FC = () => {
     setOpenIndex((prev) => (prev === index ? null : index))
   }
 
-  /* =====================================
-     Dynamic Height Calculation
-  ===================================== */
   useEffect(() => {
     if (openIndex !== null) {
       const el = subMenuRefs.current[openIndex]
@@ -74,7 +74,6 @@ const AppSidebar: React.FC = () => {
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Logo */}
       <div
         className={`flex py-8 ${
           !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start'
@@ -85,26 +84,25 @@ const AppSidebar: React.FC = () => {
             <>
               <Image
                 className=""
-                src="/images/logo.svg"
+                src="/images/logo.png"
                 alt="Logo"
-                width={150}
-                height={40}
+                width={130}
+                height={20}
               />
               <Image
                 className="hidden dark:block"
-                src="/images/logo.svg"
+                src="/images/logo.png"
                 alt="Logo"
-                width={150}
-                height={40}
+                width={130}
+                height={20}
               />
             </>
           ) : (
-            <Image src="/images/logo.svg" alt="Logo" width={32} height={32} />
+            <Image src="/images/logo.png" alt="Logo" width={32} height={32} />
           )}
         </Link>
       </div>
 
-      {/* Menu */}
       <div className="no-scrollbar flex flex-col overflow-y-auto">
         <nav className="mb-6">
           <h2 className="mb-4 text-xs text-gray-400 uppercase">
@@ -123,9 +121,6 @@ const AppSidebar: React.FC = () => {
           <ul className="flex flex-col gap-4">
             {navItems.map((nav, index) => (
               <li key={nav.name}>
-                {/* =========================
-                   Main Item
-                ========================= */}
                 {nav.subItems ? (
                   <button
                     onClick={() => handleToggle(index)}
@@ -175,9 +170,6 @@ const AppSidebar: React.FC = () => {
                   )
                 )}
 
-                {/* =========================
-                   Sub Menu
-                ========================= */}
                 {nav.subItems && (isExpanded || isHovered || isMobileOpen) && (
                   <div
                     ref={(el) => {
@@ -191,7 +183,7 @@ const AppSidebar: React.FC = () => {
                           : '0px',
                     }}
                   >
-                    <ul className="mt-2 ml-9 space-y-1">
+                    <ul className="mt-2 mr-9 space-y-1">
                       {nav.subItems.map((sub) => (
                         <li key={sub.name}>
                           <Link

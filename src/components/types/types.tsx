@@ -1,195 +1,282 @@
-import { Prisma } from '@prisma/client'
-import { DefaultSession } from 'next-auth'
+// ============================================
+// NAVIGATION TYPES
+// ============================================
 
-export interface CartType {
-  id: string
-  userId: string | null
-  status: 'ACTIVE' | 'CHECKED_OUT' | 'ABANDONED'
-  items: CartItemType[]
+export interface NavItem {
+  name: string
+  icon: string
+  path: string
+  subItems?: { name: string; path: string }[]
 }
 
-export interface CartItemType {
-  id: number
-  cartId: string
-  quantity: number
-  price: number
-  product: ProductSummary
-}
+// ============================================
+// LOCATION TYPES
+// ============================================
 
-export interface OrderType {
-  id: string
-
-  user?: UserType
-  userId?: string
-
-  cart: CartType
-  cartId: string
-  totalPrice: number
-  shippingFirstName: true
-  shippingLastName: true
-  shippingEmail: true
-  shippingPhone: true
-  shippingCity: true
-
-  status: 'PENDING' | 'PAID' | 'FAILED' | 'CANCELED' | 'REFUNDED'
-  createdAt: string
-}
-
-export type OrderSummary = Prisma.OrderGetPayload<{
-  select: {
-    id: true
-    user: true
-    cart: true
-    totalPrice: true
-    shippingFirstName: true
-    shippingLastName: true
-    shippingEmail: true
-    shippingPhone: true
-    shippingCity: true
-  }
-}>
-
-export type ShippingInfo = {
-  firstName: string
-  lastName: string
-  city: string
-  province: string
-  email: string
-  phone: string
-  address: string
-  postalCode: string
-  notes?: string
-}
-
-export interface UserType {
-  id: string
-  email: string | null
-  phone: string | null
-  createdAt: string
-  updatedAt: string
-
-  // aiResponses: AiResponse[]
-  carts: CartType[]
-  orders: OrderType[]
-}
-
-export type UserSummary = Prisma.UserGetPayload<{
-  select: {
-    id: true
-    email: true
-    phone: true
-  }
-}>
-
-export type UserWithTimestampsAndRelations = Prisma.UserGetPayload<{
-  select: {
-    id: true
-    email: true
-    phone: true
-    createdAt: true
-    updatedAt: true
-    carts: { select: Prisma.CartSelect }
-    orders: { select: Prisma.OrderSelect }
-    // aiResponses: { select: Prisma.AiResponseSelect };
-  }
-}>
-
-export type ProductSummary = Prisma.ProductGetPayload<{
-  select: {
-    id: true
-    title: true
-    price: true
-    solution: true
-    slug: true
-    image: true
-    categoryId: true
-    category: {
-      select: {
-        name: true
-      }
-    }
-  }
-}>
-
-export type ProductDetail = Prisma.ProductGetPayload<{
-  include: {
-    icons: true
-    gains: true
-    faqs: true
-    category: true
-  }
-}>
-
-export type CategoryWithProducts = Prisma.CategoryGetPayload<{
-  include: {
-    products: {
-      include: {
-        category: true
-        icons: true
-        gains: true
-        faqs: true
-      }
-    }
-  }
-}>
-
-export interface CategoryType {
+export interface City {
   id: number
   name: string
-  iconPath: string
-  products: ProductSummary[]
 }
 
-export interface iconType {
+export interface Province {
   id: number
-  title: string
-  description: string
-  iconPath: string | null
+  name: string
+  cities: City[]
 }
 
-export interface gainType {
-  id: number
-  title: string
-  ingredient: string
-  description: string
+// ============================================
+// IMAGE UPLOADING
+// ============================================
+
+export interface UploadData {
+  url: string
+  filename: string
+  originalName: string
+  size: number
 }
 
-export interface faqType {
-  id: number
-  question: string
-  answer: string
+export interface UploadOptions {
+  folder: string
+  allowedFormats?: string[]
+  maxSize?: number // in bytes
 }
 
-export interface BlogType {
-  id: number
-  title: string
-  image: string
-  author: string
-  authorImage: string
-  description: string
-  createdAt: Date
-  updatedAt: Date
+// Separate response types for single vs multiple uploads
+export interface SingleUploadResponse {
+  success: boolean
+  data?: UploadData // Always a single object, never an array
+  error?: string
 }
 
-declare module 'next-auth' {
-  interface Session {
-    user: {
-      id: string
-    } & DefaultSession['user']
+export interface MultipleUploadResponse {
+  success: boolean
+  data?: UploadData[] // Always an array
+  error?: string
+}
+
+export interface FileInput {
+  file: File
+  folder: string
+  filename: string
+}
+
+export interface MultipleFilesInput {
+  files: File[]
+  folder?: string
+}
+
+export interface DeleteState {
+  isDeleting: boolean
+  error: string | null
+  success: boolean
+}
+
+export interface DeleteFileInput {
+  folder: string // The folder path where the file is stored (e.g., 'products', 'general', 'users')
+  filename: string // The name of the file to delete (e.g., 'image-123.jpg')
+}
+
+export interface DeleteUploadResponse {
+  success: boolean
+  error?: string
+}
+
+export interface UploadState {
+  isUploading: boolean
+  progress: number
+  error: string | null
+  success: boolean
+}
+
+export interface UploadResult {
+  url: string
+  filename: string
+  originalName: string
+  size: number
+}
+
+export interface FileInputOptions {
+  accept?: string
+  multiple?: boolean
+  maxSize?: number
+  maxFiles?: number
+}
+
+export interface FileValidationResult {
+  isValid: boolean
+  error?: string
+  file?: File
+  files?: File[]
+}
+
+// ============================================
+// AI
+// ============================================
+
+export interface DomainScores {
+  sleep: number
+  nutrition: number
+  activity: number
+  stress: number
+  beauty: number
+  medical: number
+  energy: number
+  behavioral: number
+}
+
+export interface DomainNode {
+  score: number
+  status: 'strong' | 'moderate' | 'weak'
+  insight: string
+  roleInSystem: string
+  whatDrivesIt: string
+  whatItAffects: string
+  microAction: string
+}
+
+export interface AIAnalysisResult {
+  summary: string
+  diagnosis: string
+
+  keyInsight: string
+  whyThisMatters: string
+
+  causalChain: [string, string, string]
+
+  mainBottleneck: {
+    domain: string
+    title: string
+    explanation: string
+    affectedAreas: [string, string, string, string]
+    leverageReason: string
+    expectedBenefits: [string, string, string, string]
   }
+
+  startingPoint: {
+    title: string
+    description: string
+    expectedBenefits: string[]
+    firstAction: string
+  }
+
+  futureProjection: {
+    ifNoChange: string
+    ifImproved: string
+  }
+
+  healthArchetype: string
+  readinessStage: string
+
+  priorityFactors: Array<{
+    title: string
+    domain: string
+    priority: number
+    whyImportant: string
+    systemImpact: string
+    personalImpact: string
+    microAction: string
+  }>
+
+  goals: Array<{
+    goal: string
+    domain: string
+    priority: number
+  }>
+
+  domains: Record<string, DomainNode>
 }
 
-export interface SessionPayload {
-  id: string
-  email: string | null
-  phone: string | null
-  role: string | null
+export interface UserAnswers {
+  [key: string]: string | string[]
 }
 
-export interface VisitMonth {
+export interface HealthAssessmentResult {
   id: string
-  year: number
-  month: number
-  visits: number
-  updatedAt: Date
+  overallScore: number
+
+  sleepScore: number
+  nutritionScore: number
+  activityScore: number
+  stressScore: number
+  beautyScore: number
+  medicalScore: number
+  energyScore?: number
+  behavioralScore?: number
+
+  // =========================
+  // CORE TEXT OUTPUT
+  // =========================
+  summary: string | null
+  diagnosis: string | null
+
+  keyInsight: string | null
+  whyThisMatters: string | null
+
+  causalChain: [string, string, string] | null
+
+  // =========================
+  // SYSTEM CRITICAL BLOCK
+  // =========================
+  mainBottleneck: {
+    domain: string
+    title: string
+    explanation: string
+    affectedAreas: string[]
+    leverageReason: string
+  } | null
+
+  startingPoint: {
+    title: string
+    description: string
+    firstAction: string
+    expectedBenefits: string[]
+  } | null
+
+  futureProjection: {
+    ifNoChange: string
+    ifImproved: string
+    expectedTimeframe: string
+    confidence: 'low' | 'medium' | 'high'
+  } | null
+
+  // =========================
+  // STRATEGIC LAYERS
+  // =========================
+  priorityFactors: Array<{
+    title: string
+    domain: string
+    priority: number
+    whyImportant: string
+    systemImpact: string
+    personalImpact: string
+    microAction: string
+  }> | null
+
+  goals: Array<{
+    goal: string
+    domain: string
+    priority: number
+  }> | null
+
+  // =========================
+  // PERSONALIZATION
+  // =========================
+  healthArchetype: string | null
+  readinessStage: string | null
+
+  // =========================
+  // SYSTEM MAP (LOW LEVEL)
+  // =========================
+  domains: Record<string, DomainNode> | null
+
+  // =========================
+  // RECOMMENDATIONS (OPTIONAL LAYER)
+  // =========================
+  recommendations: Array<{
+    id: string
+    productId: number
+    reason: string
+    domain: string
+    priority: number
+  }> | null
 }

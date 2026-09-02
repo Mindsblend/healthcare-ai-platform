@@ -1,8 +1,12 @@
 import { prisma } from '@/lib/prisma'
-import { VisitMonth } from '@/components/types/types'
+import {
+  SubscriptionPayload,
+  VisitMonth,
+  CreateSubscriptionInput,
+} from '../dashboard.types'
 
 export class AnalyticsService {
-  static async trackVisit(): Promise<VisitMonth[]> {
+  static async trackVisit(): Promise<VisitMonth> {
     const now = new Date()
     const year = now.getFullYear()
     const month = now.getMonth() + 1
@@ -17,6 +21,16 @@ export class AnalyticsService {
   static async fetchTrackedVisits(): Promise<VisitMonth[]> {
     return prisma.visitMonth.findMany({
       orderBy: [{ year: 'desc' }, { month: 'desc' }],
+    })
+  }
+
+  static async createSubscription(
+    input: CreateSubscriptionInput,
+  ): Promise<SubscriptionPayload> {
+    return prisma.subscription.create({
+      data: {
+        email: input.email,
+      },
     })
   }
 }

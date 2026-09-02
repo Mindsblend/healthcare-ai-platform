@@ -1,6 +1,15 @@
-import Navbar from '@/components/layout/Navbar'
+
 import Footer from '@/components/layout/Footer'
 import CallToAction from '@/components/layout/CallToAction'
+
+import NavbarWrapper from '@/components/layout/NavbarWrapper'
+import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
+
+export const metadata: Metadata = pageMetadata({
+  title: 'محصولات سالم و ارگانیک',
+  path: '/',
+})
 
 export default function InterfaceLayout({
   children,
@@ -9,7 +18,7 @@ export default function InterfaceLayout({
 }) {
   return (
     <>
-      <Navbar />
+      <NavbarWrapper />
       {children}
       <CallToAction />
       <Footer />

@@ -39,13 +39,13 @@ const FeaturesSection = () => {
   ]
 
   return (
-    <div className="container flex w-full justify-between gap-5 py-12 max-sm:flex-col max-sm:items-center xl:gap-16">
+    <div className="container flex w-full justify-between py-12 max-sm:flex-col max-sm:items-center xl:gap-16">
       {/* Right side (sticky title + paragraph) */}
       <div className="top-24 h-fit max-sm:mb-10 max-sm:flex max-sm:flex-col max-sm:text-center sm:sticky sm:w-1/2">
-        <h2 className="font-aria text-color-title-on-light mb-4 text-3xl font-extrabold max-sm:max-w-lg max-sm:font-bold xl:text-5xl">
+        <h2 className="font-aria text-color-title-on-light mb-4 text-3xl font-extrabold max-sm:max-w-lg xl:text-5xl">
           با هر محصول، یک قدم به زندگی دلخواهت نزدیک‌تر شو
         </h2>
-        <p className="font-ray text-color-body-on-light max-w-sm text-sm max-sm:self-center sm:text-base xl:text-lg">
+        <p className="font-ray text-color-body-on-light max-w-sm text-sm max-sm:max-w-72 max-sm:self-center sm:text-base xl:text-lg">
           تصور کن صبح را با انرژی و ذهنی شفاف شروع می‌کنی. غذایی که می‌خوری نه
           پر از افزودنی ناشناخته، بلکه سرشار از مواد مغذی و طبیعی است. خیالت
           راحت است که بدن و خانواده‌ات را از بیماری‌های آینده محافظت کرده‌ای.
@@ -53,9 +53,12 @@ const FeaturesSection = () => {
       </div>
 
       {/* Left side (scrolling items) */}
-      <div className="flex flex-col gap-10 max-lg:max-w-sm">
+      <div className="flex flex-col gap-10 max-lg:max-w-sm max-sm:items-center">
         {items.map((item, i) => (
-          <div key={i} className="flex items-center gap-2 pb-6 sm:gap-4">
+          <div
+            key={i}
+            className="flex items-center gap-2 sm:pb-6 max-sm:flex-col max-sm:text-center sm:gap-4"
+          >
             {/* Icon */}
             <img
               src={item.icon}
@@ -64,11 +67,11 @@ const FeaturesSection = () => {
             />
 
             {/* Text */}
-            <div>
+            <div className="max-sm:flex max-sm:flex-col max-sm:items-center">
               <h3 className="font-aria text-color-title-on-light mb-1 text-2xl font-extrabold xl:text-3xl">
                 {item.title}
               </h3>
-              <p className="font-ray max-w-92 text-sm text-gray-600 sm:text-base xl:text-lg">
+              <p className="font-ray max-w-92 text-sm text-gray-600 max-sm:max-w-64 sm:text-base xl:text-lg">
                 {item.description}
               </p>
             </div>

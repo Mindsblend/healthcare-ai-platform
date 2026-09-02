@@ -83,6 +83,21 @@ body {
   width: 20px;
 }
 
+.custom-pagination2 .swiper-pagination-bullet {
+  width: 10px;
+  height: 10px;
+  background: #000;
+  opacity: 0.2;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+}
+
+.custom-pagination2 .swiper-pagination-bullet-active {
+  width: 24px;
+  opacity: 1;
+  background: #000;
+}
+
 @layer components {
   .container {
     @apply mx-auto max-w-[1440px] px-6.25 sm:px-4 md:px-6 2xl:px-[45px];

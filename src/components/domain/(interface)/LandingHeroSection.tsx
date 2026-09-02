@@ -3,9 +3,9 @@ import Image from 'next/image'
 
 const HeroSection = () => {
   return (
-    <div className="container lg:flex lg:items-center lg:justify-between">
+    <div className="container flex items-end justify-between">
       {/* Right: Text + Buttons */}
-      <div className="mt-12 flex flex-col justify-center max-lg:items-center max-lg:text-center">
+      <div className="mt-10 flex flex-col justify-end max-lg:items-center max-lg:text-center">
         <h1 className="font-aria text-color-title-on-light max-w-118.25 text-4xl font-extrabold sm:text-5xl xl:text-6xl">
           سلامتی امروز، پلی به فردایی شادتر
         </h1>
@@ -22,10 +22,7 @@ const HeroSection = () => {
             href="/ai"
             className="primary-btn flex items-center justify-between rounded-full bg-black text-white"
           >
-            {/* Button text */}
             <span className="font-ray pr-2 font-medium">شروع سفر سلامتی</span>
-
-            {/* Circle with icon */}
             <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white xl:h-10 xl:w-10">
               <Image
                 src="/images/arrow.svg"
@@ -43,19 +40,15 @@ const HeroSection = () => {
             آشنایی با محصولات
           </Link>
         </div>
-        <div className="order-2 my-6 flex w-full flex-col justify-between max-lg:items-center">
-          {/* Top: Image */}
-          <Image
-            src="/images/mini-products.svg"
-            alt="Top Right Image"
-            width={140}
-            height={50}
-          />
 
-          {/* Bottom: Paragraph */}
-          {/* <p className="text-color-body-on-light font-ray max-w-xs text-base font-medium whitespace-nowrap transition">
-            هر محصول ما، یک قدم به سوی آینده‌ای سالم‌تر
-          </p> */}
+        <div className="order-2 my-6 flex flex-col justify-between max-lg:items-center">
+          <Image
+            src="/images/mini-products.webp"
+            alt="Mini Products"
+            width={145}
+            height={55}
+            className="h-[55px] w-[145px]"
+          />
         </div>
 
         <div className="flex gap-10 xl:gap-22">
@@ -64,7 +57,7 @@ const HeroSection = () => {
               ۵۰۰۰+
             </h1>
             <p className="font-ray text-medium text-color-title-on-light text-xs sm:text-sm">
-              مشتری از سراسر کشور{' '}
+              مشتری از سراسر کشور
             </p>
           </div>
           <div>
@@ -77,13 +70,16 @@ const HeroSection = () => {
           </div>
         </div>
       </div>
-      {/* Left: Image */}
-      <div className="hidden lg:block">
+
+      {/* Left: Image - aligned to bottom */}
+      <div className="hidden lg:flex lg:items-end">
         <Image
-          src="/images/hero.svg"
+          src="/images/hero.webp"
           alt="Healthy Lifestyle"
           width={660}
           height={100}
+          className="h-auto w-full max-w-xl"
+          priority
         />
       </div>
     </div>

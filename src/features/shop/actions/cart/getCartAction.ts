@@ -1,4 +1,6 @@
-export async function getCart() {
+import { GetCartResponse } from '../../shop.types'
+
+export async function getCart(): Promise<GetCartResponse> {
   const res = await fetch('/api/shop/cart', {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
@@ -8,8 +10,6 @@ export async function getCart() {
 
   if (!res.ok) {
     console.log('[getCart] error object:', data?.error)
-
-    // Throw a real JS Error with the service/domain error code
     throw new Error(data?.error?.code || 'UNKNOWN')
   }
 
