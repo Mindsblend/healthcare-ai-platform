@@ -22,6 +22,7 @@ import { Address, ShippingInfo } from '@/features/shop/shop.types'
 import { City } from '@/components/types/types'
 import { useUpdateUserProfile } from '@/features/shop/hooks/profile/updateUserProfile'
 import InformPopup from '@/components/layout/InformPopup'
+import LoadingBar from '@/components/layout/LoadingBar'
 
 const AddressContent = () => {
   const { userAddress, loading, error } = useUserAddress()
@@ -216,28 +217,6 @@ const AddressContent = () => {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="flex-1 rounded-lg border-[1.5px] border-[#D9D9D9] bg-white px-10 py-8">
-        <h2 className="font-aria mb-6 text-xl font-bold text-black">آدرس ها</h2>
-        <div className="py-12 text-center">
-          <p className="text-black">در حال بارگذاری...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="flex-1 rounded-lg border-[1.5px] border-[#D9D9D9] bg-white px-10 py-8">
-        <h2 className="font-aria mb-6 text-xl font-bold text-black">آدرس ها</h2>
-        <div className="rounded-lg bg-red-50 p-4 text-red-600">
-          خطا در بارگذاری آدرس‌ها. لطفاً دوباره تلاش کنید.
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="flex-1 rounded-lg border-[1.5px] border-[#D9D9D9] bg-white px-5 py-5 sm:px-10 sm:py-8">
       <div className="relative flex items-center">
@@ -254,273 +233,280 @@ const AddressContent = () => {
       </div>
 
       {/* Check if userAddress and addresses exist before accessing length */}
-      {!userAddress?.addresses || userAddress.addresses.length === 0 ? (
-        <div className="py-12 text-center">
-          <p className="text-black">هیچ آدرسی ثبت نشده است</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {userAddress.addresses.map((address: Address) => (
-            <div
-              key={address.id}
-              className="rounded-lg border border-[#D9D9D9] p-5"
-            >
-              <div className="font-ray flex items-start justify-between text-lg font-medium">
-                <div className="space-y-2">
-                  {address.isDefault && (
-                    <span className="inline-block rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-600">
-                      آدرس پیش‌فرض
+      <LoadingBar
+        loading={loading}
+        error={error}
+        loadingText="در حال بارگذاری آدرس ها..."
+        errorTitle="خطا در بارگذاری"
+      >
+        {!userAddress?.addresses || userAddress.addresses.length === 0 ? (
+          <div className="py-12 text-center">
+            <p className="text-black">هیچ آدرسی ثبت نشده است</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {userAddress.addresses.map((address: Address) => (
+              <div
+                key={address.id}
+                className="rounded-lg border border-[#D9D9D9] p-5"
+              >
+                <div className="font-ray flex items-start justify-between text-lg font-medium">
+                  <div className="space-y-2">
+                    {address.isDefault && (
+                      <span className="inline-block rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-600">
+                        آدرس پیش‌فرض
+                      </span>
+                    )}
+                    <p className="text-black">{address.address}</p>
+                    <div className="flex flex-col space-y-2 text-black">
+                      <span>شهر: {address.city}</span>
+                      <span>استان: {address.province}</span>
+                    </div>
+                    <span className="flex text-black">
+                      کد پستی: {toPersianDigit(address.postalCode)}
                     </span>
-                  )}
-                  <p className="text-black">{address.address}</p>
-                  <div className="flex flex-col space-y-2 text-black">
-                    <span>شهر: {address.city}</span>
-                    <span>استان: {address.province}</span>
-                  </div>
-                  <span className="flex text-black">
-                    کد پستی: {toPersianDigit(address.postalCode)}
-                  </span>
-                  <div className="flex gap-1 text-black">
-                    <span>
-                      گیرنده: {address.firstName} {address.lastName}
-                    </span>
-                    |<span>{toPersianDigit(address.phone)}</span>
+                    <div className="flex gap-1 text-black">
+                      <span>
+                        گیرنده: {address.firstName} {address.lastName}
+                      </span>
+                      |<span>{toPersianDigit(address.phone)}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
 
-      {/* Modal Popup */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-100000 flex items-center justify-center bg-black/50">
-          {/* Modal content container */}
-          <div className="mx-4 flex max-h-[90vh] w-full max-w-2xl flex-col rounded-lg bg-white shadow-xl">
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-gray-400 p-4">
-              <h2 className="text-xl font-semibold text-gray-800">
-                افزودن ادرس جدید
-              </h2>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="cursor-pointer text-gray-800 hover:text-gray-700 focus:outline-none"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Form Body - Allows vertical growth */}
-            <form
-              className="grid grow grid-cols-1 gap-4 overflow-y-auto p-8 md:grid-cols-2"
-              onSubmit={(e) => e.preventDefault()}
-            >
-              {/* First Name */}
-              <div>
-                <input
-                  name="firstName"
-                  type="text"
-                  placeholder="نام"
-                  value={shippingInfo.firstName}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
-                    touchedFields.firstName && fieldErrors.firstName
-                      ? 'border-2 border-red-500'
-                      : ''
-                  }`}
-                />
-                {touchedFields.firstName && fieldErrors.firstName && (
-                  <p className="mt-1 text-right text-sm text-red-500">
-                    {fieldErrors.firstName}
-                  </p>
-                )}
-              </div>
-
-              {/* Last Name */}
-              <div>
-                <input
-                  name="lastName"
-                  type="text"
-                  placeholder="نام خانوادگی"
-                  value={shippingInfo.lastName}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
-                    touchedFields.lastName && fieldErrors.lastName
-                      ? 'border-2 border-red-500'
-                      : ''
-                  }`}
-                />
-                {touchedFields.lastName && fieldErrors.lastName && (
-                  <p className="mt-1 text-right text-sm text-red-500">
-                    {fieldErrors.lastName}
-                  </p>
-                )}
-              </div>
-
-              {/* Province */}
-              <div>
-                <select
-                  name="province"
-                  value={shippingInfo.province}
-                  onChange={handleProvinceChange}
-                  onBlur={handleBlur}
-                  className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
-                    touchedFields.province && fieldErrors.province
-                      ? 'border-2 border-red-500'
-                      : ''
-                  }`}
+        {/* Modal Popup */}
+        {isModalOpen && (
+          <div className="fixed inset-0 z-100000 flex items-center justify-center bg-black/50">
+            {/* Modal content container */}
+            <div className="mx-4 flex max-h-[90vh] w-full max-w-2xl flex-col rounded-lg bg-white shadow-xl">
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-gray-400 p-4">
+                <h2 className="text-xl font-semibold text-gray-800">
+                  افزودن ادرس جدید
+                </h2>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="cursor-pointer text-gray-800 hover:text-gray-700 focus:outline-none"
                 >
-                  <option value="">انتخاب استان</option>
-                  {provinces.map((province) => (
-                    <option key={province.id} value={province.name}>
-                      {province.name}
-                    </option>
-                  ))}
-                </select>
-                {touchedFields.province && fieldErrors.province && (
-                  <p className="mt-1 text-right text-sm text-red-500">
-                    {fieldErrors.province}
-                  </p>
-                )}
+                  ✕
+                </button>
               </div>
 
-              {/* City */}
-              <div>
-                <select
-                  name="city"
-                  value={shippingInfo.city}
-                  onChange={handleCityChange}
-                  onBlur={handleBlur}
-                  className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
-                    touchedFields.city && fieldErrors.city
-                      ? 'border-2 border-red-500'
-                      : ''
-                  }`}
-                  disabled={!shippingInfo.province}
-                >
-                  <option value="">
-                    {shippingInfo.province
-                      ? 'انتخاب شهر'
-                      : 'ابتدا استان را انتخاب کنید'}
-                  </option>
-                  {availableCities.map((city) => (
-                    <option key={city.id} value={city.name}>
-                      {city.name}
-                    </option>
-                  ))}
-                </select>
-                {touchedFields.city && fieldErrors.city && (
-                  <p className="mt-1 text-right text-sm text-red-500">
-                    {fieldErrors.city}
-                  </p>
-                )}
-              </div>
-
-              {/* Email */}
-              <div>
-                <input
-                  name="email"
-                  type="email"
-                  placeholder="ایمیل"
-                  value={shippingInfo.email}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
-                    touchedFields.email && fieldErrors.email
-                      ? 'border-2 border-red-500'
-                      : ''
-                  }`}
-                />
-                {touchedFields.email && fieldErrors.email && (
-                  <p className="mt-1 text-right text-sm text-red-500">
-                    {fieldErrors.email}
-                  </p>
-                )}
-              </div>
-
-              {/* Phone */}
-              <div>
-                <input
-                  name="phone"
-                  type="tel"
-                  placeholder="شماره تماس"
-                  value={shippingInfo.phone}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  dir="rtl"
-                  className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
-                    touchedFields.phone && fieldErrors.phone
-                      ? 'border-2 border-red-500'
-                      : ''
-                  }`}
-                />
-                {touchedFields.phone && fieldErrors.phone && (
-                  <p className="mt-1 text-right text-sm text-red-500">
-                    {fieldErrors.phone}
-                  </p>
-                )}
-              </div>
-
-              {/* Address */}
-              <div>
-                <input
-                  name="address"
-                  type="text"
-                  placeholder="آدرس کامل"
-                  value={shippingInfo.address}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
-                    touchedFields.address && fieldErrors.address
-                      ? 'border-2 border-red-500'
-                      : ''
-                  }`}
-                />
-                {touchedFields.address && fieldErrors.address && (
-                  <p className="mt-1 text-right text-sm text-red-500">
-                    {fieldErrors.address}
-                  </p>
-                )}
-              </div>
-
-              {/* Postal Code */}
-              <div>
-                <input
-                  name="postalCode"
-                  type="text"
-                  placeholder="کد پستی"
-                  value={shippingInfo.postalCode}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
-                    touchedFields.postalCode && fieldErrors.postalCode
-                      ? 'border-2 border-red-500'
-                      : ''
-                  }`}
-                />
-                {touchedFields.postalCode && fieldErrors.postalCode && (
-                  <p className="mt-1 text-right text-sm text-red-500">
-                    {fieldErrors.postalCode}
-                  </p>
-                )}
-              </div>
-            </form>
-            <div className="flex w-full items-center justify-center py-4">
-              <button
-                type="submit"
-                onClick={() => handleSubmit()}
-                className="font-aria w-68 cursor-pointer rounded-[5px] bg-[#161A1D] text-sm font-bold text-white transition-all hover:bg-[#2a3035] disabled:cursor-not-allowed disabled:opacity-50"
-                style={{ height: '50px' }} // Keeping height with inline style for precision
+              {/* Form Body - Allows vertical growth */}
+              <form
+                className="grid grow grid-cols-1 gap-4 overflow-y-auto p-8 md:grid-cols-2"
+                onSubmit={(e) => e.preventDefault()}
               >
-                افزودن ادرس جدید
-              </button>
+                {/* First Name */}
+                <div>
+                  <input
+                    name="firstName"
+                    type="text"
+                    placeholder="نام"
+                    value={shippingInfo.firstName}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
+                      touchedFields.firstName && fieldErrors.firstName
+                        ? 'border-2 border-red-500'
+                        : ''
+                    }`}
+                  />
+                  {touchedFields.firstName && fieldErrors.firstName && (
+                    <p className="mt-1 text-right text-sm text-red-500">
+                      {fieldErrors.firstName}
+                    </p>
+                  )}
+                </div>
+
+                {/* Last Name */}
+                <div>
+                  <input
+                    name="lastName"
+                    type="text"
+                    placeholder="نام خانوادگی"
+                    value={shippingInfo.lastName}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
+                      touchedFields.lastName && fieldErrors.lastName
+                        ? 'border-2 border-red-500'
+                        : ''
+                    }`}
+                  />
+                  {touchedFields.lastName && fieldErrors.lastName && (
+                    <p className="mt-1 text-right text-sm text-red-500">
+                      {fieldErrors.lastName}
+                    </p>
+                  )}
+                </div>
+
+                {/* Province */}
+                <div>
+                  <select
+                    name="province"
+                    value={shippingInfo.province}
+                    onChange={handleProvinceChange}
+                    onBlur={handleBlur}
+                    className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
+                      touchedFields.province && fieldErrors.province
+                        ? 'border-2 border-red-500'
+                        : ''
+                    }`}
+                  >
+                    <option value="">انتخاب استان</option>
+                    {provinces.map((province) => (
+                      <option key={province.id} value={province.name}>
+                        {province.name}
+                      </option>
+                    ))}
+                  </select>
+                  {touchedFields.province && fieldErrors.province && (
+                    <p className="mt-1 text-right text-sm text-red-500">
+                      {fieldErrors.province}
+                    </p>
+                  )}
+                </div>
+
+                {/* City */}
+                <div>
+                  <select
+                    name="city"
+                    value={shippingInfo.city}
+                    onChange={handleCityChange}
+                    onBlur={handleBlur}
+                    className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
+                      touchedFields.city && fieldErrors.city
+                        ? 'border-2 border-red-500'
+                        : ''
+                    }`}
+                    disabled={!shippingInfo.province}
+                  >
+                    <option value="">
+                      {shippingInfo.province
+                        ? 'انتخاب شهر'
+                        : 'ابتدا استان را انتخاب کنید'}
+                    </option>
+                    {availableCities.map((city) => (
+                      <option key={city.id} value={city.name}>
+                        {city.name}
+                      </option>
+                    ))}
+                  </select>
+                  {touchedFields.city && fieldErrors.city && (
+                    <p className="mt-1 text-right text-sm text-red-500">
+                      {fieldErrors.city}
+                    </p>
+                  )}
+                </div>
+
+                {/* Email */}
+                <div>
+                  <input
+                    name="email"
+                    type="email"
+                    placeholder="ایمیل"
+                    value={shippingInfo.email}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
+                      touchedFields.email && fieldErrors.email
+                        ? 'border-2 border-red-500'
+                        : ''
+                    }`}
+                  />
+                  {touchedFields.email && fieldErrors.email && (
+                    <p className="mt-1 text-right text-sm text-red-500">
+                      {fieldErrors.email}
+                    </p>
+                  )}
+                </div>
+
+                {/* Phone */}
+                <div>
+                  <input
+                    name="phone"
+                    type="tel"
+                    placeholder="شماره تماس"
+                    value={shippingInfo.phone}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    dir="rtl"
+                    className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
+                      touchedFields.phone && fieldErrors.phone
+                        ? 'border-2 border-red-500'
+                        : ''
+                    }`}
+                  />
+                  {touchedFields.phone && fieldErrors.phone && (
+                    <p className="mt-1 text-right text-sm text-red-500">
+                      {fieldErrors.phone}
+                    </p>
+                  )}
+                </div>
+
+                {/* Address */}
+                <div>
+                  <input
+                    name="address"
+                    type="text"
+                    placeholder="آدرس کامل"
+                    value={shippingInfo.address}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
+                      touchedFields.address && fieldErrors.address
+                        ? 'border-2 border-red-500'
+                        : ''
+                    }`}
+                  />
+                  {touchedFields.address && fieldErrors.address && (
+                    <p className="mt-1 text-right text-sm text-red-500">
+                      {fieldErrors.address}
+                    </p>
+                  )}
+                </div>
+
+                {/* Postal Code */}
+                <div>
+                  <input
+                    name="postalCode"
+                    type="text"
+                    placeholder="کد پستی"
+                    value={shippingInfo.postalCode}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
+                      touchedFields.postalCode && fieldErrors.postalCode
+                        ? 'border-2 border-red-500'
+                        : ''
+                    }`}
+                  />
+                  {touchedFields.postalCode && fieldErrors.postalCode && (
+                    <p className="mt-1 text-right text-sm text-red-500">
+                      {fieldErrors.postalCode}
+                    </p>
+                  )}
+                </div>
+              </form>
+              <div className="flex w-full items-center justify-center py-4">
+                <button
+                  type="submit"
+                  onClick={() => handleSubmit()}
+                  className="font-aria w-68 cursor-pointer rounded-[5px] bg-[#161A1D] text-sm font-bold text-white transition-all hover:bg-[#2a3035] disabled:cursor-not-allowed disabled:opacity-50"
+                  style={{ height: '50px' }} // Keeping height with inline style for precision
+                >
+                  افزودن ادرس جدید
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </LoadingBar>
       <InformPopup message={errorMessage} />
     </div>
   )

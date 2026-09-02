@@ -93,12 +93,12 @@ const OrdersContent = () => {
     }
 
     const selectedGroup = statusGroups.find(
-      (group) => group.id === activeStatus
+      (group) => group.id === activeStatus,
     )
     if (!selectedGroup) return orders
 
     return orders.filter((order: LocalOrder) =>
-      selectedGroup.statuses.includes(order.status)
+      selectedGroup.statuses.includes(order.status),
     )
   }, [userOrder, activeStatus])
 
@@ -137,51 +137,56 @@ const OrdersContent = () => {
 
   return (
     <div className="w-full">
-      <LoadingBar loading={loading} error={error}>
-        <div>
-          <div className="w-full rounded-lg border-[1.5px] border-[#D9D9D9] bg-white px-5 py-5 sm:px-10 sm:py-8">
-            <h2 className="font-aria mb-6 text-xl font-bold text-black">
-              سفارش ها
-            </h2>
+      <div>
+        <div className="w-full rounded-lg border-[1.5px] border-[#D9D9D9] bg-white px-5 py-5 sm:px-10 sm:py-8">
+          <h2 className="font-aria mb-6 text-xl font-bold text-black">
+            سفارش ها
+          </h2>
 
-            {/* فیلترهای وضعیت */}
-            <div className="mb-3.75 w-full overflow-x-auto pb-3">
-              <div className="flex w-max flex-nowrap items-center gap-5 px-1">
-                {statusGroups.map((group) => (
-                  <button
-                    key={group.id}
-                    onClick={() => setActiveStatus(group.id)}
-                    className={`flex h-7 shrink-0 cursor-pointer items-center gap-1 whitespace-nowrap transition-all ${
+          {/* فیلترهای وضعیت */}
+          <div className="mb-3.75 w-full overflow-x-auto pb-3">
+            <div className="flex w-max flex-nowrap items-center gap-5 px-1">
+              {statusGroups.map((group) => (
+                <button
+                  key={group.id}
+                  onClick={() => setActiveStatus(group.id)}
+                  className={`flex h-7 shrink-0 cursor-pointer items-center gap-1 whitespace-nowrap transition-all ${
+                    activeStatus === group.id
+                      ? 'border-b-2 border-[#161A1D]'
+                      : 'opacity-70 hover:opacity-100'
+                  }`}
+                >
+                  <span
+                    className={`font-ray font-medium ${
                       activeStatus === group.id
-                        ? 'border-b-2 border-[#161A1D]'
-                        : 'opacity-70 hover:opacity-100'
+                        ? 'text-black'
+                        : 'text-[#A2A2A2]'
                     }`}
                   >
-                    <span
-                      className={`font-ray font-medium ${
-                        activeStatus === group.id
-                          ? 'text-black'
-                          : 'text-[#A2A2A2]'
-                      }`}
-                    >
-                      {group.label}
-                    </span>
-                    <div
-                      className={`font-aria flex h-5 w-5 items-center justify-center rounded-xs text-center text-sm font-semibold ${
-                        activeStatus === group.id
-                          ? 'bg-[#161A1D] text-white'
-                          : 'bg-[#D9D9D9] text-black'
-                      }`}
-                    >
-                      {getStatusCount(group.statuses)}
-                    </div>
-                  </button>
-                ))}
-              </div>
+                    {group.label}
+                  </span>
+                  <div
+                    className={`font-aria flex h-5 w-5 items-center justify-center rounded-xs text-center text-sm font-semibold ${
+                      activeStatus === group.id
+                        ? 'bg-[#161A1D] text-white'
+                        : 'bg-[#D9D9D9] text-black'
+                    }`}
+                  >
+                    {getStatusCount(group.statuses)}
+                  </div>
+                </button>
+              ))}
             </div>
+          </div>
 
-            <hr className="w-full" />
+          <hr className="w-full" />
 
+          <LoadingBar
+            loading={loading}
+            error={error}
+            loadingText="در حال بارگذاری آدرس ها..."
+            errorTitle="خطا در بارگذاری"
+          >
             {/* لیست سفارش‌ها */}
             <div className="mt-7.5 w-full">
               {filteredOrders.length === 0 ? (
@@ -199,7 +204,7 @@ const OrdersContent = () => {
                       <div className="w-full">
                         <span
                           className={`font-aria inline-block rounded-full px-3 py-1 text-sm font-medium ${getStatusColor(
-                            order.status
+                            order.status,
                           )}`}
                         >
                           {getStatusLabel(order.status as OrderStatus)}
@@ -279,9 +284,9 @@ const OrdersContent = () => {
                 </div>
               )}
             </div>
-          </div>
+          </LoadingBar>
         </div>
-      </LoadingBar>
+      </div>
     </div>
   )
 }
