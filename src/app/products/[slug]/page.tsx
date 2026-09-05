@@ -3,14 +3,14 @@
 import Image from 'next/image'
 import dynamic from 'next/dynamic'
 import { useParams, useRouter } from 'next/navigation'
-import { useCallback, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 
-import Questions from '@/components/ui/Questions'
 import LoadingBar from '@/components/layout/LoadingBar'
+import Questions from '@/components/ui/Questions'
 
+import { useCart } from '@/features/shop/hooks/cart/useCart'
 import { useProductBySlug } from '@/features/shop/hooks/products/useProductBySlug'
 import { useProductsByCategoryId } from '@/features/shop/hooks/products/useProductsByCategoryId'
-import { useCart } from '@/features/shop/hooks/cart/useCart'
 
 import { GainType, IconType } from '@/features/shop/shop.types'
 
@@ -21,12 +21,19 @@ const ProductSwiper = dynamic(
       <div
         className="flex min-h-[280px] items-center justify-center"
         aria-label="در حال بارگذاری محصولات مشابه"
-      />
+        role="status"
+      >
+        <span className="text-sm text-gray-500">در حال بارگذاری...</span>
+      </div>
     ),
   },
 )
 
-function ProductImage({
+/* =========================================================
+   Product Image
+========================================================= */
+
+const ProductImage = memo(function ProductImage({
   src,
   alt,
   categoryIcon,
@@ -41,48 +48,54 @@ function ProductImage({
 }) {
   const hasImage = Boolean(src?.trim())
 
-  return (
-    <div
-      className={
-        mobile
-          ? 'bg-page relative aspect-square w-full overflow-hidden rounded-[35px]'
-          : 'bg-page relative aspect-square w-full overflow-hidden rounded-[25px]'
-      }
-    >
-      {hasImage ? (
-        <Image
-          src={src!}
-          alt={alt}
-          fill
-          priority={priority}
-          fetchPriority={priority ? 'high' : 'auto'}
-          sizes={
-            mobile ? 'calc(100vw - 3rem)' : '(max-width: 1280px) 384px, 384px'
-          }
-          className="object-contain"
-        />
-      ) : (
-        <>
-          <div className="bg-page absolute top-4.25 right-4.25 z-10 flex items-center justify-center rounded-full p-2.25">
-            <Image
-              src={categoryIcon}
-              alt=""
-              width={mobile ? 30 : 20}
-              height={mobile ? 30 : 20}
-              sizes={`${mobile ? 30 : 20}px`}
-            />
-          </div>
+  const wrapperClass = mobile
+    ? 'bg-page relative aspect-square w-full overflow-hidden rounded-[35px]'
+    : 'bg-page relative aspect-square w-full overflow-hidden rounded-[25px]'
 
-          <div className="flex h-full w-full items-center justify-center">
-            <span className="text-sm text-gray-400">بدون تصویر</span>
-          </div>
-        </>
-      )}
+  if (!hasImage) {
+    return (
+      <div className={wrapperClass}>
+        <div className="bg-page absolute top-4.25 right-4.25 z-10 flex items-center justify-center rounded-full p-2.25">
+          <Image
+            src={categoryIcon}
+            alt=""
+            width={mobile ? 30 : 20}
+            height={mobile ? 30 : 20}
+            aria-hidden="true"
+          />
+        </div>
+
+        <div className="flex h-full w-full items-center justify-center">
+          <span className="text-sm text-gray-400">بدون تصویر</span>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className={wrapperClass}>
+      <Image
+        src={src!}
+        alt={alt}
+        fill
+        priority={priority}
+        fetchPriority={priority ? 'high' : 'auto'}
+        sizes={
+          mobile
+            ? '(max-width: 639px) calc(100vw - 3rem), 100vw'
+            : '(min-width: 1024px) 384px, 50vw'
+        }
+        className="object-contain"
+      />
     </div>
   )
-}
+})
 
-function ProductIcons({
+/* =========================================================
+   Product Icons
+========================================================= */
+
+const ProductIcons = memo(function ProductIcons({
   icons,
   mobile = false,
 }: {
@@ -102,7 +115,13 @@ function ProductIcons({
       {icons.map(({ id, title, iconPath }) => (
         <div key={id} className="flex items-center gap-1">
           {iconPath?.trim() ? (
-            <Image src={iconPath} alt="" width={13} height={13} sizes="13px" />
+            <Image
+              src={iconPath}
+              alt=""
+              width={13}
+              height={13}
+              aria-hidden="true"
+            />
           ) : null}
 
           <span
@@ -118,9 +137,13 @@ function ProductIcons({
       ))}
     </div>
   )
-}
+})
 
-function ProductGains({
+/* =========================================================
+   Product Gains
+========================================================= */
+
+const ProductGains = memo(function ProductGains({
   gains,
   mobile = false,
 }: {
@@ -147,7 +170,7 @@ function ProductGains({
             alt=""
             width={19}
             height={19}
-            sizes="19px"
+            aria-hidden="true"
           />
 
           <p
@@ -158,15 +181,24 @@ function ProductGains({
             }
           >
             <span className="font-extrabold">{title}: </span>
-            {ingredient} — {description}
+
+            {ingredient}
+
+            {' — '}
+
+            {description}
           </p>
         </div>
       ))}
     </div>
   )
-}
+})
 
-function SellerInfo() {
+/* =========================================================
+   Seller Information
+========================================================= */
+
+const SellerInfo = memo(function SellerInfo() {
   return (
     <div className="w-full rounded-md bg-[#F2F2F2] px-3.75 py-5">
       <div className="flex items-center justify-between">
@@ -177,7 +209,7 @@ function SellerInfo() {
               width={18}
               height={18}
               alt=""
-              sizes="18px"
+              aria-hidden="true"
             />
           </div>
 
@@ -192,7 +224,7 @@ function SellerInfo() {
                 alt=""
                 width={13}
                 height={13}
-                sizes="13px"
+                aria-hidden="true"
               />
 
               <p className="mt-1.25 text-xs font-medium text-black">
@@ -207,7 +239,7 @@ function SellerInfo() {
           alt=""
           width={20}
           height={20}
-          sizes="20px"
+          aria-hidden="true"
         />
       </div>
 
@@ -221,7 +253,7 @@ function SellerInfo() {
               width={18}
               height={18}
               alt=""
-              sizes="18px"
+              aria-hidden="true"
             />
           </div>
 
@@ -236,7 +268,7 @@ function SellerInfo() {
                 alt=""
                 width={13}
                 height={13}
-                sizes="13px"
+                aria-hidden="true"
               />
 
               <p className="mt-1.25 text-xs font-medium text-black">قوانین</p>
@@ -249,7 +281,7 @@ function SellerInfo() {
           alt=""
           width={20}
           height={20}
-          sizes="20px"
+          aria-hidden="true"
         />
       </div>
 
@@ -263,7 +295,7 @@ function SellerInfo() {
               width={18}
               height={18}
               alt=""
-              sizes="18px"
+              aria-hidden="true"
             />
           </div>
 
@@ -278,7 +310,7 @@ function SellerInfo() {
                 alt=""
                 width={13}
                 height={13}
-                sizes="13px"
+                aria-hidden="true"
               />
 
               <p className="mt-1.25 text-xs font-medium text-black">
@@ -293,14 +325,18 @@ function SellerInfo() {
           alt=""
           width={20}
           height={20}
-          sizes="20px"
+          aria-hidden="true"
         />
       </div>
     </div>
   )
-}
+})
 
-function AddToCartButton({
+/* =========================================================
+   Add To Cart
+========================================================= */
+
+const AddToCartButton = memo(function AddToCartButton({
   productTitle,
   isAdding,
   onClick,
@@ -326,15 +362,21 @@ function AddToCartButton({
       {isAdding ? 'در حال افزودن...' : 'افزودن به سبد خرید'}
     </button>
   )
-}
+})
 
-function ProductPrice({
+/* =========================================================
+   Product Price
+========================================================= */
+
+const ProductPrice = memo(function ProductPrice({
   price,
   mobile = false,
 }: {
   price: number
   mobile?: boolean
 }) {
+  const formattedPrice = price.toLocaleString('fa-IR')
+
   return (
     <div
       className={
@@ -342,25 +384,34 @@ function ProductPrice({
           ? 'text-color-title-on-light font-ray flex shrink-0 items-center text-lg font-bold'
           : 'text-color-title-on-light font-ray flex items-center justify-center text-sm font-extrabold 2xl:text-base'
       }
+      aria-label={`${formattedPrice} تومان`}
     >
-      {price.toLocaleString('fa-IR')}
+      {formattedPrice}
 
       <Image
         src="/images/toman.svg"
         width={25}
         height={25}
         className="pr-1"
-        alt="toman"
+        alt=""
+        aria-hidden="true"
       />
     </div>
   )
-}
+})
+
+/* =========================================================
+   Product Page
+========================================================= */
 
 export default function ProductPage() {
-  const params = useParams()
+  const params = useParams<{ slug: string }>()
   const router = useRouter()
 
-  const slug = decodeURIComponent(params.slug as string)
+  const slug = useMemo(
+    () => decodeURIComponent(params.slug).trim(),
+    [params.slug],
+  )
 
   const { product, loading, error } = useProductBySlug({
     slug,
@@ -369,7 +420,6 @@ export default function ProductPage() {
   const { addToCart, isAuthenticated } = useCart()
 
   const [isAdding, setIsAdding] = useState(false)
-
   const [addError, setAddError] = useState<string | null>(null)
 
   const categoryId = product?.categoryId ?? 0
@@ -379,21 +429,22 @@ export default function ProductPage() {
       categoryId,
     })
 
-  const categoryIcon = product?.category?.iconPath || '/images/makeup.svg'
+  const categoryIcon = useMemo(
+    () => product?.category?.iconPath || '/images/makeup.svg',
+    [product?.category?.iconPath],
+  )
+
+  const productUrl = product ? `/products/${product.slug}` : ''
 
   const handleAddToCart = useCallback(
     async (e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault()
       e.stopPropagation()
 
-      if (isAdding || !product) {
-        return
-      }
+      if (isAdding || !product) return
 
       if (!isAuthenticated) {
-        router.push(
-          `/auth?from=${encodeURIComponent(`/products/${product.slug}`)}`,
-        )
+        router.push(`/auth?from=${encodeURIComponent(productUrl)}`)
 
         return
       }
@@ -409,7 +460,7 @@ export default function ProductPage() {
         setIsAdding(false)
       }
     },
-    [addToCart, isAdding, isAuthenticated, product, router],
+    [addToCart, isAdding, isAuthenticated, product, productUrl, router],
   )
 
   return (
@@ -417,10 +468,13 @@ export default function ProductPage() {
       {product ? (
         <>
           <main className="mt-5 sm:mt-12.5">
-            {/* =========================
+            {/* =================================================
                 MOBILE
-            ========================== */}
-            <section className="relative lg:hidden">
+            ================================================== */}
+            <section
+              className="relative lg:hidden"
+              aria-labelledby="product-title-mobile"
+            >
               <div className="sticky top-0 z-0 w-full">
                 <div className="bg-page mx-auto w-full overflow-hidden rounded-[35px] px-6.25 pb-6.25">
                   <ProductImage
@@ -434,9 +488,15 @@ export default function ProductPage() {
               </div>
 
               <div className="relative z-10 -mt-1 w-full space-y-6 rounded-t-[30px] bg-white px-4 pt-3 shadow-[0_-8px_20px_-10px_rgba(20,22,30,0.35)]">
-                <div className="mx-auto mb-7 h-1.25 w-15 rounded-full bg-black/15" />
+                <div
+                  className="mx-auto mb-7 h-1.25 w-15 rounded-full bg-black/15"
+                  aria-hidden="true"
+                />
 
-                <h1 className="font-aria text-color-title-on-light text-3xl font-extrabold sm:text-[40px]">
+                <h1
+                  id="product-title-mobile"
+                  className="font-aria text-color-title-on-light text-3xl font-extrabold sm:text-[40px]"
+                >
                   {product.title}
                 </h1>
 
@@ -444,34 +504,45 @@ export default function ProductPage() {
 
                 <ProductGains gains={product.gains} mobile />
 
-                <div>
-                  <h2 className="font-aria text-color-title-on-light text-lg font-extrabold">
+                <section aria-labelledby="description-mobile">
+                  <h2
+                    id="description-mobile"
+                    className="font-aria text-color-title-on-light text-lg font-extrabold"
+                  >
                     توضیحات
                   </h2>
 
                   <p className="font-ray text-color-body-on-light mt-2.5 max-w-xl text-xs leading-5 sm:text-sm">
                     {product.description}
                   </p>
-                </div>
+                </section>
 
-                <div className="font-aria text-color-title-on-light text-lg font-extrabold">
-                  <h2>فروشنده</h2>
+                <section aria-labelledby="seller-mobile">
+                  <h2
+                    id="seller-mobile"
+                    className="font-aria text-color-title-on-light text-lg font-extrabold"
+                  >
+                    فروشنده
+                  </h2>
 
                   <div className="mt-3.75">
                     <SellerInfo />
                   </div>
-                </div>
+                </section>
 
                 <Questions faqs={product.faqs} />
               </div>
             </section>
 
-            {/* =========================
+            {/* =================================================
                 DESKTOP
-            ========================== */}
-            <section className="container hidden lg:flex lg:flex-col lg:items-center">
+            ================================================== */}
+            <section
+              className="container hidden lg:flex lg:flex-col lg:items-center"
+              aria-labelledby="product-title-desktop"
+            >
               <div className="flex w-full items-center justify-between gap-5">
-                {/* Product image */}
+                {/* Product Image */}
                 <div className="w-full max-w-sm">
                   <ProductImage
                     src={product.image}
@@ -480,9 +551,12 @@ export default function ProductPage() {
                   />
                 </div>
 
-                {/* Product information */}
+                {/* Product Information */}
                 <div className="max-xl:max-w-[430px]">
-                  <h1 className="font-aria text-color-title-on-light text-2xl font-extrabold sm:text-[32px]">
+                  <h1
+                    id="product-title-desktop"
+                    className="font-aria text-color-title-on-light text-2xl font-extrabold sm:text-[32px]"
+                  >
                     {product.title}
                   </h1>
 
@@ -490,26 +564,35 @@ export default function ProductPage() {
 
                   <ProductGains gains={product.gains} />
 
-                  <div className="mt-5">
-                    <h2 className="font-aria text-xl font-extrabold text-black">
+                  <section
+                    className="mt-5"
+                    aria-labelledby="description-desktop"
+                  >
+                    <h2
+                      id="description-desktop"
+                      className="font-aria text-xl font-extrabold text-black"
+                    >
                       توضیحات
                     </h2>
 
                     <p className="font-ray text-color-body-on-light mt-2.5 max-w-xl text-xs sm:text-sm xl:text-base">
                       {product.description}
                     </p>
-                  </div>
+                  </section>
                 </div>
 
-                {/* Seller + cart */}
+                {/* Seller + Cart */}
                 <div className="flex w-full max-w-[400px] min-w-[300px] flex-1 flex-col items-center gap-4.5">
-                  <div className="font-aria text-color-title-on-light w-full text-lg font-extrabold">
-                    <h2>فروشنده</h2>
+                  <section
+                    className="font-aria text-color-title-on-light w-full text-lg font-extrabold"
+                    aria-labelledby="seller-desktop"
+                  >
+                    <h2 id="seller-desktop">فروشنده</h2>
 
                     <div className="mt-3.75">
                       <SellerInfo />
                     </div>
-                  </div>
+                  </section>
 
                   <div className="flex w-full justify-between gap-x-5 sm:items-center">
                     <AddToCartButton
@@ -522,7 +605,10 @@ export default function ProductPage() {
                   </div>
 
                   {addError && (
-                    <p className="font-ray mt-3 text-sm text-red-500">
+                    <p
+                      className="font-ray mt-3 text-sm text-red-500"
+                      role="alert"
+                    >
                       {addError}
                     </p>
                   )}
@@ -532,31 +618,53 @@ export default function ProductPage() {
               <Questions faqs={product.faqs} />
             </section>
 
-            {/* =========================
+            {/* =================================================
                 RELATED PRODUCTS
-            ========================== */}
-            <section className="container mt-11 flex w-full flex-col">
-              <div className="text-color-title-on-light flex flex-col">
-                <h2 className="font-aria text-2xl font-extrabold xl:text-[32px]">
-                  محصولات مشابه
-                </h2>
-              </div>
+            ================================================== */}
+            {relatedProducts?.length ? (
+              <section
+                className="container mt-11 flex w-full flex-col"
+                aria-labelledby="related-products-title"
+              >
+                <div className="text-color-title-on-light flex flex-col">
+                  <h2
+                    id="related-products-title"
+                    className="font-aria text-2xl font-extrabold xl:text-[32px]"
+                  >
+                    محصولات مشابه
+                  </h2>
+                </div>
 
-              <div className="flex min-h-[280px] items-center justify-center pb-10">
-                {relatedLoading ? (
-                  <div className="py-10 text-center" aria-live="polite">
-                    در حال بارگذاری محصولات مشابه...
-                  </div>
-                ) : relatedProducts?.length ? (
-                  <ProductSwiper products={relatedProducts} />
-                ) : null}
-              </div>
-            </section>
+                <div className="flex min-h-[280px] items-center justify-center pb-10">
+                  {relatedLoading ? (
+                    <div
+                      className="py-10 text-center"
+                      aria-live="polite"
+                      role="status"
+                    >
+                      در حال بارگذاری محصولات مشابه...
+                    </div>
+                  ) : (
+                    <ProductSwiper products={relatedProducts} />
+                  )}
+                </div>
+              </section>
+            ) : relatedLoading ? (
+              <section
+                className="container mt-11 flex min-h-[280px] items-center justify-center"
+                aria-label="محصولات مشابه"
+                aria-live="polite"
+              >
+                <span className="text-sm text-gray-500">
+                  در حال بارگذاری محصولات مشابه...
+                </span>
+              </section>
+            ) : null}
           </main>
 
-          {/* =========================
+          {/* =================================================
               MOBILE STICKY CART
-          ========================== */}
+          ================================================== */}
           <div className="fixed right-0 bottom-0 left-0 z-50 lg:hidden">
             <div className="bg-white/95 px-6 py-3 shadow-[0_-8px_30px_rgba(20,22,30,0.12)] backdrop-blur-md">
               <div className="flex items-center justify-between gap-4">
@@ -571,7 +679,10 @@ export default function ProductPage() {
               </div>
 
               {addError && (
-                <p className="font-ray mt-2 text-center text-xs text-red-500">
+                <p
+                  className="font-ray mt-2 text-center text-xs text-red-500"
+                  role="alert"
+                >
                   {addError}
                 </p>
               )}

@@ -66,7 +66,6 @@ export class ProductService {
       },
     })
   }
-
   static async createProduct(input: CreateProductInput) {
     const {
       title,
@@ -81,15 +80,31 @@ export class ProductService {
       faqs,
     } = input
 
+    const normalizedSlug = slug.trim()
+
+    const existingProduct = await prisma.product.findUnique({
+      where: {
+        slug: normalizedSlug,
+      },
+      select: {
+        id: true,
+      },
+    })
+
+    if (existingProduct) {
+      throw new Error('SLUG_ALREADY_EXISTS')
+    }
+
     const product = await prisma.product.create({
       data: {
         title,
         price,
         categoryId,
-        slug,
+        slug: normalizedSlug,
         solution,
         image,
         description,
+
         icons: {
           create: icons.map((i) => ({
             title: i.title,
@@ -97,6 +112,7 @@ export class ProductService {
             iconPath: i.iconPath ?? null,
           })),
         },
+
         gains: {
           create: gains.map((g) => ({
             title: g.title,
@@ -104,6 +120,7 @@ export class ProductService {
             ingredient: g.ingredient,
           })),
         },
+
         faqs: {
           create: faqs.map((f) => ({
             question: f.question,
@@ -208,9 +225,13 @@ export class ProductService {
 
   static async deleteProduct(input: DeleteProductInput) {
     const { id } = input
+
     return prisma.product.update({
       where: { id },
-      data: { isActive: false },
+      data: {
+        isActive: false,
+        slug: `deleted-${id}-${Date.now()}`,
+      },
     })
   }
 }

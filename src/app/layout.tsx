@@ -5,7 +5,7 @@ import PageViewTracker from '@/components/layout/PageViewTracker'
 import { SessionRefresher } from '@/components/layout/SessionRefresher'
 import { CartProvider } from '@/features/shop/hooks/cart/useCart'
 import { getSession } from '@/features/auth/services/sessionService'
-import { defaultDescription, siteName, siteUrl } from '@/lib/seo'
+import { absoluteUrl, defaultDescription, siteName, siteUrl } from '@/lib/seo'
 import { JsonLd } from '@/components/seo/JsonLd'
 
 /* ============================
@@ -112,13 +112,16 @@ const RayFont = localFont({
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
+
   title: {
     default: `${siteName} | محصولات سالم و ارگانیک`,
-    template: `${siteName} | %s`,
+    template: `%s | ${siteName}`,
   },
+
   description: defaultDescription,
+
   applicationName: siteName,
-  alternates: { canonical: '/' },
+
   openGraph: {
     type: 'website',
     locale: 'fa_IR',
@@ -126,11 +129,21 @@ export const metadata: Metadata = {
     title: `${siteName} | محصولات سالم و ارگانیک`,
     description: defaultDescription,
     url: '/',
+    images: [
+      {
+        url: '/og/logo.svg',
+        width: 1200,
+        height: 630,
+        alt: `${siteName} | محصولات سالم و ارگانیک`,
+      },
+    ],
   },
+
   twitter: {
     card: 'summary_large_image',
     title: `${siteName} | محصولات سالم و ارگانیک`,
     description: defaultDescription,
+    images: ['/og/logo.svg'],
   },
 }
 
@@ -162,10 +175,11 @@ export default async function RootLayout({
             '@type': 'Organization',
             name: siteName,
             url: siteUrl,
-            logo: `${siteUrl}/images/logo.svg`,
+            logo: absoluteUrl('/og/logo.svg'),
             description: defaultDescription,
           }}
         />
+
         <CartProvider isAuthenticated={Boolean(session)}>
           <main>
             <SessionRefresher />

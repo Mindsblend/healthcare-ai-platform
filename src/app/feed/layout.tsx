@@ -1,46 +1,51 @@
+import type { Metadata } from 'next'
+
 import Footer from '@/components/layout/Footer'
 import CallToAction from '@/components/layout/CallToAction'
 import NavbarWrapper from '@/components/layout/NavbarWrapper'
+import { JsonLd } from '@/components/seo/JsonLd'
+import { absoluteUrl, defaultDescription, siteName } from '@/lib/seo'
 
-import type { Metadata } from 'next'
+const feedTitle = `فروشگاه ${siteName}`
+const feedDescription =
+  'محصولات سالم، ارگانیک و طبیعی منتخب برای تغذیه، مراقبت از پوست و مو و سبک زندگی سالم‌تر.'
 
 export const metadata: Metadata = {
-  title: 'خرید محصولات سالم و ارگانیک',
-  description:
-    'خرید انواع محصولات سالم، ارگانیک و طبیعی برای تغذیه، مراقبت از پوست و مو و بهبود سبک زندگی. محصولات منتخب سلامت و تندرستی را در Healthcare بررسی و خریداری کنید.',
+  title: feedTitle,
 
-  keywords: [
-    'محصولات سالم',
-    'محصولات ارگانیک',
-    'خرید محصولات سالم',
-    'خرید محصولات ارگانیک',
-    'محصولات طبیعی',
-    'فروشگاه محصولات سالم',
-    'سلامت و تندرستی',
-  ],
+  description: feedDescription,
 
   alternates: {
-    canonical: '/feed',
+    canonical: absoluteUrl('/feed'),
+  },
+
+  robots: {
+    index: false,
+    follow: false,
   },
 
   openGraph: {
-    title: 'خرید محصولات سالم و ارگانیک',
-    description: 'انواع محصولات سالم، ارگانیک و طبیعی برای سبک زندگی سالم‌تر.',
-    url: '/feed',
-    siteName: 'Healthcare',
-    locale: 'fa_IR',
     type: 'website',
+    locale: 'fa_IR',
+    siteName,
+    title: feedTitle,
+    description: feedDescription,
+    url: absoluteUrl('/feed'),
+    images: [
+      {
+        url: absoluteUrl('/og/logo.svg'),
+        width: 1200,
+        height: 630,
+        alt: `${siteName} - فروشگاه محصولات سالم و ارگانیک`,
+      },
+    ],
   },
 
   twitter: {
     card: 'summary_large_image',
-    title: 'خرید محصولات سالم و ارگانیک',
-    description: 'انواع محصولات سالم، ارگانیک و طبیعی برای سبک زندگی سالم‌تر.',
-  },
-
-  robots: {
-    index: true,
-    follow: true,
+    title: feedTitle,
+    description: feedDescription,
+    images: [absoluteUrl('/og/logo.svg')],
   },
 }
 
@@ -51,9 +56,27 @@ export default function FeedLayout({
 }) {
   return (
     <>
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'CollectionPage',
+          name: feedTitle,
+          description: feedDescription,
+          url: absoluteUrl('/feed'),
+          isPartOf: {
+            '@type': 'WebSite',
+            name: siteName,
+            url: absoluteUrl('/'),
+          },
+        }}
+      />
+
       <NavbarWrapper />
+
       {children}
+
       <CallToAction />
+
       <Footer />
     </>
   )
