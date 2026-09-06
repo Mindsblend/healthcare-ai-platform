@@ -6,7 +6,7 @@ import NavbarWrapper from '@/components/layout/NavbarWrapper'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { absoluteUrl, defaultDescription, siteName } from '@/lib/seo'
 
-const feedTitle = `فروشگاه ${siteName}`
+const feedTitle = `فروشگاه محصولات سالم و ارگانیک`
 const feedDescription =
   'محصولات سالم، ارگانیک و طبیعی منتخب برای تغذیه، مراقبت از پوست و مو و سبک زندگی سالم‌تر.'
 

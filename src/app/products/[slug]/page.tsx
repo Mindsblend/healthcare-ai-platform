@@ -108,7 +108,7 @@ const ProductIcons = memo(function ProductIcons({
     <div
       className={
         mobile
-          ? 'mt-2 flex flex-wrap items-center gap-x-3 gap-y-2'
+          ? 'flex flex-wrap items-center gap-x-3 gap-y-2'
           : 'mt-3 flex flex-wrap items-center gap-x-3 gap-y-2'
       }
     >
@@ -155,7 +155,7 @@ const ProductGains = memo(function ProductGains({
   return (
     <div
       className={
-        mobile ? 'mt-7 flex flex-col gap-5' : 'mt-5 flex flex-col gap-5'
+        mobile ? 'mt-7 flex flex-col gap-3' : 'mt-5 flex flex-col gap-5'
       }
     >
       {gains.map(({ id, title, ingredient, description }) => (
@@ -176,16 +176,12 @@ const ProductGains = memo(function ProductGains({
           <p
             className={
               mobile
-                ? 'font-ray text-color-title-on-light text-xs leading-6 font-medium sm:text-sm'
-                : 'font-ray text-color-title-on-light text-xs font-medium sm:text-sm xl:text-base'
+                ? 'font-ray text-color-title-on-light text-sm leading-6 font-medium'
+                : 'font-ray text-color-title-on-light text-sm font-medium xl:text-base'
             }
           >
-            <span className="font-extrabold">{title}: </span>
-
-            {ingredient}
-
+            <span className="font-extrabold">{title}: </span> {ingredient}
             {' — '}
-
             {description}
           </p>
         </div>
@@ -487,7 +483,7 @@ export default function ProductPage() {
                 </div>
               </div>
 
-              <div className="relative z-10 -mt-1 w-full space-y-6 rounded-t-[30px] bg-white px-4 pt-3 shadow-[0_-8px_20px_-10px_rgba(20,22,30,0.35)]">
+              <div className="relative z-10 -mt-1 w-full space-y-4 rounded-t-[30px] bg-white px-4 pt-3 shadow-[0_-8px_20px_-10px_rgba(20,22,30,0.35)]">
                 <div
                   className="mx-auto mb-7 h-1.25 w-15 rounded-full bg-black/15"
                   aria-hidden="true"
@@ -512,7 +508,7 @@ export default function ProductPage() {
                     توضیحات
                   </h2>
 
-                  <p className="font-ray text-color-body-on-light mt-2.5 max-w-xl text-xs leading-5 sm:text-sm">
+                  <p className="font-ray mt-2.5 max-w-xl text-sm leading-6 text-black sm:text-sm">
                     {product.description}
                   </p>
                 </section>
