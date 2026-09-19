@@ -10,9 +10,14 @@ import { useCart } from '@/features/shop/hooks/cart/useCart'
 
 interface Props {
   product: ProductSummary
+  /**
+   * card (پیش‌فرض): همون کارت قبلی، بدون هیچ تغییری
+   * row: نمایش افقی و فشرده مخصوص لیست موبایل (تصویر کنار اطلاعات)
+   */
+  variant?: 'card' | 'row'
 }
 
-const Product = ({ product }: Props) => {
+const Product = ({ product, variant = 'card' }: Props) => {
   const { addToCart, isAuthenticated } = useCart()
 
   const [isAdding, setIsAdding] = useState(false)
@@ -49,6 +54,107 @@ const Product = ({ product }: Props) => {
 
   const hasImage = Boolean(product.image) && product.image.trim() !== ''
 
+  /* =========================================================
+     ROW VARIANT (mobile list)
+  ========================================================== */
+  if (variant === 'row') {
+    return (
+      <article className="flex gap-3 border-b border-gray-200 py-4 first:pt-0 last:border-b-0">
+        {/* Image */}
+        <Link
+          href={productUrl}
+          aria-label={`مشاهده ${product.title}`}
+          className="relative block h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-gray-100"
+        >
+          {hasImage ? (
+            <Image
+              src={product.image!}
+              alt={product.title}
+              fill
+              sizes="112px"
+              className="object-cover"
+            />
+          ) : (
+            <span className="flex h-full w-full items-center justify-center text-xs text-gray-400">
+              بدون تصویر
+            </span>
+          )}
+        </Link>
+
+        {/* Info */}
+        <div className="flex min-w-0 flex-1 flex-col justify-between">
+          <div className="text-color-title-on-light">
+            <h2 className="font-ray line-clamp-2 text-[15px] leading-6 font-extrabold">
+              <Link href={productUrl}>{product.title}</Link>
+            </h2>
+
+            <p className="font-ray mt-1 line-clamp-2 text-xs font-medium text-[#555555]">
+              {product.solution}
+            </p>
+          </div>
+
+          <div className="mt-3 flex items-end justify-between gap-2">
+            {/* Price */}
+            <div
+              className="text-color-title-on-light font-ray flex items-center text-sm font-extrabold"
+              aria-label={`${product.price.toLocaleString('fa-IR')} تومان`}
+            >
+              {product.price.toLocaleString('fa-IR')}
+
+              <span className="pr-1">
+                <Image
+                  src="/images/toman.svg"
+                  alt=""
+                  aria-hidden="true"
+                  width={18}
+                  height={18}
+                />
+              </span>
+            </div>
+
+            {/* Add to cart */}
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              disabled={isAdding}
+              aria-label={`افزودن ${product.title} به سبد خرید`}
+              className="text-color-title-on-dark font-ray flex h-9 shrink-0 cursor-pointer items-center gap-1 rounded-full bg-black px-3.5 text-xs font-bold whitespace-nowrap transition hover:bg-gray-800 disabled:cursor-wait disabled:opacity-70"
+            >
+              {isAdding ? (
+                'در حال افزودن'
+              ) : (
+                <>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                  افزودن
+                </>
+              )}
+            </button>
+          </div>
+
+          {addError && (
+            <p role="alert" className="font-ray mt-1 text-xs text-red-600">
+              {addError}
+            </p>
+          )}
+        </div>
+      </article>
+    )
+  }
+
+  /* =========================================================
+     CARD VARIANT (default, unchanged)
+  ========================================================== */
   return (
     <article className="bg-page xs:max-w-77.5 flex max-h-min w-full flex-col rounded-[20px] border border-black/25 p-2.5">
       {/* Product Image */}

@@ -45,7 +45,7 @@ const ShopProductsSection = ({
     <div ref={sectionRef} className="container mt-12.5 flex flex-col sm:mt-20">
       <div className="text-color-title-on-light flex w-full flex-wrap items-center justify-between text-right">
         <div className="flex max-w-xl flex-col items-start">
-          <h2 className="font-aria text-color-title-on-light mt-3 text-3xl font-extrabold xl:text-[40px]">
+          <h2 className="font-aria text-color-title-on-light text-3xl font-extrabold xl:text-[40px]">
             {title}
           </h2>
           <p className="font-ray font-regular text-color-body-on-light mt-1 text-sm xl:text-base">
@@ -54,7 +54,7 @@ const ShopProductsSection = ({
         </div>
       </div>
 
-      <div className="flex items-center justify-center">
+      <div className="flex mt-3 items-center justify-center">
         {isVisible ? (
           <ProductSwiper products={products} categories={categories} />
         ) : (

@@ -2,275 +2,320 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useState } from 'react'
-import { useCart } from '@/features/shop/hooks/cart/useCart'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState, type FormEvent } from 'react'
 
-// Now this accepts user as a prop
-export default function Navbar({ user }: { user: any }) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+import { useCart } from '@/features/shop/hooks/cart/useCart'
+import BottomNav, { shouldShowBottomNav } from './BottomNav'
+
+type NavbarProps = {
+  user: unknown
+}
+
+export default function Navbar({ user }: NavbarProps) {
+  const pathname = usePathname()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const [search, setSearch] = useState('')
 
   const { cartItems } = useCart()
 
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0)
 
+  const showBottomNav = shouldShowBottomNav(pathname, user)
+
+  // Sync Navbar search with ?q=...
+  useEffect(() => {
+    const query = searchParams.get('q') ?? ''
+    setSearch(query)
+  }, [searchParams])
+
+  const handleSearch = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    const query = search.trim()
+
+    if (!query) {
+      router.push('/products')
+      return
+    }
+
+    router.push(`/products?q=${encodeURIComponent(query)}`)
+  }
+
+  const clearSearch = () => {
+    setSearch('')
+
+    if (pathname === '/products') {
+      router.push('/products')
+    }
+  }
+
   return (
     <>
-      <nav className="relative container flex w-full items-center justify-between bg-white pt-4 text-black">
-        {/* Navigation + Logo */}
-        <div className="font-ray flex items-center gap-8 text-base font-medium text-black">
-          {/* Hamburger Menu */}
-          <button
-            className="relative z-20 block cursor-pointer lg:hidden"
-            onClick={() => setIsMenuOpen(true)}
-          >
-            <Image
-              src="/images/hamburger.svg"
-              alt="Menu"
-              width={30}
-              height={30}
-              className="lg:block"
-            />
-          </button>
-
-          {/* Logo - centered on medium/small screens */}
-          <div className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0">
-            <Link href="/">
-              {/* Small logo - visible on mobile/tablet, hidden on large screens */}
-              <Image
-                src="/images/Logo-Small.svg"
-                alt="Logo"
-                width={45}
-                height={20}
-                className="lg:hidden"
-              />
-              {/* Large logo - hidden on mobile/tablet, visible on large screens */}
-              <Image
-                src="/images/logo.svg"
-                alt="Logo"
-                width={140}
-                height={20}
-                className="hidden lg:block"
-              />
-            </Link>
-          </div>
-
-          {/* Navigation links - hide on small screens */}
-          <ul className="hidden gap-6 font-medium lg:flex">
-            <li>
-              <a
-                href="/"
-                className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black active:text-black"
-              >
-                خانه
-              </a>
-            </li>
-            <li>
-              <a
-                href="/ai"
-                className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black active:text-black"
-              >
-                تست هوش مصنوعی
-              </a>
-            </li>
-            <li>
-              <a
-                href="/blogs"
-                className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black active:text-black"
-              >
-                وبلاگ
-              </a>
-            </li>
-            <li>
-              <a
-                href="/products"
-                className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black active:text-black"
-              >
-                محصولات
-              </a>
-            </li>
-          </ul>
-        </div>
-
-        <div className="flex justify-center gap-3">
-          {/* Left: Menu button */}
-          {user ? (
-            <div className="flex justify-center gap-6">
-              <Link
-                href="/cart"
-                className="relative flex items-center justify-center"
-              >
+      <nav className="relative container w-full bg-white pt-4 text-black">
+        {/* =========================================================
+            DESKTOP HEADER
+        ========================================================== */}
+        <div className="hidden w-full items-center justify-between lg:flex">
+          {/* Navigation + Logo */}
+          <div className="font-ray flex min-w-0 items-center gap-8 text-base font-medium text-black">
+            {/* Logo */}
+            <div>
+              <Link href="/" aria-label="خانه">
                 <Image
-                  src="/images/cart.svg"
-                  alt="سبد خرید"
-                  width={32}
-                  height={32}
-                />
-
-                {cartCount > 0 && (
-                  <span className="font-ray absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-0.5 text-xs leading-none font-bold text-white">
-                    {cartCount > 99 ? '۹۹+' : cartCount.toLocaleString('fa-IR')}
-                  </span>
-                )}
-              </Link>
-
-              <Link href="/profile">
-                <Image
-                  src="/images/profile.svg"
-                  alt="پروفایل"
-                  width={32}
-                  height={32}
+                  src="/images/logo.svg"
+                  alt="Logo"
+                  width={140}
+                  height={20}
+                  priority
                 />
               </Link>
             </div>
-          ) : (
-            <div className="flex gap-3 lg:gap-7.5">
-              <Link
-                href="/ai"
-                className="bg-page hidden cursor-pointer items-center justify-between gap-1 rounded-full text-white lg:flex"
-              >
-                {/* Button text */}
-                <span className="font-ray text-color-title-on-light mr-3.5 text-xs font-medium whitespace-nowrap lg:text-base">
-                  تست هوش مصنوعی
-                </span>
 
-                {/* Circle with icon */}
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white sm:h-8 sm:w-8">
-                  <Image
-                    src="/images/cognition-black.svg"
-                    alt="Arrow"
-                    width={24}
-                    height={24}
-                    className="max-sm:h-5 max-sm:w-5"
-                  />
-                </div>
-              </Link>
+            {/* Navigation */}
+            <ul className="flex gap-6 font-medium">
+              <li>
+                <Link
+                  href="/"
+                  className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black"
+                >
+                  خانه
+                </Link>
+              </li>
 
-              {/* Button text */}
-              <Link
-                href={'/auth'}
-                className="primary-btn hidden items-center justify-between rounded-full bg-black whitespace-nowrap lg:flex"
-              >
-                <span className="font-ray pr-2 font-medium text-white">
-                  ورود به حساب کاربری
-                </span>
-                {/* Circle with icon */}
-                <div className="flex h-7 w-7 rotate-45 items-center justify-center rounded-full bg-white xl:h-10 xl:w-10">
-                  <Image
-                    src="/images/arrow.svg"
-                    alt="Top Right Image"
-                    width={20}
-                    height={20}
-                    className="max-xl:h-3.75 max-xl:w-3.75"
-                  />
-                </div>
-              </Link>
-
-              {/* Mobile icon buttons - visible only on mobile */}
-              <div className="flex gap-3 lg:hidden">
+              <li>
                 <Link
                   href="/ai"
-                  className="bg-page flex items-center justify-center rounded-full p-2 text-white"
+                  className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black"
                 >
-                  <Image
-                    src="/images/ai-small.svg"
-                    alt="AI Test"
-                    width={30}
-                    height={30}
-                  />
+                  تست هوش مصنوعی
                 </Link>
+              </li>
+
+              <li>
                 <Link
-                  href="/auth"
-                  className="flex items-center justify-center rounded-full p-2"
+                  href="/blogs"
+                  className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black"
+                >
+                  وبلاگ
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  href="/products"
+                  className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black"
+                >
+                  محصولات
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* =========================================================
+              DESKTOP SEARCH
+          ========================================================== */}
+          <form
+            onSubmit={handleSearch}
+            className="min-w-0 flex-1 justify-center px-8"
+          >
+            <div className="relative mx-auto w-full max-w-xl">
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="جستجوی محصولات..."
+                aria-label="جستجوی محصولات"
+                dir="rtl"
+                className="font-ray h-11 w-full rounded-full border border-gray-200 bg-gray-50 pr-12 pl-12 text-sm text-black transition outline-none placeholder:text-gray-400 focus:border-black focus:bg-white"
+              />
+
+              {/* Search Button */}
+              <button
+                type="submit"
+                aria-label="جستجو"
+                className="absolute top-1/2 right-2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-gray-500 transition hover:bg-black hover:text-white"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="11" cy="11" r="7" />
+                  <path d="m20 20-3.5-3.5" />
+                </svg>
+              </button>
+
+              {/* Clear Button */}
+              {search && (
+                <button
+                  type="button"
+                  aria-label="پاک کردن جستجو"
+                  onClick={clearSearch}
+                  className="absolute top-1/2 left-3 cursor-pointer flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-200 hover:text-black"
                 >
                   <Image
-                    src="/images/login-small.svg"
-                    alt="Login"
-                    width={30}
-                    height={30}
+                    src="/images/close-line.svg"
+                    alt="close button"
+                    width={15}
+                    height={15}
+                  />
+                </button>
+              )}  
+            </div>
+          </form>
+
+          {/* =========================================================
+              RIGHT ACTIONS
+          ========================================================== */}
+          <div className="flex shrink-0 justify-center gap-3">
+            {user ? (
+              <div className="flex justify-center gap-6">
+                {/* Cart */}
+                <Link
+                  href="/cart"
+                  aria-label="سبد خرید"
+                  className="relative flex items-center justify-center"
+                >
+                  <Image
+                    src="/images/cart.svg"
+                    alt="سبد خرید"
+                    width={32}
+                    height={32}
+                  />
+
+                  {cartCount > 0 && (
+                    <span className="font-ray absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-0.5 text-xs leading-none font-bold text-white">
+                      {cartCount > 99
+                        ? '۹۹+'
+                        : cartCount.toLocaleString('fa-IR')}
+                    </span>
+                  )}
+                </Link>
+
+                {/* Profile */}
+                <Link href="/profile" aria-label="پروفایل">
+                  <Image
+                    src="/images/profile.svg"
+                    alt="پروفایل"
+                    width={32}
+                    height={32}
                   />
                 </Link>
               </div>
+            ) : (
+              <div className="flex gap-3 lg:gap-7.5">
+                {/* AI Button */}
+                <Link
+                  href="/ai"
+                  className="bg-page flex cursor-pointer items-center justify-between gap-1 rounded-full text-white"
+                >
+                  <span className="font-ray text-color-title-on-light mr-3.5 text-base font-medium whitespace-nowrap">
+                    تست هوش مصنوعی
+                  </span>
+
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white">
+                    <Image
+                      src="/images/cognition-black.svg"
+                      alt="AI"
+                      width={24}
+                      height={24}
+                    />
+                  </div>
+                </Link>
+
+                {/* Login Button */}
+                <Link
+                  href="/auth"
+                  className="primary-btn flex items-center justify-between rounded-full bg-black whitespace-nowrap"
+                >
+                  <span className="font-ray pr-2 font-medium text-white">
+                    ورود به حساب کاربری
+                  </span>
+
+                  <div className="flex h-10 w-10 rotate-45 items-center justify-center rounded-full bg-white">
+                    <Image
+                      src="/images/arrow.svg"
+                      alt="ورود"
+                      width={20}
+                      height={20}
+                    />
+                  </div>
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* =========================================================
+            MOBILE NAVBAR
+        ========================================================== */}
+        <div className="lg:hidden">
+          <form onSubmit={handleSearch} className="w-full">
+            <div className="relative w-full">
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="جستجوی محصولات..."
+                aria-label="جستجوی محصولات"
+                dir="rtl"
+                className="font-ray h-14 w-full rounded-2xl border border-gray-200 bg-gray-50 pr-14 pl-12 text-[15px] font-medium text-black transition outline-none placeholder:text-gray-400 focus:border-black focus:bg-white"
+              />
+
+              {/* Search Button */}
+              <button
+                type="submit"
+                aria-label="جستجو"
+                className="absolute top-1/2 right-2.5 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-xl bg-black text-white transition hover:bg-gray-800"
+              >
+                <svg
+                  width="19"
+                  height="19"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="11" cy="11" r="7" />
+                  <path d="m20 20-3.5-3.5" />
+                </svg>
+              </button>
+
+              {/* Clear Button */}
+              {search && (
+                <button
+                  type="button"
+                  aria-label="پاک کردن جستجو"
+                  onClick={clearSearch}
+                  className="absolute top-1/2 left-3 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-200 hover:text-black"
+                >
+                  <Image
+                    src="/images/close-line.svg"
+                    alt="close button"
+                    width={20}
+                    height={20}
+                  />
+                </button>
+              )}
             </div>
-          )}
+          </form>
         </div>
       </nav>
 
-      {/* Side Drawer Menu */}
-      {isMenuOpen && (
-        <>
-          {/* Backdrop overlay */}
-          <div
-            className="bg-opacity-50 fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 lg:hidden"
-            onClick={() => setIsMenuOpen(false)}
-          />
-
-          {/* Drawer panel */}
-          <div className="fixed top-0 right-0 z-50 h-full w-64 transform bg-white shadow-xl transition-transform duration-300 ease-in-out lg:hidden">
-            {/* Close button */}
-            <button
-              className="absolute top-4 left-4 rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-
-            {/* Menu Links */}
-            <div className="mt-16 flex flex-col gap-2 p-6">
-              <Link
-                href="/"
-                className="rounded-lg px-4 py-3 text-black no-underline transition-colors hover:bg-gray-50 hover:text-gray-600"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                خانه
-              </Link>
-              <Link
-                href="/ai"
-                className="rounded-lg px-4 py-3 text-black no-underline transition-colors hover:bg-gray-50 hover:text-gray-600"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                تست هوش مصنوعی
-              </Link>
-              <Link
-                href="/blogs"
-                className="rounded-lg px-4 py-3 text-black no-underline transition-colors hover:bg-gray-50 hover:text-gray-600"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                وبلاگ
-              </Link>
-              <Link
-                href="/products"
-                className="rounded-lg px-4 py-3 text-black no-underline transition-colors hover:bg-gray-50 hover:text-gray-600"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                محصولات
-              </Link>
-              {!user ? (
-                <>
-                  <Link
-                    href="/auth"
-                    className="rounded-lg px-4 py-3 text-black no-underline transition-colors hover:bg-gray-50 hover:text-gray-600"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    ورود به حساب کاربری
-                  </Link>
-                </>
-              ) : null}
-            </div>
-          </div>
-        </>
-      )}
+      {/* =========================================================
+          BOTTOM NAVIGATION
+      ========================================================== */}
+      {showBottomNav && <BottomNav cartCount={cartCount} />}
     </>
   )
 }
