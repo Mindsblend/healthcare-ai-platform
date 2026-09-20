@@ -10,10 +10,7 @@ import { useCart } from '@/features/shop/hooks/cart/useCart'
 
 interface Props {
   product: ProductSummary
-  /**
-   * card (پیش‌فرض): همون کارت قبلی، بدون هیچ تغییری
-   * row: نمایش افقی و فشرده مخصوص لیست موبایل (تصویر کنار اطلاعات)
-   */
+
   variant?: 'card' | 'row'
 }
 

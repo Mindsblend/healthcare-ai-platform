@@ -4,11 +4,6 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, type ReactNode } from 'react'
 
-/**
- * ناوبار پایین برای هر کاربر لاگین‌کرده (فقط موبایل) تو همه‌ی صفحات نمایش داده می‌شه،
- * به‌جز صفحاتی که تو این لیست هستن (مثلاً صفحه‌ی ورود یا پرداخت).
- * مسیرها را مطابق پروژه‌ی خودت تغییر بده.
- */
 const HIDDEN_ROUTES = ['/auth']
 
 export function shouldShowBottomNav(pathname: string, user: unknown) {
@@ -17,9 +12,6 @@ export function shouldShowBottomNav(pathname: string, user: unknown) {
     (route) => pathname === route || pathname.startsWith(`${route}/`),
   )
 }
-
-/* ---------------------------------- Icons --------------------------------- */
-// از currentColor استفاده می‌کنن تا رنگ آیتم فعال/غیرفعال با کلاس متن عوض بشه.
 
 function Svg({ children }: { children: ReactNode }) {
   return (
@@ -76,17 +68,12 @@ const UserIcon = () => (
   </Svg>
 )
 
-/* ---------------------------------- Items --------------------------------- */
-// ترتیب از راست به چپ (چون صفحه RTL هست). ۴ تا ۵ آیتم بهترین حالته.
-// activeFor: مسیرهایی که وقتی توشون هستی این تب فعال (مشکی) می‌شه.
-// '/' فقط دقیقاً خودش رو match می‌کنه، بقیه با زیرمسیرهاشون هم match می‌شن.
-
 const ITEMS = [
   {
     href: '/',
     label: 'خانه',
     icon: HomeIcon,
-    activeFor: ['/', '/feed'], // اگه مسیر فید تو پروژه‌ات چیز دیگه‌ایه، همین‌جا عوضش کن
+    activeFor: ['/', '/feed'],
   },
   {
     href: '/products',
@@ -109,8 +96,6 @@ const ITEMS = [
 export default function BottomNav({ cartCount }: { cartCount: number }) {
   const pathname = usePathname()
 
-  // وقتی ناوبار پایین فعاله، به body padding پایین می‌دیم
-  // تا آخر محتوای صفحه زیر ناوبار گم نشه (استایلش تو globals.css هست).
   useEffect(() => {
     document.body.classList.add('has-bottom-nav')
     return () => document.body.classList.remove('has-bottom-nav')

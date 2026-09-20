@@ -7,9 +7,60 @@ import { useEffect, useState, type FormEvent } from 'react'
 
 import { useCart } from '@/features/shop/hooks/cart/useCart'
 import BottomNav, { shouldShowBottomNav } from './BottomNav'
+import LandingNavbar from './LandingNavbar'
 
 type NavbarProps = {
   user: unknown
+}
+
+// مسیرهایی که مهمان‌ها (قبل از لاگین) تو ناوبار اولیه‌ی خودشون سرچ‌بار هم می‌بینن
+const GUEST_SEARCH_ROUTES = ['/products']
+
+// مسیرهایی که «کاربر لاگین‌کرده» کنار سرچ‌بار دکمه‌ی برگشت می‌بینه
+// (خود مسیر و زیرمسیرهاش، یعنی /products و /products/پاستا)
+const BACK_BUTTON_ROUTES = ['/products']
+
+// اگه تاریخچه‌ای برای برگشت نبود (مثلاً باز کردن مستقیم لینک محصول) به این مسیر می‌ره.
+// مسیر صفحه‌ی فید رو اینجا بذار.
+const BACK_FALLBACK_ROUTE = '/'
+
+const isInRoutes = (pathname: string, routes: string[]) =>
+  routes.some((route) => pathname === route || pathname.startsWith(`${route}/`))
+
+/* =========================================================
+   Back button
+========================================================== */
+
+function BackButton({
+  onClick,
+  className = '',
+}: {
+  onClick: () => void
+  className?: string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label="بازگشت"
+      className={`flex shrink-0 cursor-pointer items-center  justify-center rounded-full text-black transition hover:bg-gray-100 ${className}`}
+    >
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+        className="rtl:rotate-180"
+      >
+        <path d="M19 12H5M12 19l-7-7 7-7" />
+      </svg>
+    </button>
+  )
 }
 
 export default function Navbar({ user }: NavbarProps) {
@@ -17,7 +68,7 @@ export default function Navbar({ user }: NavbarProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState(() => searchParams.get('q') ?? '')
 
   const { cartItems } = useCart()
 
@@ -25,16 +76,28 @@ export default function Navbar({ user }: NavbarProps) {
 
   const showBottomNav = shouldShowBottomNav(pathname, user)
 
-  // Sync Navbar search with ?q=...
+  const guestHasSearch = isInRoutes(pathname, GUEST_SEARCH_ROUTES)
+
+  // دکمه‌ی برگشت فقط برای کاربر لاگین‌کرده (مهمان‌ها همیشه LandingNavbar می‌گیرن)
+  const showBackButton =
+    Boolean(user) && isInRoutes(pathname, BACK_BUTTON_ROUTES)
+
+  const urlQuery = searchParams.get('q')
+
   useEffect(() => {
-    const query = searchParams.get('q') ?? ''
-    setSearch(query)
-  }, [searchParams])
+    if (urlQuery !== null) {
+      setSearch(urlQuery)
+    } else if (pathname === '/products') {
+      setSearch('')
+    }
+  }, [urlQuery, pathname])
 
   const handleSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     const query = search.trim()
+
+    setSearch(query)
 
     if (!query) {
       router.push('/products')
@@ -50,6 +113,33 @@ export default function Navbar({ user }: NavbarProps) {
     if (pathname === '/products') {
       router.push('/products')
     }
+  }
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      router.back()
+    } else {
+      router.push(BACK_FALLBACK_ROUTE)
+    }
+  }
+
+  if (!user) {
+    return (
+      <LandingNavbar
+        user={user}
+        cartCount={cartCount}
+        search={
+          guestHasSearch
+            ? {
+                value: search,
+                onChange: setSearch,
+                onSubmit: handleSearch,
+                onClear: clearSearch,
+              }
+            : undefined
+        }
+      />
+    )
   }
 
   return (
@@ -115,13 +205,17 @@ export default function Navbar({ user }: NavbarProps) {
           </div>
 
           {/* =========================================================
-              DESKTOP SEARCH
+              DESKTOP SEARCH (+ Back button)
           ========================================================== */}
           <form
             onSubmit={handleSearch}
-            className="min-w-0 flex-1 justify-center px-8"
+            className="flex min-w-0 flex-1 items-center justify-center gap-2 px-8"
           >
-            <div className="relative mx-auto w-full max-w-xl">
+            {showBackButton && (
+              <BackButton onClick={handleBack} className="h-11 w-11" />
+            )}
+
+            <div className="relative w-full max-w-xl">
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -159,7 +253,7 @@ export default function Navbar({ user }: NavbarProps) {
                   type="button"
                   aria-label="پاک کردن جستجو"
                   onClick={clearSearch}
-                  className="absolute top-1/2 left-3 cursor-pointer flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-200 hover:text-black"
+                  className="absolute top-1/2 left-3 flex h-7 w-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-200 hover:text-black"
                 >
                   <Image
                     src="/images/close-line.svg"
@@ -168,7 +262,7 @@ export default function Navbar({ user }: NavbarProps) {
                     height={15}
                   />
                 </button>
-              )}  
+              )}
             </div>
           </form>
 
@@ -255,10 +349,14 @@ export default function Navbar({ user }: NavbarProps) {
         </div>
 
         {/* =========================================================
-            MOBILE NAVBAR
+            MOBILE NAVBAR (Back button + Search)
         ========================================================== */}
-        <div className="lg:hidden">
-          <form onSubmit={handleSearch} className="w-full">
+        <div className="flex items-center gap-1 lg:hidden">
+          {showBackButton && (
+            <BackButton onClick={handleBack} className="h-14 w-11" />
+          )}
+
+          <form onSubmit={handleSearch} className="min-w-0 flex-1">
             <div className="relative w-full">
               <input
                 value={search}
