@@ -16,8 +16,8 @@ type NavbarProps = {
 // مسیرهایی که مهمان‌ها (قبل از لاگین) تو ناوبار اولیه‌ی خودشون سرچ‌بار هم می‌بینن
 const GUEST_SEARCH_ROUTES = ['/products']
 
-// مسیرهایی که «کاربر لاگین‌کرده» کنار سرچ‌بار دکمه‌ی برگشت می‌بینه
-// (خود مسیر و زیرمسیرهاش، یعنی /products و /products/پاستا)
+// مسیرهایی که «کاربر لاگین‌کرده» تو موبایل کنار سرچ‌بار دکمه‌ی برگشت می‌بینه
+// (خود مسیر و زیرمسیرهاش، یعنی /products و /products/پاستا). تو دسکتاپ نمایش داده نمی‌شه.
 const BACK_BUTTON_ROUTES = ['/products']
 
 // اگه تاریخچه‌ای برای برگشت نبود (مثلاً باز کردن مستقیم لینک محصول) به این مسیر می‌ره.
@@ -43,8 +43,9 @@ function BackButton({
       type="button"
       onClick={onClick}
       aria-label="بازگشت"
-      className={`flex shrink-0 cursor-pointer items-center  justify-center rounded-full text-black transition hover:bg-gray-100 ${className}`}
+      className={`flex shrink-0 cursor-pointer items-center justify-center rounded-full text-black transition hover:bg-gray-100 ${className}`}
     >
+      {/* فلش پیش‌فرض به چپ؛ تو صفحه‌ی RTL برعکس می‌شه (به راست) */}
       <svg
         width="22"
         height="22"
@@ -205,17 +206,13 @@ export default function Navbar({ user }: NavbarProps) {
           </div>
 
           {/* =========================================================
-              DESKTOP SEARCH (+ Back button)
+              DESKTOP SEARCH
           ========================================================== */}
           <form
             onSubmit={handleSearch}
-            className="flex min-w-0 flex-1 items-center justify-center gap-2 px-8"
+            className="min-w-0 flex-1 justify-center px-8"
           >
-            {showBackButton && (
-              <BackButton onClick={handleBack} className="h-11 w-11" />
-            )}
-
-            <div className="relative w-full max-w-xl">
+            <div className="relative mx-auto w-full max-w-xl">
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
