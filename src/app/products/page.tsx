@@ -22,18 +22,13 @@ import LoadingBar from '@/components/layout/LoadingBar'
 
 /* =========================================================
    Constants & types
-========================================================== */
+========================================================= */
 
 const PRICE_MIN = 0
 const PRICE_MAX = 1_000_000
 
-// تعداد آیتمی که هر بار (چه در بار اول، چه با اسکرول بی‌نهایت) نمایش داده می‌شه
 const ITEMS_PER_PAGE = 9
 
-// مکثی که قبل از لود شدن Batch بعدی، اسکلتون نمایش داده می‌شه
-const LOAD_MORE_DELAY_MS = 500
-
-// زیر sm (۶۴۰px) لیست افقی، از sm به بالا گرید کارتی
 const MOBILE_QUERY = '(max-width: 639px)'
 
 type SortKey = 'default' | 'price-asc' | 'price-desc'
@@ -44,19 +39,26 @@ const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: 'price-desc', label: 'گران‌ترین' },
 ]
 
-type PriceRange = { min: number; max: number }
+type PriceRange = {
+  min: number
+  max: number
+}
 
 const fmt = (n: number) => n.toLocaleString('fa-IR')
 
 /* =========================================================
    Small helpers
-========================================================== */
+========================================================= */
 
 function useIsMobile() {
   const subscribe = useCallback((onChange: () => void) => {
     const mql = window.matchMedia(MOBILE_QUERY)
+
     mql.addEventListener('change', onChange)
-    return () => mql.removeEventListener('change', onChange)
+
+    return () => {
+      mql.removeEventListener('change', onChange)
+    }
   }, [])
 
   return useSyncExternalStore(
@@ -66,7 +68,9 @@ function useIsMobile() {
   )
 }
 
-/* ---------------------------------- Icons --------------------------------- */
+/* =========================================================
+   Icons
+========================================================= */
 
 function SortIcon() {
   return (
@@ -121,7 +125,9 @@ function CheckIcon() {
   )
 }
 
-/* ---------------------------------- Chips --------------------------------- */
+/* =========================================================
+   Chips
+========================================================= */
 
 function Chip({
   active,
@@ -179,7 +185,9 @@ function RemovableChip({
   )
 }
 
-/* ------------------------------- Bottom sheet ------------------------------ */
+/* =========================================================
+   Bottom Sheet
+========================================================= */
 
 function BottomSheet({
   open,
@@ -194,11 +202,11 @@ function BottomSheet({
   children: ReactNode
   footer?: ReactNode
 }) {
-  // قفل اسکرول صفحه وقتی شیت بازه
   useEffect(() => {
     if (!open) return
 
     const previousOverflow = document.body.style.overflow
+
     document.body.style.overflow = 'hidden'
 
     return () => {
@@ -206,16 +214,20 @@ function BottomSheet({
     }
   }, [open])
 
-  // بستن با Escape
   useEffect(() => {
     if (!open) return
 
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose()
+      }
     }
 
     window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+    }
   }, [open, onClose])
 
   return (
@@ -226,7 +238,6 @@ function BottomSheet({
           : 'invisible transition-[visibility] delay-300 duration-0'
       }`}
     >
-      {/* Overlay */}
       <div
         onClick={onClose}
         className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ease-out ${
@@ -234,7 +245,6 @@ function BottomSheet({
         }`}
       />
 
-      {/* Sheet */}
       <div
         role="dialog"
         aria-modal="true"
@@ -274,7 +284,9 @@ function BottomSheet({
   )
 }
 
-/* ------------------------------ Filter section ----------------------------- */
+/* =========================================================
+   Filter section
+========================================================= */
 
 function FilterSection({
   title,
@@ -307,9 +319,9 @@ function FilterSection({
   )
 }
 
-/* ------------------------------ Skeletons ---------------------------------- */
-// شکل ظاهری این دو تا باید با variant="row" و حالت پیش‌فرض Product هماهنگ باشه.
-// اگه Product واقعی نسبت تصویر/چیدمان متفاوتی داره، همین‌جا اصلاحش کن.
+/* =========================================================
+   Skeletons
+========================================================= */
 
 function ProductCardSkeleton() {
   return (
@@ -318,8 +330,11 @@ function ProductCardSkeleton() {
       className="animate-pulse overflow-hidden rounded-2xl border border-gray-100 p-3"
     >
       <div className="aspect-square w-full rounded-xl bg-gray-200" />
+
       <div className="mt-3 h-4 w-4/5 rounded-full bg-gray-200" />
+
       <div className="mt-2 h-4 w-2/5 rounded-full bg-gray-200" />
+
       <div className="mt-3 h-5 w-1/3 rounded-full bg-gray-200" />
     </div>
   )
@@ -342,7 +357,9 @@ function ProductRowSkeleton() {
   )
 }
 
-/* -------------------------------- Empty state ------------------------------- */
+/* =========================================================
+   Empty state
+========================================================= */
 
 function EmptyState({
   message,
@@ -393,7 +410,7 @@ function EmptyState({
 
 /* =========================================================
    Page content
-========================================================== */
+========================================================= */
 
 function ProductsContent() {
   const { productsPreview, loading, error } = useProductsPreview()
@@ -401,67 +418,64 @@ function ProductsContent() {
 
   const searchParams = useSearchParams()
   const router = useRouter()
+
   const isMobile = useIsMobile()
 
-  // جستجو از ناوبار میاد (?q=...)
   const query = (searchParams.get('q') ?? '').trim()
   const categoryIdParam = searchParams.get('categoryId')
 
   const [sortBy, setSortBy] = useState<SortKey>('default')
 
-  // دسته‌بندی‌ها: با کلیک فوراً اعمال می‌شن
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<Set<number>>(
     () => new Set(),
   )
 
-  // قیمت: draft (داخل اسلایدر) و applied (بعد از زدن «اعمال فیلتر»)
   const [minPrice, setMinPrice] = useState(PRICE_MIN)
   const [maxPrice, setMaxPrice] = useState(PRICE_MAX)
+
   const [appliedPrice, setAppliedPrice] = useState<PriceRange | null>(null)
 
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [isSortOpen, setIsSortOpen] = useState(false)
 
-  // اسکرول بی‌نهایت: چند آیتم فعلاً نمایش داده می‌شه + وضعیت لود کردن Batch بعدی
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
 
   const sentinelRef = useRef<HTMLDivElement | null>(null)
-  const loadMoreTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const closeFilter = useCallback(() => setIsFilterOpen(false), [])
-  const closeSort = useCallback(() => setIsSortOpen(false), [])
+  const closeFilter = useCallback(() => {
+    setIsFilterOpen(false)
+  }, [])
 
-  // =========================================================
-  // Sync URL → state
-  // =========================================================
+  const closeSort = useCallback(() => {
+    setIsSortOpen(false)
+  }, [])
+
+  /* =========================================================
+     Sync URL → state
+  ========================================================== */
+
   useEffect(() => {
-    const id = categoryIdParam ? parseInt(categoryIdParam, 10) : NaN
+    const id = categoryIdParam
+      ? Number.parseInt(categoryIdParam, 10)
+      : Number.NaN
+
     setSelectedCategoryIds(Number.isNaN(id) ? new Set() : new Set([id]))
   }, [categoryIdParam])
 
-  // هر بار جستجو/دسته‌بندی/قیمت/مرتب‌سازی عوض بشه، اسکرول بی‌نهایت از اول شروع می‌شه
+  /* =========================================================
+     Reset infinite scroll
+  ========================================================== */
+
   useEffect(() => {
     setVisibleCount(ITEMS_PER_PAGE)
     setIsLoadingMore(false)
+  }, [query, categoryIdParam, appliedPrice, sortBy])
 
-    if (loadMoreTimeoutRef.current) {
-      clearTimeout(loadMoreTimeoutRef.current)
-      loadMoreTimeoutRef.current = null
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, selectedCategoryIds, appliedPrice, sortBy])
+  /* =========================================================
+     Filter + sort
+  ========================================================== */
 
-  // پاک کردن تایمر در حین unmount
-  useEffect(() => {
-    return () => {
-      if (loadMoreTimeoutRef.current) clearTimeout(loadMoreTimeoutRef.current)
-    }
-  }, [])
-
-  // =========================================================
-  // Filter + sort
-  // =========================================================
   const filteredProducts = useMemo(() => {
     const normalizedQuery = query.toLowerCase()
 
@@ -490,52 +504,79 @@ function ProductsContent() {
       return true
     })
 
-    if (sortBy === 'price-asc') list.sort((a, b) => a.price - b.price)
-    if (sortBy === 'price-desc') list.sort((a, b) => b.price - a.price)
+    if (sortBy === 'price-asc') {
+      list.sort((a, b) => a.price - b.price)
+    }
+
+    if (sortBy === 'price-desc') {
+      list.sort((a, b) => b.price - a.price)
+    }
 
     return list
   }, [productsPreview, selectedCategoryIds, appliedPrice, query, sortBy])
 
-  // =========================================================
-  // Infinite scroll
-  // =========================================================
-  const currentData = filteredProducts.slice(0, visibleCount)
+  /* =========================================================
+     Visible products
+  ========================================================== */
+
+  const currentData = useMemo(
+    () => filteredProducts.slice(0, visibleCount),
+    [filteredProducts, visibleCount],
+  )
+
   const hasMore = visibleCount < filteredProducts.length
 
+  /* =========================================================
+     Infinite scroll
+  ========================================================== */
+
   const loadMore = useCallback(() => {
-    if (isLoadingMore) return
+    if (isLoadingMore || !hasMore) return
+
     setIsLoadingMore(true)
 
-    // اینجا فقط بچ بعدی رو از لیستی که همین الان کامل داریم آشکار می‌کنیم.
-    // اگه بعداً products از API صفحه‌بندی‌شده میاد، به‌جای این setTimeout همینجا فراخوانی fetch صفحه بعد رو بذار.
-    loadMoreTimeoutRef.current = setTimeout(() => {
+    requestAnimationFrame(() => {
       setVisibleCount((count) =>
         Math.min(count + ITEMS_PER_PAGE, filteredProducts.length),
       )
+
       setIsLoadingMore(false)
-    }, LOAD_MORE_DELAY_MS)
-  }, [isLoadingMore, filteredProducts.length])
+    })
+  }, [isLoadingMore, hasMore, filteredProducts.length])
 
   useEffect(() => {
-    if (loading || !hasMore || isLoadingMore) return
+    if (loading || !hasMore || isLoadingMore) {
+      return
+    }
 
     const node = sentinelRef.current
-    if (!node) return
+
+    if (!node) {
+      return
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0]?.isIntersecting) loadMore()
+        if (entries[0]?.isIntersecting) {
+          loadMore()
+        }
       },
-      { rootMargin: '600px 0px' },
+      {
+        rootMargin: '600px 0px',
+      },
     )
 
     observer.observe(node)
-    return () => observer.disconnect()
+
+    return () => {
+      observer.disconnect()
+    }
   }, [loading, hasMore, isLoadingMore, loadMore])
 
-  // =========================================================
-  // Derived UI values
-  // =========================================================
+  /* =========================================================
+     Derived UI
+  ========================================================== */
+
   const selectedCategories = useMemo(
     () => categories.filter((category) => selectedCategoryIds.has(category.id)),
     [categories, selectedCategoryIds],
@@ -555,18 +596,28 @@ function ProductsContent() {
         ? `نتایج جستجو برای «${query}» · ${countText}`
         : countText
 
-  // =========================================================
-  // Actions
-  // =========================================================
-  const updateUrl = (mutate: (params: URLSearchParams) => void) => {
-    const params = new URLSearchParams(searchParams.toString())
-    mutate(params)
+  /* =========================================================
+     URL
+  ========================================================== */
 
-    const qs = params.toString()
-    router.push(qs ? `/products?${qs}` : '/products')
-  }
+  const updateUrl = useCallback(
+    (mutate: (params: URLSearchParams) => void) => {
+      const params = new URLSearchParams(searchParams.toString())
 
-  const toggleCategory = (categoryId: number) => {
+      mutate(params)
+
+      const qs = params.toString()
+
+      router.push(qs ? `/products?${qs}` : '/products')
+    },
+    [router, searchParams],
+  )
+
+  /* =========================================================
+     Actions
+  ========================================================== */
+
+  const toggleCategory = useCallback((categoryId: number) => {
     setSelectedCategoryIds((prev) => {
       const next = new Set(prev)
 
@@ -578,63 +629,71 @@ function ProductsContent() {
 
       return next
     })
-  }
+  }, [])
 
-  const openFilter = () => {
-    // draft رو با فیلتر اعمال‌شده هماهنگ کن
+  const openFilter = useCallback(() => {
     setMinPrice(appliedPrice?.min ?? PRICE_MIN)
     setMaxPrice(appliedPrice?.max ?? PRICE_MAX)
     setIsFilterOpen(true)
-  }
+  }, [appliedPrice])
 
-  const applyPrice = () => {
+  const applyPrice = useCallback(() => {
     const low = Math.max(PRICE_MIN, Math.min(minPrice, maxPrice))
+
     const high = Math.min(PRICE_MAX, Math.max(minPrice, maxPrice))
 
     setMinPrice(low)
     setMaxPrice(high)
 
     setAppliedPrice(
-      low === PRICE_MIN && high === PRICE_MAX ? null : { min: low, max: high },
+      low === PRICE_MIN && high === PRICE_MAX
+        ? null
+        : {
+            min: low,
+            max: high,
+          },
     )
 
     setIsFilterOpen(false)
-  }
+  }, [minPrice, maxPrice])
 
-  const clearPrice = () => {
+  const clearPrice = useCallback(() => {
     setMinPrice(PRICE_MIN)
     setMaxPrice(PRICE_MAX)
     setAppliedPrice(null)
-  }
+  }, [])
 
-  const resetFilters = () => {
+  const resetFilters = useCallback(() => {
     setSelectedCategoryIds(new Set())
     clearPrice()
     setIsFilterOpen(false)
 
     if (categoryIdParam) {
-      updateUrl((params) => params.delete('categoryId'))
+      updateUrl((params) => {
+        params.delete('categoryId')
+      })
     }
-  }
+  }, [categoryIdParam, clearPrice, updateUrl])
 
-  // فیلترها + جستجو (برای دکمه‌ی صفحه‌ی خالی)
-  const resetAll = () => {
+  const resetAll = useCallback(() => {
     setSelectedCategoryIds(new Set())
     clearPrice()
     setIsFilterOpen(false)
+    setIsSortOpen(false)
 
     router.push('/products')
-  }
+  }, [clearPrice, router])
 
-  const selectSort = (key: SortKey) => {
+  const selectSort = useCallback((key: SortKey) => {
     setSortBy(key)
     setIsSortOpen(false)
-  }
+  }, [])
 
-  // =========================================================
-  // Empty state message
-  // =========================================================
-  const getEmptyContent = () => {
+  /* =========================================================
+     Empty state
+  ========================================================== */
+
+  const emptyContent = useMemo(() => {
     if (query) {
       return {
         message: `نتیجه‌ای برای جستجوی "${query}" یافت نشد`,
@@ -654,9 +713,9 @@ function ProductsContent() {
 
     if (appliedPrice) {
       return {
-        message: `محصولی در بازه قیمتی ${fmt(appliedPrice.min)} تا ${fmt(
-          appliedPrice.max,
-        )} تومان یافت نشد`,
+        message: `محصولی در بازه قیمتی ${fmt(
+          appliedPrice.min,
+        )} تا ${fmt(appliedPrice.max)} تومان یافت نشد`,
         suggestion:
           'لطفاً بازه قیمتی دیگری را انتخاب کنید یا فیلترها را حذف کنید.',
       }
@@ -666,106 +725,123 @@ function ProductsContent() {
       message: 'محصولی یافت نشد',
       suggestion: 'لطفاً فیلترهای دیگری را امتحان کنید یا بعداً مراجعه کنید.',
     }
-  }
+  }, [query, selectedCategories, appliedPrice])
 
-  // =========================================================
-  // Shared filter content (sidebar دسکتاپ + شیت موبایل)
-  // =========================================================
-  const renderFilters = (showPriceActions: boolean) => (
-    <>
-      <FilterSection title="دسته‌بندی محصولات">
-        <div className="space-y-1">
-          {categories.map((category) => (
-            <label
-              key={category.id}
-              className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2.5 hover:bg-gray-50"
-            >
-              <div className="flex items-center gap-2">
-                <Image src={category.iconPath} alt="" width={20} height={20} />
+  /* =========================================================
+     Filter content
+  ========================================================== */
 
-                <span className="text-color-title-on-light text-sm font-bold">
-                  {category.name}
-                </span>
-              </div>
+  const renderFilters = useCallback(
+    (showPriceActions: boolean) => (
+      <>
+        <FilterSection title="دسته‌بندی محصولات">
+          <div className="space-y-1">
+            {categories.map((category) => (
+              <label
+                key={category.id}
+                className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2.5 hover:bg-gray-50"
+              >
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={category.iconPath}
+                    alt=""
+                    width={20}
+                    height={20}
+                  />
+
+                  <span className="text-color-title-on-light text-sm font-bold">
+                    {category.name}
+                  </span>
+                </div>
+
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 accent-black"
+                  checked={selectedCategoryIds.has(category.id)}
+                  onChange={() => toggleCategory(category.id)}
+                />
+              </label>
+            ))}
+          </div>
+        </FilterSection>
+
+        <FilterSection title="بازه قیمت">
+          <div className="text-color-title-on-light space-y-4 px-1">
+            <PriceRangeSlider
+              min={PRICE_MIN}
+              max={PRICE_MAX}
+              minPrice={minPrice}
+              maxPrice={maxPrice}
+              onChange={(min, max) => {
+                setMinPrice(min)
+                setMaxPrice(max)
+              }}
+            />
+
+            <p className="font-ray text-center text-xs text-gray-500">
+              از {fmt(minPrice)} تا {fmt(maxPrice)} تومان
+            </p>
+
+            <div className="flex justify-between gap-2">
+              <input
+                type="number"
+                inputMode="numeric"
+                value={maxPrice}
+                onChange={(event) => setMaxPrice(Number(event.target.value))}
+                className="font-aria w-24 rounded-md bg-[#f2f2f2] px-2 pt-2 pb-1 text-center font-semibold"
+              />
 
               <input
-                type="checkbox"
-                className="h-4 w-4 accent-black"
-                checked={selectedCategoryIds.has(category.id)}
-                onChange={() => toggleCategory(category.id)}
+                type="number"
+                inputMode="numeric"
+                value={minPrice}
+                onChange={(event) => setMinPrice(Number(event.target.value))}
+                className="font-aria w-24 rounded-md bg-[#f2f2f2] px-2 pt-2 pb-1 text-center font-semibold"
               />
-            </label>
-          ))}
-        </div>
-      </FilterSection>
-
-      <FilterSection title="بازه قیمت">
-        <div className="text-color-title-on-light space-y-4 px-1">
-          <PriceRangeSlider
-            min={PRICE_MIN}
-            max={PRICE_MAX}
-            minPrice={minPrice}
-            maxPrice={maxPrice}
-            onChange={(min, max) => {
-              setMinPrice(min)
-              setMaxPrice(max)
-            }}
-          />
-
-          <p className="font-ray text-center text-xs text-gray-500">
-            از {fmt(minPrice)} تا {fmt(maxPrice)} تومان
-          </p>
-
-          <div className="flex justify-between gap-2">
-            <input
-              type="number"
-              inputMode="numeric"
-              value={maxPrice}
-              onChange={(e) => setMaxPrice(Number(e.target.value))}
-              className="font-aria w-24 rounded-md bg-[#f2f2f2] px-2 pt-2 pb-1 text-center font-semibold"
-            />
-
-            <input
-              type="number"
-              inputMode="numeric"
-              value={minPrice}
-              onChange={(e) => setMinPrice(Number(e.target.value))}
-              className="font-aria w-24 rounded-md bg-[#f2f2f2] px-2 pt-2 pb-1 text-center font-semibold"
-            />
-          </div>
-
-          {showPriceActions && (
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={applyPrice}
-                className="flex-1 cursor-pointer rounded-md bg-black py-2 text-sm font-bold text-white"
-              >
-                اعمال فیلتر
-              </button>
-
-              <button
-                type="button"
-                onClick={resetFilters}
-                className="flex-1 cursor-pointer rounded-md bg-gray-200 py-2 text-sm font-bold"
-              >
-                حذف همه
-              </button>
             </div>
-          )}
-        </div>
-      </FilterSection>
-    </>
+
+            {showPriceActions && (
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={applyPrice}
+                  className="flex-1 cursor-pointer rounded-md bg-black py-2 text-sm font-bold text-white"
+                >
+                  اعمال فیلتر
+                </button>
+
+                <button
+                  type="button"
+                  onClick={resetFilters}
+                  className="flex-1 cursor-pointer rounded-md bg-gray-200 py-2 text-sm font-bold"
+                >
+                  حذف همه
+                </button>
+              </div>
+            )}
+          </div>
+        </FilterSection>
+      </>
+    ),
+    [
+      categories,
+      selectedCategoryIds,
+      toggleCategory,
+      minPrice,
+      maxPrice,
+      applyPrice,
+      resetFilters,
+    ],
   )
 
-  const emptyContent = getEmptyContent()
+  /* =========================================================
+     Render
+  ========================================================== */
 
   return (
     <div className="sm:pb-10">
       <section className="container-wide pt-4 pb-6 sm:pt-6 lg:pt-8">
-        {/* =========================================================
-            HEADING (+ sort روی دسکتاپ)
-        ========================================================== */}
+        {/* Heading */}
         <div className="flex items-end justify-between gap-4">
           <div className="min-w-0">
             <h1 className="font-aria text-color-title-on-light text-2xl font-extrabold sm:text-3xl">
@@ -795,9 +871,7 @@ function ProductsContent() {
           </div>
         </div>
 
-        {/* =========================================================
-            MOBILE / TABLET TOOLBAR (sticky chips)
-        ========================================================== */}
+        {/* Mobile / Tablet toolbar */}
         <div className="sticky top-0 z-30 mt-4 border-b border-gray-100 bg-white lg:hidden">
           <div className="flex [scrollbar-width:none] items-center gap-2 overflow-x-auto py-2.5 [&::-webkit-scrollbar]:hidden">
             <Chip onClick={openFilter}>
@@ -815,6 +889,7 @@ function ProductsContent() {
               onClick={() => setIsSortOpen(true)}
             >
               <SortIcon />
+
               {sortBy === 'default' ? 'مرتب‌سازی' : currentSortLabel}
             </Chip>
 
@@ -835,11 +910,9 @@ function ProductsContent() {
           </div>
         </div>
 
-        {/* =========================================================
-            CONTENT
-        ========================================================== */}
+        {/* Content */}
         <div className="mt-6 flex gap-8 lg:gap-10">
-          {/* ---------------- Desktop sidebar ---------------- */}
+          {/* Desktop sidebar */}
           <aside className="hidden w-72 shrink-0 lg:block">
             <div className="sticky top-6">
               <div className="mb-6 flex items-center">
@@ -854,7 +927,7 @@ function ProductsContent() {
             </div>
           </aside>
 
-          {/* ---------------- Products ---------------- */}
+          {/* Products */}
           <div className="min-w-0 flex-1">
             {/* Applied filters */}
             {(selectedCategories.length > 0 || appliedPrice) && (
@@ -905,7 +978,9 @@ function ProductsContent() {
                   ))}
 
                   {isLoadingMore &&
-                    Array.from({ length: 3 }).map((_, index) => (
+                    Array.from({
+                      length: 3,
+                    }).map((_, index) => (
                       <ProductRowSkeleton key={`skeleton-row-${index}`} />
                     ))}
                 </div>
@@ -916,13 +991,14 @@ function ProductsContent() {
                   ))}
 
                   {isLoadingMore &&
-                    Array.from({ length: 3 }).map((_, index) => (
+                    Array.from({
+                      length: 3,
+                    }).map((_, index) => (
                       <ProductCardSkeleton key={`skeleton-card-${index}`} />
                     ))}
                 </div>
               )}
 
-              {/* سنسور اسکرول بی‌نهایت: وقتی این المنت دیده بشه، بچ بعدی لود می‌شه */}
               {currentData.length > 0 && (
                 <>
                   <div
@@ -945,64 +1021,75 @@ function ProductsContent() {
         </div>
       </section>
 
-      {/* =========================================================
-          FILTER SHEET (mobile / tablet)
-      ========================================================== */}
-      <BottomSheet
-        open={isFilterOpen}
-        onClose={closeFilter}
-        title="فیلترها"
-        footer={
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={applyPrice}
-              className="font-ray h-12 flex-1 cursor-pointer rounded-full bg-black text-sm font-bold text-white"
-            >
-              اعمال فیلتر
-            </button>
+      {/* =====================================================
+          FILTER SHEET
+      ====================================================== */}
 
-            <button
-              type="button"
-              onClick={resetFilters}
-              className="font-ray h-12 flex-1 cursor-pointer rounded-full bg-[#f2f2f2] text-sm font-bold text-black"
-            >
-              حذف همه
-            </button>
-          </div>
-        }
-      >
-        {renderFilters(false)}
-      </BottomSheet>
+      {isFilterOpen && (
+        <BottomSheet
+          open
+          onClose={closeFilter}
+          title="فیلترها"
+          footer={
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={applyPrice}
+                className="font-ray h-12 flex-1 cursor-pointer rounded-full bg-black text-sm font-bold text-white"
+              >
+                اعمال فیلتر
+              </button>
 
-      {/* =========================================================
-          SORT SHEET (mobile / tablet)
-      ========================================================== */}
-      <BottomSheet open={isSortOpen} onClose={closeSort} title="مرتب‌سازی">
-        <ul className="pb-4">
-          {SORT_OPTIONS.map((option) => {
-            const isSelected = sortBy === option.key
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="font-ray h-12 flex-1 cursor-pointer rounded-full bg-[#f2f2f2] text-sm font-bold text-black"
+              >
+                حذف همه
+              </button>
+            </div>
+          }
+        >
+          {renderFilters(false)}
+        </BottomSheet>
+      )}
 
-            return (
-              <li key={option.key}>
-                <button
-                  type="button"
-                  onClick={() => selectSort(option.key)}
-                  className={`font-ray flex w-full cursor-pointer items-center justify-between border-b border-gray-100 py-4 text-[15px] ${
-                    isSelected ? 'font-bold text-black' : 'text-gray-600'
-                  }`}
-                >
-                  {option.label}
-                  {isSelected && <CheckIcon />}
-                </button>
-              </li>
-            )
-          })}
-        </ul>
-      </BottomSheet>
+      {/* =====================================================
+          SORT SHEET
+      ====================================================== */}
+
+      {isSortOpen && (
+        <BottomSheet open onClose={closeSort} title="مرتب‌سازی">
+          <ul className="pb-4">
+            {SORT_OPTIONS.map((option) => {
+              const isSelected = sortBy === option.key
+
+              return (
+                <li key={option.key}>
+                  <button
+                    type="button"
+                    onClick={() => selectSort(option.key)}
+                    className={`font-ray flex w-full cursor-pointer items-center justify-between border-b border-gray-100 py-4 text-[15px] ${
+                      isSelected ? 'font-bold text-black' : 'text-gray-600'
+                    }`}
+                  >
+                    {option.label}
+
+                    {isSelected && <CheckIcon />}
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+        </BottomSheet>
+      )}
     </div>
   )
 }
+
+/* =========================================================
+   Page
+========================================================= */
 
 export default function Page() {
   return (
