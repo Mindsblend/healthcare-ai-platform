@@ -5,6 +5,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   useSyncExternalStore,
   type ReactNode,
@@ -18,7 +19,6 @@ import { useCategories } from '@/features/shop/hooks/categories/useCategories'
 import Product from '@/components/layout/Product'
 import PriceRangeSlider from '@/components/domain/shop/product/PriceRangeSlider'
 import LoadingBar from '@/components/layout/LoadingBar'
-import Pagination from '@/components/domain/dashboard/tables/Pagination'
 
 /* =========================================================
    Constants & types
@@ -26,7 +26,12 @@ import Pagination from '@/components/domain/dashboard/tables/Pagination'
 
 const PRICE_MIN = 0
 const PRICE_MAX = 1_000_000
+
+// تعداد آیتمی که هر بار (چه در بار اول، چه با اسکرول بی‌نهایت) نمایش داده می‌شه
 const ITEMS_PER_PAGE = 9
+
+// مکثی که قبل از لود شدن Batch بعدی، اسکلتون نمایش داده می‌شه
+const LOAD_MORE_DELAY_MS = 500
 
 // زیر sm (۶۴۰px) لیست افقی، از sm به بالا گرید کارتی
 const MOBILE_QUERY = '(max-width: 639px)'
@@ -302,6 +307,41 @@ function FilterSection({
   )
 }
 
+/* ------------------------------ Skeletons ---------------------------------- */
+// شکل ظاهری این دو تا باید با variant="row" و حالت پیش‌فرض Product هماهنگ باشه.
+// اگه Product واقعی نسبت تصویر/چیدمان متفاوتی داره، همین‌جا اصلاحش کن.
+
+function ProductCardSkeleton() {
+  return (
+    <div
+      aria-hidden="true"
+      className="animate-pulse overflow-hidden rounded-2xl border border-gray-100 p-3"
+    >
+      <div className="aspect-square w-full rounded-xl bg-gray-200" />
+      <div className="mt-3 h-4 w-4/5 rounded-full bg-gray-200" />
+      <div className="mt-2 h-4 w-2/5 rounded-full bg-gray-200" />
+      <div className="mt-3 h-5 w-1/3 rounded-full bg-gray-200" />
+    </div>
+  )
+}
+
+function ProductRowSkeleton() {
+  return (
+    <div
+      aria-hidden="true"
+      className="flex animate-pulse items-center gap-3 border-b border-gray-100 py-3"
+    >
+      <div className="h-20 w-20 shrink-0 rounded-xl bg-gray-200" />
+
+      <div className="flex-1 space-y-2.5">
+        <div className="h-4 w-4/5 rounded-full bg-gray-200" />
+        <div className="h-4 w-2/5 rounded-full bg-gray-200" />
+        <div className="h-4 w-1/4 rounded-full bg-gray-200" />
+      </div>
+    </div>
+  )
+}
+
 /* -------------------------------- Empty state ------------------------------- */
 
 function EmptyState({
@@ -367,7 +407,6 @@ function ProductsContent() {
   const query = (searchParams.get('q') ?? '').trim()
   const categoryIdParam = searchParams.get('categoryId')
 
-  const [page, setPage] = useState(1)
   const [sortBy, setSortBy] = useState<SortKey>('default')
 
   // دسته‌بندی‌ها: با کلیک فوراً اعمال می‌شن
@@ -383,6 +422,13 @@ function ProductsContent() {
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [isSortOpen, setIsSortOpen] = useState(false)
 
+  // اسکرول بی‌نهایت: چند آیتم فعلاً نمایش داده می‌شه + وضعیت لود کردن Batch بعدی
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
+  const loadMoreTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   const closeFilter = useCallback(() => setIsFilterOpen(false), [])
   const closeSort = useCallback(() => setIsSortOpen(false), [])
 
@@ -391,14 +437,27 @@ function ProductsContent() {
   // =========================================================
   useEffect(() => {
     const id = categoryIdParam ? parseInt(categoryIdParam, 10) : NaN
-
     setSelectedCategoryIds(Number.isNaN(id) ? new Set() : new Set([id]))
-    setPage(1)
   }, [categoryIdParam])
 
+  // هر بار جستجو/دسته‌بندی/قیمت/مرتب‌سازی عوض بشه، اسکرول بی‌نهایت از اول شروع می‌شه
   useEffect(() => {
-    setPage(1)
-  }, [query])
+    setVisibleCount(ITEMS_PER_PAGE)
+    setIsLoadingMore(false)
+
+    if (loadMoreTimeoutRef.current) {
+      clearTimeout(loadMoreTimeoutRef.current)
+      loadMoreTimeoutRef.current = null
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, selectedCategoryIds, appliedPrice, sortBy])
+
+  // پاک کردن تایمر در حین unmount
+  useEffect(() => {
+    return () => {
+      if (loadMoreTimeoutRef.current) clearTimeout(loadMoreTimeoutRef.current)
+    }
+  }, [])
 
   // =========================================================
   // Filter + sort
@@ -438,20 +497,41 @@ function ProductsContent() {
   }, [productsPreview, selectedCategoryIds, appliedPrice, query, sortBy])
 
   // =========================================================
-  // Pagination
+  // Infinite scroll
   // =========================================================
-  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE)
-  const safePage = totalPages === 0 ? 1 : Math.min(page, totalPages)
-  const startIndex = (safePage - 1) * ITEMS_PER_PAGE
-  const currentData = filteredProducts.slice(
-    startIndex,
-    startIndex + ITEMS_PER_PAGE,
-  )
+  const currentData = filteredProducts.slice(0, visibleCount)
+  const hasMore = visibleCount < filteredProducts.length
 
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
+  const loadMore = useCallback(() => {
+    if (isLoadingMore) return
+    setIsLoadingMore(true)
+
+    // اینجا فقط بچ بعدی رو از لیستی که همین الان کامل داریم آشکار می‌کنیم.
+    // اگه بعداً products از API صفحه‌بندی‌شده میاد، به‌جای این setTimeout همینجا فراخوانی fetch صفحه بعد رو بذار.
+    loadMoreTimeoutRef.current = setTimeout(() => {
+      setVisibleCount((count) =>
+        Math.min(count + ITEMS_PER_PAGE, filteredProducts.length),
+      )
+      setIsLoadingMore(false)
+    }, LOAD_MORE_DELAY_MS)
+  }, [isLoadingMore, filteredProducts.length])
+
+  useEffect(() => {
+    if (loading || !hasMore || isLoadingMore) return
+
+    const node = sentinelRef.current
+    if (!node) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) loadMore()
+      },
+      { rootMargin: '600px 0px' },
+    )
+
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [loading, hasMore, isLoadingMore, loadMore])
 
   // =========================================================
   // Derived UI values
@@ -498,8 +578,6 @@ function ProductsContent() {
 
       return next
     })
-
-    setPage(1)
   }
 
   const openFilter = () => {
@@ -520,7 +598,6 @@ function ProductsContent() {
       low === PRICE_MIN && high === PRICE_MAX ? null : { min: low, max: high },
     )
 
-    setPage(1)
     setIsFilterOpen(false)
   }
 
@@ -528,7 +605,6 @@ function ProductsContent() {
     setMinPrice(PRICE_MIN)
     setMaxPrice(PRICE_MAX)
     setAppliedPrice(null)
-    setPage(1)
   }
 
   const resetFilters = () => {
@@ -552,7 +628,6 @@ function ProductsContent() {
 
   const selectSort = (key: SortKey) => {
     setSortBy(key)
-    setPage(1)
     setIsSortOpen(false)
   }
 
@@ -828,27 +903,47 @@ function ProductsContent() {
                   {currentData.map((product) => (
                     <Product key={product.id} product={product} variant="row" />
                   ))}
+
+                  {isLoadingMore &&
+                    Array.from({ length: 3 }).map((_, index) => (
+                      <ProductRowSkeleton key={`skeleton-row-${index}`} />
+                    ))}
                 </div>
               ) : (
                 <div className="grid w-full grid-cols-2 gap-4 xl:grid-cols-3">
                   {currentData.map((product) => (
                     <Product key={product.id} product={product} />
                   ))}
+
+                  {isLoadingMore &&
+                    Array.from({ length: 3 }).map((_, index) => (
+                      <ProductCardSkeleton key={`skeleton-card-${index}`} />
+                    ))}
                 </div>
+              )}
+
+              {/* سنسور اسکرول بی‌نهایت: وقتی این المنت دیده بشه، بچ بعدی لود می‌شه */}
+              {currentData.length > 0 && (
+                <>
+                  <div
+                    ref={sentinelRef}
+                    aria-hidden="true"
+                    className="h-px w-full"
+                  />
+
+                  {!hasMore &&
+                    !isLoadingMore &&
+                    filteredProducts.length > ITEMS_PER_PAGE && (
+                      <p className="font-ray py-8 text-center text-xs text-gray-400">
+                        محصول دیگری برای نمایش وجود ندارد
+                      </p>
+                    )}
+                </>
               )}
             </LoadingBar>
           </div>
         </div>
       </section>
-
-      {/* =========================================================
-          PAGINATION
-      ========================================================== */}
-      <Pagination
-        currentPage={safePage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      />
 
       {/* =========================================================
           FILTER SHEET (mobile / tablet)
