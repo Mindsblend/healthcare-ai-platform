@@ -65,6 +65,7 @@ export interface GetBlogBySlugResponse {
   id: number
   title: string
   description: string
+  content: string
   image: string
   author: string
   authorImage: string
