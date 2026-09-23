@@ -10,7 +10,7 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: '*',
-      allow: '/',
+      allow: ['/', 'feed'],
       disallow: [
         '/api/',
         '/dashboard/',
@@ -19,7 +19,6 @@ export default function robots(): MetadataRoute.Robots {
         '/order/',
         '/payment/',
         '/auth/',
-        '/feed/',
       ],
     },
 
