@@ -2,6 +2,7 @@
 
 import {
   Suspense,
+  memo,
   useCallback,
   useEffect,
   useMemo,
@@ -9,6 +10,7 @@ import {
   useState,
   useSyncExternalStore,
   type ReactNode,
+  type RefObject,
 } from 'react'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -28,6 +30,10 @@ const PRICE_MIN = 0
 const PRICE_MAX = 1_000_000
 
 const ITEMS_PER_PAGE = 9
+
+// مکث کوتاه قبل از ظاهر شدن بچ بعدی: هم اسکلتون واقعاً یک لحظه دیده بشه،
+// هم ۹ کارت با هم یهویی داخل صفحه پاپ نکنن (روی موبایل باعث جنک می‌شه)
+const LOAD_MORE_DELAY_MS = 350
 
 const MOBILE_QUERY = '(max-width: 639px)'
 
@@ -249,7 +255,7 @@ function BottomSheet({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`absolute inset-x-0 bottom-0 flex max-h-[85vh] flex-col rounded-t-3xl bg-white shadow-2xl transition-transform duration-300 ease-out ${
+        className={`absolute inset-x-0 bottom-0 flex max-h-[85vh] flex-col rounded-t-3xl bg-white shadow-2xl transition-transform duration-300 ease-out will-change-transform ${
           open ? 'translate-y-0' : 'translate-y-full'
         }`}
       >
@@ -357,6 +363,10 @@ function ProductRowSkeleton() {
   )
 }
 
+// بیرون کامپوننت تا هر رندر دوباره ساخته نشن
+const INITIAL_SKELETON_KEYS = Array.from({ length: ITEMS_PER_PAGE })
+const LOAD_MORE_SKELETON_KEYS = Array.from({ length: 3 })
+
 /* =========================================================
    Empty state
 ========================================================= */
@@ -409,6 +419,111 @@ function EmptyState({
 }
 
 /* =========================================================
+   Products grid (memoized)
+   ---------------------------------------------------------
+   جدا شده و با memo پوشونده شده تا وقتی state‌های بی‌ربط به
+   لیست عوض می‌شن (مثلاً کشیدن اسلایدر قیمت، باز/بسته شدن شیت
+   فیلتر یا مرتب‌سازی)، React مجبور نباشه کل لیست محصولات رو
+   دوباره reconcile کنه. چون currentData/emptyMessage/... همه
+   با useMemo/useCallback در بالا stable نگه داشته شدن، این
+   memo واقعاً re-render رو skip می‌کنه.
+========================================================= */
+
+type ProductItem = ReturnType<
+  typeof useProductsPreview
+>['productsPreview'][number]
+
+type ProductsGridProps = {
+  isMobile: boolean
+  loading: boolean
+  currentData: ProductItem[]
+  isLoadingMore: boolean
+  hasMore: boolean
+  totalFilteredCount: number
+  sentinelRef: RefObject<HTMLDivElement | null>
+  emptyMessage: string
+  emptySuggestion: string
+  onReset: () => void
+}
+
+const ProductsGrid = memo(function ProductsGrid({
+  isMobile,
+  loading,
+  currentData,
+  isLoadingMore,
+  hasMore,
+  totalFilteredCount,
+  sentinelRef,
+  emptyMessage,
+  emptySuggestion,
+  onReset,
+}: ProductsGridProps) {
+  // بار اول: به‌جای فلش خالی/اسپینر، اسکلتون واقعی و هم‌شکل با گرید نهایی
+  if (loading) {
+    return isMobile ? (
+      <div className="flex flex-col">
+        {INITIAL_SKELETON_KEYS.map((_, index) => (
+          <ProductRowSkeleton key={`initial-skeleton-row-${index}`} />
+        ))}
+      </div>
+    ) : (
+      <div className="grid w-full grid-cols-2 gap-4 xl:grid-cols-3">
+        {INITIAL_SKELETON_KEYS.map((_, index) => (
+          <ProductCardSkeleton key={`initial-skeleton-card-${index}`} />
+        ))}
+      </div>
+    )
+  }
+
+  if (currentData.length === 0) {
+    return (
+      <EmptyState
+        message={emptyMessage}
+        suggestion={emptySuggestion}
+        onReset={onReset}
+      />
+    )
+  }
+
+  return (
+    <>
+      {isMobile ? (
+        <div className="flex flex-col">
+          {currentData.map((product) => (
+            <Product key={product.id} product={product} variant="row" />
+          ))}
+
+          {isLoadingMore &&
+            LOAD_MORE_SKELETON_KEYS.map((_, index) => (
+              <ProductRowSkeleton key={`more-skeleton-row-${index}`} />
+            ))}
+        </div>
+      ) : (
+        <div className="grid w-full grid-cols-2 gap-4 xl:grid-cols-3">
+          {currentData.map((product) => (
+            <Product key={product.id} product={product} />
+          ))}
+
+          {isLoadingMore &&
+            LOAD_MORE_SKELETON_KEYS.map((_, index) => (
+              <ProductCardSkeleton key={`more-skeleton-card-${index}`} />
+            ))}
+        </div>
+      )}
+
+      {/* سنسور اسکرول بی‌نهایت: وقتی این المنت دیده بشه، بچ بعدی لود می‌شه */}
+      <div ref={sentinelRef} aria-hidden="true" className="h-px w-full" />
+
+      {!hasMore && !isLoadingMore && totalFilteredCount > ITEMS_PER_PAGE && (
+        <p className="font-ray py-8 text-center text-xs text-gray-400">
+          محصول دیگری برای نمایش وجود ندارد
+        </p>
+      )}
+    </>
+  )
+})
+
+/* =========================================================
    Page content
 ========================================================= */
 
@@ -442,6 +557,7 @@ function ProductsContent() {
   const [isLoadingMore, setIsLoadingMore] = useState(false)
 
   const sentinelRef = useRef<HTMLDivElement | null>(null)
+  const loadMoreTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const closeFilter = useCallback(() => {
     setIsFilterOpen(false)
@@ -470,7 +586,19 @@ function ProductsContent() {
   useEffect(() => {
     setVisibleCount(ITEMS_PER_PAGE)
     setIsLoadingMore(false)
+
+    if (loadMoreTimeoutRef.current) {
+      clearTimeout(loadMoreTimeoutRef.current)
+      loadMoreTimeoutRef.current = null
+    }
   }, [query, categoryIdParam, appliedPrice, sortBy])
+
+  // پاک کردن تایمر معلق موقع unmount
+  useEffect(() => {
+    return () => {
+      if (loadMoreTimeoutRef.current) clearTimeout(loadMoreTimeoutRef.current)
+    }
+  }, [])
 
   /* =========================================================
      Filter + sort
@@ -525,6 +653,7 @@ function ProductsContent() {
   )
 
   const hasMore = visibleCount < filteredProducts.length
+  const hasResults = filteredProducts.length > 0
 
   /* =========================================================
      Infinite scroll
@@ -535,35 +664,50 @@ function ProductsContent() {
 
     setIsLoadingMore(true)
 
-    requestAnimationFrame(() => {
+    // دیتا همین الان کامل توی کلاینت هست؛ این مکث فقط برای تجربه‌ی
+    // بصری (دیده شدن اسکلتون + جلوگیری از پاپ ناگهانی چند کارت) هست،
+    // نه یک فراخوانی واقعی شبکه. اگه بعداً API صفحه‌بندی‌شده اضافه شد،
+    // به‌جای setTimeout همینجا fetch صفحه بعد صدا زده بشه.
+    loadMoreTimeoutRef.current = setTimeout(() => {
       setVisibleCount((count) =>
         Math.min(count + ITEMS_PER_PAGE, filteredProducts.length),
       )
-
       setIsLoadingMore(false)
-    })
+    }, LOAD_MORE_DELAY_MS)
   }, [isLoadingMore, hasMore, filteredProducts.length])
 
+  // آخرین مقدارها رو توی ref نگه می‌داریم تا observer زیر لازم نباشه
+  // با هر تغییر hasMore/isLoadingMore/loadMore از نو ساخته بشه
+  const hasMoreRef = useRef(hasMore)
+  const isLoadingMoreRef = useRef(isLoadingMore)
+  const loadMoreRef = useRef(loadMore)
+
   useEffect(() => {
-    if (loading || !hasMore || isLoadingMore) {
-      return
-    }
+    hasMoreRef.current = hasMore
+    isLoadingMoreRef.current = isLoadingMore
+    loadMoreRef.current = loadMore
+  })
+
+  useEffect(() => {
+    // فقط وقتی از loading اولیه خارج شدیم و نتیجه‌ای هست observer رو وصل کن؛
+    // با loading/hasResults به‌جای hasMore/isLoadingMore، observer دیگه
+    // هر بار که یک Batch لود می‌شه از نو ساخته نمی‌شه
+    if (loading || !hasResults) return
 
     const node = sentinelRef.current
-
-    if (!node) {
-      return
-    }
+    if (!node) return
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0]?.isIntersecting) {
-          loadMore()
+        if (
+          entries[0]?.isIntersecting &&
+          hasMoreRef.current &&
+          !isLoadingMoreRef.current
+        ) {
+          loadMoreRef.current()
         }
       },
-      {
-        rootMargin: '600px 0px',
-      },
+      { rootMargin: '600px 0px' },
     )
 
     observer.observe(node)
@@ -571,7 +715,7 @@ function ProductsContent() {
     return () => {
       observer.disconnect()
     }
-  }, [loading, hasMore, isLoadingMore, loadMore])
+  }, [loading, hasResults])
 
   /* =========================================================
      Derived UI
@@ -965,57 +1109,18 @@ function ProductsContent() {
             )}
 
             <LoadingBar loading={loading} error={error}>
-              {currentData.length === 0 ? (
-                <EmptyState
-                  message={emptyContent.message}
-                  suggestion={emptyContent.suggestion}
-                  onReset={resetAll}
-                />
-              ) : isMobile ? (
-                <div className="flex flex-col">
-                  {currentData.map((product) => (
-                    <Product key={product.id} product={product} variant="row" />
-                  ))}
-
-                  {isLoadingMore &&
-                    Array.from({
-                      length: 3,
-                    }).map((_, index) => (
-                      <ProductRowSkeleton key={`skeleton-row-${index}`} />
-                    ))}
-                </div>
-              ) : (
-                <div className="grid w-full grid-cols-2 gap-4 xl:grid-cols-3">
-                  {currentData.map((product) => (
-                    <Product key={product.id} product={product} />
-                  ))}
-
-                  {isLoadingMore &&
-                    Array.from({
-                      length: 3,
-                    }).map((_, index) => (
-                      <ProductCardSkeleton key={`skeleton-card-${index}`} />
-                    ))}
-                </div>
-              )}
-
-              {currentData.length > 0 && (
-                <>
-                  <div
-                    ref={sentinelRef}
-                    aria-hidden="true"
-                    className="h-px w-full"
-                  />
-
-                  {!hasMore &&
-                    !isLoadingMore &&
-                    filteredProducts.length > ITEMS_PER_PAGE && (
-                      <p className="font-ray py-8 text-center text-xs text-gray-400">
-                        محصول دیگری برای نمایش وجود ندارد
-                      </p>
-                    )}
-                </>
-              )}
+              <ProductsGrid
+                isMobile={isMobile}
+                loading={loading}
+                currentData={currentData}
+                isLoadingMore={isLoadingMore}
+                hasMore={hasMore}
+                totalFilteredCount={filteredProducts.length}
+                sentinelRef={sentinelRef}
+                emptyMessage={emptyContent.message}
+                emptySuggestion={emptyContent.suggestion}
+                onReset={resetAll}
+              />
             </LoadingBar>
           </div>
         </div>
