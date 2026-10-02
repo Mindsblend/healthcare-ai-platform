@@ -87,8 +87,15 @@ export default function Navbar({ user }: NavbarProps) {
   const showBottomNav = shouldShowBottomNav(pathname, user)
   const guestHasSearch = isInRoutes(pathname, GUEST_SEARCH_ROUTES)
 
-  // وقتی کاربر چیزی سرچ کرده باشد، به‌جای مینی‌لوگو دکمه بازگشت نشان داده می‌شود
-  const showBackButton = Boolean(user) && Boolean(urlQuery?.trim())
+  const PRODUCT_DETAIL_PREFIX = '/products/'
+
+  const isProductDetailPage = (pathname: string) =>
+    pathname.startsWith(PRODUCT_DETAIL_PREFIX) &&
+    pathname.length > PRODUCT_DETAIL_PREFIX.length
+
+  const showBackButton =
+    Boolean(user) &&
+    (Boolean(urlQuery?.trim()) || isProductDetailPage(pathname))
 
   useEffect(() => {
     if (urlQuery !== null) {
@@ -169,16 +176,25 @@ export default function Navbar({ user }: NavbarProps) {
 
             <form
               onSubmit={handleSearch}
-              className="hidden flex-1 items-center md:flex"
+              className="hidden max-w-xl flex-1 items-center md:flex"
             >
               <div className="relative w-full">
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="جستجو"
                   aria-label="جستجو"
-                  className="h-11 w-full rounded-full border border-transparent bg-[#f0f2f5] pr-5 pl-11 text-[14px] text-gray-800 transition outline-none placeholder:text-gray-400 focus:border-gray-200 focus:bg-white"
+                  className="font-ray h-11 w-full rounded-full border border-transparent bg-[#f0f2f5] pr-5 pl-11 text-[13px] font-bold text-gray-800 transition outline-none focus:border-gray-200 focus:bg-white"
                 />
+
+                {/* placeholder سفارشی؛ فقط وقتی input خالی است نمایش داده می‌شود */}
+                {!search && (
+                  <span className="font-ray pointer-events-none absolute top-1/2 right-5 -translate-y-1/2 text-[13px] font-bold text-gray-400">
+                    جست و جو در{' '}
+                    <span className="font-ray font-extrabold text-blue-500">
+                      دیجی سلامت
+                    </span>
+                  </span>
+                )}
 
                 {/* دکمه پاک کردن ورودی */}
                 {search && (
@@ -392,10 +408,19 @@ export default function Navbar({ user }: NavbarProps) {
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="جستجو"
                   aria-label="جستجو"
-                  className="h-11 w-full rounded-full border border-transparent bg-[#f0f2f5] pr-5 pl-11 text-xs text-gray-800 transition outline-none placeholder:text-gray-400 focus:border-gray-200 focus:bg-white"
+                  className="font-ray h-11 w-full rounded-full border border-transparent bg-[#f0f2f5] pr-5 pl-11 text-[13px] font-bold text-gray-800 transition outline-none focus:border-gray-200 focus:bg-white"
                 />
+
+                {/* placeholder سفارشی؛ فقط وقتی input خالی است نمایش داده می‌شود */}
+                {!search && (
+                  <span className="font-ray pointer-events-none absolute top-1/2 right-5 -translate-y-1/2 text-[13px] font-bold text-gray-400">
+                    جست و جو در{' '}
+                    <span className="font-ray font-extrabold text-blue-500">
+                      دیجی سلامت
+                    </span>
+                  </span>
+                )}
 
                 {/* دکمه پاک کردن ورودی */}
                 {search && (

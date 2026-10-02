@@ -42,7 +42,7 @@ const ProductCategorySection = () => {
   if (!categories?.length) return null
 
   return (
-    <div className="mt-12.5 flex flex-col max-sm:pr-6.25 container max-w-[900px] sm:mt-20">
+    <div className="mt-12.5 mx-auto max-sm:pr-6.25 max-w-[900px] sm:mt-20">
       <div className="sm:text-center">
         <h1 className="font-aria text-color-title-on-light text-3xl font-extrabold xl:text-[40px]">
           دسته بندی محصولات

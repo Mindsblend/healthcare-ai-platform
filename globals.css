@@ -70,10 +70,6 @@ body {
   color: var(--foreground);
 }
 
-body.has-bottom-nav {
-  padding-bottom: 4rem;
-}
-
 #custom-pagination .swiper-pagination-bullet {
   background-color: #cbcbcb;
   width: 10px;

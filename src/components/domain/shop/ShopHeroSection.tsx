@@ -244,7 +244,6 @@ const ShopHeroSection = ({
       {/* Mobile & tablet: Swiper */}
       <div className="lg:hidden">
         <Swiper
-          dir="rtl"
           modules={[Pagination]}
           pagination={{ clickable: true }}
           slidesPerView="auto"
