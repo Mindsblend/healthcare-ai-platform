@@ -8,6 +8,14 @@ import { getSession } from '@/features/auth/services/sessionService'
 import { absoluteUrl, defaultDescription, siteName, siteUrl } from '@/lib/seo'
 import { JsonLd } from '@/components/seo/JsonLd'
 
+import type { Viewport } from 'next'
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+}
+
 /* ============================
    Headers: Aria Font Family
    ============================ */
