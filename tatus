@@ -1,0 +1,8 @@
+[33mcommit ee208b5461b9b76aa9c0a89cc4ba8b8c786e69b8[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdev[m[33m, [m[1;31morigin/dev[m[33m)[m
+Author: Kian Ebtekari <kianebtekari0@gmail.com>
+Date:   Fri Oct 2 15:26:03 2026 +0330
+
+    fix bug
+
+ package.json | 1 [32m+[m
+ 1 file changed, 1 insertion(+)
