@@ -4,18 +4,17 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
   id                String             @id @default(cuid())
-  firstName         String?
-  lastName          String?
-  phone             String?            @unique
-  email             String?            @unique
-  role              UserRole           @default(USER)
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
+  email             String?            @unique
+  phone             String?            @unique
+  role              UserRole           @default(USER)
+  firstName         String?
+  lastName          String?
   addresses         Address[]
   aiResponses       AiResponse[]
   carts             Cart[]
@@ -72,26 +71,26 @@ model Order {
   cartId              String      @unique
   totalPrice          Int
   status              OrderStatus @default(PENDING)
-  paymentMethod       String?
+  createdAt           DateTime    @default(now())
+  shippingAddress     String
+  shippingCity        String
+  shippingEmail       String
+  shippingFirstName   String
+  shippingLastName    String
+  shippingNotes       String?
+  shippingPhone       String
+  shippingPostalCode  String
+  shippingProvince    String
+  canceledAt          DateTime?
+  cancellationReason  String?
   paymentAuthority    String?     @unique
+  paymentErrorMessage String?
+  paymentMethod       String?
   paymentRefId        String?
   paymentRequestedAt  DateTime?
   paymentVerifiedAt   DateTime?
-  paymentErrorMessage String?
-  cancellationReason  String?
-  canceledAt          DateTime?
   refundReason        String?
   refundedAt          DateTime?
-  shippingFirstName   String
-  shippingLastName    String
-  shippingEmail       String
-  shippingPhone       String
-  shippingCity        String
-  shippingProvince    String
-  shippingAddress     String
-  shippingPostalCode  String
-  shippingNotes       String?
-  createdAt           DateTime    @default(now())
   updatedAt           DateTime    @updatedAt
   cart                Cart        @relation(fields: [cartId], references: [id])
   user                User?       @relation(fields: [userId], references: [id])
@@ -112,20 +111,21 @@ model OrderItem {
 model Product {
   id                    Int                    @id @default(autoincrement())
   title                 String                 @unique
-  slug                  String                 @unique
-  solution              String
-  description           String
   price                 Int
-  discount              Int?                   @default(0)
-  discountedPrice       Int?                            
   image                 String
-  isActive              Boolean                @default(true)
+  description           String
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
+  slug                  String                 @unique
+  solution              String
   categoryId            Int
+  isActive              Boolean                @default(true)
   feedCategoryId        Int?
+  discount              Int?                   @default(0)
+  discountedPrice       Int?
   aiResponses           AiResponse[]
   cartItem              CartItem[]
+  collectionProducts    CollectionProduct[]
   faqs                  Faq[]
   gains                 Gain[]
   healthRecommendations HealthRecommendation[]
@@ -133,7 +133,6 @@ model Product {
   orderItems            OrderItem[]
   category              Category               @relation(fields: [categoryId], references: [id])
   feedCategory          FeedCategory?          @relation(fields: [feedCategoryId], references: [id])
-  collectionProducts    CollectionProduct[]
 }
 
 model Collection {
@@ -143,7 +142,7 @@ model Collection {
   subtitle    String?
   description String
   image       String
-  price       Int                 // Total original price of all products
+  price       Int
   isActive    Boolean             @default(true)
   featured    Boolean             @default(false)
   order       Int                 @default(0)
@@ -230,26 +229,26 @@ model HealthAssessment {
   beautyScore      Int
   medicalScore     Int
   overallScore     Int
-  aiOutput         Json?
   healthArchetype  String?
   readinessStage   String?
   decisionStyle    String?
   consistencyLevel String?
   motivationSource String?
-  domains          Json?
-  summary          String?
-  diagnosis        String?
-  keyInsight       String?
-  whyThisMatters   String?
-  causalChain      Json?
-  mainBottleneck   Json?
-  startingPoint    Json?
-  priorityFactors  Json?
-  futureProjection Json?
-  goals            Json?
   isActive         Boolean                @default(true)
   completedAt      DateTime               @default(now())
   lastViewedAt     DateTime?
+  aiOutput         Json?
+  domains          Json?
+  causalChain      Json?
+  diagnosis        String?
+  futureProjection Json?
+  goals            Json?
+  keyInsight       String?
+  mainBottleneck   Json?
+  priorityFactors  Json?
+  startingPoint    Json?
+  summary          String?
+  whyThisMatters   String?
   user             User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   recommendations  HealthRecommendation[]
 
@@ -266,8 +265,8 @@ model HealthRecommendation {
   reason                String
   domain                String
   priority              Int              @default(1)
-  recommendationBatchId String?
   createdAt             DateTime         @default(now())
+  recommendationBatchId String?
   healthAssessment      HealthAssessment @relation(fields: [healthAssessmentId], references: [id], onDelete: Cascade)
   product               Product          @relation(fields: [productId], references: [id])
 
@@ -281,14 +280,13 @@ model Blog {
   title       String   @unique
   image       String
   description String
-  slug        String   @unique
-  content     String
   author      String
-  authorImage String
-  authorTitle String
-
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  authorImage String
+  content     String
+  slug        String   @unique
+  authorTitle String
 }
 
 model VisitMonth {
@@ -321,11 +319,11 @@ enum CartStatus {
 
 enum OrderStatus {
   PENDING
-  PREPARING
   PAID
-  DELIVERING
-  DELIVERED
   FAILED
   CANCELED
   REFUNDED
+  DELIVERING
+  DELIVERED
+  PREPARING
 }
