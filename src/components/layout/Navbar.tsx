@@ -8,6 +8,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useCart } from '@/features/shop/hooks/cart/useCart'
 import BottomNav, { shouldShowBottomNav } from './BottomNav'
 import LandingNavbar from './LandingNavbar'
+import SmartSearch from './SmartSearch'
 
 type NavbarProps = {
   user: unknown
@@ -174,68 +175,7 @@ export default function Navbar({ user }: NavbarProps) {
               </Link>
             </div>
 
-            <form
-              onSubmit={handleSearch}
-              className="hidden max-w-xl flex-1 items-center md:flex"
-            >
-              <div className="relative w-full">
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  aria-label="جستجو"
-                  className="font-ray h-11 w-full rounded-full border border-transparent bg-[#f0f2f5] pr-5 pl-11 text-[13px] font-bold text-gray-800 transition outline-none focus:border-gray-200 focus:bg-white"
-                />
-
-                {/* placeholder سفارشی؛ فقط وقتی input خالی است نمایش داده می‌شود */}
-                {!search && (
-                  <span className="font-ray pointer-events-none absolute top-1/2 right-5 -translate-y-1/2 text-[13px] font-bold text-gray-400">
-                    جست و جو در{' '}
-                    <span className="font-ray font-extrabold text-blue-500">
-                      دیجی سلامت
-                    </span>
-                  </span>
-                )}
-
-                {/* دکمه پاک کردن ورودی */}
-                {search && (
-                  <button
-                    type="button"
-                    onClick={clearSearch}
-                    aria-label="پاک کردن جستجو"
-                    className="absolute top-1/2 left-10 -translate-y-1/2 cursor-pointer p-1 text-gray-400 hover:text-black"
-                  >
-                    <Image
-                      src="/images/close-line.svg"
-                      alt="بستن"
-                      width={14}
-                      height={14}
-                    />
-                  </button>
-                )}
-
-                {/* آیکون ذره‌بین */}
-                <button
-                  type="submit"
-                  aria-label="جستجو"
-                  className="absolute top-1/2 left-3.5 flex -translate-y-1/2 items-center justify-center text-gray-400 transition hover:text-gray-700"
-                >
-                  <svg
-                    width="19"
-                    height="19"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <circle cx="11" cy="11" r="7" />
-                    <path d="m20 20-3.5-3.5" />
-                  </svg>
-                </button>
-              </div>
-            </form>
+            <SmartSearch className="hidden md:flex" />
           </div>
 
           {/* سمت چپ: سبد خرید و پروفایل */}
@@ -400,68 +340,7 @@ export default function Navbar({ user }: NavbarProps) {
               </Link>
             )}
 
-            <form
-              onSubmit={handleSearch}
-              className="flex max-w-xl flex-1 items-center"
-            >
-              <div className="relative w-full">
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  aria-label="جستجو"
-                  className="font-ray h-11 w-full rounded-full border border-transparent bg-[#f0f2f5] pr-5 pl-11 text-[13px] font-bold text-gray-800 transition outline-none focus:border-gray-200 focus:bg-white"
-                />
-
-                {/* placeholder سفارشی؛ فقط وقتی input خالی است نمایش داده می‌شود */}
-                {!search && (
-                  <span className="font-ray pointer-events-none absolute top-1/2 right-5 -translate-y-1/2 text-[13px] font-bold text-gray-400">
-                    جست و جو در{' '}
-                    <span className="font-ray font-extrabold text-blue-500">
-                      دیجی سلامت
-                    </span>
-                  </span>
-                )}
-
-                {/* دکمه پاک کردن ورودی */}
-                {search && (
-                  <button
-                    type="button"
-                    onClick={clearSearch}
-                    aria-label="پاک کردن جستجو"
-                    className="absolute top-1/2 left-10 -translate-y-1/2 cursor-pointer p-1 text-gray-400 hover:text-black"
-                  >
-                    <Image
-                      src="/images/close-line.svg"
-                      alt="بستن"
-                      width={14}
-                      height={14}
-                    />
-                  </button>
-                )}
-
-                {/* آیکون ذره‌بین */}
-                <button
-                  type="submit"
-                  aria-label="جستجو"
-                  className="absolute top-1/2 left-3.5 flex -translate-y-1/2 items-center justify-center text-gray-400 transition hover:text-gray-700"
-                >
-                  <svg
-                    width="19"
-                    height="19"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <circle cx="11" cy="11" r="7" />
-                    <path d="m20 20-3.5-3.5" />
-                  </svg>
-                </button>
-              </div>
-            </form>
+            <SmartSearch className="flex md:hidden" />
           </div>
 
           <hr className="my-3 h-px border-0 bg-[#ECEDEF]" />
