@@ -13,23 +13,33 @@ type NavbarProps = {
   user: unknown
 }
 
-// مسیرهایی که مهمان‌ها (قبل از لاگین) تو ناوبار اولیه‌ی خودشون سرچ‌بار هم می‌بینن
 const GUEST_SEARCH_ROUTES = ['/products']
-
-// مسیرهایی که «کاربر لاگین‌کرده» تو موبایل کنار سرچ‌بار دکمه‌ی برگشت می‌بینه
-// (خود مسیر و زیرمسیرهاش، یعنی /products و /products/پاستا). تو دسکتاپ نمایش داده نمی‌شه.
-const BACK_BUTTON_ROUTES = ['/products']
-
-// اگه تاریخچه‌ای برای برگشت نبود (مثلاً باز کردن مستقیم لینک محصول) به این مسیر می‌ره.
-// مسیر صفحه‌ی فید رو اینجا بذار.
 const BACK_FALLBACK_ROUTE = '/'
+
+// نمونه دسته‌بندی‌ها (می‌توانید عنوان‌ها و آیکون‌ها را مطابق دسته‌های زیست‌یار ویرایش کنید)
+const CATEGORIES = [
+  {
+    id: 'supplements',
+    name: 'مکمل‌های دارویی و غذایی',
+    href: '/products?cat=supplements',
+  },
+  {
+    id: 'vitamins',
+    name: 'ویتامین‌ها و مواد معدنی',
+    href: '/products?cat=vitamins',
+  },
+  { id: 'skincare', name: 'مراقبت پوست و مو', href: '/products?cat=skincare' },
+  { id: 'herbal', name: 'داروهای گیاهی', href: '/products?cat=herbal' },
+  {
+    id: 'medical-devices',
+    name: 'تجهیزات پزشکی خانگی',
+    href: '/products?cat=medical',
+  },
+  { id: 'hygiene', name: 'بهداشت فردی', href: '/products?cat=hygiene' },
+]
 
 const isInRoutes = (pathname: string, routes: string[]) =>
   routes.some((route) => pathname === route || pathname.startsWith(`${route}/`))
-
-/* =========================================================
-   Back button
-========================================================== */
 
 function BackButton({
   onClick,
@@ -45,7 +55,6 @@ function BackButton({
       aria-label="بازگشت"
       className={`flex shrink-0 cursor-pointer items-center justify-center rounded-full text-black transition hover:bg-gray-100 ${className}`}
     >
-      {/* فلش پیش‌فرض به چپ؛ تو صفحه‌ی RTL برعکس می‌شه (به راست) */}
       <svg
         width="22"
         height="22"
@@ -69,21 +78,17 @@ export default function Navbar({ user }: NavbarProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const [search, setSearch] = useState(() => searchParams.get('q') ?? '')
+  const urlQuery = searchParams.get('q')
 
+  const [search, setSearch] = useState(() => urlQuery ?? '')
   const { cartItems } = useCart()
-
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0)
 
   const showBottomNav = shouldShowBottomNav(pathname, user)
-
   const guestHasSearch = isInRoutes(pathname, GUEST_SEARCH_ROUTES)
 
-  // دکمه‌ی برگشت فقط برای کاربر لاگین‌کرده (مهمان‌ها همیشه LandingNavbar می‌گیرن)
-  const showBackButton =
-    Boolean(user) && isInRoutes(pathname, BACK_BUTTON_ROUTES)
-
-  const urlQuery = searchParams.get('q')
+  // وقتی کاربر چیزی سرچ کرده باشد، به‌جای مینی‌لوگو دکمه بازگشت نشان داده می‌شود
+  const showBackButton = Boolean(user) && Boolean(urlQuery?.trim())
 
   useEffect(() => {
     if (urlQuery !== null) {
@@ -95,9 +100,7 @@ export default function Navbar({ user }: NavbarProps) {
 
   const handleSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-
     const query = search.trim()
-
     setSearch(query)
 
     if (!query) {
@@ -110,7 +113,6 @@ export default function Navbar({ user }: NavbarProps) {
 
   const clearSearch = () => {
     setSearch('')
-
     if (pathname === '/products') {
       router.push('/products')
     }
@@ -145,271 +147,345 @@ export default function Navbar({ user }: NavbarProps) {
 
   return (
     <>
-      <nav className="relative container w-full bg-white pt-4 text-black">
-        {/* =========================================================
-            DESKTOP HEADER
-        ========================================================== */}
-        <div className="hidden w-full items-center justify-between lg:flex">
-          {/* Navigation + Logo */}
-          <div className="font-ray flex min-w-0 items-center gap-8 text-base font-medium text-black">
-            {/* Logo */}
-            <div>
-              <Link href="/" aria-label="خانه">
+      <header className="font-ray top-0 z-50 w-full bg-white">
+        <div className="container mx-auto hidden h-20 items-center justify-between gap-6 px-4 sm:flex lg:px-8">
+          <div className="flex w-full max-w-2xl items-center gap-10">
+            <div className="flex shrink-0 items-center">
+              <Link
+                href="/"
+                aria-label="دیجی سلامت"
+                className="flex items-center gap-2"
+              >
                 <Image
                   src="/images/logo.svg"
-                  alt="Logo"
-                  width={140}
-                  height={20}
+                  alt="دیجی سلامت"
+                  width={134}
+                  height={45}
                   priority
+                  className="object-contain"
                 />
               </Link>
             </div>
 
-            {/* Navigation */}
-            <ul className="flex gap-6 font-medium">
-              <li>
-                <Link
-                  href="/"
-                  className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black"
-                >
-                  خانه
-                </Link>
-              </li>
+            <form
+              onSubmit={handleSearch}
+              className="hidden flex-1 items-center md:flex"
+            >
+              <div className="relative w-full">
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="جستجو"
+                  aria-label="جستجو"
+                  className="h-11 w-full rounded-full border border-transparent bg-[#f0f2f5] pr-5 pl-11 text-[14px] text-gray-800 transition outline-none placeholder:text-gray-400 focus:border-gray-200 focus:bg-white"
+                />
 
-              <li>
-                <Link
-                  href="/ai"
-                  className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black"
-                >
-                  تست هوش مصنوعی
-                </Link>
-              </li>
+                {/* دکمه پاک کردن ورودی */}
+                {search && (
+                  <button
+                    type="button"
+                    onClick={clearSearch}
+                    aria-label="پاک کردن جستجو"
+                    className="absolute top-1/2 left-10 -translate-y-1/2 cursor-pointer p-1 text-gray-400 hover:text-black"
+                  >
+                    <Image
+                      src="/images/close-line.svg"
+                      alt="بستن"
+                      width={14}
+                      height={14}
+                    />
+                  </button>
+                )}
 
-              <li>
-                <Link
-                  href="/blogs"
-                  className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black"
+                {/* آیکون ذره‌بین */}
+                <button
+                  type="submit"
+                  aria-label="جستجو"
+                  className="absolute top-1/2 left-3.5 flex -translate-y-1/2 items-center justify-center text-gray-400 transition hover:text-gray-700"
                 >
-                  وبلاگ
-                </Link>
-              </li>
-
-              <li>
-                <Link
-                  href="/products"
-                  className="text-black no-underline visited:text-black hover:text-gray-900 focus:text-black"
-                >
-                  محصولات
-                </Link>
-              </li>
-            </ul>
+                  <svg
+                    width="19"
+                    height="19"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="m20 20-3.5-3.5" />
+                  </svg>
+                </button>
+              </div>
+            </form>
           </div>
 
-          {/* =========================================================
-              DESKTOP SEARCH
-          ========================================================== */}
-          <form
-            onSubmit={handleSearch}
-            className="min-w-0 flex-1 justify-center px-8"
-          >
-            <div className="relative mx-auto w-full max-w-xl">
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="جستجوی محصولات..."
-                aria-label="جستجوی محصولات"
-                dir="rtl"
-                className="font-ray h-11 w-full rounded-full border border-gray-200 bg-gray-50 pr-12 pl-12 text-sm text-black transition outline-none placeholder:text-gray-400 focus:border-black focus:bg-white"
+          {/* سمت چپ: سبد خرید و پروفایل */}
+          <div className="flex shrink-0 items-center gap-5">
+            {/* دکمه سبد خرید */}
+            <Link
+              href="/cart"
+              aria-label="سبد خرید"
+              className="relative flex items-center justify-center p-1 transition hover:opacity-80"
+            >
+              <Image
+                src="/images/cart.svg"
+                alt="سبد خرید"
+                width={32}
+                height={32}
               />
-
-              {/* Search Button */}
-              <button
-                type="submit"
-                aria-label="جستجو"
-                className="absolute top-1/2 right-2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-gray-500 transition hover:bg-black hover:text-white"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <circle cx="11" cy="11" r="7" />
-                  <path d="m20 20-3.5-3.5" />
-                </svg>
-              </button>
-
-              {/* Clear Button */}
-              {search && (
-                <button
-                  type="button"
-                  aria-label="پاک کردن جستجو"
-                  onClick={clearSearch}
-                  className="absolute top-1/2 left-3 flex h-7 w-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-200 hover:text-black"
-                >
-                  <Image
-                    src="/images/close-line.svg"
-                    alt="close button"
-                    width={15}
-                    height={15}
-                  />
-                </button>
+              {cartCount > 0 && (
+                <span className="font-ray absolute top-0 right-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[11px] leading-none font-bold text-white">
+                  {cartCount > 99 ? '۹۹+' : cartCount.toLocaleString('fa-IR')}
+                </span>
               )}
-            </div>
-          </form>
+            </Link>
 
-          {/* =========================================================
-              RIGHT ACTIONS
-          ========================================================== */}
-          <div className="flex shrink-0 justify-center gap-3">
-            {user ? (
-              <div className="flex justify-center gap-6">
-                {/* Cart */}
-                <Link
-                  href="/cart"
-                  aria-label="سبد خرید"
-                  className="relative flex items-center justify-center"
-                >
-                  <Image
-                    src="/images/cart.svg"
-                    alt="سبد خرید"
-                    width={32}
-                    height={32}
-                  />
-
-                  {cartCount > 0 && (
-                    <span className="font-ray absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-0.5 text-xs leading-none font-bold text-white">
-                      {cartCount > 99
-                        ? '۹۹+'
-                        : cartCount.toLocaleString('fa-IR')}
-                    </span>
-                  )}
-                </Link>
-
-                {/* Profile */}
-                <Link href="/profile" aria-label="پروفایل">
-                  <Image
-                    src="/images/profile.svg"
-                    alt="پروفایل"
-                    width={32}
-                    height={32}
-                  />
-                </Link>
-              </div>
-            ) : (
-              <div className="flex gap-3 lg:gap-7.5">
-                {/* AI Button */}
-                <Link
-                  href="/ai"
-                  className="bg-page flex cursor-pointer items-center justify-between gap-1 rounded-full text-white"
-                >
-                  <span className="font-ray text-color-title-on-light mr-3.5 text-base font-medium whitespace-nowrap">
-                    تست هوش مصنوعی
-                  </span>
-
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white">
-                    <Image
-                      src="/images/cognition-black.svg"
-                      alt="AI"
-                      width={24}
-                      height={24}
-                    />
-                  </div>
-                </Link>
-
-                {/* Login Button */}
-                <Link
-                  href="/auth"
-                  className="primary-btn flex items-center justify-between rounded-full bg-black whitespace-nowrap"
-                >
-                  <span className="font-ray pr-2 font-medium text-white">
-                    ورود به حساب کاربری
-                  </span>
-
-                  <div className="flex h-10 w-10 rotate-45 items-center justify-center rounded-full bg-white">
-                    <Image
-                      src="/images/arrow.svg"
-                      alt="ورود"
-                      width={20}
-                      height={20}
-                    />
-                  </div>
-                </Link>
-              </div>
-            )}
+            {/* دکمه پروفایل */}
+            <Link
+              href="/profile"
+              aria-label="پروفایل"
+              className="flex items-center justify-center p-1 transition hover:opacity-80"
+            >
+              <Image
+                src="/images/profile.svg"
+                alt="پروفایل"
+                width={32}
+                height={32}
+              />
+            </Link>
           </div>
         </div>
 
         {/* =========================================================
-            MOBILE NAVBAR (Back button + Search)
+            ردیف دوم: دسته‌بندی‌ها (با دراپ‌داون هاور) و لینک‌ها
         ========================================================== */}
-        <div className="flex items-center gap-1 lg:hidden">
-          {showBackButton && (
-            <BackButton onClick={handleBack} className="h-14 w-11" />
-          )}
-
-          <form onSubmit={handleSearch} className="min-w-0 flex-1">
-            <div className="relative w-full">
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="جستجوی محصولات..."
-                aria-label="جستجوی محصولات"
-                dir="rtl"
-                className="font-ray h-14 w-full rounded-2xl border border-gray-200 bg-gray-50 pr-14 pl-12 text-[15px] font-medium text-black transition outline-none placeholder:text-gray-400 focus:border-black focus:bg-white"
-              />
-
-              {/* Search Button */}
-              <button
-                type="submit"
-                aria-label="جستجو"
-                className="absolute top-1/2 right-2.5 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-xl bg-black text-white transition hover:bg-gray-800"
+        <div className="relative hidden border-t border-[#ECEDEF] py-3 md:block">
+          <div className="container mx-auto flex items-center gap-6 px-4 text-sm font-medium text-gray-700 lg:px-8">
+            {/* دسته‌بندی کالاها + دراپ‌داون با هاور */}
+            <div className="group relative">
+              <Link
+                href="/products"
+                className="flex items-center gap-2 font-bold text-gray-950 transition hover:text-black"
               >
+                {/* آیکون منوی همبرگری */}
                 <svg
-                  width="19"
-                  height="19"
+                  width="20"
+                  height="20"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth="2"
+                  strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   aria-hidden="true"
                 >
-                  <circle cx="11" cy="11" r="7" />
-                  <path d="m20 20-3.5-3.5" />
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                  <line x1="3" y1="18" x2="21" y2="18" />
                 </svg>
-              </button>
+                <span>دسته‌بندی کالاها</span>
+              </Link>
 
-              {/* Clear Button */}
-              {search && (
-                <button
-                  type="button"
-                  aria-label="پاک کردن جستجو"
-                  onClick={clearSearch}
-                  className="absolute top-1/2 left-3 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-200 hover:text-black"
-                >
-                  <Image
-                    src="/images/close-line.svg"
-                    alt="close button"
-                    width={20}
-                    height={20}
-                  />
-                </button>
-              )}
+              {/* محتوای دراپ‌داون با قابلیت hover */}
+              <div className="invisible absolute top-full right-0 z-50 pt-3 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
+                <div className="w-64 rounded-2xl border border-gray-100 bg-white p-2 shadow-xl ring-1 ring-black/5">
+                  <div className="flex flex-col space-y-1">
+                    {CATEGORIES.map((category) => (
+                      <Link
+                        key={category.id}
+                        href={category.href}
+                        className="flex items-center justify-between rounded-xl px-3.5 py-2.5 text-[13px] font-medium text-gray-700 transition hover:bg-gray-50 hover:text-black"
+                      >
+                        <span>{category.name}</span>
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-gray-300 rtl:rotate-180"
+                        >
+                          <path d="M9 18l6-6-6-6" />
+                        </svg>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
-          </form>
-        </div>
-      </nav>
 
-      {/* =========================================================
-          BOTTOM NAVIGATION
-      ========================================================== */}
+            {/* خط جداکننده عمودی */}
+            <span className="h-5 w-px bg-[#D9D9D9]" aria-hidden="true" />
+
+            {/* محصولات پرفروش با آیکون شعله قرمز */}
+            <Link
+              href="/products?sort=bestsellers"
+              className="font-ray flex items-center gap-1.25 font-bold text-black transition hover:text-red-500"
+            >
+              <Image
+                src="/images/hot.svg"
+                alt="محصولات پرفروش"
+                width={20}
+                height={20}
+              />
+              <span>محصولات پرفروش</span>
+            </Link>
+
+            {/* تماس با ما با آیکون تلفن */}
+            <Link
+              href="/contact"
+              className="font-ray flex items-center gap-1.5 font-bold text-black transition"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+              </svg>
+              <span>تماس با ما</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* =========================================================
+            نسخه موبایل: مینی‌لوگو / دکمه بازگشت + سرچ‌بار + لینک‌های سریع
+        ========================================================== */}
+        <div className="flex flex-col px-4 pt-5 md:hidden">
+          <div className="flex items-center gap-2">
+            {showBackButton ? (
+              <BackButton onClick={handleBack} className="h-10 w-10" />
+            ) : (
+              <Link
+                href="/"
+                aria-label="دیجی سلامت"
+                className="flex h-10 w-10 shrink-0 items-center justify-center sm:hidden"
+              >
+                <Image
+                  src="/images/logo-small.svg"
+                  alt="دیجی سلامت"
+                  width={32}
+                  height={32}
+                  priority
+                  className="object-contain"
+                />
+              </Link>
+            )}
+
+            <form
+              onSubmit={handleSearch}
+              className="flex max-w-xl flex-1 items-center"
+            >
+              <div className="relative w-full">
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="جستجو"
+                  aria-label="جستجو"
+                  className="h-11 w-full rounded-full border border-transparent bg-[#f0f2f5] pr-5 pl-11 text-xs text-gray-800 transition outline-none placeholder:text-gray-400 focus:border-gray-200 focus:bg-white"
+                />
+
+                {/* دکمه پاک کردن ورودی */}
+                {search && (
+                  <button
+                    type="button"
+                    onClick={clearSearch}
+                    aria-label="پاک کردن جستجو"
+                    className="absolute top-1/2 left-10 -translate-y-1/2 cursor-pointer p-1 text-gray-400 hover:text-black"
+                  >
+                    <Image
+                      src="/images/close-line.svg"
+                      alt="بستن"
+                      width={14}
+                      height={14}
+                    />
+                  </button>
+                )}
+
+                {/* آیکون ذره‌بین */}
+                <button
+                  type="submit"
+                  aria-label="جستجو"
+                  className="absolute top-1/2 left-3.5 flex -translate-y-1/2 items-center justify-center text-gray-400 transition hover:text-gray-700"
+                >
+                  <svg
+                    width="19"
+                    height="19"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="m20 20-3.5-3.5" />
+                  </svg>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <hr className="my-3 h-px border-0 bg-[#ECEDEF]" />
+
+          {/* لینک‌های سریع زیر سرچ‌بار */}
+          <nav
+            aria-label="لینک‌های سریع"
+            className="font-ray flex items-center gap-4 text-sm font-bold text-black"
+          >
+            <Link
+              href="/products?sort=bestsellers"
+              className="flex items-center gap-1.5 transition hover:text-red-500"
+            >
+              <Image
+                src="/images/hot.svg"
+                alt=""
+                aria-hidden="true"
+                width={18}
+                height={18}
+              />
+              <span>محصولات پرفروش</span>
+            </Link>
+
+            <span className="h-4 w-px bg-[#D9D9D9]" aria-hidden="true" />
+
+            <Link
+              href="/contact"
+              className="flex items-center gap-1.5 transition"
+            >
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+              </svg>
+              <span>تماس با ما</span>
+            </Link>
+          </nav>
+        </div>
+      </header>
+
+      {/* نوار ناوبری پایین صفحه برای موبایل */}
       {showBottomNav && <BottomNav cartCount={cartCount} />}
     </>
   )

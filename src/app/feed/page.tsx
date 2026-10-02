@@ -47,7 +47,7 @@ export default function Feed() {
             <div key={category.id}>
               <ShopProductsSection
                 title={category.name}
-                description={category.description || ''}
+                description={''}
                 products={category.products}
               />
               {/* <ShopBundle collections={activeCollections} />{' '} */}
