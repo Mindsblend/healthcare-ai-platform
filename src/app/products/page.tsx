@@ -3,6 +3,7 @@
 import {
   Suspense,
   memo,
+  startTransition,
   useCallback,
   useEffect,
   useMemo,
@@ -36,6 +37,13 @@ const ITEMS_PER_PAGE = 9
 const LOAD_MORE_DELAY_MS = 350
 
 const MOBILE_QUERY = '(max-width: 639px)'
+
+// انیمیشن شیت‌های موبایل (فیلتر / مرتب‌سازی)
+// ورود کمی آهسته‌تر و با ease نرم (شبیه iOS)، خروج سریع‌تر و ease-in؛
+// کلاس‌ها literal نوشته شدن تا Tailwind اسکنشون کنه
+const SHEET_ENTER_TIMING = 'duration-[350ms] ease-[cubic-bezier(0.32,0.72,0,1)]'
+const SHEET_EXIT_TIMING = 'duration-[250ms] ease-[cubic-bezier(0.4,0,1,1)]'
+const SHEET_EXIT_MS = 250
 
 type SortKey = 'default' | 'price-asc' | 'price-desc'
 
@@ -208,6 +216,36 @@ function BottomSheet({
   children: ReactNode
   footer?: ReactNode
 }) {
+  // mounted: بعد از بسته شدن، تا آخر انیمیشن خروج داخل DOM می‌مونه
+  const [mounted, setMounted] = useState(false)
+
+  // entered: دو فریم بعد از mount شدن true می‌شه تا مرورگر اول حالت «بسته» رو
+  // رندر کنه و ترنزیشن ورود واقعاً اجرا بشه (و از هزینه‌ی mount محتوا جدا باشه)
+  const [entered, setEntered] = useState(false)
+
+  useEffect(() => {
+    if (open) {
+      setMounted(true)
+
+      let raf2 = 0
+      const raf1 = requestAnimationFrame(() => {
+        raf2 = requestAnimationFrame(() => setEntered(true))
+      })
+
+      return () => {
+        cancelAnimationFrame(raf1)
+        cancelAnimationFrame(raf2)
+      }
+    }
+
+    setEntered(false)
+
+    // بعد از تموم شدن ترنزیشن خروج از DOM حذف می‌شه
+    const timeout = setTimeout(() => setMounted(false), SHEET_EXIT_MS + 50)
+
+    return () => clearTimeout(timeout)
+  }, [open])
+
   useEffect(() => {
     if (!open) return
 
@@ -236,18 +274,26 @@ function BottomSheet({
     }
   }, [open, onClose])
 
+  if (!open && !mounted) return null
+
+  // برای بسته شدن مستقیم از prop مشتق می‌شه (نه از state) تا انیمیشن خروج
+  // در همون commit اول شروع بشه و منتظر effect نمی‌مونه
+  const isVisible = open && entered
+
+  // ترنزیشن با timing حالت «مقصد» اجرا می‌شه
+  const timing = isVisible ? SHEET_ENTER_TIMING : SHEET_EXIT_TIMING
+
   return (
     <div
       className={`fixed inset-0 z-50 lg:hidden ${
-        open
-          ? 'visible'
-          : 'invisible transition-[visibility] delay-300 duration-0'
+        open ? '' : 'pointer-events-none'
       }`}
     >
       <div
         onClick={onClose}
-        className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ease-out ${
-          open ? 'opacity-100' : 'opacity-0'
+        aria-hidden="true"
+        className={`absolute inset-0 touch-none bg-black/40 transition-opacity motion-reduce:transition-none ${timing} ${
+          isVisible ? 'opacity-100' : 'opacity-0'
         }`}
       />
 
@@ -255,8 +301,8 @@ function BottomSheet({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`absolute inset-x-0 bottom-0 flex max-h-[85vh] flex-col rounded-t-3xl bg-white shadow-2xl transition-transform duration-300 ease-out will-change-transform ${
-          open ? 'translate-y-0' : 'translate-y-full'
+        className={`absolute inset-x-0 bottom-0 flex max-h-[85dvh] flex-col rounded-t-3xl bg-white shadow-2xl transition-transform will-change-transform motion-reduce:transition-none ${timing} ${
+          isVisible ? 'translate-y-0' : 'translate-y-full'
         }`}
       >
         <div className="flex justify-center pt-3">
@@ -278,7 +324,9 @@ function BottomSheet({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-5 pb-4">{children}</div>
+        <div className="flex-1 overflow-y-auto overscroll-contain px-5 pb-4">
+          {children}
+        </div>
 
         {footer && (
           <div className="border-t border-gray-100 bg-white px-5 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
@@ -656,55 +704,44 @@ function ProductsContent() {
   const hasResults = filteredProducts.length > 0
 
   /* =========================================================
-     Infinite scroll
-  ========================================================== */
+   Infinite scroll
+========================================================== */
 
   const loadMore = useCallback(() => {
-    if (isLoadingMore || !hasMore) return
+    // گارد همزمانی: تا وقتی تایمر قبلی تموم نشده، لود جدید شروع نمی‌شه
+    if (loadMoreTimeoutRef.current || !hasMore) return
 
     setIsLoadingMore(true)
 
     // دیتا همین الان کامل توی کلاینت هست؛ این مکث فقط برای تجربه‌ی
-    // بصری (دیده شدن اسکلتون + جلوگیری از پاپ ناگهانی چند کارت) هست،
-    // نه یک فراخوانی واقعی شبکه. اگه بعداً API صفحه‌بندی‌شده اضافه شد،
-    // به‌جای setTimeout همینجا fetch صفحه بعد صدا زده بشه.
+    // بصری (دیده شدن اسکلتون + جلوگیری از پاپ ناگهانی چند کارت) هست.
+    // اگه بعداً API صفحه‌بندی‌شده اضافه شد، به‌جای setTimeout همینجا
+    // fetch صفحه بعد صدا زده بشه.
     loadMoreTimeoutRef.current = setTimeout(() => {
+      loadMoreTimeoutRef.current = null
+
       setVisibleCount((count) =>
         Math.min(count + ITEMS_PER_PAGE, filteredProducts.length),
       )
       setIsLoadingMore(false)
     }, LOAD_MORE_DELAY_MS)
-  }, [isLoadingMore, hasMore, filteredProducts.length])
-
-  // آخرین مقدارها رو توی ref نگه می‌داریم تا observer زیر لازم نباشه
-  // با هر تغییر hasMore/isLoadingMore/loadMore از نو ساخته بشه
-  const hasMoreRef = useRef(hasMore)
-  const isLoadingMoreRef = useRef(isLoadingMore)
-  const loadMoreRef = useRef(loadMore)
+  }, [hasMore, filteredProducts.length])
 
   useEffect(() => {
-    hasMoreRef.current = hasMore
-    isLoadingMoreRef.current = isLoadingMore
-    loadMoreRef.current = loadMore
-  })
-
-  useEffect(() => {
-    // فقط وقتی از loading اولیه خارج شدیم و نتیجه‌ای هست observer رو وصل کن؛
-    // با loading/hasResults به‌جای hasMore/isLoadingMore، observer دیگه
-    // هر بار که یک Batch لود می‌شه از نو ساخته نمی‌شه
-    if (loading || !hasResults) return
+    // observer فقط وقتی وصل می‌شه که واقعاً بشه لود کرد.
+    // با هر تغییر isLoadingMore / visibleCount / hasMore از نو ساخته می‌شه،
+    // و چون observe() همیشه یک notification اولیه با وضعیت «فعلی» می‌فرسته،
+    // اگه سنتینل بعد از اضافه شدن بچ هنوز داخل ناحیه باشه (بدون هیچ
+    // transition جدیدی)، بچ بعدی خودکار لود می‌شه.
+    if (loading || !hasResults || !hasMore || isLoadingMore) return
 
     const node = sentinelRef.current
     if (!node) return
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (
-          entries[0]?.isIntersecting &&
-          hasMoreRef.current &&
-          !isLoadingMoreRef.current
-        ) {
-          loadMoreRef.current()
+        if (entries.some((entry) => entry.isIntersecting)) {
+          loadMore()
         }
       },
       { rootMargin: '600px 0px' },
@@ -715,7 +752,7 @@ function ProductsContent() {
     return () => {
       observer.disconnect()
     }
-  }, [loading, hasResults])
+  }, [loading, hasResults, hasMore, isLoadingMore, visibleCount, loadMore])
 
   /* =========================================================
      Derived UI
@@ -789,16 +826,20 @@ function ProductsContent() {
     setMinPrice(low)
     setMaxPrice(high)
 
-    setAppliedPrice(
-      low === PRICE_MIN && high === PRICE_MAX
-        ? null
-        : {
-            min: low,
-            max: high,
-          },
-    )
-
+    // اول بسته شدن شیت (اولویت بالا)، فیلتر شدن لیست بعدش در پس‌زمینه؛
+    // تا رندر سنگین لیست، شروع انیمیشن بستن رو عقب نندازه
     setIsFilterOpen(false)
+
+    startTransition(() => {
+      setAppliedPrice(
+        low === PRICE_MIN && high === PRICE_MAX
+          ? null
+          : {
+              min: low,
+              max: high,
+            },
+      )
+    })
   }, [minPrice, maxPrice])
 
   const clearPrice = useCallback(() => {
@@ -808,9 +849,12 @@ function ProductsContent() {
   }, [])
 
   const resetFilters = useCallback(() => {
-    setSelectedCategoryIds(new Set())
-    clearPrice()
     setIsFilterOpen(false)
+
+    startTransition(() => {
+      setSelectedCategoryIds(new Set())
+      clearPrice()
+    })
 
     if (categoryIdParam) {
       updateUrl((params) => {
@@ -829,8 +873,11 @@ function ProductsContent() {
   }, [clearPrice, router])
 
   const selectSort = useCallback((key: SortKey) => {
-    setSortBy(key)
     setIsSortOpen(false)
+
+    startTransition(() => {
+      setSortBy(key)
+    })
   }, [])
 
   /* =========================================================
@@ -988,7 +1035,7 @@ function ProductsContent() {
         {/* Heading */}
         <div className="flex items-end justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="font-aria text-color-title-on-light text-2xl font-extrabold sm:text-3xl">
+            <h1 className="font-aria text-color-title-on-light text-xl sm:text-2xl font-extrabold xl:text-3xl">
               محصولات
             </h1>
 
@@ -1130,64 +1177,60 @@ function ProductsContent() {
           FILTER SHEET
       ====================================================== */}
 
-      {isFilterOpen && (
-        <BottomSheet
-          open
-          onClose={closeFilter}
-          title="فیلترها"
-          footer={
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={applyPrice}
-                className="font-ray h-12 flex-1 cursor-pointer rounded-full bg-black text-sm font-bold text-white"
-              >
-                اعمال فیلتر
-              </button>
+      <BottomSheet
+        open={isFilterOpen}
+        onClose={closeFilter}
+        title="فیلترها"
+        footer={
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={applyPrice}
+              className="font-ray h-12 flex-1 cursor-pointer rounded-full bg-black text-sm font-bold text-white"
+            >
+              اعمال فیلتر
+            </button>
 
-              <button
-                type="button"
-                onClick={resetFilters}
-                className="font-ray h-12 flex-1 cursor-pointer rounded-full bg-[#f2f2f2] text-sm font-bold text-black"
-              >
-                حذف همه
-              </button>
-            </div>
-          }
-        >
-          {renderFilters(false)}
-        </BottomSheet>
-      )}
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="font-ray h-12 flex-1 cursor-pointer rounded-full bg-[#f2f2f2] text-sm font-bold text-black"
+            >
+              حذف همه
+            </button>
+          </div>
+        }
+      >
+        {renderFilters(false)}
+      </BottomSheet>
 
       {/* =====================================================
           SORT SHEET
       ====================================================== */}
 
-      {isSortOpen && (
-        <BottomSheet open onClose={closeSort} title="مرتب‌سازی">
-          <ul className="pb-4">
-            {SORT_OPTIONS.map((option) => {
-              const isSelected = sortBy === option.key
+      <BottomSheet open={isSortOpen} onClose={closeSort} title="مرتب‌سازی">
+        <ul className="pb-4">
+          {SORT_OPTIONS.map((option) => {
+            const isSelected = sortBy === option.key
 
-              return (
-                <li key={option.key}>
-                  <button
-                    type="button"
-                    onClick={() => selectSort(option.key)}
-                    className={`font-ray flex w-full cursor-pointer items-center justify-between border-b border-gray-100 py-4 text-[15px] ${
-                      isSelected ? 'font-bold text-black' : 'text-gray-600'
-                    }`}
-                  >
-                    {option.label}
+            return (
+              <li key={option.key}>
+                <button
+                  type="button"
+                  onClick={() => selectSort(option.key)}
+                  className={`font-ray flex w-full cursor-pointer items-center justify-between border-b border-gray-100 py-4 text-[15px] ${
+                    isSelected ? 'font-bold text-black' : 'text-gray-600'
+                  }`}
+                >
+                  {option.label}
 
-                    {isSelected && <CheckIcon />}
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
-        </BottomSheet>
-      )}
+                  {isSelected && <CheckIcon />}
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+      </BottomSheet>
     </div>
   )
 }
