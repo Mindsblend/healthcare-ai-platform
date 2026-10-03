@@ -8,6 +8,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useCart } from '@/features/shop/hooks/cart/useCart'
 import BottomNav, { shouldShowBottomNav } from './BottomNav'
 import LandingNavbar from './LandingNavbar'
+import SectionNavbar from './SectionNavbar'
 import SmartSearch from './SmartSearch'
 
 type NavbarProps = {
@@ -16,6 +17,12 @@ type NavbarProps = {
 
 const GUEST_SEARCH_ROUTES = ['/products']
 const BACK_FALLBACK_ROUTE = '/'
+
+// صفحه‌هایی که ناوبار مخصوص خودشان را دارند (اولین تطابق برنده است)
+const SECTION_ROUTES = [
+  { prefix: '/cart', title: 'سبد خرید' },
+  { prefix: '/profile', title: 'پروفایل من' },
+]
 
 // نمونه دسته‌بندی‌ها (می‌توانید عنوان‌ها و آیکون‌ها را مطابق دسته‌های زیست‌یار ویرایش کنید)
 const CATEGORIES = [
@@ -87,6 +94,7 @@ export default function Navbar({ user }: NavbarProps) {
 
   const showBottomNav = shouldShowBottomNav(pathname, user)
   const guestHasSearch = isInRoutes(pathname, GUEST_SEARCH_ROUTES)
+  const isProductsSection = isInRoutes(pathname, ['/products'])
 
   const PRODUCT_DETAIL_PREFIX = '/products/'
 
@@ -150,6 +158,19 @@ export default function Navbar({ user }: NavbarProps) {
             : undefined
         }
       />
+    )
+  }
+
+  const currentSection = SECTION_ROUTES.find(({ prefix }) =>
+    isInRoutes(pathname, [prefix]),
+  )
+
+  if (currentSection) {
+    return (
+      <>
+        <SectionNavbar title={currentSection.title} />
+        {showBottomNav && <BottomNav cartCount={cartCount} />}
+      </>
     )
   }
 
@@ -318,8 +339,13 @@ export default function Navbar({ user }: NavbarProps) {
 
         {/* =========================================================
             نسخه موبایل: مینی‌لوگو / دکمه بازگشت + سرچ‌بار + لینک‌های سریع
+            (لینک‌های سریع در بخش محصولات نمایش داده نمی‌شوند)
         ========================================================== */}
-        <div className="flex flex-col px-4 pt-5 md:hidden">
+        <div
+          className={`flex flex-col px-4 pt-5 md:hidden ${
+            isProductsSection ? 'pb-3' : ''
+          }`}
+        >
           <div className="flex items-center gap-2">
             {showBackButton ? (
               <BackButton onClick={handleBack} className="h-10 w-10" />
@@ -343,49 +369,53 @@ export default function Navbar({ user }: NavbarProps) {
             <SmartSearch className="flex md:hidden" />
           </div>
 
-          <hr className="my-3 h-px border-0 bg-[#ECEDEF]" />
+          {!isProductsSection && (
+            <>
+              <hr className="my-3 h-px border-0 bg-[#ECEDEF]" />
 
-          {/* لینک‌های سریع زیر سرچ‌بار */}
-          <nav
-            aria-label="لینک‌های سریع"
-            className="font-ray flex items-center gap-4 text-sm font-bold text-black"
-          >
-            <Link
-              href="/products?sort=bestsellers"
-              className="flex items-center gap-1.5 transition hover:text-red-500"
-            >
-              <Image
-                src="/images/hot.svg"
-                alt=""
-                aria-hidden="true"
-                width={18}
-                height={18}
-              />
-              <span>محصولات پرفروش</span>
-            </Link>
-
-            <span className="h-4 w-px bg-[#D9D9D9]" aria-hidden="true" />
-
-            <Link
-              href="/contact"
-              className="flex items-center gap-1.5 transition"
-            >
-              <svg
-                width="15"
-                height="15"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
+              {/* لینک‌های سریع زیر سرچ‌بار */}
+              <nav
+                aria-label="لینک‌های سریع"
+                className="font-ray flex items-center gap-4 text-sm font-bold text-black"
               >
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-              </svg>
-              <span>تماس با ما</span>
-            </Link>
-          </nav>
+                <Link
+                  href="/products?sort=bestsellers"
+                  className="flex items-center gap-1.5 transition hover:text-red-500"
+                >
+                  <Image
+                    src="/images/hot.svg"
+                    alt=""
+                    aria-hidden="true"
+                    width={18}
+                    height={18}
+                  />
+                  <span>محصولات پرفروش</span>
+                </Link>
+
+                <span className="h-4 w-px bg-[#D9D9D9]" aria-hidden="true" />
+
+                <Link
+                  href="/contact"
+                  className="flex items-center gap-1.5 transition"
+                >
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                  </svg>
+                  <span>تماس با ما</span>
+                </Link>
+              </nav>
+            </>
+          )}
         </div>
       </header>
 
