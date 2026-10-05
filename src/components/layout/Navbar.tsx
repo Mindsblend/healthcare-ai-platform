@@ -165,18 +165,16 @@ export default function Navbar({ user }: NavbarProps) {
     isInRoutes(pathname, [prefix]),
   )
 
-  if (currentSection) {
-    return (
-      <>
-        <SectionNavbar title={currentSection.title} />
-        {showBottomNav && <BottomNav cartCount={cartCount} />}
-      </>
-    )
-  }
-
   return (
     <>
-      <header className="font-ray top-0 z-50 w-full bg-white">
+      {/* موبایل: ناوبار مخصوص سبد خرید / پروفایل */}
+      {currentSection && <SectionNavbar title={currentSection.title} />}
+      
+      <header
+        className={`font-ray top-0 z-50 w-full bg-white ${
+          currentSection ? 'hidden md:block' : ''
+        }`}
+      >
         <div className="container mx-auto hidden h-20 items-center justify-between gap-6 px-4 sm:flex lg:px-8">
           <div className="flex w-full max-w-2xl items-center gap-10">
             <div className="flex shrink-0 items-center">

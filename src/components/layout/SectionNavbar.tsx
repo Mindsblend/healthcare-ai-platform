@@ -24,7 +24,7 @@ export default function SectionNavbar({
   }
 
   return (
-    <header className="font-ray sticky top-0 z-50 w-full border-b border-[#ECEDEF] bg-white">
+    <header className="font-ray sticky top-0 z-50 w-full border-b border-[#ECEDEF] bg-white md:hidden">
       <div className="container mx-auto flex h-16 items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <button
