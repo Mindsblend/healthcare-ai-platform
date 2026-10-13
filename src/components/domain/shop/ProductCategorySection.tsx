@@ -42,8 +42,16 @@ const ProductCategorySection = () => {
   if (!categories?.length) return null
 
   return (
-    <div className="sm:container max-sm:pr-6.25">
-      <div className="flex snap-x snap-mandatory [scrollbar-width:none] gap-4 overflow-x-auto py-1 [-ms-overflow-style:none] sm:px-9 md:snap-none md:flex-wrap md:justify-between md:gap-x-6 md:gap-y-8 md:overflow-visible [&::-webkit-scrollbar]:hidden">
+    <div className="mt-12.5 mx-auto max-sm:pr-6.25 max-w-[900px] sm:mt-20">
+      <div className="sm:text-center">
+        <h1 className="font-aria text-color-title-on-light text-3xl font-extrabold xl:text-[40px]">
+          دسته بندی محصولات
+        </h1>
+        <p className="font-ray font-regular text-color-body-on-light mt-1 text-sm xl:text-base">
+          سالم‌ترین و ارگانیک‌ترین انتخاب‌ها، با دقت برای شما آماده شده‌اند
+        </p>
+      </div>
+      <div className="flex snap-x snap-mandatory mt-7 [scrollbar-width:none] gap-4 overflow-x-auto py-1 [-ms-overflow-style:none] md:snap-none md:flex-wrap md:justify-between md:overflow-visible [&::-webkit-scrollbar]:hidden">
         <button
           type="button"
           onClick={handleAllProductsClick}
