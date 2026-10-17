@@ -109,7 +109,7 @@ export default function BottomNav({ cartCount }: { cartCount: number }) {
   return (
     <nav
       aria-label="ناوبری اصلی"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)] lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white lg:hidden"
     >
       <ul className="flex h-16 items-stretch">
         {ITEMS.map(({ href, label, icon: Icon, activeFor }) => {
