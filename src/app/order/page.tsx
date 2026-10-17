@@ -275,11 +275,7 @@ const CheckoutPage = () => {
       // Wait until every pending cart mutation is finished.
       // =======================================================
 
-      console.log('🛒 Waiting for cart synchronization...')
-
       await waitForCartSync()
-
-      console.log('✅ Cart synchronization completed')
 
       // =======================================================
       // 4. Update profile if needed
@@ -315,14 +311,10 @@ const CheckoutPage = () => {
       // 6. Create order
       // =======================================================
 
-      console.log('📝 Creating order...')
-
       const orderResult = await createOrder({
         shippingInfo,
         paymentMethod: activeBtn,
       })
-
-      console.log('✅ Order created:', orderResult)
 
       if (!orderResult?.id) {
         throw new Error('Failed to create order')
@@ -334,12 +326,6 @@ const CheckoutPage = () => {
 
       const orderTotal = Number(orderResult.totalPrice)
 
-      console.log('💰 Final order total:', {
-        orderId: orderResult.id,
-        totalPrice: orderResult.totalPrice,
-        normalizedTotal: orderTotal,
-      })
-
       if (!Number.isFinite(orderTotal) || orderTotal <= 0) {
         throw new Error('مبلغ سفارش معتبر نیست')
       }
@@ -348,8 +334,6 @@ const CheckoutPage = () => {
       // 8. Payment
       // =======================================================
 
-      console.log('💳 Initiating payment...')
-
       const paymentResult = await initiatePayment({
         amount: orderTotal,
         description: `سفارش شماره ${orderResult.id}`,
@@ -357,8 +341,6 @@ const CheckoutPage = () => {
         email: shippingInfo.email,
         mobile: shippingInfo.phone,
       })
-
-      console.log('📊 Payment result:', paymentResult)
 
       if (!paymentResult.success) {
         setErrorMessage(paymentResult.error || 'خطا در اتصال به درگاه پرداخت')
@@ -545,7 +527,7 @@ const CheckoutPage = () => {
                           )}
                         </div>
                         <div className="flex-1 sm:px-4">
-                          <h3 className="font-aria text-color-title-on-light text-base sm:text-lg font-extrabold">
+                          <h3 className="font-aria text-color-title-on-light text-base font-extrabold sm:text-lg">
                             {item.product.title}
                           </h3>
                           <p className="font-ray text-color-body-on-light mt-1 line-clamp-2 text-xs font-medium">

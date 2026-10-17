@@ -3,13 +3,16 @@ import { CartService } from '@/features/shop/services/CartService'
 import { requireAuthority } from '@/features/auth/services/sessionService'
 
 export async function POST(req: NextRequest) {
-  await requireAuthority({ requiredRole: 'USER' })
+  const session = await requireAuthority({ requiredRole: 'USER' })
   try {
     const { cartItemId, quantity } = await req.json()
-    const updatedItem = await CartService.updateItemQuantity({
-      cartItemId,
-      quantity,
-    })
+    const updatedItem = await CartService.updateItemQuantity(
+      {
+        cartItemId,
+        quantity,
+      },
+      session.id,
+    )
     return NextResponse.json(updatedItem)
   } catch (err) {
     return NextResponse.json(

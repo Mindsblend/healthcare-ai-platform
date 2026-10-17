@@ -27,22 +27,22 @@ const AddProduct = () => {
     categoryId: 0,
     feedCategoryId: 0,
     icons: [
-      { id: 1, title: '', description: '', iconPath: '' },
-      { id: 2, title: '', description: '', iconPath: '' },
-      { id: 3, title: '', description: '', iconPath: '' },
+      { title: '', description: '', iconPath: '' },
+      { title: '', description: '', iconPath: '' },
+      { title: '', description: '', iconPath: '' },
     ],
     gains: [
-      { id: 1, title: '', ingredient: '', description: '' },
-      { id: 2, title: '', ingredient: '', description: '' },
-      { id: 3, title: '', ingredient: '', description: '' },
+      { title: '', ingredient: '', description: '' },
+      { title: '', ingredient: '', description: '' },
+      { title: '', ingredient: '', description: '' },
     ],
     faqs: [
-      { id: 1, question: '', answer: '' },
-      { id: 2, question: '', answer: '' },
-      { id: 3, question: '', answer: '' },
-      { id: 4, question: '', answer: '' },
-      { id: 5, question: '', answer: '' },
-      { id: 6, question: '', answer: '' },
+      { question: '', answer: '' },
+      { question: '', answer: '' },
+      { question: '', answer: '' },
+      { question: '', answer: '' },
+      { question: '', answer: '' },
+      { question: '', answer: '' },
     ],
   })
 
@@ -239,7 +239,7 @@ const AddProduct = () => {
                     دسته‌بندی فید
                   </label>
                   <select
-                    value={form.feedCategoryId}
+                    value={form.feedCategoryId ?? ''}
                     onChange={(e) =>
                       handleChange('feedCategoryId', e.target.value)
                     }

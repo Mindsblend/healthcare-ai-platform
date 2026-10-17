@@ -9,7 +9,6 @@ export async function getCart(): Promise<GetCartResponse> {
   const data = await res.json()
 
   if (!res.ok) {
-    console.log('[getCart] error object:', data?.error)
     throw new Error(data?.error?.code || 'UNKNOWN')
   }
 

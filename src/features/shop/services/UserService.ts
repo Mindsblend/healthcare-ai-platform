@@ -111,16 +111,21 @@ export class UserService {
   }
 
   static async setDefaultAddress(addressId: string, userId: string) {
-    // Remove default from all user's addresses
-    await prisma.address.updateMany({
-      where: { userId },
-      data: { isDefault: false },
-    })
+    return prisma.$transaction(async (tx) => {
+      const address = await tx.address.update({
+        where: { id: addressId, userId },
+        data: { isDefault: true },
+      })
 
-    // Set the selected address as default
-    return await prisma.address.update({
-      where: { id: addressId, userId },
-      data: { isDefault: true },
+      await tx.address.updateMany({
+        where: {
+          userId,
+          id: { not: addressId },
+        },
+        data: { isDefault: false },
+      })
+
+      return address
     })
   }
 

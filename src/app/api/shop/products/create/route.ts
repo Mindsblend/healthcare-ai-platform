@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@/generated/prisma/client'
 
 import { ProductService } from '@/features/shop/services/ProductService'
 import { requireAuthority } from '@/features/auth/services/sessionService'

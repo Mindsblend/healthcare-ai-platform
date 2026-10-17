@@ -60,18 +60,12 @@ export async function sendOtpViaSms(
           }
 
           if (!json?.status || json?.status !== 1) {
-            console.log(
-              '[SMS.IR] Provider response:',
-              JSON.stringify(json, null, 2),
-            )
             return reject(
               createDomainError(ErrorCode.OTP_PROVIDER_FAILED, {
                 providerResponse: json,
               }),
             )
           }
-
-          console.log('[SMS.IR] OTP sent:', phone)
           resolve({ success: true, code })
         })
       },

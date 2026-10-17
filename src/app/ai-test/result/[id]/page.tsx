@@ -105,10 +105,6 @@ const Page = ({ params }: Props) => {
     { title: 'انرژی پایدارتر در طول روز' },
   ]
 
-console.log('useHealthAssessmentResult - data source:', 
-  data?.mainBottleneck || 'unknown'
-)
-console.log('Full data:', JSON.stringify(data, null, 2))
   return (
     <LoadingBar
       loading={loading}
@@ -146,9 +142,9 @@ console.log('Full data:', JSON.stringify(data, null, 2))
                     {whyThisMatters}
                   </p>
                   {causalChain.length > 0 && (
-                    <div className="flex flex-col gap-3 mt-3 text-base w-full text-gray-500">
+                    <div className="mt-3 flex w-full flex-col gap-3 text-base text-gray-500">
                       {causalChain.map((item, idx) => (
-                          <span key={idx}>{item}</span>
+                        <span key={idx}>{item}</span>
                       ))}
                     </div>
                   )}
@@ -175,17 +171,17 @@ console.log('Full data:', JSON.stringify(data, null, 2))
                 </div>
 
                 {/* Suggested First Step (from goals) */}
-                <div className=" rounded-[10px] bg-[#F2F2F2] px-6.25 py-7 text-right text-black">
+                <div className="rounded-[10px] bg-[#F2F2F2] px-6.25 py-7 text-right text-black">
                   <h1 className="font-aria text-2xl font-extrabold">
                     اولین قدم
                   </h1>
                   {startingPoint ? (
                     <>
-                      <h1 className="mt-4 font-aria text-base font-bold">
+                      <h1 className="font-aria mt-4 text-base font-bold">
                         {startingPoint.title}
                       </h1>
 
-                      <p className="mt-1 font-ray text-sm text-[#555]">
+                      <p className="font-ray mt-1 text-sm text-[#555]">
                         {startingPoint.description}
                       </p>
 
@@ -409,13 +405,12 @@ console.log('Full data:', JSON.stringify(data, null, 2))
                       </div>
                     ),
                   )}
-                  
                 </div>
-                  {mainBottleneck?.leverageReason && (
-                    <p className="font-ray mt-6 max-w-3xl text-[#555]">
-                      {mainBottleneck.leverageReason}
-                    </p>
-                  )}
+                {mainBottleneck?.leverageReason && (
+                  <p className="font-ray mt-6 max-w-3xl text-[#555]">
+                    {mainBottleneck.leverageReason}
+                  </p>
+                )}
               </div>
             )}
 
@@ -423,12 +418,22 @@ console.log('Full data:', JSON.stringify(data, null, 2))
               اگر این گلوگاه بهبود پیدا کند
             </h1>
             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-              {mainBottleneck?.expectedBenefits?.map((benefit: string, idx: number) => (
-                <div key={idx} className="flex items-center justify-center gap-1.5 text-black">
-                  <Image src="/images/check-circle.svg" alt="check circle icon" width={24} height={24} />
-                  <h1 className="font-ray text-lg font-medium">{benefit}</h1>
-                </div>
-              ))}
+              {mainBottleneck?.expectedBenefits?.map(
+                (benefit: string, idx: number) => (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-center gap-1.5 text-black"
+                  >
+                    <Image
+                      src="/images/check-circle.svg"
+                      alt="check circle icon"
+                      width={24}
+                      height={24}
+                    />
+                    <h1 className="font-ray text-lg font-medium">{benefit}</h1>
+                  </div>
+                ),
+              )}
             </div>
           </div>
           <div className="flex flex-col items-center justify-center">
@@ -444,103 +449,108 @@ console.log('Full data:', JSON.stringify(data, null, 2))
                 در کل سیستم سلامت شما دارد.
               </p>
             </div>
-              {/* ================= MAIN BOTTLENECK SECTION ================= */}
-          {mainBottleneck && (
-            <div className="text-center">
-              <div className="mt-10 flex flex-col items-center">
-                <div className="flex items-center justify-center flex-col rounded-xl bg-[#F2F2F2] p-7">
-                  <Image src='/images/goal.svg' alt='goal icon'  width={30} height={30} />
+            {/* ================= MAIN BOTTLENECK SECTION ================= */}
+            {mainBottleneck && (
+              <div className="text-center">
+                <div className="mt-10 flex flex-col items-center">
+                  <div className="flex flex-col items-center justify-center rounded-xl bg-[#F2F2F2] p-7">
+                    <Image
+                      src="/images/goal.svg"
+                      alt="goal icon"
+                      width={30}
+                      height={30}
+                    />
 
-                  <h3 className="mt-3 font-aria text-2xl text-black font-extrabold">
-                    {mainBottleneck.title}
-                  </h3>
+                    <h3 className="font-aria mt-3 text-2xl font-extrabold text-black">
+                      {mainBottleneck.title}
+                    </h3>
 
-                  <p className="font-ray mt-4 max-w-xs text-center text-[#555]">
-                    {mainBottleneck.explanation}
-                  </p>
+                    <p className="font-ray mt-4 max-w-xs text-center text-[#555]">
+                      {mainBottleneck.explanation}
+                    </p>
 
-                  {mainBottleneck.affectedAreas && mainBottleneck.affectedAreas.length > 0 && (
-                    <div className="mt-6">
-                      <h4 className="font-aria text-lg text-black font-bold">حوزه‌های تحت تأثیر:</h4>
-                      <ul className="mt-2 space-y-1 text-[#555]">
-                        {mainBottleneck.affectedAreas.map((area: string, idx: number) => (
-                          <li key={idx}>• {area}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                    {mainBottleneck.affectedAreas &&
+                      mainBottleneck.affectedAreas.length > 0 && (
+                        <div className="mt-6">
+                          <h4 className="font-aria text-lg font-bold text-black">
+                            حوزه‌های تحت تأثیر:
+                          </h4>
+                          <ul className="mt-2 space-y-1 text-[#555]">
+                            {mainBottleneck.affectedAreas.map(
+                              (area: string, idx: number) => (
+                                <li key={idx}>• {area}</li>
+                              ),
+                            )}
+                          </ul>
+                        </div>
+                      )}
 
-                  {mainBottleneck?.leverageReason && (
-                    <div className="mt-10 max-w-3xl rounded-xl bg-[#F2F2F2]">
-                      <h3 className="font-aria text-xl font-bold text-black">
-                        چرا این نقطه مهم‌ترین اهرم تغییر است؟
+                    {mainBottleneck?.leverageReason && (
+                      <div className="mt-10 max-w-3xl rounded-xl bg-[#F2F2F2]">
+                        <h3 className="font-aria text-xl font-bold text-black">
+                          چرا این نقطه مهم‌ترین اهرم تغییر است؟
+                        </h3>
+
+                        <p className="font-ray mt-3 text-[#555]">
+                          {mainBottleneck.leverageReason}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {domains && (
+            <div className="mt-24">
+              <div className="text-center">
+                <h2 className="font-aria text-4xl font-extrabold text-black">
+                  نقشه سیستم سلامت شما
+                </h2>
+              </div>
+
+              <div className="mt-10 grid gap-5 lg:grid-cols-2">
+                {Object.entries(domains).map(([key, domain]: any) => (
+                  <div
+                    key={key}
+                    className="rounded-xl bg-[#F2F2F2] p-6 text-black"
+                  >
+                    <div className="mb-4 flex items-center justify-between">
+                      <h3 className="font-aria text-2xl font-bold">
+                        {getDomainName(key)}
                       </h3>
 
-                      <p className="font-ray mt-3 text-[#555]">
-                        {mainBottleneck.leverageReason}
-                      </p>
+                      <span className="font-bold">{domain.score}/100</span>
                     </div>
-                  )}
-                </div>
+
+                    <div className="space-y-4">
+                      <p>
+                        <strong>بینش:</strong> {domain.insight}
+                      </p>
+
+                      <p>
+                        <strong>نقش در سیستم:</strong> {domain.roleInSystem}
+                      </p>
+
+                      <p>
+                        <strong>محرک‌ها:</strong> {domain.whatDrivesIt}
+                      </p>
+
+                      <p>
+                        <strong>اثرها:</strong> {domain.whatItAffects}
+                      </p>
+
+                      <div className="rounded-md bg-white p-3">
+                        🎯 {domain.microAction}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
-          </div>
 
-{domains && (
-  <div className="mt-24">
-    <div className="text-center">
-      <h2 className="font-aria text-4xl font-extrabold text-black">
-        نقشه سیستم سلامت شما
-      </h2>
-    </div>
-
-    <div className="mt-10 grid gap-5 lg:grid-cols-2">
-      {Object.entries(domains).map(([key, domain]: any) => (
-        <div
-          key={key}
-          className="rounded-xl text-black bg-[#F2F2F2] p-6"
-        >
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="font-aria text-2xl font-bold">
-              {getDomainName(key)}
-            </h3>
-
-            <span className="font-bold">
-              {domain.score}/100
-            </span>
-          </div>
-
-          <div className="space-y-4">
-            <p>
-              <strong>بینش:</strong> {domain.insight}
-            </p>
-
-            <p>
-              <strong>نقش در سیستم:</strong>{' '}
-              {domain.roleInSystem}
-            </p>
-
-            <p>
-              <strong>محرک‌ها:</strong>{' '}
-              {domain.whatDrivesIt}
-            </p>
-
-            <p>
-              <strong>اثرها:</strong>{' '}
-              {domain.whatItAffects}
-            </p>
-
-            <div className="rounded-md bg-white p-3">
-              🎯 {domain.microAction}
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-)}
-          
           {/* Future Projection + CTA */}
           <div className="mt-24 flex flex-col items-center justify-center text-center lg:mt-36">
             <div>

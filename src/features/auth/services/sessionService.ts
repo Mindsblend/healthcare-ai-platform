@@ -35,7 +35,7 @@ const COOKIE_NAME = 'session'
 
 const COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
-  secure: false,
+  secure: process.env.NODE_ENV === 'production',
   sameSite: 'lax',
   path: '/',
   maxAge: 60 * 60 * 24 * 7,
@@ -103,13 +103,11 @@ export async function getSession(): Promise<SessionPayload | null> {
     }
   } catch (err: any) {
     if (err.name === 'TokenExpiredError') {
-      console.log('Session token expired, clearing cookie')
       await clearSessionCookie()
       return null
     }
 
     if (err.name === 'JsonWebTokenError') {
-      console.log('Invalid session token, clearing cookie')
       await clearSessionCookie()
       return null
     }

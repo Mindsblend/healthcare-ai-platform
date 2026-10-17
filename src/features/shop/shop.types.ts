@@ -179,10 +179,12 @@ export interface GetOrderByIdResponse {
 }
 
 export type CreateOrderInput = {
-  userId?: string // User id is already provided in the api's route.ts
+  userId: string // User id is already provided in the api's route.ts
   shippingInfo: ShippingInfo
   paymentMethod: 'mellat' | 'zarinpal'
 }
+
+export type CreateOrderRequest = Omit<CreateOrderInput, 'userId'>
 
 export type OrderDetail = {
   id: string
@@ -316,6 +318,23 @@ export interface FaqType {
   answer: string
 }
 
+export interface CreateIconInput {
+  title: string
+  description: string
+  iconPath?: string | null
+}
+
+export interface CreateGainInput {
+  title: string
+  description: string
+  ingredient: string
+}
+
+export interface CreateFaqInput {
+  question: string
+  answer: string
+}
+
 export interface UpdateIconInput {
   title: string
   description: string
@@ -394,10 +413,10 @@ export interface CreateProductInput {
   image: string
   description: string
   categoryId: number
-  feedCategoryId: number
-  icons: IconType[]
-  gains: GainType[]
-  faqs: FaqType[]
+  feedCategoryId?: number | null
+  icons: CreateIconInput[]
+  gains: CreateGainInput[]
+  faqs: CreateFaqInput[]
 }
 
 export interface CreateProductResponse {

@@ -11,8 +11,6 @@ export async function verifyOtp(
 
   const storedCode = await getOtp(identifier)
 
-  console.log('[VERIFY OTP] key:', JSON.stringify(identifier))
-
   if (!storedCode) {
     throw createDomainError(ErrorCode.OTP_EXPIRED)
   }
