@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
+import { useUserInfo } from '@/features/shop/hooks/profile/useUserInfo'
 import type { ReactElement, SVGProps } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Pagination } from 'swiper/modules'
@@ -206,13 +207,19 @@ function GuaranteesCard({ href }: { href: string }) {
 ========================================================= */
 
 const ShopHeroSection = ({
-  userName = 'کیان',
+  userName,
   savingsAmount = 45_600_000,
   freeShippingThreshold = 3_000_000,
   discountedProductsHref = '/products?filter=discounted',
   guaranteesHref = '/guarantees',
   categories = defaultCategories,
 }: ShopHeroSectionProps = {}) => {
+  const { userInfo } = useUserInfo()
+
+  const displayName = [userInfo?.firstName, userInfo?.lastName]
+    .filter((name): name is string => Boolean(name?.trim()))
+    .join(' ')
+
   const cards = [
     {
       id: 'savings',
@@ -234,7 +241,7 @@ const ShopHeroSection = ({
       {/* Greeting */}
       <div className="mx-auto mb-8 flex max-w-3xl flex-col items-center px-4 text-center sm:mb-12">
         <h1 className="font-aria text-color-title-on-light text-[28px] leading-[1.5] font-extrabold sm:text-[34px] lg:text-[40px]">
-          {userName} عزیز، خوش آمدی{' '}
+          {displayName ? `${displayName} عزیز، خوش آمدی` : 'به دیجی سلامت خوش آمدی'}{' '}
           <span role="img" aria-label="دست تکان دادن" className="inline-block">
             👋
           </span>

@@ -658,7 +658,6 @@ export type UserAddress = {
 
 export type GetUserAddressResponse = UserAddress | null
 
-// جدید:
 export type UserInfo = {
   id: string
   firstName: string | null
@@ -667,7 +666,6 @@ export type UserInfo = {
   phone: string | null
 }
 
-// جدید:
 export type UserOrder = {
   id: string
   email: string | null

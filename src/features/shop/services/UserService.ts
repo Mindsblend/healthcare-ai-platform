@@ -26,18 +26,23 @@ export class UserService {
   }
 
   static async createUser(identifier: string, type: string) {
-    let user
     if (type === 'phone') {
-      user = await prisma.user.findUnique({ where: { phone: identifier } })
-    } else {
-      user = await prisma.user.findUnique({ where: { email: identifier } })
+      return prisma.user.upsert({
+        where: { phone: identifier },
+        update: {},
+        create: { phone: identifier },
+      })
     }
 
-    if (!user) {
-      user = await prisma.user.create({ data: { [type]: identifier } })
+    if (type === 'email') {
+      return prisma.user.upsert({
+        where: { email: identifier },
+        update: {},
+        create: { email: identifier },
+      })
     }
 
-    return user
+    throw new Error(`Unsupported identifier type: ${type}`)
   }
 
   static async fetchUserWithAddresses(userId: string) {

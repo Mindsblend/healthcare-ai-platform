@@ -170,19 +170,6 @@ const ProductSwiper = memo(({ products, categories }: ProductSwiperProps) => {
           <div className="flex items-center gap-x-2.5 self-start pr-5 xl:pr-14">
             <button
               onClick={() => swiperRef.current?.slidePrev()}
-              className="flex h-11.25 w-11.25 cursor-pointer items-center justify-center rounded-full bg-black xl:h-15 xl:w-15"
-            >
-              <Image
-                src="/images/arrow-white.svg"
-                alt="prev"
-                width={30}
-                height={30}
-                className="rotate-180 max-xl:h-5 max-xl:w-5"
-              />
-            </button>
-
-            <button
-              onClick={() => swiperRef.current?.slideNext()}
               className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-[#D9D9D9] xl:h-12.5 xl:w-12.5"
             >
               <Image
@@ -190,7 +177,19 @@ const ProductSwiper = memo(({ products, categories }: ProductSwiperProps) => {
                 alt="next"
                 width={20}
                 height={20}
-                className="invert max-xl:h-3.75 max-xl:w-3.75"
+                className="rotate-180 invert max-xl:h-3.75 max-xl:w-3.75"
+              />
+            </button>
+            <button
+              onClick={() => swiperRef.current?.slideNext()}
+              className="flex h-11.25 w-11.25 cursor-pointer items-center justify-center rounded-full bg-black xl:h-15 xl:w-15"
+            >
+              <Image
+                src="/images/arrow-white.svg"
+                alt="prev"
+                width={30}
+                height={30}
+                className="max-xl:h-5 max-xl:w-5"
               />
             </button>
           </div>
