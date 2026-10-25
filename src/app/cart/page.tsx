@@ -23,10 +23,11 @@ const Page = () => {
 
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false)
 
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0,
-  )
+  const subtotal = cartItems.reduce((sum, item) => {
+    const finalPrice = item.product.discountedPrice ?? item.product.price
+
+    return sum + finalPrice * item.quantity
+  }, 0)
 
   const TAX_RATE = 0.09
 
@@ -134,7 +135,9 @@ const Page = () => {
                     title={item.product.title}
                     solution={item.product.solution}
                     count={item.quantity}
-                    price={item.price}
+                    price={item.product.price}
+                    discount={item.product.discount}
+                    discountedPrice={item.product.discountedPrice}
                     image={item.product.image}
                     onUpdateQuantity={updateQuantity}
                     onRemove={removeFromCart}
@@ -150,13 +153,13 @@ const Page = () => {
               خلاصه سفارشات
             </h1>
 
-            <div className="space-y-5 mt-5">
+            <div className="mt-5 space-y-5">
               <div className="flex items-center justify-between">
                 <h1 className="font-aria text-color-title-on-light font-extrabold">
                   جمع خرید
                 </h1>
 
-                <h1 className="font-ray text-color-title-on-light font-bold text-lg">
+                <h1 className="font-ray text-color-title-on-light text-lg font-bold">
                   {subtotal.toLocaleString('fa-IR')} تومان
                 </h1>
               </div>
@@ -166,7 +169,7 @@ const Page = () => {
                   مالیات
                 </h1>
 
-                <h1 className="font-ray text-color-title-on-light font-bold text-lg">
+                <h1 className="font-ray text-color-title-on-light text-lg font-bold">
                   {taxAmount.toLocaleString('fa-IR')} تومان
                 </h1>
               </div>
@@ -178,7 +181,7 @@ const Page = () => {
                 />
               </div>
 
-              <hr className="border mb-6" />
+              <hr className="mb-6 border" />
 
               <div className="flex items-center justify-between">
                 <h1 className="font-aria text-color-title-on-light font-extrabold">

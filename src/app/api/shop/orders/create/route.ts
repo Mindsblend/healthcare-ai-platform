@@ -6,13 +6,11 @@ export async function POST(req: Request) {
     const session = await requireAuthority({ requiredRole: 'USER' })
 
     const data = await req.json()
-    console.log('[createOrder API] input data:', data)
 
     const order = await OrderService.createOrder({
       ...data,
       userId: session.id,
     })
-    console.log('[createOrder API] created order:', order)
 
     return new Response(JSON.stringify(order), { status: 201 })
   } catch (error: any) {

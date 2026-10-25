@@ -10,7 +10,6 @@ import { useCart } from '@/features/shop/hooks/cart/useCart'
 
 interface Props {
   product: ProductSummary
-
   variant?: 'card' | 'row'
 }
 
@@ -21,8 +20,28 @@ const Product = ({ product, variant = 'card' }: Props) => {
   const [addError, setAddError] = useState<string | null>(null)
 
   const router = useRouter()
-
   const productUrl = `/products/${product.slug}`
+
+  // Use the discounted price only when it is valid and lower than
+  // the original price.
+  const originalPrice = Number(product.price)
+  const discount = Number(product.discount ?? 0)
+
+  const discountedPrice =
+    product.discountedPrice == null ? null : Number(product.discountedPrice)
+
+  const hasDiscount =
+    Number.isFinite(originalPrice) &&
+    Number.isFinite(discountedPrice) &&
+    discount > 0 &&
+    originalPrice > 0 &&
+    discountedPrice! >= 0 &&
+    discountedPrice! < originalPrice
+
+  const displayedPrice =
+    hasDiscount && discountedPrice !== null ? discountedPrice : originalPrice
+
+  const formatPrice = (price: number) => price.toLocaleString('fa-IR')
 
   const handleAddToCart = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -48,16 +67,36 @@ const Product = ({ product, variant = 'card' }: Props) => {
   }
 
   const categoryIcon = product.category?.iconPath || '/images/makeup.webp'
-
   const hasImage = Boolean(product.image) && product.image.trim() !== ''
 
-  /* =========================================================
-     ROW VARIANT (mobile list)
-  ========================================================== */
+  const Price = ({ compact = false }: { compact?: boolean }) => (
+    <div className={`flex ${compact ? 'items-end' : 'items-start'} gap-1`}>
+      <div className="flex flex-col">
+        <div className="flex gap-1.5">
+          {hasDiscount && (
+            <span className="font-ray self-end rounded-full bg-red-100 px-1.5 py-0.5 text-xs font-bold text-red-600">
+              {formatPrice(discount)}٪
+            </span>
+          )}
+          {hasDiscount && (
+            <span className="font-ray text-sm text-gray-400 line-through">
+              {formatPrice(product.price)}
+            </span>
+          )}
+        </div>
+
+        <span className="font-aria text-color-title-on-light flex gap-0.5 self-end text-base font-extrabold">
+          {formatPrice(displayedPrice)}
+          <Image src="/images/toman.svg" alt="toman" width={19} height={19} />
+        </span>
+      </div>
+    </div>
+  )
+
+  /* ROW VARIANT */
   if (variant === 'row') {
     return (
       <article className="flex gap-3 border-b border-gray-200 py-4 first:pt-0 last:border-b-0">
-        {/* Image */}
         <Link
           href={productUrl}
           aria-label={`مشاهده ${product.title}`}
@@ -78,7 +117,6 @@ const Product = ({ product, variant = 'card' }: Props) => {
           )}
         </Link>
 
-        {/* Info */}
         <div className="flex min-w-0 flex-1 flex-col justify-between">
           <div className="text-color-title-on-light">
             <h2 className="font-ray line-clamp-2 text-[15px] leading-6 font-extrabold">
@@ -91,25 +129,8 @@ const Product = ({ product, variant = 'card' }: Props) => {
           </div>
 
           <div className="mt-3 flex items-end justify-between gap-2">
-            {/* Price */}
-            <div
-              className="text-color-title-on-light font-ray flex items-center text-sm font-extrabold"
-              aria-label={`${product.price.toLocaleString('fa-IR')} تومان`}
-            >
-              {product.price.toLocaleString('fa-IR')}
+            <Price compact />
 
-              <span className="pr-1">
-                <Image
-                  src="/images/toman.svg"
-                  alt=""
-                  aria-hidden="true"
-                  width={18}
-                  height={18}
-                />
-              </span>
-            </div>
-
-            {/* Add to cart */}
             <button
               type="button"
               onClick={handleAddToCart}
@@ -149,12 +170,9 @@ const Product = ({ product, variant = 'card' }: Props) => {
     )
   }
 
-  /* =========================================================
-     CARD VARIANT (default, unchanged)
-  ========================================================== */
+  /* CARD VARIANT */
   return (
     <article className="bg-page xs:max-w-77.5 flex max-h-min w-full flex-col rounded-[20px] border border-black/25 p-2.5">
-      {/* Product Image */}
       <Link
         href={productUrl}
         aria-label={`مشاهده ${product.title}`}
@@ -191,7 +209,6 @@ const Product = ({ product, variant = 'card' }: Props) => {
         )}
       </Link>
 
-      {/* Product Info */}
       <div className="mt-2.5 flex flex-col gap-4 rounded-[16.5px] bg-[#F2F2F2] px-3 py-3 sm:px-5 sm:py-4 lg:justify-between">
         <div className="text-color-title-on-light">
           <h2 className="font-ray text-lg font-extrabold sm:text-xl">
@@ -208,8 +225,7 @@ const Product = ({ product, variant = 'card' }: Props) => {
           </p>
         </div>
 
-        {/* Bottom Actions */}
-        <div className="flex w-full justify-between gap-x-1 sm:items-center xl:gap-x-3">
+        <div className="flex w-full items-end justify-between gap-x-2 sm:items-center xl:gap-x-3">
           <div className="flex flex-col items-start gap-1">
             <button
               type="button"
@@ -228,22 +244,7 @@ const Product = ({ product, variant = 'card' }: Props) => {
             )}
           </div>
 
-          <div
-            className="text-color-title-on-light font-ray flex items-center justify-center text-sm font-extrabold 2xl:text-base"
-            aria-label={`${product.price.toLocaleString('fa-IR')} تومان`}
-          >
-            {product.price.toLocaleString('fa-IR')}
-
-            <span className="pr-1">
-              <Image
-                src="/images/toman.svg"
-                alt=""
-                aria-hidden="true"
-                width={20}
-                height={20}
-              />
-            </span>
-          </div>
+          <Price />
         </div>
       </div>
     </article>

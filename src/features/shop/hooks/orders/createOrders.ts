@@ -8,7 +8,7 @@ export function useCreateOrder() {
   const [error, setError] = useState<Error | null>(null)
   const [data, setData] = useState<unknown>(null)
 
-  async function createOrder(order: CreateOrderInput) {
+  async function createOrder(order: Omit<CreateOrderInput, 'userId'>) {
     setLoading(true)
     setError(null)
 

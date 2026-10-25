@@ -1,5 +1,3 @@
-// features/shop/products/services/productService.ts
-
 import { prisma } from '@/lib/prisma'
 import {
   ProductSummary,
@@ -10,6 +8,35 @@ import {
   GetProductBySlugInput,
   GetProductsByCategoryInput,
 } from '../shop.types'
+
+/**
+ * Calculate the discounted price on the server.
+ * Returns null when no discount is applied.
+ */
+function calculateDiscountedPrice(
+  price: number,
+  discount?: number | null,
+): number | null {
+  const normalizedDiscount = discount ?? 0
+
+  if (!Number.isInteger(price) || price < 0) {
+    throw new Error('INVALID_PRODUCT_PRICE')
+  }
+
+  if (
+    !Number.isInteger(normalizedDiscount) ||
+    normalizedDiscount < 0 ||
+    normalizedDiscount > 100
+  ) {
+    throw new Error('INVALID_PRODUCT_DISCOUNT')
+  }
+
+  if (normalizedDiscount === 0) {
+    return null
+  }
+
+  return Math.round(price * (1 - normalizedDiscount / 100))
+}
 
 export class ProductService {
   static async fetchProductsPreview(): Promise<ProductSummary[]> {
@@ -57,6 +84,7 @@ export class ProductService {
 
   static async fetchProductsByCategoryId(input: GetProductsByCategoryInput) {
     const { categoryId } = input
+
     return prisma.product.findMany({
       where: {
         categoryId,
@@ -66,10 +94,12 @@ export class ProductService {
       },
     })
   }
+
   static async createProduct(input: CreateProductInput) {
     const {
       title,
       price,
+      discount,
       categoryId,
       slug,
       solution,
@@ -81,6 +111,9 @@ export class ProductService {
     } = input
 
     const normalizedSlug = slug.trim()
+    const normalizedDiscount = discount ?? 0
+
+    const discountedPrice = calculateDiscountedPrice(price, normalizedDiscount)
 
     const existingProduct = await prisma.product.findUnique({
       where: {
@@ -95,10 +128,12 @@ export class ProductService {
       throw new Error('SLUG_ALREADY_EXISTS')
     }
 
-    const product = await prisma.product.create({
+    return prisma.product.create({
       data: {
         title,
         price,
+        discount: normalizedDiscount,
+        discountedPrice,
         categoryId,
         slug: normalizedSlug,
         solution,
@@ -129,14 +164,11 @@ export class ProductService {
         },
       },
     })
-
-    return product
   }
 
   static async updateProduct(input: UpdateProductInput) {
     const { id, ...data } = input
 
-    // First, get the existing product to handle nested updates
     const existingProduct = await prisma.product.findUnique({
       where: { id },
       include: {
@@ -150,7 +182,6 @@ export class ProductService {
       throw new Error('Product not found')
     }
 
-    // Prepare update data
     const updateData: any = {
       title: data.title,
       price: data.price,
@@ -163,17 +194,28 @@ export class ProductService {
       isActive: data.isActive,
     }
 
-    // Remove undefined values
+    // Remove undefined values.
     Object.keys(updateData).forEach(
       (key) => updateData[key] === undefined && delete updateData[key],
     )
 
-    // Update icons if provided
+    // Recalculate discount whenever price or discount changes.
+    if (data.price !== undefined || data.discount !== undefined) {
+      const nextPrice = data.price ?? existingProduct.price
+      const nextDiscount = data.discount ?? existingProduct.discount ?? 0
+
+      updateData.price = nextPrice
+      updateData.discount = nextDiscount
+      updateData.discountedPrice = calculateDiscountedPrice(
+        nextPrice,
+        nextDiscount,
+      )
+    }
+
+    // Update icons if provided.
     if (data.icons) {
-      await prisma.icon.deleteMany({
-        where: { productId: id },
-      })
       updateData.icons = {
+        deleteMany: {},
         create: data.icons.map((i) => ({
           title: i.title,
           description: i.description,
@@ -182,12 +224,10 @@ export class ProductService {
       }
     }
 
-    // Update gains if provided
+    // Update gains if provided.
     if (data.gains) {
-      await prisma.gain.deleteMany({
-        where: { productId: id },
-      })
       updateData.gains = {
+        deleteMany: {},
         create: data.gains.map((g) => ({
           title: g.title,
           description: g.description,
@@ -196,12 +236,10 @@ export class ProductService {
       }
     }
 
-    // Update faqs if provided
+    // Update FAQs if provided.
     if (data.faqs) {
-      await prisma.faq.deleteMany({
-        where: { productId: id },
-      })
       updateData.faqs = {
+        deleteMany: {},
         create: data.faqs.map((f) => ({
           question: f.question,
           answer: f.answer,
@@ -209,7 +247,7 @@ export class ProductService {
       }
     }
 
-    const product = await prisma.product.update({
+    return prisma.product.update({
       where: { id },
       data: updateData,
       include: {
@@ -219,8 +257,6 @@ export class ProductService {
         category: true,
       },
     })
-
-    return product
   }
 
   static async deleteProduct(input: DeleteProductInput) {

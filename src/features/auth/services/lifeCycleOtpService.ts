@@ -34,15 +34,10 @@ export async function checkOtpRateLimit(identifier: string) {
 }
 
 export async function saveOtp(phone: string, code: string) {
-  console.log('[SAVE OTP] key:', JSON.stringify(phone))
-  console.log('[REDIS URL]', process.env.REDIS_URL)
-  console.log('[SAVE OTP]', phone, code, typeof code)
   await redis.set(`otp:${phone}`, code, 'EX', TTL)
 }
 
 export async function getOtp(phone: string) {
-  console.log('[GET OTP] key:', JSON.stringify(phone))
-  console.log('[REDIS URL]', process.env.REDIS_URL)
   return redis.get(`otp:${phone}`)
 }
 

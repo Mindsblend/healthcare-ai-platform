@@ -6,10 +6,26 @@ import { SendSmsInput, SmsProviderResponse, SmsApiPayload } from '../auth.types'
 
 const SMSIR_API_KEY = process.env.SMSIR_API_KEY!
 
+const getE2eOtpCode = (): string | null => {
+  const enabled =
+    process.env.E2E_TEST_MODE === 'true' &&
+    process.env.NODE_ENV !== 'production'
+
+  return enabled ? process.env.TEST_OTP_CODE || '123456' : null
+}
+
 export async function sendOtpViaSms(
   input: SendSmsInput,
 ): Promise<SmsProviderResponse> {
   const { phone } = input
+  const e2eOtpCode = getE2eOtpCode()
+
+  // E2E must not send real SMS messages. The API route still persists this
+  // code and verifies it through the normal Redis-backed authentication flow.
+  if (e2eOtpCode) {
+    return { success: true, code: e2eOtpCode }
+  }
+
   const code = generateOtp()
 
   const payload: SmsApiPayload = {
@@ -60,18 +76,12 @@ export async function sendOtpViaSms(
           }
 
           if (!json?.status || json?.status !== 1) {
-            console.log(
-              '[SMS.IR] Provider response:',
-              JSON.stringify(json, null, 2),
-            )
             return reject(
               createDomainError(ErrorCode.OTP_PROVIDER_FAILED, {
                 providerResponse: json,
               }),
             )
           }
-
-          console.log('[SMS.IR] OTP sent:', phone)
           resolve({ success: true, code })
         })
       },

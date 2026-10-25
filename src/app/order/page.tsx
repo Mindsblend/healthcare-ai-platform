@@ -63,16 +63,32 @@ const CheckoutPage = () => {
   )
   const [availableCities, setAvailableCities] = useState<City[]>([])
 
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0,
-  )
+  const getItemPrices = (item: (typeof cartItems)[number]) => {
+    const originalPrice = item.product.price
+    const discountedPrice = item.product.discountedPrice
+
+    const hasDiscount =
+      typeof item.product.discount === 'number' &&
+      item.product.discount > 0 &&
+      typeof discountedPrice === 'number' &&
+      discountedPrice >= 0 &&
+      discountedPrice < originalPrice
+
+    return {
+      originalPrice,
+      finalPrice: hasDiscount ? discountedPrice : originalPrice,
+      hasDiscount,
+      discount: item.product.discount ?? 0,
+    }
+  }
+
+  const subtotal = cartItems.reduce((sum, item) => {
+    const { finalPrice } = getItemPrices(item)
+    return sum + finalPrice * item.quantity
+  }, 0)
 
   const TAX_RATE = 0.09
   const taxAmount = Math.round(subtotal * TAX_RATE)
-
-  const totalAmount = subtotal + taxAmount
-
   const FREE_SHIPPING_THRESHOLD = 2_000_000
 
   const isFreeShipping = getFreeShippingStatus(
@@ -81,6 +97,10 @@ const CheckoutPage = () => {
   )
 
   const deliveryAmount = isFreeShipping ? 0 : 300_000
+  const totalAmount = subtotal + taxAmount
+  const finalAmount = totalAmount + deliveryAmount
+
+  const formatPrice = (value: number) => value.toLocaleString('fa-IR')
 
   // Auto-select default address when userAddress loads
   useEffect(() => {
@@ -275,11 +295,7 @@ const CheckoutPage = () => {
       // Wait until every pending cart mutation is finished.
       // =======================================================
 
-      console.log('🛒 Waiting for cart synchronization...')
-
       await waitForCartSync()
-
-      console.log('✅ Cart synchronization completed')
 
       // =======================================================
       // 4. Update profile if needed
@@ -315,14 +331,10 @@ const CheckoutPage = () => {
       // 6. Create order
       // =======================================================
 
-      console.log('📝 Creating order...')
-
       const orderResult = await createOrder({
         shippingInfo,
         paymentMethod: activeBtn,
       })
-
-      console.log('✅ Order created:', orderResult)
 
       if (!orderResult?.id) {
         throw new Error('Failed to create order')
@@ -334,12 +346,6 @@ const CheckoutPage = () => {
 
       const orderTotal = Number(orderResult.totalPrice)
 
-      console.log('💰 Final order total:', {
-        orderId: orderResult.id,
-        totalPrice: orderResult.totalPrice,
-        normalizedTotal: orderTotal,
-      })
-
       if (!Number.isFinite(orderTotal) || orderTotal <= 0) {
         throw new Error('مبلغ سفارش معتبر نیست')
       }
@@ -348,8 +354,6 @@ const CheckoutPage = () => {
       // 8. Payment
       // =======================================================
 
-      console.log('💳 Initiating payment...')
-
       const paymentResult = await initiatePayment({
         amount: orderTotal,
         description: `سفارش شماره ${orderResult.id}`,
@@ -357,8 +361,6 @@ const CheckoutPage = () => {
         email: shippingInfo.email,
         mobile: shippingInfo.phone,
       })
-
-      console.log('📊 Payment result:', paymentResult)
 
       if (!paymentResult.success) {
         setErrorMessage(paymentResult.error || 'خطا در اتصال به درگاه پرداخت')
@@ -520,50 +522,74 @@ const CheckoutPage = () => {
                   لیست سفارشات
                 </h1>
                 <div className="mt-8 mb-8 flex-1 space-y-5 overflow-y-auto">
-                  {cartItems.map((item) => (
-                    <div
-                      key={item.id}
-                      className="rounded-xl border-b pb-5 last:border-b-0"
-                    >
-                      <div className="flex justify-between gap-3 max-sm:space-y-3 sm:items-center">
-                        <div className="shrink-0">
-                          {item.product.image &&
-                          item.product.image.trim() !== '' ? (
-                            <Image
-                              src={item.product.image}
-                              alt={item.product.title}
-                              width={80}
-                              height={80}
-                              className="h-20 w-20 rounded-2xl object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gray-100">
-                              <span className="text-xs text-gray-400">
-                                بدون تصویر
-                              </span>
-                            </div>
-                          )}
+                  {cartItems.map((item) => {
+                    const { originalPrice, finalPrice, hasDiscount, discount } =
+                      getItemPrices(item)
+
+                    return (
+                      <div
+                        key={item.id}
+                        className="rounded-xl border-b pb-5 last:border-b-0"
+                      >
+                        <div className="flex justify-between gap-3 max-sm:space-y-3 sm:items-center">
+                          <div className="shrink-0">
+                            {item.product.image?.trim() ? (
+                              <Image
+                                src={item.product.image}
+                                alt={item.product.title}
+                                width={80}
+                                height={80}
+                                className="h-20 w-20 rounded-2xl object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gray-100">
+                                <span className="text-xs text-gray-400">
+                                  بدون تصویر
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="min-w-0 flex-1 sm:px-4">
+                            <h3 className="font-aria text-color-title-on-light text-base font-extrabold sm:text-lg">
+                              {item.product.title}
+                            </h3>
+
+                            <p className="font-ray text-color-body-on-light mt-1 line-clamp-2 text-xs font-medium">
+                              {item.product.solution}
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex-1 sm:px-4">
-                          <h3 className="font-aria text-color-title-on-light text-base sm:text-lg font-extrabold">
-                            {item.product.title}
-                          </h3>
-                          <p className="font-ray text-color-body-on-light mt-1 line-clamp-2 text-xs font-medium">
-                            {item.product.solution}
+
+                        <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                          <div className="flex flex-col gap-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="font-aria text-color-title-on-light text-base font-extrabold">
+                                {formatPrice(finalPrice)} تومان
+                              </span>
+
+                              {hasDiscount && (
+                                <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-600">
+                                  {formatPrice(discount)}٪ تخفیف
+                                </span>
+                              )}
+                            </div>
+
+                            {hasDiscount && (
+                              <span className="font-ray text-sm text-gray-400 line-through">
+                                {formatPrice(originalPrice)}{' '}
+                                تومان
+                              </span>
+                            )}
+                          </div>
+
+                          <p className="font-aria text-color-title-on-light text-sm font-medium text-gray-500">
+                            تعداد: {formatPrice(item.quantity)}
                           </p>
                         </div>
                       </div>
-                      <div className="font-aria text-color-title-on-light mt-2 flex shrink-0 items-center justify-between text-base font-extrabold">
-                        <p>
-                          {(item.price * item.quantity).toLocaleString('fa-IR')}{' '}
-                          تومان
-                        </p>
-                        <p className="ml-3 text-base font-medium text-gray-500">
-                          تعداد: {item.quantity}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
 
@@ -605,8 +631,7 @@ const CheckoutPage = () => {
                       جمع کل
                     </h1>
                     <h1 className="font-aria text-color-title-on-light font-extrabold">
-                      {(totalAmount + deliveryAmount).toLocaleString('fa-IR')}{' '}
-                      تومان
+                      {formatPrice(finalAmount)} تومان
                     </h1>
                   </div>
                 </div>

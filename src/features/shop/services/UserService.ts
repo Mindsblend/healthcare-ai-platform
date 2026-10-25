@@ -26,18 +26,23 @@ export class UserService {
   }
 
   static async createUser(identifier: string, type: string) {
-    let user
     if (type === 'phone') {
-      user = await prisma.user.findUnique({ where: { phone: identifier } })
-    } else {
-      user = await prisma.user.findUnique({ where: { email: identifier } })
+      return prisma.user.upsert({
+        where: { phone: identifier },
+        update: {},
+        create: { phone: identifier },
+      })
     }
 
-    if (!user) {
-      user = await prisma.user.create({ data: { [type]: identifier } })
+    if (type === 'email') {
+      return prisma.user.upsert({
+        where: { email: identifier },
+        update: {},
+        create: { email: identifier },
+      })
     }
 
-    return user
+    throw new Error(`Unsupported identifier type: ${type}`)
   }
 
   static async fetchUserWithAddresses(userId: string) {
@@ -111,17 +116,58 @@ export class UserService {
   }
 
   static async setDefaultAddress(addressId: string, userId: string) {
-    // Remove default from all user's addresses
-    await prisma.address.updateMany({
-      where: { userId },
-      data: { isDefault: false },
+    return prisma.$transaction(async (tx) => {
+      const address = await tx.address.update({
+        where: { id: addressId, userId },
+        data: { isDefault: true },
+      })
+
+      await tx.address.updateMany({
+        where: {
+          userId,
+          id: { not: addressId },
+        },
+        data: { isDefault: false },
+      })
+
+      return address
+    })
+  }
+
+  static async fetchUserTotalSavings(userId: string): Promise<number> {
+    const orderItems = await prisma.orderItem.findMany({
+      where: {
+        originalPrice: { not: null },
+        order: {
+          userId,
+          status: {
+            in: ['PAID', 'DELIVERED'],
+          },
+        },
+      },
+      select: {
+        originalPrice: true,
+        price: true,
+        quantity: true,
+      },
     })
 
-    // Set the selected address as default
-    return await prisma.address.update({
-      where: { id: addressId, userId },
-      data: { isDefault: true },
-    })
+    console.log(
+      '[Savings Debug]',
+      orderItems.map((item) => ({
+        originalPrice: item.originalPrice,
+        price: item.price,
+        quantity: item.quantity,
+      })),
+    )
+
+    return orderItems.reduce((total, item) => {
+      if (item.originalPrice === null) return total
+
+      const savingPerItem = Math.max(0, item.originalPrice - item.price)
+
+      return total + savingPerItem * item.quantity
+    }, 0)
   }
 
   static async updateUserProfile(

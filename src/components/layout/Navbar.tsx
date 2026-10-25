@@ -189,7 +189,7 @@ export default function Navbar({ user }: NavbarProps) {
                   width={134}
                   height={45}
                   priority
-                  className="object-contain"
+                  className=""
                 />
               </Link>
             </div>
@@ -314,7 +314,7 @@ export default function Navbar({ user }: NavbarProps) {
 
             {/* تماس با ما با آیکون تلفن */}
             <Link
-              href="/contact"
+              href="#contact-us"
               className="font-ray flex items-center gap-1.5 font-bold text-black transition"
             >
               <svg
@@ -359,7 +359,7 @@ export default function Navbar({ user }: NavbarProps) {
                   width={32}
                   height={32}
                   priority
-                  className="object-contain"
+                  className=""
                 />
               </Link>
             )}
@@ -377,7 +377,7 @@ export default function Navbar({ user }: NavbarProps) {
                 className="font-ray flex items-center gap-4 text-sm font-bold text-black"
               >
                 <Link
-                  href="/products?sort=bestsellers"
+                  href="/products"
                   className="flex items-center gap-1.5 transition hover:text-red-500"
                 >
                   <Image
