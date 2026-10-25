@@ -8,6 +8,11 @@ export async function getCart(): Promise<GetCartResponse> {
 
   const data = await res.json()
 
+  console.log('GET /api/shop/cart response:', {
+    status: res.status,
+    data,
+  })
+
   if (!res.ok) {
     throw new Error(data?.error?.code || 'UNKNOWN')
   }

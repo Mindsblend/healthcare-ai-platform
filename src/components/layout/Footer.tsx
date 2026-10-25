@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 const Footer = () => {
   return (
-    <footer className="bg-page text-color-title-on-light container pb-5">
+    <footer className="bg-page text-color-title-on-light container pb-5" id='contact-us'>
       <div className="flex flex-col sm:flex-row sm:justify-between">
         {/* RIGHT SIDE — Logo + Paragraph + Social Icons + Numbers */}
         <div className="flex w-full max-w-sm flex-col justify-between sm:items-start sm:text-right">

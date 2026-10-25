@@ -134,6 +134,42 @@ export class UserService {
     })
   }
 
+  static async fetchUserTotalSavings(userId: string): Promise<number> {
+    const orderItems = await prisma.orderItem.findMany({
+      where: {
+        originalPrice: { not: null },
+        order: {
+          userId,
+          status: {
+            in: ['PAID', 'DELIVERED'],
+          },
+        },
+      },
+      select: {
+        originalPrice: true,
+        price: true,
+        quantity: true,
+      },
+    })
+
+    console.log(
+      '[Savings Debug]',
+      orderItems.map((item) => ({
+        originalPrice: item.originalPrice,
+        price: item.price,
+        quantity: item.quantity,
+      })),
+    )
+
+    return orderItems.reduce((total, item) => {
+      if (item.originalPrice === null) return total
+
+      const savingPerItem = Math.max(0, item.originalPrice - item.price)
+
+      return total + savingPerItem * item.quantity
+    }, 0)
+  }
+
   static async updateUserProfile(
     userId: string,
     data: {

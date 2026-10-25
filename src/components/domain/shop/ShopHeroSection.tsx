@@ -2,12 +2,14 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
+import { useEffect, useState, useCallback } from 'react'
 import { useUserInfo } from '@/features/shop/hooks/profile/useUserInfo'
 import type { ReactElement, SVGProps } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Pagination } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/pagination'
+import { useCart } from '@/features/shop/hooks/cart/useCart'
 
 /* =========================================================
    TYPES
@@ -207,18 +209,90 @@ function GuaranteesCard({ href }: { href: string }) {
 ========================================================= */
 
 const ShopHeroSection = ({
-  userName,
-  savingsAmount = 45_600_000,
   freeShippingThreshold = 3_000_000,
   discountedProductsHref = '/products?filter=discounted',
   guaranteesHref = '/guarantees',
   categories = defaultCategories,
+  savingsAmount: providedSavingsAmount,
 }: ShopHeroSectionProps = {}) => {
   const { userInfo } = useUserInfo()
+  const { cartItems, loading, error, isAuthenticated } = useCart()
+
+  const [apiSavingsAmount, setApiSavingsAmount] = useState<number | null>(null)
+  const [savingsLoading, setSavingsLoading] = useState(true)
+
+  const fetchSavings = useCallback(async () => {
+    if (!isAuthenticated) {
+      setApiSavingsAmount(0)
+      setSavingsLoading(false)
+      return
+    }
+
+    try {
+      setSavingsLoading(true)
+
+      const response = await fetch('/api/shop/user/savings', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-store',
+      })
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch savings: ${response.status}`)
+      }
+
+      const data: { savingsAmount?: number | string } = await response.json()
+      const amount = Number(data.savingsAmount)
+
+      if (!Number.isFinite(amount) || amount < 0) {
+        throw new Error('Invalid savings amount returned by API')
+      }
+
+      setApiSavingsAmount(amount)
+    } catch (err) {
+      console.error('Failed to fetch savings:', err)
+      setApiSavingsAmount(null)
+    } finally {
+      setSavingsLoading(false)
+    }
+  }, [isAuthenticated])
+
+  useEffect(() => {
+    void fetchSavings()
+  }, [fetchSavings, cartItems])
 
   const displayName = [userInfo?.firstName, userInfo?.lastName]
     .filter((name): name is string => Boolean(name?.trim()))
     .join(' ')
+
+  const cartSavingsAmount = cartItems.reduce((total, item) => {
+    const originalPrice = Number(item.product.price)
+    const discountedPrice = Number(item.product.discountedPrice)
+    const quantity = Number(item.quantity)
+
+    if (
+      !Number.isFinite(originalPrice) ||
+      !Number.isFinite(discountedPrice) ||
+      !Number.isFinite(quantity) ||
+      originalPrice <= 0 ||
+      discountedPrice < 0 ||
+      discountedPrice >= originalPrice ||
+      quantity <= 0
+    ) {
+      return total
+    }
+
+    return total + (originalPrice - discountedPrice) * quantity
+  }, 0)
+
+  const savingsAmount =
+    typeof providedSavingsAmount === 'number' &&
+    Number.isFinite(providedSavingsAmount) &&
+    providedSavingsAmount >= 0
+      ? providedSavingsAmount
+      : (apiSavingsAmount ?? cartSavingsAmount)
 
   const cards = [
     {
@@ -236,19 +310,18 @@ const ShopHeroSection = ({
   ]
 
   return (
-    // موبایل/تبلت: تمام‌عرض و بدون پدینگ — از lg به بعد container
     <section className="mt-10 mb-8 w-full sm:mt-16 lg:container lg:mt-20">
-      {/* Greeting */}
       <div className="mx-auto mb-8 flex max-w-3xl flex-col items-center px-4 text-center sm:mb-12">
         <h1 className="font-aria text-color-title-on-light text-[28px] leading-[1.5] font-extrabold sm:text-[34px] lg:text-[40px]">
-          {displayName ? `${displayName} عزیز، خوش آمدی` : 'به دیجی سلامت خوش آمدی'}{' '}
+          {displayName
+            ? `${displayName} عزیز، خوش آمدی`
+            : 'به دیجی سلامت خوش آمدی'}{' '}
           <span role="img" aria-label="دست تکان دادن" className="inline-block">
             👋
           </span>
         </h1>
       </div>
 
-      {/* Mobile & tablet: Swiper */}
       <div className="lg:hidden">
         <Swiper
           modules={[Pagination]}
@@ -271,7 +344,6 @@ const ShopHeroSection = ({
         </Swiper>
       </div>
 
-      {/* Desktop */}
       <div className="hidden items-stretch justify-center gap-5 lg:flex">
         {cards.map(({ id, node }) => (
           <div key={id} className="flex w-[323px]">
@@ -280,30 +352,6 @@ const ShopHeroSection = ({
         ))}
       </div>
     </section>
-  )
-}
-
-/* =========================================================
-   CATEGORY ICONS
-========================================================= */
-
-function ProteinIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      {...props}
-    >
-      <path
-        d="M14.8 14.8c-2.1 2.1-5.4 2.9-7.6.7-2.2-2.2-1.4-5.5.7-7.6 2.8-2.8 7.3-3.1 10-.4l.1.1c2.7 2.7 2.4 7.2-.4 10-1 1-1.8 2-1.8 3.1a1.9 1.9 0 1 1-3.7 0c0-1.1.7-2.1 1.7-3.1z"
-        stroke="currentColor"
-        strokeWidth={1.6}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <circle cx="9.6" cy="9.6" r="1.1" fill="currentColor" />
-    </svg>
   )
 }
 
@@ -421,6 +469,26 @@ function ImmunityIcon(props: SVGProps<SVGSVGElement>) {
 /* =========================================================
    GENERAL ICONS
 ========================================================= */
+
+function ProteinIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M14.8 14.8c-2.1 2.1-5.4 2.9-7.6.7-2.2-2.2-1.4-5.5.7-7.6 2.8-2.8 7.3-3.1 10-.4l.1.1c2.7 2.7 2.4 7.2-.4 10-1 1-1.8 2-1.8 3.1a1.9 1.9 0 1 1-3.7 0c0-1.1.7-2.1 1.7-3.1z"
+        stroke="currentColor"
+        strokeWidth={1.6}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="9.6" cy="9.6" r="1.1" fill="currentColor" />
+    </svg>
+  )
+}
 
 function TruckIcon(props: SVGProps<SVGSVGElement>) {
   return (

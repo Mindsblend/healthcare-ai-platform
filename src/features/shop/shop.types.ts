@@ -407,7 +407,7 @@ export type GetProductsPreviewResponse = ProductSummary[]
 export interface CreateProductInput {
   title: string
   price: number
-  discount?: number
+  discount?: number | null
   slug: string
   solution: string
   image: string
@@ -432,6 +432,8 @@ export interface UpdateProductInput {
   price?: number
   slug?: string
   solution?: string
+  discount?: number | null
+
   image?: string
   description?: string
   categoryId?: number

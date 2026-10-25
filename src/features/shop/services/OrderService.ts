@@ -166,6 +166,7 @@ export class OrderService {
               productId: item.productId,
               quantity: item.quantity,
               price: item.product.discountedPrice ?? item.product.price,
+              originalPrice: item.product.price,
             })),
           },
         },

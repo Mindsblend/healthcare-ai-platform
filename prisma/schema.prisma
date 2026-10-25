@@ -99,14 +99,15 @@ model Order {
 }
 
 model OrderItem {
-  id        Int      @id @default(autoincrement())
-  orderId   String
-  productId Int
-  quantity  Int
-  price     Int
-  createdAt DateTime @default(now())
-  order     Order    @relation(fields: [orderId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
+  id            Int      @id @default(autoincrement())
+  orderId       String
+  productId     Int
+  quantity      Int
+  price         Int
+  createdAt     DateTime @default(now())
+  originalPrice Int?
+  order         Order    @relation(fields: [orderId], references: [id])
+  product       Product  @relation(fields: [productId], references: [id])
 }
 
 model Product {

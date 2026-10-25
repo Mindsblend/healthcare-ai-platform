@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { prismaMock } = vi.hoisted(() => ({
   prismaMock: {
@@ -7,6 +7,10 @@ const { prismaMock } = vi.hoisted(() => ({
       findMany: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
+      upsert: vi.fn(),
+    },
+    orderItem: {
+      findMany: vi.fn(),
     },
     $transaction: vi.fn(),
     address: {
@@ -100,76 +104,75 @@ describe('UserService', () => {
   })
 
   describe('createUser', () => {
-    it('looks up phone identifiers by phone', async () => {
+    it('upserts a user by phone', async () => {
       const user = { id: 'user-1', phone: '123456789' }
-      vi.mocked(prisma.user.findUnique).mockResolvedValue(user as never)
+
+      vi.mocked(prisma.user.upsert).mockResolvedValue(user as never)
 
       await expect(
         UserService.createUser('123456789', 'phone'),
       ).resolves.toEqual(user)
-      expect(prisma.user.findUnique).toHaveBeenCalledWith({
+
+      expect(prisma.user.upsert).toHaveBeenCalledWith({
         where: { phone: '123456789' },
+        update: {},
+        create: { phone: '123456789' },
       })
-      expect(prisma.user.create).not.toHaveBeenCalled()
     })
 
-    it('looks up non-phone identifiers by email', async () => {
+    it('upserts a user by email', async () => {
       const user = { id: 'user-1', email: 'alex@example.com' }
-      vi.mocked(prisma.user.findUnique).mockResolvedValue(user as never)
+
+      vi.mocked(prisma.user.upsert).mockResolvedValue(user as never)
 
       await expect(
         UserService.createUser('alex@example.com', 'email'),
       ).resolves.toEqual(user)
 
-      expect(prisma.user.findUnique).toHaveBeenCalledWith({
+      expect(prisma.user.upsert).toHaveBeenCalledWith({
         where: { email: 'alex@example.com' },
+        update: {},
+        create: { email: 'alex@example.com' },
       })
+    })
+
+    it('does not create a duplicate phone user when one already exists', async () => {
+      const user = { id: 'user-1', phone: '123456789' }
+
+      vi.mocked(prisma.user.upsert).mockResolvedValue(user as never)
+
+      await UserService.createUser('123456789', 'phone')
+
+      expect(prisma.user.upsert).toHaveBeenCalledOnce()
       expect(prisma.user.create).not.toHaveBeenCalled()
     })
 
-    it('creates a user with a phone when no matching user exists', async () => {
-      const user = { id: 'user-2', phone: '987654321' }
-      vi.mocked(prisma.user.findUnique).mockResolvedValue(null)
-      vi.mocked(prisma.user.create).mockResolvedValue(user as never)
+    it('does not create a duplicate email user when one already exists', async () => {
+      const user = { id: 'user-1', email: 'alex@example.com' }
 
-      await expect(
-        UserService.createUser('987654321', 'phone'),
-      ).resolves.toEqual(user)
-      expect(prisma.user.create).toHaveBeenCalledWith({
-        data: { phone: '987654321' },
-      })
+      vi.mocked(prisma.user.upsert).mockResolvedValue(user as never)
+
+      await UserService.createUser('alex@example.com', 'email')
+
+      expect(prisma.user.upsert).toHaveBeenCalledOnce()
+      expect(prisma.user.create).not.toHaveBeenCalled()
     })
 
-    it('creates a user with an email when no matching user exists', async () => {
-      const user = { id: 'user-3', email: 'new@example.com' }
-      vi.mocked(prisma.user.findUnique).mockResolvedValue(null)
-      vi.mocked(prisma.user.create).mockResolvedValue(user as never)
-
+    it('throws when the identifier type is unsupported', async () => {
       await expect(
-        UserService.createUser('new@example.com', 'email'),
-      ).resolves.toEqual(user)
-      expect(prisma.user.create).toHaveBeenCalledWith({
-        data: { email: 'new@example.com' },
-      })
+        UserService.createUser('unknown', 'username'),
+      ).rejects.toThrow('Unsupported identifier type: username')
+
+      expect(prisma.user.upsert).not.toHaveBeenCalled()
     })
 
-    it('propagates lookup errors without creating a user', async () => {
-      const error = new Error('Lookup failed')
-      vi.mocked(prisma.user.findUnique).mockRejectedValue(error)
+    it('propagates upsert errors', async () => {
+      const error = new Error('Upsert failed')
+
+      vi.mocked(prisma.user.upsert).mockRejectedValue(error)
 
       await expect(
         UserService.createUser('alex@example.com', 'email'),
-      ).rejects.toBe(error)
-      expect(prisma.user.create).not.toHaveBeenCalled()
-    })
-
-    it('propagates creation errors', async () => {
-      vi.mocked(prisma.user.findUnique).mockResolvedValue(null)
-      const error = new Error('Creation failed')
-      vi.mocked(prisma.user.create).mockRejectedValue(error)
-
-      await expect(
-        UserService.createUser('new@example.com', 'email'),
       ).rejects.toBe(error)
     })
   })
@@ -251,6 +254,87 @@ describe('UserService', () => {
       const error = new Error('Database unavailable')
       vi.mocked(prisma.user.findUnique).mockRejectedValue(error)
       await expect(UserService.fetchUserWithOrders('user-1')).rejects.toBe(
+        error,
+      )
+    })
+  })
+
+  describe('fetchUserTotalSavings', () => {
+    beforeEach(() => {
+      vi.spyOn(console, 'log').mockImplementation(() => {})
+      prismaMock.orderItem.findMany.mockResolvedValue([])
+    })
+
+    afterEach(() => {
+      vi.restoreAllMocks()
+    })
+
+    it('calculates total savings using price difference and quantity', async () => {
+      prismaMock.orderItem.findMany.mockResolvedValue([
+        { originalPrice: 1000, price: 800, quantity: 2 },
+        { originalPrice: 500, price: 400, quantity: 3 },
+      ] as never)
+
+      await expect(UserService.fetchUserTotalSavings('user-1')).resolves.toBe(
+        700,
+      )
+    })
+
+    it('returns zero when there are no order items', async () => {
+      prismaMock.orderItem.findMany.mockResolvedValue([])
+
+      await expect(UserService.fetchUserTotalSavings('user-1')).resolves.toBe(0)
+    })
+
+    it('ignores items with a null original price', async () => {
+      prismaMock.orderItem.findMany.mockResolvedValue([
+        { originalPrice: null, price: 800, quantity: 2 },
+        { originalPrice: 1000, price: 700, quantity: 1 },
+      ] as never)
+
+      await expect(UserService.fetchUserTotalSavings('user-1')).resolves.toBe(
+        300,
+      )
+    })
+
+    it('does not count negative savings', async () => {
+      prismaMock.orderItem.findMany.mockResolvedValue([
+        { originalPrice: 500, price: 700, quantity: 2 },
+        { originalPrice: 1000, price: 800, quantity: 1 },
+      ] as never)
+
+      await expect(UserService.fetchUserTotalSavings('user-1')).resolves.toBe(
+        200,
+      )
+    })
+
+    it('queries only the specified user and eligible order statuses', async () => {
+      await UserService.fetchUserTotalSavings('user-1')
+
+      expect(prismaMock.orderItem.findMany).toHaveBeenCalledWith({
+        where: {
+          originalPrice: { not: null },
+          order: {
+            userId: 'user-1',
+            status: {
+              in: ['PAID', 'DELIVERED'],
+            },
+          },
+        },
+        select: {
+          originalPrice: true,
+          price: true,
+          quantity: true,
+        },
+      })
+    })
+
+    it('propagates database errors', async () => {
+      const error = new Error('Database unavailable')
+
+      prismaMock.orderItem.findMany.mockRejectedValue(error)
+
+      await expect(UserService.fetchUserTotalSavings('user-1')).rejects.toBe(
         error,
       )
     })
