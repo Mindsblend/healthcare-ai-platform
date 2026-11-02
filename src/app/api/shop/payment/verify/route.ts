@@ -1,91 +1,83 @@
 // app/api/shop/payment/verify/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { OrderService } from '@/features/shop/services/OrderService'
 import { PaymentService } from '@/features/shop/services/PaymentService'
 import { prisma } from '@/lib/prisma'
 
 export async function GET(req: NextRequest) {
+  const redirectWithError = (msg: string) =>
+    NextResponse.redirect(
+      new URL(`/payment/failed?message=${encodeURIComponent(msg)}`, req.url),
+    )
+
   try {
-    // 1. Get query parameters
     const searchParams = req.nextUrl.searchParams
     const authority = searchParams.get('Authority')
     const status = searchParams.get('Status')
 
-    // 2. Check if payment was canceled by user
-    if (status !== 'OK') {
-      return NextResponse.redirect(
-        new URL('/payment/failed?message=کاربر پرداخت را لغو کرد', req.url),
-      )
-    }
-
-    // 3. Validate Authority
     if (!authority) {
-      return NextResponse.redirect(
-        new URL('/payment/failed?message=شناسه پرداخت معتبر نیست', req.url),
-      )
+      return redirectWithError('کد پیگیری درگاه (Authority) یافت نشد')
     }
 
-    // 4. Find the order
     const order = await prisma.order.findFirst({
       where: { paymentAuthority: authority },
     })
 
     if (!order) {
-      const allOrders = await prisma.order.findMany({
-        select: { id: true, paymentAuthority: true, status: true },
-        orderBy: { createdAt: 'desc' },
-        take: 10,
-      })
-
-      return NextResponse.redirect(
-        new URL(
-          `/payment/failed?message=سفارش با شناسه ${authority} یافت نشد`,
-          req.url,
-        ),
-      )
+      return redirectWithError(`سفارشی با کد تراکنش ${authority} یافت نشد`)
     }
 
-    // 5. Check if already paid
+    // اگر قبلاً پرداخت و تایید شده است
     if (order.status === 'PAID') {
       return NextResponse.redirect(
         new URL(
-          `/payment/success?refId=${order.paymentRefId || ''}&orderId=${order.id}`,
+          `/payment/success?refId=${encodeURIComponent(order.paymentRefId || '')}&orderId=${encodeURIComponent(order.id)}`,
           req.url,
         ),
       )
     }
 
-    // 6. Amount is already in Toman - use as-is
-    // PaymentService will add currency: "IRT" to the request
-    const amountInToman = Number(order.totalPrice)
-
-    // 7. Verify payment with Zarinpal
-    const verifyResult = await PaymentService.verifyPayment({
-      authority: authority,
-      amount: amountInToman, // Send in Toman
-    })
-
-    // 8. Process the result
-    if (verifyResult.success) {
+    // اگر کاربر از پرداخت انصراف داده یا پرداخت ناموفق بوده است
+    if (status !== 'OK') {
       await prisma.order.update({
         where: { id: order.id },
         data: {
-          status: 'PAID',
-          paymentRefId: verifyResult.refId?.toString() || '',
-          paymentVerifiedAt: new Date(),
+          status: 'CANCELED',
+          paymentErrorMessage: 'انصراف توسط کاربر در درگاه پرداخت',
         },
       })
+      return redirectWithError('پرداخت توسط شما لغو شد یا ناموفق بود')
+    }
 
-      if (order.cartId) {
-        await prisma.cart.update({
-          where: { id: order.cartId },
-          data: { status: 'CHECKED_OUT' },
+    const amountInToman = Number(order.totalPrice)
+
+    // تایید تراکنش با زرین‌پال
+    const verifyResult = await PaymentService.verifyPayment({
+      authority,
+      amount: amountInToman,
+    })
+
+    if (verifyResult.success) {
+      await prisma.$transaction(async (tx) => {
+        await tx.order.update({
+          where: { id: order.id },
+          data: {
+            status: 'PAID',
+            paymentRefId: verifyResult.refId?.toString() || '',
+            paymentVerifiedAt: new Date(),
+          },
         })
-      }
+
+        if (order.cartId) {
+          await tx.cart.update({
+            where: { id: order.cartId },
+            data: { status: 'CHECKED_OUT' },
+          })
+        }
+      })
 
       return NextResponse.redirect(
         new URL(
-          `/payment/success?refId=${verifyResult.refId}&orderId=${order.id}`,
+          `/payment/success?refId=${encodeURIComponent(String(verifyResult.refId || ''))}&orderId=${encodeURIComponent(order.id)}`,
           req.url,
         ),
       )
@@ -99,16 +91,12 @@ export async function GET(req: NextRequest) {
         },
       })
 
-      return NextResponse.redirect(
-        new URL(
-          `/payment/failed?message=${encodeURIComponent(verifyResult.message || 'پرداخت تأیید نشد')}`,
-          req.url,
-        ),
+      return redirectWithError(
+        verifyResult.message || 'تایید تراکنش از سمت بانک ناموفق بود',
       )
     }
   } catch (error: any) {
-    return NextResponse.redirect(
-      new URL('/payment/failed?message=خطا در تأیید پرداخت', req.url),
-    )
+    console.error('[PAYMENT VERIFY] Error:', error)
+    return redirectWithError('خطای سیستمی در بررسی وضعیت پرداخت')
   }
 }

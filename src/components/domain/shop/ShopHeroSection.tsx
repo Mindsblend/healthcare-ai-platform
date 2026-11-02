@@ -311,7 +311,7 @@ const ShopHeroSection = ({
 
   return (
     <section className="mt-10 mb-8 w-full sm:mt-16 lg:container lg:mt-20">
-      <div className="mx-auto mb-8 flex max-w-3xl flex-col items-center px-4 text-center sm:mb-12">
+      <div className="mx-auto mb-8 flex max-w-3xl flex-col items-center text-center sm:mb-12">
         <h1 className="font-aria text-color-title-on-light text-[28px] leading-[1.5] font-extrabold sm:text-[34px] lg:text-[40px]">
           {displayName
             ? `${displayName} عزیز، خوش آمدی`

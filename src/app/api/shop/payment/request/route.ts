@@ -2,78 +2,83 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PaymentService } from '@/features/shop/services/PaymentService'
 import { OrderService } from '@/features/shop/services/OrderService'
+import { requireAuthority } from '@/features/auth/services/sessionService'
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await requireAuthority({ requiredRole: 'USER' })
     const body = await req.json()
-    const { amount, description, orderId, email, mobile } = body
-
-    // Validate required fields
-    if (!amount) {
-      return NextResponse.json(
-        { success: false, error: 'مبلغ پرداخت وارد نشده است' },
-        { status: 400 },
-      )
-    }
-
-    if (!description) {
-      return NextResponse.json(
-        { success: false, error: 'توضیحات پرداخت وارد نشده است' },
-        { status: 400 },
-      )
-    }
+    const { description, orderId, email, mobile } = body
 
     if (!orderId) {
       return NextResponse.json(
-        { success: false, error: 'شناسه سفارش وارد نشده است' },
+        { success: false, error: 'شناسه سفارش الزامی است' },
         { status: 400 },
       )
     }
 
-    // Amount is already in Toman - use as-is
-    // PaymentService will add currency: "IRT" to the request
-    const amountInToman = Number(amount)
+    // خواندن سفارش از دیتابیس به عنوان تنها منبع معتبر قیمت
+    const order = await OrderService.fetchOrderById({ id: orderId })
 
-    // Call payment service
+    if (!order || order.userId !== session.id) {
+      return NextResponse.json(
+        { success: false, error: 'سفارش یافت نشد یا متعلق به شما نیست' },
+        { status: 404 },
+      )
+    }
+
+    if (order.status === 'PAID') {
+      return NextResponse.json(
+        { success: false, error: 'این سفارش قبلاً پرداخت شده است' },
+        { status: 400 },
+      )
+    }
+
+    const amountInToman = Number(order.totalPrice)
+    if (!Number.isFinite(amountInToman) || amountInToman <= 0) {
+      return NextResponse.json(
+        { success: false, error: 'مبلغ سفارش نامعتبر است' },
+        { status: 400 },
+      )
+    }
+
+    // درخواست به زرین‌پال
     const result = await PaymentService.requestPayment({
-      amount: amountInToman, // Send in Toman
-      description,
-      orderId,
-      email,
-      mobile,
+      amount: amountInToman,
+      description: description || `پرداخت سفارش ${order.id}`,
+      orderId: order.id,
+      email: email || order.shippingEmail,
+      mobile: mobile || order.shippingPhone,
     })
 
-    if (!result.success) {
-      console.error('🔴 [PAYMENT REQUEST] Payment failed:', result.error)
+    if (!result.success || !result.authority) {
+      console.error('[PAYMENT REQUEST] Payment failed:', result.error)
       return NextResponse.json(
-        { success: false, error: result.error },
+        {
+          success: false,
+          error: result.error || 'خطا در اتصال به درگاه پرداخت',
+        },
         { status: 400 },
       )
     }
 
-    // Save authority to database
-    try {
-      await OrderService.updateOrderPaymentAuthority({
-        orderId: orderId,
-        authority: result.authority,
-      })
-    } catch (dbError) {
-      // Continue anyway - user may have already paid
-    }
+    // ذخیره حتمی Authority در دیتابیس قبل از هدایت کاربر به درگاه
+    await OrderService.updateOrderPaymentAuthority({
+      orderId: order.id,
+      authority: result.authority,
+    })
 
-    // Return success response
     return NextResponse.json({
       success: true,
       authority: result.authority,
       paymentUrl: result.paymentUrl,
     })
   } catch (error: any) {
-    if (error.stack) console.error('🔴 [PAYMENT REQUEST] Stack:', error.stack)
-
+    console.error('[PAYMENT REQUEST] Error:', error)
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'خطای داخلی سرور',
+        error: error.message || 'خطای سرور در ایجاد درخواست پرداخت',
       },
       { status: 500 },
     )

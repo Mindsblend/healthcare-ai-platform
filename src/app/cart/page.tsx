@@ -92,7 +92,7 @@ const Page = () => {
       loadingText="در حال بارگذاری سبد خرید..."
       showOnlyOnInitialLoad
     >
-      <div className="container mt-5">
+      <div className="container">
         <div className="my-10 flex flex-col items-center justify-between gap-5 sm:flex-row xl:gap-10">
           {/* CART */}
           <div className="flex h-113 w-full max-w-7xl flex-col rounded-3xl border-2 border-[#d9d9d9]">

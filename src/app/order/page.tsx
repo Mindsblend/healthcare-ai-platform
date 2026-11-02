@@ -335,6 +335,7 @@ const CheckoutPage = () => {
         shippingInfo,
         paymentMethod: activeBtn,
       })
+      
 
       if (!orderResult?.id) {
         throw new Error('Failed to create order')
@@ -577,8 +578,7 @@ const CheckoutPage = () => {
 
                             {hasDiscount && (
                               <span className="font-ray text-sm text-gray-400 line-through">
-                                {formatPrice(originalPrice)}{' '}
-                                تومان
+                                {formatPrice(originalPrice)} تومان
                               </span>
                             )}
                           </div>

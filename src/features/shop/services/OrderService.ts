@@ -89,46 +89,15 @@ export class OrderService {
       where: { cartId: cart.id },
     })
 
-    // 3. Handle existing order based on status (Solare's approach)
+    // 3. Block only if the order is already paid or in post-payment processing
     if (existingOrder) {
-      // If already paid - throw error (can't pay again)
-      if (existingOrder.status === 'PAID') {
+      const retryableStatuses: OrderStatus[] = ['PENDING', 'FAILED', 'CANCELED']
+      if (!retryableStatuses.includes(existingOrder.status as OrderStatus)) {
         throw new Error('This cart has already been ordered and paid for.')
-      }
-
-      // If failed - delete and recreate (allow retry)
-      if (existingOrder.status === 'FAILED') {
-        await prisma.$transaction(async (tx: any) => {
-          await tx.orderItem.deleteMany({
-            where: { orderId: existingOrder.id },
-          })
-          await tx.order.delete({
-            where: { id: existingOrder.id },
-          })
-        })
-
-        // Continue to create new order below
-      }
-      // If pending - return it (reuse for payment continuation)
-      else if (existingOrder.status === 'PENDING') {
-        return existingOrder
-      }
-      // If canceled - delete and recreate (allow retry)
-      else if (existingOrder.status === 'CANCELED') {
-        await prisma.$transaction(async (tx: any) => {
-          await tx.orderItem.deleteMany({
-            where: { orderId: existingOrder.id },
-          })
-          await tx.order.delete({
-            where: { id: existingOrder.id },
-          })
-        })
-
-        // Continue to create new order below
       }
     }
 
-    // 4. Calculate totals (only if no PENDING order exists)
+    // 4. Always calculate fresh totals from current active cart items
     const subtotal = cart.items.reduce((sum, item) => {
       const effectivePrice = item.product.discountedPrice ?? item.product.price
       return sum + effectivePrice * item.quantity
@@ -143,8 +112,17 @@ export class OrderService {
 
     const pendingStatus: OrderStatus = 'PENDING'
 
-    // 5. Create new order
+    // 5. Delete stale order (PENDING / FAILED / CANCELED) and create fresh order atomically
     const order = await prisma.$transaction(async (tx: any) => {
+      if (existingOrder) {
+        await tx.orderItem.deleteMany({
+          where: { orderId: existingOrder.id },
+        })
+        await tx.order.delete({
+          where: { id: existingOrder.id },
+        })
+      }
+
       const newOrder = await tx.order.create({
         data: {
           userId,
