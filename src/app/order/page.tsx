@@ -100,6 +100,19 @@ const CheckoutPage = () => {
   const totalAmount = subtotal + taxAmount
   const finalAmount = totalAmount + deliveryAmount
 
+  const formatNumber = (value: number) => value.toLocaleString('fa-IR')
+
+  // Savings
+
+  const payableAmount = cartItems.reduce((sum, item) => {
+    const finalPrice = item.product.discountedPrice ?? item.product.price
+    return sum + finalPrice * item.quantity
+  }, 0)
+
+  const savings = finalAmount - payableAmount
+  const savingsPercent =
+    finalAmount > 0 ? Math.round((savings / finalAmount) * 100) : 0
+
   const formatPrice = (value: number) => value.toLocaleString('fa-IR')
 
   // Auto-select default address when userAddress loads
@@ -335,7 +348,6 @@ const CheckoutPage = () => {
         shippingInfo,
         paymentMethod: activeBtn,
       })
-      
 
       if (!orderResult?.id) {
         throw new Error('Failed to create order')
@@ -391,7 +403,7 @@ const CheckoutPage = () => {
             <div className="col-span-1 xl:col-span-2">
               <div className="rounded-2xl border-2 border-[#d9d9d9] bg-white p-8">
                 <div className="mb-6 flex items-center justify-between">
-                  <h2 className="font-aria text-color-title-on-light text-right text-[24px] font-bold">
+                  <h2 className="font-aria text-color-title-on-light text-right text-base font-bold sm:text-[24px]">
                     انتخاب آدرس ارسال
                   </h2>
                   <button
@@ -411,7 +423,7 @@ const CheckoutPage = () => {
                       })
                       setSelectedAddressId(null)
                     }}
-                    className="font-aria w-35 cursor-pointer rounded-[5px] bg-[#161A1D] text-sm font-bold text-white transition-all hover:bg-[#2a3035] disabled:cursor-not-allowed disabled:opacity-50"
+                    className="font-aria secondary-btn cursor-pointer rounded-[5px] bg-[#161A1D] text-sm font-bold text-white transition-all hover:bg-[#2a3035] disabled:cursor-not-allowed disabled:opacity-50"
                     style={{ height: '50px' }}
                   >
                     ثبت آدرس جدید
@@ -483,8 +495,7 @@ const CheckoutPage = () => {
                     className="font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black"
                   />
                 </div>
-                <div className="mt-5 flex flex-wrap items-center justify-between rounded-2xl border-2 border-[#d9d9d9] bg-white px-6 py-3.5">
-                  {/* Payment Method Buttons */}
+                {/* <div className="mt-5 flex flex-wrap items-center justify-between rounded-2xl border-2 border-[#d9d9d9] bg-white px-6 py-3.5">
                   <div>
                     <h1 className="font-aria text-color-title-on-light text-base font-extrabold">
                       انتخاب درگاه پرداخت
@@ -511,7 +522,7 @@ const CheckoutPage = () => {
                       />
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
 
@@ -594,58 +605,97 @@ const CheckoutPage = () => {
               </div>
 
               {/* Order Summary */}
-              <div className="flex h-113 flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-9 py-9">
-                <h1 className="font-aria text-color-title-on-light text-center text-2xl font-extrabold">
-                  خلاصه سفارشات
-                </h1>
-                <div className="space-y-5">
-                  <div className="flex items-center justify-between">
-                    <h1 className="font-aria text-color-title-on-light font-extrabold">
-                      جمع خرید
-                    </h1>
-                    <h1 className="font-aria text-color-title-on-light font-extrabold">
-                      {subtotal.toLocaleString('fa-IR')} تومان
-                    </h1>
+              <div className="box-border flex w-full flex-col gap-10 rounded-[25px] border-2 border-[#F2F2F2] px-[30px] py-7">
+                {/* Header */}
+                <h2 className="font-aria text-right text-xl font-bold text-[#09090B]">
+                  خلاصه فاکتور
+                </h2>
+
+                <div className="flex w-full flex-col gap-[19px]">
+                  <div className="flex w-full flex-col gap-7">
+                    {/* Order Details */}
+                    <div className="flex w-full flex-col gap-[14px]">
+                      {/* Products Price */}
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-ray text-base font-bold text-[#555555]">
+                          قیمت کالاها ({cartItems.length})
+                        </span>
+
+                        <span className="font-ray text-base font-bold text-[#09090B]">
+                          {subtotal.toLocaleString('fa-IR')} تومان
+                        </span>
+                      </div>
+
+                      {/* Discount */}
+                      {savings > 0 && (
+                        <div className="flex flex-wrap items-center justify-between gap-x-3">
+                          <span className="font-ray text-sm leading-[26px] font-bold text-[#555555] sm:text-base">
+                            سود شما از این خرید
+                          </span>
+                          <span className="font-ray text-sm leading-[26px] font-bold text-[#007926] sm:text-base">
+                            ({formatNumber(savingsPercent)}٪){' '}
+                            {formatNumber(savings)} تومان
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Shipping */}
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-ray text-base font-bold text-[#555555]">
+                          هزینه ارسال
+                        </span>
+
+                        {isFreeShipping ? (
+                          <span className="font-ray rounded-[5px] bg-[#F0FDF4] px-4 py-[3px] text-xs font-medium text-[#007926]">
+                            رایگان
+                          </span>
+                        ) : (
+                          <span className="font-ray text-base font-bold text-[#09090B]">
+                            {deliveryAmount.toLocaleString('fa-IR')} تومان
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="w-full border-t-[1.5px] border-[#F2F2F2]" />
+
+                    {/* Final Amount */}
+                    <div className="flex w-full items-start justify-between gap-3">
+                      <span className="font-aria text-lg font-bold text-[#09090B]">
+                        مبلغ قابل پرداخت
+                      </span>
+                      <div className="flex flex-col items-start gap-0.5">
+                        <span className="font-aria text-2xl font-extrabold text-[#09090B]">
+                          {formatPrice(finalAmount)}
+                        </span>
+
+                        <span className="font-ray self-end text-[13px] font-bold text-[#A1A1AA]">
+                          تومان
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <h1 className="font-aria text-color-title-on-light font-extrabold">
-                      مالیات
-                    </h1>
-                    <h1 className="font-aria text-color-title-on-light font-extrabold">
-                      {taxAmount.toLocaleString('fa-IR')} تومان
-                    </h1>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <h1 className="font-aria text-color-title-on-light font-extrabold">
-                      هزینه ارسال
-                    </h1>
-                    <h1 className="font-aria text-color-title-on-light font-extrabold">
-                      {isFreeShipping
-                        ? 'ارسال رایگان 🎉'
-                        : deliveryAmount.toLocaleString('fa-IR') + ' تومان'}
-                    </h1>
-                  </div>
-                  <hr className="border" />
-                  <div className="flex items-center justify-between">
-                    <h1 className="font-aria text-color-title-on-light font-extrabold">
-                      جمع کل
-                    </h1>
-                    <h1 className="font-aria text-color-title-on-light font-extrabold">
-                      {formatPrice(finalAmount)} تومان
-                    </h1>
+
+                  {/* Payment Button */}
+                  <div className="flex w-full flex-col items-center gap-[10px]">
+                    <button
+                      onClick={() => handleSubmit(true)}
+                      disabled={orderLoading || paymentLoading}
+                      className="font-aria flex h-[54px] w-full cursor-pointer items-center justify-center rounded-[10px] bg-black px-3 py-2.5 text-base font-bold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {paymentLoading
+                        ? 'در حال اتصال به درگاه پرداخت...'
+                        : orderLoading
+                          ? 'در حال ثبت سفارش...'
+                          : 'ورود به درگاه و پرداخت نهایی'}
+                    </button>
+
+                    <span className="font-ray text-center text-xs font-medium text-[#555555]">
+                      🔒 پرداخت امن با کلیه کارت‌های عضو شتاب
+                    </span>
                   </div>
                 </div>
-                <button
-                  onClick={() => handleSubmit(true)}
-                  disabled={orderLoading || paymentLoading}
-                  className="text-color-title-on-dark font-ray h-13.5 w-full cursor-pointer rounded-4xl bg-black font-medium transition hover:bg-gray-800 disabled:opacity-50"
-                >
-                  {paymentLoading
-                    ? 'در حال اتصال به درگاه پرداخت...'
-                    : orderLoading
-                      ? 'در حال ثبت سفارش...'
-                      : 'ثبت سفارش و پرداخت'}
-                </button>
               </div>
             </div>
           </div>
@@ -872,8 +922,7 @@ const CheckoutPage = () => {
               </div>
             </form>
 
-            <div className="mt-5 flex flex-wrap items-center justify-between rounded-2xl border-2 border-[#d9d9d9] bg-white px-6 py-3.5">
-              {/* Payment Method Buttons */}
+            {/* <div className="mt-5 flex flex-wrap items-center justify-between rounded-2xl border-2 border-[#d9d9d9] bg-white px-6 py-3.5">
               <div>
                 <h1 className="font-aria text-color-title-on-light text-base font-extrabold">
                   انتخاب درگاه پرداخت
@@ -900,7 +949,7 @@ const CheckoutPage = () => {
                   />
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
 
