@@ -231,9 +231,6 @@ const Page = () => {
                     const discountedPrice =
                       item.product.discountedPrice ?? originalPrice
 
-                    const unitPrice = discountedPrice
-                    const lineTotal = unitPrice * item.quantity
-
                     const discountAmount = originalPrice - discountedPrice
 
                     const discountPercent =
@@ -335,13 +332,13 @@ const Page = () => {
                                 {formatNumber(discountPercent)}٪ تخفیف
                               </span>
                               <span className="font-ray self-end text-xs font-medium text-[#A1A1AA] line-through">
-                                {formatNumber(originalPrice * item.quantity)}
+                                {formatNumber(originalPrice)}
                               </span>
                             </div>
                           )}
 
                           <span className="font-aria self-end text-xl leading-[31px] font-extrabold text-[#09090B] sm:text-2xl">
-                            {formatNumber(lineTotal)}
+                            {formatNumber(discountedPrice)}
                           </span>
 
                           <span className="font-ray self-end text-xs leading-[21px] font-bold text-[#A1A1AA] sm:text-[13px]">
@@ -373,7 +370,7 @@ const Page = () => {
                           قیمت کالاها ({formatNumber(itemsCount)})
                         </span>
                         <span className="font-ray text-sm leading-[26px] font-bold text-[#09090B] sm:text-base">
-                          {formatNumber(originalTotal)} تومان
+                          {formatNumber(payableAmount)} تومان
                         </span>
                       </div>
 
