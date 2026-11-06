@@ -71,6 +71,15 @@ body {
   color: var(--foreground);
 }
 
+@keyframes shrink {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
 #custom-pagination .swiper-pagination-bullet {
   background-color: #cbcbcb;
   width: 10px;
