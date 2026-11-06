@@ -3,7 +3,10 @@ import Link from 'next/link'
 
 const Footer = () => {
   return (
-    <footer className="bg-page text-color-title-on-light container pb-5">
+    <footer
+      className="bg-page text-color-title-on-light container pb-5"
+      id="contact-us"
+    >
       <div className="flex flex-col sm:flex-row sm:justify-between">
         {/* RIGHT SIDE — Logo + Paragraph + Social Icons + Numbers */}
         <div className="flex w-full max-w-sm flex-col justify-between sm:items-start sm:text-right">
@@ -19,42 +22,19 @@ const Footer = () => {
           </div>
 
           {/* Paragraph */}
-          <p className="font-ray text-color-title-on-light mb-4 text-wrap sm:max-w-2xs sm:text-right sm:text-sm xl:max-w-lg xl:text-xl">
+          <p className="font-ray mb-4 text-base text-wrap text-[#555555] sm:max-w-2xs sm:text-right xl:max-w-lg">
             انتخاب ارگانیک امروز، یعنی هدیه‌دادن آینده‌ای سالم‌تر به فرزندان؛ با
             عادت‌های درست و بدنی پاک‌تر و محیطی سبزتر.
           </p>
 
           {/* Numbers */}
-          <div className="font-aria text-color-title-on-light flex flex-wrap gap-3 text-lg font-normal sm:justify-start sm:gap-6">
-            {/* Social Media */}
-            <div className="flex justify-end gap-4">
-              <Link href="#">
-                <Image
-                  src="/images/whatsapp.svg"
-                  width={22}
-                  height={22}
-                  alt="Whatsapp"
-                />
-              </Link>
-              <Link href="#">
-                <Image
-                  src="/images/telegram.svg"
-                  width={22}
-                  height={22}
-                  alt="Telegram"
-                />
-              </Link>
-              <Link href="#">
-                <Image
-                  src="/images/instagram.svg"
-                  width={22}
-                  height={22}
-                  alt="Instagram"
-                />
-              </Link>
-            </div>
-            <span className="font-ray sm:text-sm xl:text-xl">۰۲۱۶۶۴۳۱۹۵۵</span>
-            <span className="font-ray sm:text-sm xl:text-xl">۰۹۱۲۸۴۵۵۹۰۷</span>
+          <div className="font-ray flex flex-wrap text-base font-extrabold text-[#161A1D] sm:justify-start">
+            <span className="tracking-widest">
+              پشتیبانی تلفنی: ۰۲۱۶۶۴۳۱۹۵۵, ۰۹۱۲۸۴۵۵۹۰۷
+            </span>
+            <p className="font-ray mt-0.5 text-sm font-normal text-[#555555]">
+              ۷ روز هفته، ۲۴ ساعته در خدمت شما هستیم
+            </p>
           </div>
         </div>
 
@@ -62,10 +42,10 @@ const Footer = () => {
         <div className="flex items-center gap-x-12.5 gap-y-5 max-sm:mt-5 max-sm:flex-wrap sm:justify-end sm:gap-x-10 xl:gap-x-20">
           {/* Category 1 */}
           <div className="text-right">
-            <h3 className="font-aria mb-2.5 font-extrabold sm:text-base xl:text-xl">
+            <h3 className="font-aria mb-2.5 text-base font-extrabold">
               صفحه اصلی
             </h3>
-            <ul className="font-ray space-y-2 sm:text-sm xl:text-lg">
+            <ul className="font-ray space-y-2 text-base">
               <li>
                 <a href="/products" className="transition hover:text-gray-500">
                   محصولات
@@ -86,10 +66,8 @@ const Footer = () => {
 
           {/* Category 2 */}
           <div className="text-center sm:text-right">
-            <h3 className="font-aria mb-2 font-extrabold sm:text-base xl:text-xl">
-              فروشگاه
-            </h3>
-            <ul className="font-ray space-y-2 sm:text-sm xl:text-lg">
+            <h3 className="font-aria mb-2 text-base font-extrabold">فروشگاه</h3>
+            <ul className="font-ray space-y-2 text-base">
               <li>
                 <a
                   href="/products?categoryId=6"
@@ -119,25 +97,16 @@ const Footer = () => {
 
           {/* Category 3 */}
           <div className="text-right">
-            <h3 className="font-aria mb-2 font-extrabold sm:text-base xl:text-xl">
-              ارتباط با ما
+            <h3 className="font-aria mb-2 text-base font-extrabold">
+              نماد الکترونیک
             </h3>
-            <ul className="font-ray space-y-2 sm:text-sm xl:text-lg">
-              <li>
-                <a href="#" className="transition hover:text-gray-500">
-                  درباره ما
-                </a>
-              </li>
-              <li>
-                <a href="#" className="transition hover:text-gray-500">
-                  پشتیبانی
-                </a>
-              </li>
-              <li>
-                <a href="#" className="transition hover:text-gray-500">
-                  همکاری
-                </a>
-              </li>
+            <ul className="font-ray flex items-center justify-center space-y-2 text-sm">
+              <Image
+                src="/images/enamad.svg"
+                alt="enamad"
+                width={104}
+                height={94}
+              />
             </ul>
           </div>
         </div>
@@ -147,14 +116,12 @@ const Footer = () => {
       <div className="my-4 h-px w-full bg-[#D9D9D9]"></div>
 
       {/* Footer Bottom Links - Centered for mobile/tablet */}
-      <div className="font-ray flex flex-col items-center justify-center gap-2 text-sm font-bold text-black sm:flex-row sm:justify-between sm:gap-0 sm:text-sm xl:text-xl">
-        <a
-          href="#"
-          className="text-center text-sm transition hover:text-gray-500 sm:text-base"
-        >
-          © ۲۰۲۵ دیجی سلامت – تمامی حقوق محفوظ است
+      <div className="font-ray flex flex-col items-center justify-center gap-2 text-sm font-bold text-[#555555] sm:flex-row sm:justify-between sm:gap-0">
+        <a href="#" className="text-center transition hover:text-gray-500">
+          © ۲۰۲۶ تمامی حقوق مادی و معنوی این وب‌سایت متعلق به شرکت دیجی‌سلامت
+          می‌باشد.
         </a>
-        <div className="flex flex-wrap justify-center gap-2 text-sm sm:gap-5 sm:text-base xl:gap-8">
+        <div className="flex flex-wrap justify-center gap-2 text-sm sm:gap-5 xl:gap-8">
           <a
             href="/legal/privacy-policy"
             className="transition hover:text-gray-500"

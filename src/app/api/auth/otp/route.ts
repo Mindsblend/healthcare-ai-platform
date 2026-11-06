@@ -14,28 +14,20 @@ export async function POST(req: Request) {
 
     switch (type) {
       case 'email':
-        console.log(`[EMAIL] OTP request for: ${value}`)
-
         // Send OTP
         code = await sendOtpViaEmail(value)
-        console.log('[EMAIL] OTP code sent')
 
         // Store OTP
         await saveOtp(value, code)
-        console.log('[EMAIL] OTP code saved')
         break
 
       case 'phone':
-        console.log(`[SMS] OTP request for: ${value}`)
-
         // Send OTP
         const smsResponse = await sendOtpViaSms({ phone: value })
         code = smsResponse.code
-        console.log('[SMS] OTP code sent')
 
         // Store OTP
         await saveOtp(value, code)
-        console.log('[SMS] OTP code saved')
         break
 
       default:
@@ -48,8 +40,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('[OTP API] Caught error:', error)
-
     if (
       error &&
       typeof error === 'object' &&

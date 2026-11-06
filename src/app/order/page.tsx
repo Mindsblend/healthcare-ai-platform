@@ -1,18 +1,22 @@
 'use client'
 
-import Image from 'next/image'
+import { useMemo, useState, useEffect, useRef } from 'react'
+import type { ChangeEvent, FocusEvent } from 'react'
+
 import { useCart } from '@/features/shop/hooks/cart/useCart'
-import { useState, ChangeEvent, useEffect } from 'react'
 import { useCreateOrder } from '@/features/shop/hooks/orders/createOrders'
 import { useUserAddress } from '@/features/shop/hooks/profile/useUserAddress'
-import { ShippingInfo } from '@/features/shop/shop.types'
-import { City } from '@/components/types/types'
+import { useCreateUserAddress } from '@/features/shop/hooks/profile/createUserAddress'
+import { useUpdateUserProfile } from '@/features/shop/hooks/profile/updateUserProfile'
 import { usePayment } from '@/features/shop/hooks/payment/usePayment'
+
+import type { ShippingInfo, Address } from '@/features/shop/shop.types'
+import type { City } from '@/components/types/types'
+
 import {
   getFreeShippingStatus,
   provinces,
   getCitiesByProvince,
-  getProvinceByCity,
   validateFirstName,
   validateLastName,
   validateProvince,
@@ -24,136 +28,357 @@ import {
   validateIdentifierField,
   toPersianDigit,
 } from '@/lib/helpers'
-import { useCreateUserAddress } from '@/features/shop/hooks/profile/createUserAddress'
+
 import LoadingBar from '@/components/layout/LoadingBar'
-import { useUpdateUserProfile } from '@/features/shop/hooks/profile/updateUserProfile'
 import InformPopup from '@/components/layout/InformPopup'
-import { Address } from '@/features/shop/shop.types'
+
+// ============================================================
+// Constants
+// ============================================================
+
+const TAX_RATE = 0.09
+const FREE_SHIPPING_THRESHOLD = 2_000_000
+const SHIPPING_COST = 300_000
+
+const PAYMENT_METHOD = 'zarinpal' as const
+
+// ============================================================
+// Types
+// ============================================================
+
+type FieldErrors = Record<string, string>
+type TouchedFields = Record<string, boolean>
+
+type ProductPriceInfo = {
+  originalPrice: number
+  finalPrice: number
+  hasDiscount: boolean
+  discountAmount: number
+  discountPercent: number
+}
+
+// ============================================================
+// Helpers
+// ============================================================
+
+const formatPrice = (value: number) => value.toLocaleString('fa-IR')
+
+const getItemPrices = (item: {
+  product: {
+    price?: number | null
+    discountedPrice?: number | null
+  }
+}): ProductPriceInfo => {
+  const originalPrice = Math.max(0, item.product.price ?? 0)
+
+  const discountedPrice = item.product.discountedPrice
+
+  const hasDiscount =
+    typeof discountedPrice === 'number' &&
+    Number.isFinite(discountedPrice) &&
+    discountedPrice >= 0 &&
+    discountedPrice < originalPrice
+
+  const finalPrice = hasDiscount ? discountedPrice : originalPrice
+
+  const discountAmount = originalPrice - finalPrice
+
+  const discountPercent =
+    originalPrice > 0 ? Math.round((discountAmount / originalPrice) * 100) : 0
+
+  return {
+    originalPrice,
+    finalPrice,
+    hasDiscount,
+    discountAmount,
+    discountPercent,
+  }
+}
+
+// ============================================================
+// Initial State
+// ============================================================
+
+const INITIAL_SHIPPING_INFO: ShippingInfo = {
+  firstName: '',
+  lastName: '',
+  city: '',
+  province: '',
+  email: '',
+  phone: '',
+  address: '',
+  postalCode: '',
+  notes: '',
+}
+
+// ============================================================
+// Component
+// ============================================================
 
 const CheckoutPage = () => {
-  const { cartItems, loading: cartLoading, error, waitForCartSync } = useCart()
-  const [activeBtn, setActiveBtn] = useState<'mellat' | 'zarinpal'>('zarinpal')
+  // ----------------------------------------------------------
+  // Hooks
+  // ----------------------------------------------------------
+
+  const {
+    cartItems,
+    loading: cartLoading,
+    error: cartError,
+    waitForCartSync,
+  } = useCart()
+
   const { createOrder, loading: orderLoading } = useCreateOrder()
+
   const { createUserAddress } = useCreateUserAddress()
+
   const { userAddress } = useUserAddress()
+
   const { updateUserProfile } = useUpdateUserProfile()
+
   const { initiatePayment, loading: paymentLoading } = usePayment()
+
+  // ----------------------------------------------------------
+  // State
+  // ----------------------------------------------------------
 
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
     null,
   )
+
   const [isAddingNewAddress, setIsAddingNewAddress] = useState(false)
 
-  const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
-    firstName: '',
-    lastName: '',
-    city: '',
-    province: '',
-    email: '',
-    phone: '',
-    address: '',
-    postalCode: '',
-    notes: '',
-  })
-
-  const [errorMessage, setErrorMessage] = useState<string | null>()
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
-  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>(
-    {},
-  )
-  const [availableCities, setAvailableCities] = useState<City[]>([])
-
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0,
+  const [shippingInfo, setShippingInfo] = useState<ShippingInfo>(
+    INITIAL_SHIPPING_INFO,
   )
 
-  const TAX_RATE = 0.09
-  const taxAmount = Math.round(subtotal * TAX_RATE)
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
 
-  const totalAmount = subtotal + taxAmount
+  const [touchedFields, setTouchedFields] = useState<TouchedFields>({})
 
-  const FREE_SHIPPING_THRESHOLD = 2_000_000
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-  const isFreeShipping = getFreeShippingStatus(
-    subtotal,
-    FREE_SHIPPING_THRESHOLD,
-  )
+  // ----------------------------------------------------------
+  // Derived State
+  // ----------------------------------------------------------
 
-  const deliveryAmount = isFreeShipping ? 0 : 300_000
+  const hasSavedAddresses = Boolean(userAddress?.addresses?.length)
 
-  // Auto-select default address when userAddress loads
-  useEffect(() => {
-    if (
-      userAddress?.addresses &&
-      userAddress.addresses.length > 0 &&
-      !isAddingNewAddress
-    ) {
-      // Find default address
-      const defaultAddress = userAddress.addresses.find(
-        (addr: Address) => addr.isDefault,
-      )
-      // If no default address exists, use the first one
-      const addressToSelect = defaultAddress || userAddress.addresses[0]
+  const availableCities: City[] = useMemo(() => {
+    if (!shippingInfo.province) return []
 
-      if (addressToSelect) {
-        setSelectedAddressId(addressToSelect.id)
-        setShippingInfo({
-          firstName: addressToSelect.firstName,
-          lastName: addressToSelect.lastName,
-          city: addressToSelect.city,
-          province: addressToSelect.province,
-          email: addressToSelect.email || '',
-          phone: addressToSelect.phone,
-          address: addressToSelect.address,
-          postalCode: addressToSelect.postalCode,
-          notes: '',
-        })
-      }
-    }
-  }, [userAddress, isAddingNewAddress])
-
-  // Update cities when province changes
-  useEffect(() => {
-    if (shippingInfo.province) {
-      const cities = getCitiesByProvince(shippingInfo.province)
-      setAvailableCities(cities)
-
-      // Clear city if the current city doesn't belong to the new province
-      if (shippingInfo.city) {
-        const provinceForCity = getProvinceByCity(shippingInfo.city)
-        if (provinceForCity?.name !== shippingInfo.province) {
-          setShippingInfo((prev) => ({ ...prev, city: '' }))
-          // Clear city error if exists
-          if (fieldErrors.city) {
-            setFieldErrors((prev) => ({ ...prev, city: '' }))
-          }
-        }
-      }
-    } else {
-      setAvailableCities([])
-    }
+    return getCitiesByProvince(shippingInfo.province)
   }, [shippingInfo.province])
 
-  // Auto-set province when city is selected
-  useEffect(() => {
-    if (shippingInfo.city) {
-      const province = getProvinceByCity(shippingInfo.city)
-      if (province && province.name !== shippingInfo.province) {
-        setShippingInfo((prev) => ({ ...prev, province: province.name }))
-      }
-    }
-  }, [shippingInfo.city])
+  // ----------------------------------------------------------
+  // Cart Calculations
+  // ----------------------------------------------------------
 
-  // Real-time field validation on blur
-  const handleBlur = async (
-    e: React.FocusEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
+  const cartSummary = useMemo(() => {
+    const itemsCount = cartItems.reduce((sum, item) => sum + item.quantity, 0)
+
+    const originalTotal = cartItems.reduce((sum, item) => {
+      const { originalPrice } = getItemPrices(item)
+
+      return sum + originalPrice * item.quantity
+    }, 0)
+
+    const subtotal = cartItems.reduce((sum, item) => {
+      const { finalPrice } = getItemPrices(item)
+
+      return sum + finalPrice * item.quantity
+    }, 0)
+
+    const savings = originalTotal - subtotal
+
+    const savingsPercent =
+      originalTotal > 0 ? Math.round((savings / originalTotal) * 100) : 0
+
+    return {
+      itemsCount,
+      originalTotal,
+      subtotal,
+      savings,
+      savingsPercent,
+    }
+  }, [cartItems])
+
+  // ----------------------------------------------------------
+  // Tax Calculations
+  // ----------------------------------------------------------
+
+  const taxAmount = useMemo(
+    () => Math.round(cartSummary.subtotal * TAX_RATE),
+    [cartSummary.subtotal],
+  )
+
+  // ----------------------------------------------------------
+  // Shipping Calculations
+  // ----------------------------------------------------------
+
+  const isFreeShipping = useMemo(
+    () => getFreeShippingStatus(cartSummary.subtotal, FREE_SHIPPING_THRESHOLD),
+    [cartSummary.subtotal],
+  )
+
+  const deliveryAmount = isFreeShipping ? 0 : SHIPPING_COST
+
+  // ----------------------------------------------------------
+  // Final Amount
+  // ----------------------------------------------------------
+
+  const totalAmount = cartSummary.subtotal + taxAmount
+
+  const finalAmount = totalAmount + deliveryAmount
+
+  // ----------------------------------------------------------
+  // Address Management
+  // ----------------------------------------------------------
+
+  useEffect(() => {
+    if (
+      !userAddress?.addresses?.length ||
+      isAddingNewAddress ||
+      selectedAddressId
+    ) {
+      return
+    }
+
+    const defaultAddress = userAddress.addresses.find(
+      (address: Address) => address.isDefault,
+    )
+
+    const addressToSelect = defaultAddress || userAddress.addresses[0]
+
+    if (!addressToSelect) return
+
+    setSelectedAddressId(addressToSelect.id)
+
+    setShippingInfo((prev) => ({
+      ...prev,
+      firstName: addressToSelect.firstName,
+      lastName: addressToSelect.lastName,
+      city: addressToSelect.city,
+      province: addressToSelect.province,
+      email: addressToSelect.email || '',
+      phone: addressToSelect.phone,
+      address: addressToSelect.address,
+      postalCode: addressToSelect.postalCode,
+    }))
+  }, [userAddress, isAddingNewAddress, selectedAddressId])
+
+  // ----------------------------------------------------------
+  // Address Selection
+  // ----------------------------------------------------------
+
+  const handleSelectAddress = (address: Address) => {
+    setSelectedAddressId(address.id)
+
+    setShippingInfo((prev) => ({
+      ...prev,
+      firstName: address.firstName,
+      lastName: address.lastName,
+      city: address.city,
+      province: address.province,
+      email: address.email || '',
+      phone: address.phone,
+      address: address.address,
+      postalCode: address.postalCode,
+    }))
+
+    setFieldErrors({})
+    setTouchedFields({})
+  }
+
+  const handleAddNewAddress = () => {
+    setIsAddingNewAddress(true)
+    setSelectedAddressId(null)
+    setShippingInfo(INITIAL_SHIPPING_INFO)
+    setFieldErrors({})
+    setTouchedFields({})
+  }
+
+  const handleCancelNewAddress = () => {
+    setIsAddingNewAddress(false)
+    setFieldErrors({})
+    setTouchedFields({})
+  }
+
+  // ----------------------------------------------------------
+  // Field Changes
+  // ----------------------------------------------------------
+
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target
 
-    setTouchedFields((prev) => ({ ...prev, [name]: true }))
+    setShippingInfo((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
+
+    if (fieldErrors[name]) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        [name]: '',
+      }))
+    }
+  }
+
+  const handleProvinceChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    const { value } = e.target
+
+    setShippingInfo((prev) => ({
+      ...prev,
+      province: value,
+      city: '',
+    }))
+
+    setFieldErrors((prev) => ({
+      ...prev,
+      province: '',
+      city: '',
+    }))
+
+    setTouchedFields((prev) => ({
+      ...prev,
+      province: true,
+      city: false,
+    }))
+  }
+
+  const handleCityChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    const { value } = e.target
+
+    setShippingInfo((prev) => ({
+      ...prev,
+      city: value,
+    }))
+
+    setFieldErrors((prev) => ({
+      ...prev,
+      city: '',
+    }))
+
+    setTouchedFields((prev) => ({
+      ...prev,
+      city: true,
+    }))
+  }
+
+  // ----------------------------------------------------------
+  // Field Validation
+  // ----------------------------------------------------------
+
+  const handleBlur = async (
+    e: FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ) => {
+    const { name, value } = e.target
+
+    setTouchedFields((prev) => ({
+      ...prev,
+      [name]: true,
+    }))
 
     let error: string | null = null
 
@@ -161,131 +386,107 @@ const CheckoutPage = () => {
       case 'firstName':
         error = validateFirstName(value)?.message || null
         break
+
       case 'lastName':
         error = validateLastName(value)?.message || null
         break
+
       case 'email':
-        const emailValidation = await validateIdentifierField(value)
-        error = emailValidation.isValid ? null : emailValidation.error || null
+      case 'phone': {
+        const validation = await validateIdentifierField(value)
+
+        error = validation.isValid ? null : validation.error || null
+
         break
-      case 'phone':
-        const phoneValidation = await validateIdentifierField(value)
-        error = phoneValidation.isValid ? null : phoneValidation.error || null
-        break
+      }
+
       case 'province':
         error = validateProvince(value, provinces)?.message || null
         break
+
       case 'city':
         error =
           validateCity(value, shippingInfo.province, getCitiesByProvince)
             ?.message || null
         break
+
       case 'address':
         error = validateAddress(value)?.message || null
         break
+
       case 'postalCode':
         error = validatePostalCode(value)?.message || null
         break
+
+      default:
+        break
     }
 
-    setFieldErrors((prev) => ({ ...prev, [name]: error || '' }))
+    setFieldErrors((prev) => ({
+      ...prev,
+      [name]: error || '',
+    }))
   }
 
-  const handleProvinceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { value } = e.target
-    setShippingInfo((prev) => ({ ...prev, province: value, city: '' }))
+  // ----------------------------------------------------------
+  // Checkout Submission
+  // ----------------------------------------------------------
+  const [isCheckoutSubmitting, setIsCheckoutSubmitting] = useState(false)
 
-    // Clear related errors
-    setFieldErrors((prev) => ({ ...prev, province: '', city: '' }))
+  const checkoutLockRef = useRef(false)
 
-    // Mark as touched
-    setTouchedFields((prev) => ({ ...prev, province: true, city: true }))
-  }
+  const isSubmitting = isCheckoutSubmitting || orderLoading || paymentLoading
 
-  const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { value } = e.target
-    setShippingInfo((prev) => ({ ...prev, city: value }))
-
-    // Clear city error
-    setFieldErrors((prev) => ({ ...prev, city: '' }))
-
-    // Mark as touched
-    setTouchedFields((prev) => ({ ...prev, city: true }))
-  }
-
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const { name, value } = e.target
-    setShippingInfo((prev) => ({ ...prev, [name]: value }))
-
-    // Clear error for this field when user starts typing
-    if (fieldErrors[name]) {
-      setFieldErrors((prev) => ({ ...prev, [name]: '' }))
-    }
-  }
-
-  const handleSubmit = async (shouldCreateNewAddress: boolean = true) => {
-    // =========================================================
-    // 1. Touch all fields
-    // =========================================================
-
-    const allTouched = Object.keys(shippingInfo).reduce(
-      (acc, key) => {
-        acc[key] = true
-        return acc
-      },
-      {} as Record<string, boolean>,
-    )
-
-    setTouchedFields(allTouched)
-
-    // =========================================================
-    // 2. Validate shipping information
-    // =========================================================
-
-    const validation = await validateShippingInfo(
-      shippingInfo,
-      provinces,
-      getCitiesByProvince,
-    )
-
-    if (!validation.isValid) {
-      const errors = getValidationErrorsObject(validation.errors)
-
-      setFieldErrors(errors)
-
-      const firstErrorField = validation.errors[0]?.field
-
-      if (firstErrorField) {
-        const element = document.querySelector(`[name="${firstErrorField}"]`)
-
-        element?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-        })
-      }
-
+  const handleSubmit = async () => {
+    // Prevent duplicate submissions, including rapid clicks
+    if (checkoutLockRef.current || isSubmitting || cartItems.length === 0) {
       return
     }
 
+    checkoutLockRef.current = true
+    setIsCheckoutSubmitting(true)
+    setErrorMessage(null)
+
     try {
-      // =======================================================
-      // 3. IMPORTANT:
-      // Wait until every pending cart mutation is finished.
-      // =======================================================
+      // 1. Mark all fields as touched
+      const allTouched = Object.keys(shippingInfo).reduce((acc, key) => {
+        acc[key] = true
+        return acc
+      }, {} as TouchedFields)
 
-      console.log('🛒 Waiting for cart synchronization...')
+      setTouchedFields(allTouched)
 
+      // 2. Validate shipping information
+      const validation = await validateShippingInfo(
+        shippingInfo,
+        provinces,
+        getCitiesByProvince,
+      )
+
+      if (!validation.isValid) {
+        const errors = getValidationErrorsObject(validation.errors)
+
+        setFieldErrors(errors)
+
+        const firstErrorField = validation.errors[0]?.field
+
+        if (firstErrorField) {
+          document
+            .querySelector(`[name="${firstErrorField}"]`)
+            ?.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
+            })
+        }
+
+        return
+      }
+
+      // 3. Wait for pending cart mutations
       await waitForCartSync()
 
-      console.log('✅ Cart synchronization completed')
-
-      // =======================================================
-      // 4. Update profile if needed
-      // =======================================================
-
-      if (!userAddress?.addresses && isAddingNewAddress) {
+      // 4. Update user profile if necessary
+      if (!hasSavedAddresses) {
         await updateUserProfile({
           firstName: shippingInfo.firstName,
           lastName: shippingInfo.lastName,
@@ -294,11 +495,8 @@ const CheckoutPage = () => {
         })
       }
 
-      // =======================================================
-      // 5. Create address if needed
-      // =======================================================
-
-      if (shouldCreateNewAddress && !selectedAddressId) {
+      // 5. Create address if necessary
+      if (!selectedAddressId) {
         await createUserAddress({
           firstName: shippingInfo.firstName,
           lastName: shippingInfo.lastName,
@@ -311,45 +509,24 @@ const CheckoutPage = () => {
         })
       }
 
-      // =======================================================
       // 6. Create order
-      // =======================================================
-
-      console.log('📝 Creating order...')
-
       const orderResult = await createOrder({
         shippingInfo,
-        paymentMethod: activeBtn,
+        paymentMethod: PAYMENT_METHOD,
       })
-
-      console.log('✅ Order created:', orderResult)
 
       if (!orderResult?.id) {
-        throw new Error('Failed to create order')
+        throw new Error('خطا در ثبت سفارش')
       }
 
-      // =======================================================
-      // 7. Server Order is the source of truth
-      // =======================================================
-
+      // 7. Validate server-side order amount
       const orderTotal = Number(orderResult.totalPrice)
-
-      console.log('💰 Final order total:', {
-        orderId: orderResult.id,
-        totalPrice: orderResult.totalPrice,
-        normalizedTotal: orderTotal,
-      })
 
       if (!Number.isFinite(orderTotal) || orderTotal <= 0) {
         throw new Error('مبلغ سفارش معتبر نیست')
       }
 
-      // =======================================================
-      // 8. Payment
-      // =======================================================
-
-      console.log('💳 Initiating payment...')
-
+      // 8. Initiate payment
       const paymentResult = await initiatePayment({
         amount: orderTotal,
         description: `سفارش شماره ${orderResult.id}`,
@@ -358,631 +535,495 @@ const CheckoutPage = () => {
         mobile: shippingInfo.phone,
       })
 
-      console.log('📊 Payment result:', paymentResult)
-
       if (!paymentResult.success) {
-        setErrorMessage(paymentResult.error || 'خطا در اتصال به درگاه پرداخت')
+        throw new Error(paymentResult.error || 'خطا در اتصال به درگاه پرداخت')
       }
     } catch (err) {
-      console.error('❌ Checkout error:', err)
+      console.error('Checkout error:', err)
 
       setErrorMessage(
         err instanceof Error
           ? err.message
           : 'خطا در ثبت سفارش، لطفا دوباره تلاش کنید.',
       )
+    } finally {
+      // Release lock after the process finishes
+      checkoutLockRef.current = false
+      setIsCheckoutSubmitting(false)
     }
   }
 
-  // Check if user has addresses
-  if (
-    userAddress?.addresses &&
-    userAddress.addresses.length > 0 &&
-    !isAddingNewAddress
-  ) {
-    return (
-      <LoadingBar loading={cartLoading || paymentLoading} error={error}>
-        <div className="container my-10">
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 xl:grid-cols-3">
-            {/* RIGHT: Address Selection */}
-            <div className="col-span-1 xl:col-span-2">
-              <div className="rounded-2xl border-2 border-[#d9d9d9] bg-white p-8">
-                <div className="mb-6 flex items-center justify-between">
-                  <h2 className="font-aria text-color-title-on-light text-right text-[24px] font-bold">
-                    انتخاب آدرس ارسال
-                  </h2>
-                  <button
-                    onClick={() => {
-                      setIsAddingNewAddress(true)
-                      // Reset form to empty
-                      setShippingInfo({
-                        firstName: '',
-                        lastName: '',
-                        city: '',
-                        province: '',
-                        email: '',
-                        phone: '',
-                        address: '',
-                        postalCode: '',
-                        notes: '',
-                      })
-                      setSelectedAddressId(null)
-                    }}
-                    className="font-aria w-35 cursor-pointer rounded-[5px] bg-[#161A1D] text-sm font-bold text-white transition-all hover:bg-[#2a3035] disabled:cursor-not-allowed disabled:opacity-50"
-                    style={{ height: '50px' }}
-                  >
-                    ثبت آدرس جدید
-                  </button>
-                </div>
+  // ==========================================================
+  // UI
+  // ==========================================================
 
-                <div className="space-y-4">
-                  {userAddress.addresses.map(
-                    (address: Address, index: number) => (
+  return (
+    <LoadingBar
+      loading={cartLoading || paymentLoading || orderLoading}
+      error={cartError}
+    >
+      <section className="container my-10">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 xl:grid-cols-3">
+          {/* =================================================
+              LEFT: Address / Checkout Form
+          ================================================== */}
+
+          <div className="col-span-1 xl:col-span-2">
+            <div className="rounded-2xl border-2 border-[#D9D9D9] bg-white p-5 sm:p-8">
+              {/* Address Selection */}
+
+              {hasSavedAddresses && !isAddingNewAddress ? (
+                <>
+                  <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+                    <h2 className="font-aria text-color-title-on-light text-right text-xl font-bold sm:text-2xl">
+                      انتخاب آدرس ارسال
+                    </h2>
+
+                    <button
+                      type="button"
+                      onClick={handleAddNewAddress}
+                      className="font-aria secondary-btn cursor-pointer rounded-[5px] bg-[#161A1D] px-4 text-sm font-bold text-white transition-all hover:bg-[#2A3035]"
+                      style={{ height: '50px' }}
+                    >
+                      ثبت آدرس جدید
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {userAddress?.addresses?.map((address: Address) => (
                       <div
-                        key={address.id || index}
-                        className={`cursor-pointer rounded-lg border transition hover:bg-gray-50 ${
+                        key={address.id}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => handleSelectAddress(address)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            handleSelectAddress(address)
+                          }
+                        }}
+                        className={`cursor-pointer rounded-lg transition hover:bg-gray-50 ${
                           selectedAddressId === address.id
                             ? 'border-2 border-black'
                             : 'border border-[#D9D9D9]'
                         }`}
-                        onClick={() => {
-                          setSelectedAddressId(address.id)
-                          // Set selected address to shippingInfo
-                          setShippingInfo({
-                            firstName: address.firstName,
-                            lastName: address.lastName,
-                            city: address.city,
-                            province: address.province,
-                            email: address.email || '',
-                            phone: address.phone,
-                            address: address.address,
-                            postalCode: address.postalCode,
-                            notes: shippingInfo.notes,
-                          })
-                        }}
                       >
                         <div className="p-5">
-                          <div className="font-ray flex items-start justify-between text-lg font-medium">
-                            <div className="space-y-2">
-                              {address.isDefault && (
-                                <span className="inline-block rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-600">
-                                  آدرس پیش‌فرض
-                                </span>
-                              )}
-                              <p className="text-black">{address.address}</p>
-                              <div className="flex flex-col space-y-2 text-black">
-                                <span>شهر: {address.city}</span>
-                                <span>استان: {address.province}</span>
-                              </div>
-                              <span className="flex text-black">
-                                کد پستی: {toPersianDigit(address.postalCode)}
+                          <div className="font-ray space-y-3 text-sm font-medium text-black sm:text-base">
+                            {address.isDefault && (
+                              <span className="inline-block rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-600">
+                                آدرس پیش‌فرض
                               </span>
-                              <div className="flex gap-1 text-black">
-                                <span>
-                                  گیرنده: {address.firstName} {address.lastName}
-                                </span>
-                                |<span>{toPersianDigit(address.phone)}</span>
-                              </div>
+                            )}
+
+                            <p className="font-bold">{address.address}</p>
+
+                            <div className="flex flex-wrap gap-x-5 gap-y-2">
+                              <span>شهر: {address.city}</span>
+
+                              <span>استان: {address.province}</span>
+                            </div>
+
+                            <p>کد پستی: {toPersianDigit(address.postalCode)}</p>
+
+                            <div className="flex flex-wrap gap-2">
+                              <span>
+                                گیرنده: {address.firstName} {address.lastName}
+                              </span>
+
+                              <span>| {toPersianDigit(address.phone)}</span>
                             </div>
                           </div>
                         </div>
                       </div>
-                    ),
-                  )}
-                </div>
-                {/* Notes */}
-                <div className="mt-5 md:col-span-2">
-                  <textarea
-                    name="notes"
-                    placeholder="یادداشت سفارش (اختیاری)"
-                    value={shippingInfo.notes}
-                    onChange={handleChange}
-                    className="font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black"
-                  />
-                </div>
-                <div className="mt-5 flex flex-wrap items-center justify-between rounded-2xl border-2 border-[#d9d9d9] bg-white px-6 py-3.5">
-                  {/* Payment Method Buttons */}
-                  <div>
-                    <h1 className="font-aria text-color-title-on-light text-base font-extrabold">
-                      انتخاب درگاه پرداخت
-                    </h1>
-                    <p className="font-aria text-color-body-on-dark my-1.5 max-w-xs text-sm font-semibold">
-                      شما با انتخاب درگاه پرداخت خود میتوانید خریدی اسوده و
-                      مطمعن داشته باشید.
-                    </p>
+                    ))}
                   </div>
-                  <div className="flex items-center gap-3.5">
-                    <div
-                      onClick={() => setActiveBtn('zarinpal')}
-                      className={`flex h-19.5 cursor-pointer items-center justify-center rounded-2xl p-3 ${
-                        activeBtn === 'zarinpal'
-                          ? 'border-2 border-[#d9d9d9] bg-white'
-                          : ''
-                      }`}
-                    >
-                      <Image
-                        src="/images/zarinpal.webp"
-                        alt="zarinpal"
-                        width={38}
-                        height={50}
+                </>
+              ) : (
+                <>
+                  {/* New Address Form */}
+
+                  <div className="mb-6 flex items-center justify-between gap-3">
+                    <h2 className="font-aria text-color-title-on-light text-xl font-bold sm:text-2xl">
+                      اطلاعات خرید
+                    </h2>
+
+                    {hasSavedAddresses && (
+                      <button
+                        type="button"
+                        onClick={handleCancelNewAddress}
+                        className="font-ray rounded-lg border border-gray-300 px-3 py-2 text-sm font-bold transition hover:bg-gray-100"
+                      >
+                        بازگشت به آدرس‌ها
+                      </button>
+                    )}
+                  </div>
+
+                  <form
+                    className="grid grid-cols-1 gap-4 md:grid-cols-2"
+                    onSubmit={(e) => {
+                      e.preventDefault()
+                      handleSubmit()
+                    }}
+                  >
+                    {/* First Name */}
+
+                    <div>
+                      <input
+                        name="firstName"
+                        type="text"
+                        placeholder="نام"
+                        value={shippingInfo.firstName}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
+                          touchedFields.firstName && fieldErrors.firstName
+                            ? 'border-2 border-red-500'
+                            : ''
+                        }`}
                       />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
 
-            {/* ===== RIGHT: Order Summary ===== */}
-            <div className="space-y-6">
-              {/* Cart Details */}
-              <div className="flex h-92.5 flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-7">
-                <h1 className="font-aria text-color-title-on-light mt-9 text-center text-2xl font-extrabold">
-                  لیست سفارشات
-                </h1>
-                <div className="mt-8 mb-8 flex-1 space-y-5 overflow-y-auto">
-                  {cartItems.map((item) => (
-                    <div
-                      key={item.id}
-                      className="rounded-xl border-b pb-5 last:border-b-0"
-                    >
-                      <div className="flex justify-between gap-3 max-sm:space-y-3 sm:items-center">
-                        <div className="shrink-0">
-                          {item.product.image &&
-                          item.product.image.trim() !== '' ? (
-                            <Image
-                              src={item.product.image}
-                              alt={item.product.title}
-                              width={80}
-                              height={80}
-                              className="h-20 w-20 rounded-2xl object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gray-100">
-                              <span className="text-xs text-gray-400">
-                                بدون تصویر
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1 sm:px-4">
-                          <h3 className="font-aria text-color-title-on-light text-base sm:text-lg font-extrabold">
-                            {item.product.title}
-                          </h3>
-                          <p className="font-ray text-color-body-on-light mt-1 line-clamp-2 text-xs font-medium">
-                            {item.product.solution}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="font-aria text-color-title-on-light mt-2 flex shrink-0 items-center justify-between text-base font-extrabold">
-                        <p>
-                          {(item.price * item.quantity).toLocaleString('fa-IR')}{' '}
-                          تومان
+                      {touchedFields.firstName && fieldErrors.firstName && (
+                        <p className="mt-1 text-right text-sm text-red-500">
+                          {fieldErrors.firstName}
                         </p>
-                        <p className="ml-3 text-base font-medium text-gray-500">
-                          تعداد: {item.quantity}
-                        </p>
-                      </div>
+                      )}
                     </div>
-                  ))}
-                </div>
-              </div>
 
-              {/* Order Summary */}
-              <div className="flex h-113 flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-9 py-9">
-                <h1 className="font-aria text-color-title-on-light text-center text-2xl font-extrabold">
-                  خلاصه سفارشات
-                </h1>
-                <div className="space-y-5">
-                  <div className="flex items-center justify-between">
-                    <h1 className="font-aria text-color-title-on-light font-extrabold">
-                      جمع خرید
-                    </h1>
-                    <h1 className="font-aria text-color-title-on-light font-extrabold">
-                      {subtotal.toLocaleString('fa-IR')} تومان
-                    </h1>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <h1 className="font-aria text-color-title-on-light font-extrabold">
-                      مالیات
-                    </h1>
-                    <h1 className="font-aria text-color-title-on-light font-extrabold">
-                      {taxAmount.toLocaleString('fa-IR')} تومان
-                    </h1>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <h1 className="font-aria text-color-title-on-light font-extrabold">
-                      هزینه ارسال
-                    </h1>
-                    <h1 className="font-aria text-color-title-on-light font-extrabold">
-                      {isFreeShipping
-                        ? 'ارسال رایگان 🎉'
-                        : deliveryAmount.toLocaleString('fa-IR') + ' تومان'}
-                    </h1>
-                  </div>
-                  <hr className="border" />
-                  <div className="flex items-center justify-between">
-                    <h1 className="font-aria text-color-title-on-light font-extrabold">
-                      جمع کل
-                    </h1>
-                    <h1 className="font-aria text-color-title-on-light font-extrabold">
-                      {(totalAmount + deliveryAmount).toLocaleString('fa-IR')}{' '}
-                      تومان
-                    </h1>
-                  </div>
-                </div>
-                <button
-                  onClick={() => handleSubmit(true)}
-                  disabled={orderLoading || paymentLoading}
-                  className="text-color-title-on-dark font-ray h-13.5 w-full cursor-pointer rounded-4xl bg-black font-medium transition hover:bg-gray-800 disabled:opacity-50"
-                >
-                  {paymentLoading
-                    ? 'در حال اتصال به درگاه پرداخت...'
-                    : orderLoading
-                      ? 'در حال ثبت سفارش...'
-                      : 'ثبت سفارش و پرداخت'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </LoadingBar>
-    )
-  }
+                    {/* Last Name */}
 
-  return (
-    <section className="container mt-10">
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 xl:grid-cols-3">
-        {/* ===== RIGHT: Checkout Form ===== */}
-        <div className="col-span-1 xl:col-span-2">
-          <div className="rounded-2xl border-2 border-[#d9d9d9] bg-white p-8">
-            <h2 className="font-aria text-color-title-on-light mb-6 text-right text-[24px] font-bold">
-              اطلاعات خرید
-            </h2>
+                    <div>
+                      <input
+                        name="lastName"
+                        type="text"
+                        placeholder="نام خانوادگی"
+                        value={shippingInfo.lastName}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
+                          touchedFields.lastName && fieldErrors.lastName
+                            ? 'border-2 border-red-500'
+                            : ''
+                        }`}
+                      />
 
-            <form
-              className="grid grid-cols-1 gap-4 md:grid-cols-2"
-              onSubmit={(e) => e.preventDefault()}
-            >
-              {/* First Name */}
-              <div>
-                <input
-                  name="firstName"
-                  type="text"
-                  placeholder="نام"
-                  value={shippingInfo.firstName}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
-                    touchedFields.firstName && fieldErrors.firstName
-                      ? 'border-2 border-red-500'
-                      : ''
-                  }`}
-                />
-                {touchedFields.firstName && fieldErrors.firstName && (
-                  <p className="mt-1 text-right text-sm text-red-500">
-                    {fieldErrors.firstName}
-                  </p>
-                )}
-              </div>
+                      {touchedFields.lastName && fieldErrors.lastName && (
+                        <p className="mt-1 text-right text-sm text-red-500">
+                          {fieldErrors.lastName}
+                        </p>
+                      )}
+                    </div>
 
-              {/* Last Name */}
-              <div>
-                <input
-                  name="lastName"
-                  type="text"
-                  placeholder="نام خانوادگی"
-                  value={shippingInfo.lastName}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
-                    touchedFields.lastName && fieldErrors.lastName
-                      ? 'border-2 border-red-500'
-                      : ''
-                  }`}
-                />
-                {touchedFields.lastName && fieldErrors.lastName && (
-                  <p className="mt-1 text-right text-sm text-red-500">
-                    {fieldErrors.lastName}
-                  </p>
-                )}
-              </div>
+                    {/* Province */}
 
-              {/* Province */}
-              <div>
-                <select
-                  name="province"
-                  value={shippingInfo.province}
-                  onChange={handleProvinceChange}
-                  onBlur={handleBlur}
-                  className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
-                    touchedFields.province && fieldErrors.province
-                      ? 'border-2 border-red-500'
-                      : ''
-                  }`}
-                >
-                  <option value="">انتخاب استان</option>
-                  {provinces.map((province) => (
-                    <option key={province.id} value={province.name}>
-                      {province.name}
-                    </option>
-                  ))}
-                </select>
-                {touchedFields.province && fieldErrors.province && (
-                  <p className="mt-1 text-right text-sm text-red-500">
-                    {fieldErrors.province}
-                  </p>
-                )}
-              </div>
+                    <div>
+                      <select
+                        name="province"
+                        value={shippingInfo.province}
+                        onChange={handleProvinceChange}
+                        onBlur={handleBlur}
+                        className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
+                          touchedFields.province && fieldErrors.province
+                            ? 'border-2 border-red-500'
+                            : ''
+                        }`}
+                      >
+                        <option value="">انتخاب استان</option>
 
-              {/* City */}
-              <div>
-                <select
-                  name="city"
-                  value={shippingInfo.city}
-                  onChange={handleCityChange}
-                  onBlur={handleBlur}
-                  className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
-                    touchedFields.city && fieldErrors.city
-                      ? 'border-2 border-red-500'
-                      : ''
-                  }`}
-                  disabled={!shippingInfo.province}
-                >
-                  <option value="">
-                    {shippingInfo.province
-                      ? 'انتخاب شهر'
-                      : 'ابتدا استان را انتخاب کنید'}
-                  </option>
-                  {availableCities.map((city) => (
-                    <option key={city.id} value={city.name}>
-                      {city.name}
-                    </option>
-                  ))}
-                </select>
-                {touchedFields.city && fieldErrors.city && (
-                  <p className="mt-1 text-right text-sm text-red-500">
-                    {fieldErrors.city}
-                  </p>
-                )}
-              </div>
+                        {provinces.map((province) => (
+                          <option key={province.id} value={province.name}>
+                            {province.name}
+                          </option>
+                        ))}
+                      </select>
 
-              {/* Email */}
-              <div>
-                <input
-                  name="email"
-                  type="email"
-                  placeholder="ایمیل"
-                  value={shippingInfo.email}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
-                    touchedFields.email && fieldErrors.email
-                      ? 'border-2 border-red-500'
-                      : ''
-                  }`}
-                />
-                {touchedFields.email && fieldErrors.email && (
-                  <p className="mt-1 text-right text-sm text-red-500">
-                    {fieldErrors.email}
-                  </p>
-                )}
-              </div>
+                      {touchedFields.province && fieldErrors.province && (
+                        <p className="mt-1 text-right text-sm text-red-500">
+                          {fieldErrors.province}
+                        </p>
+                      )}
+                    </div>
 
-              {/* Phone */}
-              <div>
-                <input
-                  name="phone"
-                  type="tel"
-                  placeholder="شماره تماس"
-                  value={shippingInfo.phone}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  dir="rtl"
-                  className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
-                    touchedFields.phone && fieldErrors.phone
-                      ? 'border-2 border-red-500'
-                      : ''
-                  }`}
-                />
-                {touchedFields.phone && fieldErrors.phone && (
-                  <p className="mt-1 text-right text-sm text-red-500">
-                    {fieldErrors.phone}
-                  </p>
-                )}
-              </div>
+                    {/* City */}
 
-              {/* Address */}
-              <div>
-                <input
-                  name="address"
-                  type="text"
-                  placeholder="آدرس کامل"
-                  value={shippingInfo.address}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
-                    touchedFields.address && fieldErrors.address
-                      ? 'border-2 border-red-500'
-                      : ''
-                  }`}
-                />
-                {touchedFields.address && fieldErrors.address && (
-                  <p className="mt-1 text-right text-sm text-red-500">
-                    {fieldErrors.address}
-                  </p>
-                )}
-              </div>
+                    <div>
+                      <select
+                        name="city"
+                        value={shippingInfo.city}
+                        onChange={handleCityChange}
+                        onBlur={handleBlur}
+                        disabled={!shippingInfo.province}
+                        className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black disabled:cursor-not-allowed disabled:opacity-50 ${
+                          touchedFields.city && fieldErrors.city
+                            ? 'border-2 border-red-500'
+                            : ''
+                        }`}
+                      >
+                        <option value="">
+                          {shippingInfo.province
+                            ? 'انتخاب شهر'
+                            : 'ابتدا استان را انتخاب کنید'}
+                        </option>
 
-              {/* Postal Code */}
-              <div>
-                <input
-                  name="postalCode"
-                  type="text"
-                  placeholder="کد پستی"
-                  value={shippingInfo.postalCode}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
-                    touchedFields.postalCode && fieldErrors.postalCode
-                      ? 'border-2 border-red-500'
-                      : ''
-                  }`}
-                />
-                {touchedFields.postalCode && fieldErrors.postalCode && (
-                  <p className="mt-1 text-right text-sm text-red-500">
-                    {fieldErrors.postalCode}
-                  </p>
-                )}
-              </div>
+                        {availableCities.map((city) => (
+                          <option key={city.id} value={city.name}>
+                            {city.name}
+                          </option>
+                        ))}
+                      </select>
 
-              {/* Notes */}
-              <div className="md:col-span-2">
+                      {touchedFields.city && fieldErrors.city && (
+                        <p className="mt-1 text-right text-sm text-red-500">
+                          {fieldErrors.city}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Email */}
+
+                    <div>
+                      <input
+                        name="email"
+                        type="email"
+                        placeholder="ایمیل"
+                        value={shippingInfo.email}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
+                          touchedFields.email && fieldErrors.email
+                            ? 'border-2 border-red-500'
+                            : ''
+                        }`}
+                      />
+
+                      {touchedFields.email && fieldErrors.email && (
+                        <p className="mt-1 text-right text-sm text-red-500">
+                          {fieldErrors.email}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Phone */}
+
+                    <div>
+                      <input
+                        name="phone"
+                        type="tel"
+                        placeholder="شماره تماس"
+                        value={shippingInfo.phone}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        dir="rtl"
+                        className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
+                          touchedFields.phone && fieldErrors.phone
+                            ? 'border-2 border-red-500'
+                            : ''
+                        }`}
+                      />
+
+                      {touchedFields.phone && fieldErrors.phone && (
+                        <p className="mt-1 text-right text-sm text-red-500">
+                          {fieldErrors.phone}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Address */}
+
+                    <div>
+                      <input
+                        name="address"
+                        type="text"
+                        placeholder="آدرس کامل"
+                        value={shippingInfo.address}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
+                          touchedFields.address && fieldErrors.address
+                            ? 'border-2 border-red-500'
+                            : ''
+                        }`}
+                      />
+
+                      {touchedFields.address && fieldErrors.address && (
+                        <p className="mt-1 text-right text-sm text-red-500">
+                          {fieldErrors.address}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Postal Code */}
+
+                    <div>
+                      <input
+                        name="postalCode"
+                        type="text"
+                        placeholder="کد پستی"
+                        value={shippingInfo.postalCode}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        className={`font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black ${
+                          touchedFields.postalCode && fieldErrors.postalCode
+                            ? 'border-2 border-red-500'
+                            : ''
+                        }`}
+                      />
+
+                      {touchedFields.postalCode && fieldErrors.postalCode && (
+                        <p className="mt-1 text-right text-sm text-red-500">
+                          {fieldErrors.postalCode}
+                        </p>
+                      )}
+                    </div>
+                  </form>
+                </>
+              )}
+
+              {/* Order Notes */}
+
+              <div className="mt-5">
                 <textarea
                   name="notes"
                   placeholder="یادداشت سفارش (اختیاری)"
                   value={shippingInfo.notes}
                   onChange={handleChange}
+                  rows={3}
                   className="font-aria text-color-body-on-light w-full rounded-lg bg-[#F2F2F2] p-3 font-bold outline-none focus:ring-2 focus:ring-black"
                 />
               </div>
-            </form>
+            </div>
+          </div>
 
-            <div className="mt-5 flex flex-wrap items-center justify-between rounded-2xl border-2 border-[#d9d9d9] bg-white px-6 py-3.5">
-              {/* Payment Method Buttons */}
-              <div>
-                <h1 className="font-aria text-color-title-on-light text-base font-extrabold">
-                  انتخاب درگاه پرداخت
-                </h1>
-                <p className="font-aria text-color-body-on-dark my-1.5 max-w-xs text-sm font-semibold">
-                  شما با انتخاب درگاه پرداخت خود میتوانید خریدی اسوده و مطمعن
-                  داشته باشید.
-                </p>
-              </div>
-              <div className="flex items-center gap-3.5">
-                <div
-                  onClick={() => setActiveBtn('zarinpal')}
-                  className={`flex h-19.5 cursor-pointer items-center justify-center rounded-2xl p-3 ${
-                    activeBtn === 'zarinpal'
-                      ? 'border-2 border-[#d9d9d9] bg-white'
-                      : ''
-                  }`}
-                >
-                  <Image
-                    src="/images/zarinpal.webp"
-                    alt="zarinpal"
-                    width={38}
-                    height={50}
-                  />
+          {/* =================================================
+              RIGHT: Order Summary
+          ================================================== */}
+
+          <div className="space-y-6">
+            {/* =================================================
+                Invoice Summary
+            ================================================== */}
+
+            <div className="box-border flex w-full flex-col gap-8 rounded-[25px] border-2 border-[#F2F2F2] px-5 py-7 sm:px-[30px]">
+              <h2 className="font-aria text-right text-xl font-bold text-[#09090B]">
+                خلاصه فاکتور
+              </h2>
+
+              <div className="flex w-full flex-col gap-[14px]">
+                {/* Products Price */}
+
+                <div className="flex items-center justify-between gap-3">
+                  <span className="font-ray text-sm font-bold text-[#555555] sm:text-base">
+                    قیمت کالاها ({formatPrice(cartSummary.itemsCount)})
+                  </span>
+
+                  <span className="font-ray text-sm font-bold text-[#09090B] sm:text-base">
+                    {formatPrice(cartSummary.subtotal)} تومان
+                  </span>
                 </div>
+
+                {/* Customer Savings */}
+
+                {cartSummary.savings > 0 && (
+                  <div className="flex flex-wrap items-center justify-between gap-x-3">
+                    <span className="font-ray text-sm font-bold text-[#555555] sm:text-base">
+                      سود شما از این خرید
+                    </span>
+
+                    <span className="font-ray text-sm font-bold text-[#007926] sm:text-base">
+                      ({formatPrice(cartSummary.savingsPercent)}٪){' '}
+                      {formatPrice(cartSummary.savings)} تومان
+                    </span>
+                  </div>
+                )}
+
+                {/* Tax */}
+
+                <div className="flex items-center justify-between gap-3">
+                  <span className="font-ray text-sm font-bold text-[#555555] sm:text-base">
+                    مالیات (۹٪)
+                  </span>
+
+                  <span className="font-ray text-sm font-bold text-[#09090B] sm:text-base">
+                    {formatPrice(taxAmount)} تومان
+                  </span>
+                </div>
+
+                {/* Shipping */}
+
+                <div className="flex items-center justify-between gap-3">
+                  <span className="font-ray text-sm font-bold text-[#555555] sm:text-base">
+                    هزینه ارسال
+                  </span>
+
+                  {isFreeShipping ? (
+                    <span className="font-ray rounded-[5px] bg-[#F0FDF4] px-4 py-[3px] text-xs font-medium text-[#007926]">
+                      رایگان
+                    </span>
+                  ) : (
+                    <span className="font-ray text-sm font-bold text-[#09090B] sm:text-base">
+                      {formatPrice(deliveryAmount)} تومان
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Final Amount */}
+
+              <div className="flex w-full items-start justify-between gap-3 border-t border-[#E5E5E5] pt-5">
+                <span className="font-aria text-base font-bold text-[#09090B] sm:text-lg">
+                  مبلغ قابل پرداخت
+                </span>
+
+                <div className="flex flex-col items-start gap-0.5">
+                  <span className="font-aria text-xl font-extrabold text-[#09090B] sm:text-2xl">
+                    {formatPrice(finalAmount)}
+                  </span>
+
+                  <span className="font-ray self-end text-[13px] font-bold text-[#A1A1AA]">
+                    تومان
+                  </span>
+                </div>
+              </div>
+
+              {/* Payment Button */}
+
+              <div className="flex w-full flex-col items-center gap-[10px]">
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting || cartItems.length === 0}
+                  className="font-aria flex h-[54px] w-full cursor-pointer items-center justify-center gap-3 rounded-[10px] bg-black px-3 py-2.5 text-base font-bold text-white transition-all duration-200 hover:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-500 disabled:opacity-70"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+
+                      <span>
+                        {paymentLoading
+                          ? 'در حال اتصال به درگاه پرداخت...'
+                          : orderLoading
+                            ? 'در حال ثبت سفارش...'
+                            : 'در حال آماده‌سازی پرداخت...'}
+                      </span>
+                    </>
+                  ) : (
+                    'ورود به درگاه و پرداخت نهایی'
+                  )}
+                </button>
+
+                <span className="font-ray text-center text-xs font-medium text-[#555555]">
+                  🔒 پرداخت امن با کلیه کارت‌های عضو شتاب
+                </span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* ===== LEFT: Order Summary ===== */}
-        <div className="space-y-6">
-          {/* Cart Details */}
-          <div className="flex h-92.5 flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-7">
-            <h1 className="font-aria text-color-title-on-light mt-9 text-center text-2xl font-extrabold">
-              لیست سفارشات
-            </h1>
-            <div className="mt-8 mb-8 flex-1 space-y-5 overflow-y-auto">
-              {cartItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex justify-between rounded-xl border-b pb-5 last:border-b-0 max-sm:flex-col max-sm:space-y-3 sm:items-center"
-                >
-                  <div className="shrink-0">
-                    {item.product.image && item.product.image.trim() !== '' ? (
-                      <Image
-                        src={item.product.image}
-                        alt={item.product.title}
-                        width={80}
-                        height={80}
-                        className="h-20 w-20 rounded-2xl object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gray-100">
-                        <span className="text-xs text-gray-400">
-                          بدون تصویر
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 sm:px-4">
-                    <h3 className="font-aria text-color-title-on-light text-lg font-extrabold">
-                      {item.product.title}
-                    </h3>
-                    <p className="font-ray text-color-body-on-light mt-1 line-clamp-2 text-xs font-medium">
-                      {item.product.solution}
-                    </p>
-                  </div>
-                  <div className="font-aria text-color-title-on-light shrink-0 text-base font-extrabold">
-                    {item.price.toLocaleString('fa-IR')} تومان
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+        {/* Error Popup */}
 
-          {/* Order Summary */}
-          <div className="flex h-113 flex-col justify-between rounded-3xl border-2 border-[#d9d9d9] px-9 py-9">
-            <h1 className="font-aria text-color-title-on-light text-center text-2xl font-extrabold">
-              خلاصه سفارشات
-            </h1>
-            <div className="space-y-5">
-              <div className="flex items-center justify-between">
-                <h1 className="font-aria text-color-title-on-light font-extrabold">
-                  جمع خرید
-                </h1>
-                <h1 className="font-aria text-color-title-on-light font-extrabold">
-                  {subtotal.toLocaleString('fa-IR')} تومان
-                </h1>
-              </div>
-              <div className="flex items-center justify-between">
-                <h1 className="font-aria text-color-title-on-light font-extrabold">
-                  مالیات
-                </h1>
-                <h1 className="font-aria text-color-title-on-light font-extrabold">
-                  {taxAmount.toLocaleString('fa-IR')} تومان
-                </h1>
-              </div>
-              <div className="flex items-center justify-between">
-                <h1 className="font-aria text-color-title-on-light font-extrabold">
-                  هزینه ارسال
-                </h1>
-                <h1 className="font-aria text-color-title-on-light font-extrabold">
-                  {isFreeShipping
-                    ? 'ارسال رایگان 🎉'
-                    : deliveryAmount.toLocaleString('fa-IR') + ' تومان'}
-                </h1>
-              </div>
-              <hr className="border" />
-              <div className="flex items-center justify-between">
-                <h1 className="font-aria text-color-title-on-light font-extrabold">
-                  جمع کل
-                </h1>
-                <h1 className="font-aria text-color-title-on-light font-extrabold">
-                  {(totalAmount + deliveryAmount).toLocaleString('fa-IR')} تومان
-                </h1>
-              </div>
-            </div>
-            <button
-              onClick={() => handleSubmit(true)}
-              disabled={orderLoading || paymentLoading}
-              className="text-color-title-on-dark font-ray h-13.5 w-full cursor-pointer rounded-4xl bg-black font-medium transition hover:bg-gray-800 disabled:opacity-50"
-            >
-              {paymentLoading
-                ? 'در حال اتصال به درگاه پرداخت...'
-                : orderLoading
-                  ? 'در حال ثبت سفارش...'
-                  : 'ثبت سفارش و پرداخت'}
-            </button>
-          </div>
-        </div>
-      </div>
-      <InformPopup message={errorMessage} />
-    </section>
+        <InformPopup message={errorMessage} />
+      </section>
+    </LoadingBar>
   )
 }
 

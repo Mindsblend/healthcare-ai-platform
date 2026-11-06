@@ -12,8 +12,6 @@ export async function DELETE(
     const { id: idParam } = await context.params
     const id = parseInt(idParam)
 
-    console.log('DELETE collection ID:', id)
-
     if (isNaN(id)) {
       return NextResponse.json(
         { error: 'Invalid collection ID' },

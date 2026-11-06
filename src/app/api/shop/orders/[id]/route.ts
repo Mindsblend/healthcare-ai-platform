@@ -1,40 +1,49 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { requireAuthority } from '@/features/auth/services/sessionService'
 import { OrderService } from '@/features/shop/services/OrderService'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  console.log('=== API GET Order by ID ===')
-  console.log('Request URL:', request.url)
-
   try {
-    const resolvedParams = await params
-    console.log('Resolved params:', resolvedParams)
-
-    // The parameter name MUST match the folder name [id]
-    const orderId = resolvedParams.id
-    console.log('Order ID from params:', orderId)
+    const session = await requireAuthority({ requiredRole: 'USER' })
+    const { id: orderId } = await params
 
     if (!orderId) {
-      return new Response(JSON.stringify({ error: 'Order ID is required' }), {
-        status: 400,
-      })
+      return NextResponse.json(
+        { error: 'Order ID is required' },
+        { status: 400 },
+      )
     }
 
     const order = await OrderService.fetchOrderById({ id: orderId })
 
     if (!order) {
-      return new Response(JSON.stringify({ error: 'Order not found' }), {
-        status: 404,
-      })
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
-    return new Response(JSON.stringify(order), { status: 200 })
+    if (session.role !== 'ADMIN' && order.userId !== session.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    return NextResponse.json(order)
   } catch (error) {
-    console.error('Error:', error)
-    return new Response(JSON.stringify({ error: 'Failed to fetch order' }), {
-      status: 500,
-    })
+    const message = error instanceof Error ? error.message : ''
+
+    if (message === 'UNAUTHORIZED') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (message === 'FORBIDDEN') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    console.error('Failed to fetch order:', error)
+
+    return NextResponse.json(
+      { error: 'Failed to fetch order' },
+      { status: 500 },
+    )
   }
 }

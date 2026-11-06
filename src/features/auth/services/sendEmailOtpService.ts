@@ -26,7 +26,5 @@ export async function sendOtpViaEmail(email: string) {
 
   await transporter.sendMail(mailOptions)
 
-  console.log('[EMAIL SENT]', code)
-
   return code
 }

@@ -1,7 +1,7 @@
 import { CreateOrderInput, OrderDetail } from '../../shop.types'
 
 export async function createOrderAction(
-  input: CreateOrderInput,
+  input: Omit<CreateOrderInput, 'userId'>,
 ): Promise<OrderDetail> {
   const res = await fetch('/api/shop/orders/create', {
     method: 'POST',

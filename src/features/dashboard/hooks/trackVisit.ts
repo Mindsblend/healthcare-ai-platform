@@ -14,7 +14,6 @@ export function createTrackVisit() {
     try {
       const result = await trackVisitAction()
       setData(result)
-      console.log('Tracked View Succesfully')
       return result
     } catch (err) {
       setError(err as Error)

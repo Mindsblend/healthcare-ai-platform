@@ -781,7 +781,6 @@ const Page = () => {
       // Early exit – submit immediately
       try {
         const result = await submit(answers)
-        console.log(result)
         alert('تست شما با موفقیت ثبت شد!')
         router.push(`/ai-test/result/${result.assessment.id}`)
       } catch (error) {
@@ -796,7 +795,6 @@ const Page = () => {
       // No questions left – submit
       try {
         const result = await submit(answers)
-        console.log(result)
         alert('تست شما با موفقیت ثبت شد!')
         router.push(`/ai-test/result/${result.assessment.id}`)
       } catch (error) {
@@ -837,12 +835,12 @@ const Page = () => {
   // Intro Screen (unchanged)
   if (showIntro) {
     return (
-      <div className="flex min-h-screen flex-col py-12 items-center justify-center ">
+      <div className="flex min-h-screen flex-col items-center justify-center py-12">
         <div className="mx-auto max-w-4xl">
           <h1 className="font-aria text-3xl font-extrabold text-black sm:text-4xl lg:text-5xl">
             به تست سلامت هوشمند خوش آمدید
           </h1>
-          <p className="font-ray mt-6 text-base sm:text-lg font-medium text-[#555555]">
+          <p className="font-ray mt-6 text-base font-medium text-[#555555] sm:text-lg">
             این تست نتیجه‌ی ترکیب دو دنیا است: از یک طرف، دانش ارزشمند و
             هزارساله‌ی طب سنتی ایرانی که ریشه در شناخت عمیق بدن و تعادل مزاج‌ها
             دارد، و از طرف دیگر، قدرت بی‌نظیر تحلیل داده‌ها توسط هوش مصنوعی. با
@@ -914,11 +912,10 @@ const Page = () => {
             className="w-full"
           >
             <div className="mx-auto flex w-full max-w-5xl gap-3 sm:gap-6">
-
               {/* Question Content */}
               <div className="flex-1 py-12">
                 <div className="text-black">
-                  <h1 className="font-aria text-3xl sm:text-4xl lg:text-5xl font-extrabold">
+                  <h1 className="font-aria text-3xl font-extrabold sm:text-4xl lg:text-5xl">
                     {currentQuestion.title}
                   </h1>
                   <p className="font-ray mt-6 text-lg font-medium text-[#555555]">

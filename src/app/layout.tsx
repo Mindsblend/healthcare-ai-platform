@@ -5,6 +5,7 @@ import PageViewTracker from '@/components/layout/PageViewTracker'
 import { SessionRefresher } from '@/components/layout/SessionRefresher'
 import { CartProvider } from '@/features/shop/hooks/cart/useCart'
 import { getSession } from '@/features/auth/services/sessionService'
+import OfflineBanner from '@/components/layout/ConnectionBanner'
 import { absoluteUrl, defaultDescription, siteName, siteUrl } from '@/lib/seo'
 import { JsonLd } from '@/components/seo/JsonLd'
 
@@ -184,6 +185,7 @@ export default async function RootLayout({
           <main>
             <SessionRefresher />
             <PageViewTracker />
+            <OfflineBanner />
             {children}
           </main>
         </CartProvider>

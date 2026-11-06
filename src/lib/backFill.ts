@@ -19,16 +19,14 @@ async function main() {
     })
   }
 
-  console.log(`✅ Ensured ${categories.length} categories exist`)
-
   // Step 2: Map products to category IDs
   const productCategoryMapping: Record<string, number> = {
-    'کرم آبرسان': 1,      // پوست و مو
-    'عرق خونساز': 2,      // مکمل ها
-    'کرم زالو': 1,         // پوست و مو
-    'ماسک مو ترمیمی': 1,  // پوست و مو
-    'سرم ویتامینه': 1,    // پوست و مو
-    'شامپو گیاهی': 1,     // پوست و مو
+    'کرم آبرسان': 1, // پوست و مو
+    'عرق خونساز': 2, // مکمل ها
+    'کرم زالو': 1, // پوست و مو
+    'ماسک مو ترمیمی': 1, // پوست و مو
+    'سرم ویتامینه': 1, // پوست و مو
+    'شامپو گیاهی': 1, // پوست و مو
   }
 
   // Step 3: Backfill products
@@ -47,10 +45,7 @@ async function main() {
       where: { id: product.id },
       data: { categoryId: catId },
     })
-    console.log(`✅ Updated ${product.title} with categoryId ${catId}`)
   }
-
-  console.log(`✅ Backfilled ${products.length} products with categoryId`)
 }
 
 main()

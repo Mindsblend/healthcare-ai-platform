@@ -27,22 +27,22 @@ const AddProduct = () => {
     categoryId: 0,
     feedCategoryId: 0,
     icons: [
-      { id: 1, title: '', description: '', iconPath: '' },
-      { id: 2, title: '', description: '', iconPath: '' },
-      { id: 3, title: '', description: '', iconPath: '' },
+      { title: '', description: '', iconPath: '' },
+      { title: '', description: '', iconPath: '' },
+      { title: '', description: '', iconPath: '' },
     ],
     gains: [
-      { id: 1, title: '', ingredient: '', description: '' },
-      { id: 2, title: '', ingredient: '', description: '' },
-      { id: 3, title: '', ingredient: '', description: '' },
+      { title: '', ingredient: '', description: '' },
+      { title: '', ingredient: '', description: '' },
+      { title: '', ingredient: '', description: '' },
     ],
     faqs: [
-      { id: 1, question: '', answer: '' },
-      { id: 2, question: '', answer: '' },
-      { id: 3, question: '', answer: '' },
-      { id: 4, question: '', answer: '' },
-      { id: 5, question: '', answer: '' },
-      { id: 6, question: '', answer: '' },
+      { question: '', answer: '' },
+      { question: '', answer: '' },
+      { question: '', answer: '' },
+      { question: '', answer: '' },
+      { question: '', answer: '' },
+      { question: '', answer: '' },
     ],
   })
 
@@ -239,7 +239,7 @@ const AddProduct = () => {
                     دسته‌بندی فید
                   </label>
                   <select
-                    value={form.feedCategoryId}
+                    value={form.feedCategoryId ?? ''}
                     onChange={(e) =>
                       handleChange('feedCategoryId', e.target.value)
                     }
@@ -277,7 +277,7 @@ const AddProduct = () => {
                     placeholder="مثال: 15"
                     min="0"
                     max="100"
-                    value={form.discount}
+                    value={form.discount ?? ''}
                     onChange={(e) => handleChange('discount', e.target.value)}
                     className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
                   />
