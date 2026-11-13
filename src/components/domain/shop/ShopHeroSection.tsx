@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useId } from 'react'
 import { useUserInfo } from '@/features/shop/hooks/profile/useUserInfo'
 import type { ReactElement, SVGProps } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -101,8 +101,34 @@ function SavingsCard({
   freeShippingThreshold: number
   href: string
 }) {
+  const [hovered, setHovered] = useState(false)
+  const [pinned, setPinned] = useState(false)
+  const tooltipId = useId()
+  const open = hovered || pinned
+
   return (
-    <div className={`${CARD_BASE} bg-[#F2F2F2]`}>
+    <div className={`${CARD_BASE} relative bg-[#F2F2F2]`}>
+      <button
+        type="button"
+        aria-label="نحوه محاسبه سود شما"
+        aria-describedby={tooltipId}
+        aria-expanded={open}
+        onPointerEnter={(e) => e.pointerType === 'mouse' && setHovered(true)}
+        onPointerLeave={(e) => e.pointerType === 'mouse' && setHovered(false)}
+        onFocus={(e) => {
+          if (e.currentTarget.matches(':focus-visible')) setHovered(true)
+        }}
+        onBlur={() => setHovered(false)}
+        onClick={() => setPinned((prev) => !prev)}
+        className={`absolute top-4 left-4 z-20 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full transition-all duration-200 sm:top-5 sm:left-5 ${
+          open
+            ? 'scale-105 bg-[#161A1D] text-white'
+            : 'bg-white text-[#555555] hover:bg-[#E5E5E5]'
+        }`}
+      >
+        <QuestionIcon className="h-4 w-4" />
+      </button>
+
       <div className="mb-1 flex h-9 w-9 items-center justify-center">
         <Image
           src="/images/coin.svg"
@@ -133,6 +159,42 @@ function SavingsCard({
       <Link href={href} className={CTA_CLASS}>
         مشاهده محصولات تخفیف خورده
       </Link>
+
+      {/* پنل توضیح: داخل کارت تا توسط Swiper بریده نشود */}
+      <div
+        id={tooltipId}
+        role="tooltip"
+        aria-hidden={!open}
+        className={`pointer-events-none absolute inset-0 z-10 flex flex-col overflow-y-auto rounded-[30px] bg-[#161A1D] p-5 transition-all duration-300 ease-out sm:p-6 ${
+          open
+            ? 'translate-y-0 opacity-100'
+            : 'invisible translate-y-1.5 opacity-0'
+        }`}
+      >
+        {/* pl-9: فضای خالی برای دکمه‌ی علامت سوال */}
+        <h3 className="font-aria mb-2.5 pl-9 text-[15px] leading-6 font-bold text-white sm:text-[16px]">
+          سود شما چطور حساب می‌شود؟
+        </h3>
+
+        <p className="font-ray text-[12px] leading-6 font-medium text-[#C9CED4] sm:text-[12.5px]">
+          مجموع تخفیف‌هایی که از ابتدای خریدتان از ما تا امروز گرفته‌اید.
+        </p>
+
+        {/* فرمول */}
+        <div className="font-ray mt-2.5 rounded-[12px] bg-[#262A2E] px-3 py-2 text-center text-[11px] leading-5 font-bold text-[#B1C8FF] sm:text-[12px]">
+          (قیمت اصلی − قیمت با تخفیف) × تعداد
+        </div>
+
+        {/* مثال */}
+        <p className="font-ray mt-2.5 text-[11px] leading-5 font-medium text-[#9AA1A9] sm:text-[11.5px]">
+          مثلاً محصول {toPersianDigits(1_000_000)} تومانی با ۲۰٪ تخفیف را{' '}
+          {toPersianDigits(800_000)} تومان خریده‌اید؛{' '}
+          <span className="font-bold text-white">
+            {toPersianDigits(200_000)} تومان سود
+          </span>
+          . محصولات بدون تخفیف حساب نمی‌شوند.
+        </p>
+      </div>
     </div>
   )
 }
@@ -310,7 +372,7 @@ const ShopHeroSection = ({
   ]
 
   return (
-    <section className="mt-10 mb-8 w-full sm:mt-16 lg:container lg:mt-20">
+    <section className="mx-auto mt-10 mb-8 w-full sm:mt-16 lg:container lg:mt-20">
       <div className="mx-auto mb-8 flex max-w-3xl flex-col items-center text-center sm:mb-12">
         <h1 className="font-aria text-color-title-on-light text-[28px] leading-[1.5] font-extrabold sm:text-[34px] lg:text-[40px]">
           {displayName
@@ -354,6 +416,10 @@ const ShopHeroSection = ({
     </section>
   )
 }
+
+/* =========================================================
+   CATEGORY ICONS
+========================================================= */
 
 function SleepIcon(props: SVGProps<SVGSVGElement>) {
   return (
@@ -593,6 +659,26 @@ function ReturnIcon(props: SVGProps<SVGSVGElement>) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+    </svg>
+  )
+}
+
+function QuestionIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M9.2 9.2a2.9 2.9 0 1 1 4.1 2.6c-.8.4-1.3 1-1.3 1.9"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="17.6" r="1.1" fill="currentColor" />
     </svg>
   )
 }

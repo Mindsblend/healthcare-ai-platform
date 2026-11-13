@@ -35,6 +35,7 @@ export interface EmailConfig {
 }
 
 export interface EmailOptions {
+  from: string
   to: string
   subject: string
   text?: string

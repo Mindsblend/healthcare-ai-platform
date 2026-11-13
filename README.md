@@ -18,6 +18,20 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
+## Gmail OTP email setup
+
+To send login codes through Gmail, configure these server-side environment variables:
+
+```env
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=your-account@gmail.com
+SMTP_PASS=your-16-character-google-app-password
+SMTP_FROM=your-account@gmail.com
+```
+
+Enable 2-Step Verification on the Google account and use a Google App Password for `SMTP_PASS`; a regular Gmail password will not work. `SMTP_FROM` is optional and defaults to `SMTP_USER`. Keep these values private and restart the app after changing them.
+
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More

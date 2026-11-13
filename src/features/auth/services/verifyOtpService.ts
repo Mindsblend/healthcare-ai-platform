@@ -1,4 +1,9 @@
-import { getOtp, deleteOtp } from './lifeCycleOtpService'
+import {
+  getOtp,
+  deleteOtp,
+  OTP_VERIFICATION_ATTEMPT_LIMIT,
+  registerOtpVerificationAttempt,
+} from './lifeCycleOtpService'
 import { createDomainError, ErrorCode } from '@/lib/errors'
 import { VerifyOtpInput, VerifyOtpResponse } from '../auth.types'
 
@@ -7,7 +12,9 @@ export async function verifyOtp(
 ): Promise<VerifyOtpResponse> {
   const { identifier, code } = input
 
-  if (!code) throw createDomainError(ErrorCode.OTP_INVALID)
+  if (typeof code !== 'string' || code.length !== 6 || !/^\d{6}$/.test(code)) {
+    throw createDomainError(ErrorCode.OTP_INVALID)
+  }
 
   const storedCode = await getOtp(identifier)
 
@@ -16,6 +23,12 @@ export async function verifyOtp(
   }
 
   if (storedCode !== code) {
+    const attempts = await registerOtpVerificationAttempt(identifier)
+    if (attempts >= OTP_VERIFICATION_ATTEMPT_LIMIT) {
+      await deleteOtp(identifier)
+      throw createDomainError(ErrorCode.OTP_TOO_MANY_ATTEMPTS)
+    }
+
     throw createDomainError(ErrorCode.OTP_INVALID)
   }
 

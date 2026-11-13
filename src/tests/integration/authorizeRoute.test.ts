@@ -179,7 +179,7 @@ describe('POST /api/auth/authorize', () => {
     expect(createJwtSessionMock).toHaveBeenCalledOnce()
   })
 
-  it('returns 500 for malformed JSON', async () => {
+  it('returns 400 for malformed JSON', async () => {
     const request = new NextRequest('http://localhost/api/auth/authorize', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -188,8 +188,25 @@ describe('POST /api/auth/authorize', () => {
 
     const response = await POST(request)
 
-    expect(response.status).toBe(500)
+    expect(response.status).toBe(400)
     expect(validateAuthenticationIdentifierMock).not.toHaveBeenCalled()
     expect(verifyOtpMock).not.toHaveBeenCalled()
+  })
+
+  it('returns 400 when the request body is not an object', async () => {
+    const response = await POST(makeRequest(null))
+
+    expect(response.status).toBe(400)
+    expect(validateAuthenticationIdentifierMock).not.toHaveBeenCalled()
+    expect(verifyOtpMock).not.toHaveBeenCalled()
+  })
+
+  it('rejects a missing OTP before verifying the identifier', async () => {
+    const response = await POST(makeRequest({ identifier: 'test@example.com' }))
+
+    expect(response.status).toBe(400)
+    expect(validateAuthenticationIdentifierMock).not.toHaveBeenCalled()
+    expect(verifyOtpMock).not.toHaveBeenCalled()
+    expect(createUserMock).not.toHaveBeenCalled()
   })
 })

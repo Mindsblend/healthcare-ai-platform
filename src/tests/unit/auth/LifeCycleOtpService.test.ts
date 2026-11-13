@@ -1,136 +1,98 @@
-
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { redisMock, multiMock } = vi.hoisted(() => {
-  const multi = {
-    incr: vi.fn(),
-    expire: vi.fn(),
-    set: vi.fn(),
-    exec: vi.fn(),
-  }
-
-  return {
-    multiMock: multi,
-    redisMock: {
-      get: vi.fn(),
-      set: vi.fn(),
-      del: vi.fn(),
-      multi: vi.fn(() => multi),
-    },
-  }
-})
+const redisMock = vi.hoisted(() => ({
+  eval: vi.fn(),
+  get: vi.fn(),
+  set: vi.fn(),
+  del: vi.fn(),
+  incr: vi.fn(),
+  expire: vi.fn(),
+}))
 
 vi.mock('@/lib/redis', () => ({
   default: redisMock,
 }))
 
 vi.mock('@/lib/errors', () => ({
-  createDomainError: (code: string, details?: unknown) =>
-    Object.assign(new Error(code), { code, details }),
+  createDomainError: (error: { code: string }, details?: unknown) =>
+    Object.assign(new Error(error.code), { code: error.code, details }),
   ErrorCode: {
-    OTP_COOLDOWN_ACTIVE: 'OTP_COOLDOWN_ACTIVE',
-    OTP_RATE_LIMIT: 'OTP_RATE_LIMIT',
+    OTP_COOLDOWN_ACTIVE: { code: 'OTP_COOLDOWN_ACTIVE' },
+    OTP_RATE_LIMIT: { code: 'OTP_RATE_LIMIT' },
   },
 }))
 
 import {
   checkOtpRateLimit,
-  saveOtp,
-  getOtp,
   deleteOtp,
+  getOtp,
+  registerOtpVerificationAttempt,
+  saveOtp,
 } from '@/features/auth/services/lifeCycleOtpService'
 
 describe('lifeCycleOtpService', () => {
   beforeEach(() => {
     vi.clearAllMocks()
 
+    redisMock.eval.mockResolvedValue(1)
     redisMock.get.mockResolvedValue(null)
     redisMock.set.mockResolvedValue('OK')
     redisMock.del.mockResolvedValue(1)
-
-    multiMock.incr.mockReturnThis()
-    multiMock.expire.mockReturnThis()
-    multiMock.set.mockReturnThis()
-    multiMock.exec.mockResolvedValue([])
+    redisMock.incr.mockResolvedValue(1)
+    redisMock.expire.mockResolvedValue(1)
   })
 
   describe('checkOtpRateLimit', () => {
-    it('increments the request count and sets expiry on the first request', async () => {
+    it('atomically applies the request limit, expiry, and cooldown', async () => {
       await checkOtpRateLimit('User@Example.com')
 
-      expect(redisMock.get).toHaveBeenNthCalledWith(
-        1,
-        'otp_cooldown:user@example.com',
-      )
-      expect(redisMock.get).toHaveBeenNthCalledWith(
+      expect(redisMock.eval).toHaveBeenCalledWith(
+        expect.stringContaining("redis.call('INCR', KEYS[1])"),
         2,
-        'otp_requests:user@example.com',
-      )
-      expect(multiMock.incr).toHaveBeenCalledWith(
-        'otp_requests:user@example.com',
-      )
-      expect(multiMock.expire).toHaveBeenCalledWith(
-        'otp_requests:user@example.com',
-        3600,
-      )
-      expect(multiMock.set).toHaveBeenCalledWith(
+        'otp_requests_v2:user@example.com',
         'otp_cooldown:user@example.com',
-        '1',
-        'EX',
-        60,
+        4,
+        90,
+        30,
       )
-      expect(multiMock.exec).toHaveBeenCalledOnce()
     })
 
-    it('does not reset the hourly expiry when a count exists', async () => {
-      redisMock.get
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce('1')
+    it('rejects requests during the cooldown', async () => {
+      redisMock.eval.mockResolvedValueOnce(-1)
 
-      await checkOtpRateLimit('user@example.com')
-
-      expect(multiMock.incr).toHaveBeenCalledOnce()
-      expect(multiMock.expire).not.toHaveBeenCalled()
-      expect(multiMock.exec).toHaveBeenCalledOnce()
+      await expect(checkOtpRateLimit('user@example.com')).rejects.toMatchObject(
+        { code: 'OTP_COOLDOWN_ACTIVE' },
+      )
     })
 
-    it('throws when the identifier is on cooldown', async () => {
-      redisMock.get.mockResolvedValueOnce('1')
+    it('rejects requests after the request limit is reached', async () => {
+      redisMock.eval.mockResolvedValueOnce(-2)
 
-      await expect(
-        checkOtpRateLimit('user@example.com'),
-      ).rejects.toMatchObject({
-        code: 'OTP_COOLDOWN_ACTIVE',
-      })
-
-      expect(multiMock.exec).not.toHaveBeenCalled()
+      await expect(checkOtpRateLimit('user@example.com')).rejects.toMatchObject(
+        { code: 'OTP_RATE_LIMIT' },
+      )
     })
 
-    it('throws when the hourly rate limit is reached', async () => {
-      redisMock.get
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce('3')
+    it('fails explicitly when Redis returns an unexpected result', async () => {
+      redisMock.eval.mockResolvedValueOnce('unexpected')
 
-      await expect(
-        checkOtpRateLimit('user@example.com'),
-      ).rejects.toMatchObject({
-        code: 'OTP_RATE_LIMIT',
-      })
-
-      expect(multiMock.exec).not.toHaveBeenCalled()
+      await expect(checkOtpRateLimit('user@example.com')).rejects.toThrow(
+        'Unexpected OTP rate-limit response from Redis',
+      )
     })
   })
 
   describe('saveOtp', () => {
-    it('stores the OTP with a three-minute expiry', async () => {
+    it('stores the OTP with its expiry and resets prior verification attempts', async () => {
       await saveOtp('+989123456789', '123456')
 
       expect(redisMock.set).toHaveBeenCalledWith(
         'otp:+989123456789',
         '123456',
         'EX',
-        180,
+        90,
       )
+      expect(redisMock.del).toHaveBeenCalledWith('otp_attempts:+989123456789')
     })
   })
 
@@ -139,10 +101,7 @@ describe('lifeCycleOtpService', () => {
       redisMock.get.mockResolvedValue('123456')
 
       await expect(getOtp('+989123456789')).resolves.toBe('123456')
-
-      expect(redisMock.get).toHaveBeenCalledWith(
-        'otp:+989123456789',
-      )
+      expect(redisMock.get).toHaveBeenCalledWith('otp:+989123456789')
     })
 
     it('returns null when no OTP exists', async () => {
@@ -152,12 +111,39 @@ describe('lifeCycleOtpService', () => {
     })
   })
 
+  describe('registerOtpVerificationAttempt', () => {
+    it('sets an expiry for the first failed attempt', async () => {
+      await expect(
+        registerOtpVerificationAttempt('User@Example.com'),
+      ).resolves.toBe(1)
+
+      expect(redisMock.incr).toHaveBeenCalledWith(
+        'otp_attempts:user@example.com',
+      )
+      expect(redisMock.expire).toHaveBeenCalledWith(
+        'otp_attempts:user@example.com',
+        90,
+      )
+    })
+
+    it('does not extend the expiry for subsequent failed attempts', async () => {
+      redisMock.incr.mockResolvedValueOnce(2)
+
+      await expect(
+        registerOtpVerificationAttempt('user@example.com'),
+      ).resolves.toBe(2)
+
+      expect(redisMock.expire).not.toHaveBeenCalled()
+    })
+  })
+
   describe('deleteOtp', () => {
-    it('deletes the OTP key', async () => {
+    it('deletes the OTP and its failed-attempt counter', async () => {
       await deleteOtp('+989123456789')
 
       expect(redisMock.del).toHaveBeenCalledWith(
         'otp:+989123456789',
+        'otp_attempts:+989123456789',
       )
     })
   })

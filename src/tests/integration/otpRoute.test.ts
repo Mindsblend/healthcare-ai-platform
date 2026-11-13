@@ -4,13 +4,20 @@ import { NextRequest } from 'next/server'
 const {
   sendOtpViaSmsMock,
   sendOtpViaEmailMock,
+  checkOtpRateLimitMock,
   saveOtpMock,
   validateAuthenticationIdentifierMock,
 } = vi.hoisted(() => ({
   sendOtpViaSmsMock: vi.fn(),
   sendOtpViaEmailMock: vi.fn(),
+  checkOtpRateLimitMock: vi.fn(),
   saveOtpMock: vi.fn(),
   validateAuthenticationIdentifierMock: vi.fn(),
+}))
+
+vi.mock('@/features/auth/services/lifeCycleOtpService', () => ({
+  checkOtpRateLimit: checkOtpRateLimitMock,
+  saveOtp: saveOtpMock,
 }))
 
 vi.mock('@/features/auth/services/sendSmsOtpService', () => ({
@@ -19,10 +26,6 @@ vi.mock('@/features/auth/services/sendSmsOtpService', () => ({
 
 vi.mock('@/features/auth/services/sendEmailOtpService', () => ({
   sendOtpViaEmail: sendOtpViaEmailMock,
-}))
-
-vi.mock('@/features/auth/services/lifeCycleOtpService', () => ({
-  saveOtp: saveOtpMock,
 }))
 
 vi.mock('@/lib/helpers', () => ({
@@ -34,6 +37,7 @@ import { POST } from '@/app/api/auth/otp/route'
 describe('POST /api/auth/otp', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    checkOtpRateLimitMock.mockResolvedValue(undefined)
     saveOtpMock.mockResolvedValue(undefined)
   })
 
@@ -55,6 +59,7 @@ describe('POST /api/auth/otp', () => {
 
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toEqual({ success: true })
+    expect(checkOtpRateLimitMock).toHaveBeenCalledWith('test@example.com')
     expect(sendOtpViaEmailMock).toHaveBeenCalledWith('test@example.com')
     expect(saveOtpMock).toHaveBeenCalledWith('test@example.com', '123456')
     expect(sendOtpViaSmsMock).not.toHaveBeenCalled()
@@ -71,6 +76,7 @@ describe('POST /api/auth/otp', () => {
 
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toEqual({ success: true })
+    expect(checkOtpRateLimitMock).toHaveBeenCalledWith('09123456789')
     expect(sendOtpViaSmsMock).toHaveBeenCalledWith({
       phone: '09123456789',
     })
@@ -92,18 +98,62 @@ describe('POST /api/auth/otp', () => {
     expect(saveOtpMock).not.toHaveBeenCalled()
   })
 
-  it('returns 500 when email delivery fails', async () => {
+  it('does not send another code when the identifier is rate limited', async () => {
+    validateAuthenticationIdentifierMock.mockResolvedValue({
+      type: 'phone',
+      value: '09123456789',
+    })
+    checkOtpRateLimitMock.mockRejectedValue({
+      code: 'OTP_COOLDOWN_ACTIVE',
+      message: 'Please wait before requesting another code',
+    })
+
+    const response = await POST(makeRequest({ identifier: '09123456789' }))
+
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toMatchObject({
+      error: { code: 'OTP_COOLDOWN_ACTIVE' },
+    })
+    expect(sendOtpViaSmsMock).not.toHaveBeenCalled()
+    expect(sendOtpViaEmailMock).not.toHaveBeenCalled()
+    expect(saveOtpMock).not.toHaveBeenCalled()
+  })
+
+  it('returns the request-limit error without contacting a delivery provider', async () => {
+    validateAuthenticationIdentifierMock.mockResolvedValue({
+      type: 'email',
+      value: 'test@gmail.com',
+    })
+    checkOtpRateLimitMock.mockRejectedValue({
+      code: 'OTP_RATE_LIMIT',
+      message: 'Request limit reached',
+    })
+
+    const response = await POST(makeRequest({ identifier: 'test@gmail.com' }))
+
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toMatchObject({
+      error: { code: 'OTP_RATE_LIMIT' },
+    })
+    expect(sendOtpViaEmailMock).not.toHaveBeenCalled()
+    expect(sendOtpViaSmsMock).not.toHaveBeenCalled()
+    expect(saveOtpMock).not.toHaveBeenCalled()
+  })
+
+  it('returns 502 when email delivery fails', async () => {
     validateAuthenticationIdentifierMock.mockResolvedValue({
       type: 'email',
       value: 'test@example.com',
     })
     sendOtpViaEmailMock.mockRejectedValue(
-      new Error('Email provider unavailable'),
+      Object.assign(new Error('Email provider unavailable'), {
+        code: 'EMAIL_PROVIDER_FAILED',
+      }),
     )
 
     const response = await POST(makeRequest({ identifier: 'test@example.com' }))
 
-    expect(response.status).toBe(500)
+    expect(response.status).toBe(502)
     expect(saveOtpMock).not.toHaveBeenCalled()
   })
 
@@ -135,7 +185,7 @@ describe('POST /api/auth/otp', () => {
     expect(saveOtpMock).toHaveBeenCalledWith('test@example.com', '123456')
   })
 
-  it('returns 500 for malformed JSON', async () => {
+  it('returns 400 for malformed JSON', async () => {
     const request = new NextRequest('http://localhost/api/auth/otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -144,9 +194,17 @@ describe('POST /api/auth/otp', () => {
 
     const response = await POST(request)
 
-    expect(response.status).toBe(500)
+    expect(response.status).toBe(400)
     expect(validateAuthenticationIdentifierMock).not.toHaveBeenCalled()
     expect(sendOtpViaEmailMock).not.toHaveBeenCalled()
     expect(sendOtpViaSmsMock).not.toHaveBeenCalled()
+  })
+
+  it('returns 400 when the request body is not an object', async () => {
+    const response = await POST(makeRequest(null))
+
+    expect(response.status).toBe(400)
+    expect(validateAuthenticationIdentifierMock).not.toHaveBeenCalled()
+    expect(checkOtpRateLimitMock).not.toHaveBeenCalled()
   })
 })

@@ -5,8 +5,25 @@ export type DomainError = {
   meta?: unknown
 }
 
+// createDomainError باید پارامتر دوم رو بپذیره و تو خروجی بذاره:
+// createDomainError(err, meta?: { retryAfter?: number }) → { code, message, meta }
+
 // Error definitions as an object with code and message
 export const ErrorCode = {
+  INVALID_INPUT: { code: 'INVALID_INPUT', message: 'ورودی نامعتبر است' },
+  INVALID_OTP: {
+    code: 'INVALID_OTP',
+    message: 'کد وارد شده اشتباه یا منقضی شده است',
+  },
+  OTP_TOO_MANY_ATTEMPTS: {
+    code: 'OTP_TOO_MANY_ATTEMPTS',
+    message: 'تعداد تلاش‌ها زیاد بود، کد جدید دریافت کنید',
+  },
+  NETWORK_ERROR: {
+    code: 'NETWORK_ERROR',
+    message: 'ارتباط با سرور برقرار نشد',
+  },
+
   // INPUT / CLIENT ERRORS
   UNKNOWN_IDENTIFIER: {
     code: 'UNKNOWN_IDENTIFIER',
@@ -61,7 +78,7 @@ export const ErrorCode = {
   OTP_RATE_LIMIT: {
     code: 'OTP_RATE_LIMIT',
     message:
-      'درخواست کد بیش از حد مجاز انجام شده است. لطفاً چند دقیقه صبر کنید.',
+      'درخواست کد بیش از ۴ بار در ۹۰ ثانیه مجاز نیست. لطفاً کمی صبر کنید.',
   },
   OTP_COOLDOWN_ACTIVE: {
     code: 'OTP_COOLDOWN_ACTIVE',
@@ -82,6 +99,11 @@ export const ErrorCode = {
     code: 'OTP_PROVIDER_REJECTED',
     message:
       'امکان ارسال پیامک به این شماره وجود ندارد. لطفاً شماره دیگری امتحان کنید.',
+  },
+  EMAIL_PROVIDER_FAILED: {
+    code: 'EMAIL_PROVIDER_FAILED',
+    message:
+      'ارسال ایمیل انجام نشد. تنظیمات ایمیل یا پوشه هرزنامه را بررسی کنید.',
   },
 
   // VERIFICATION ERRORS
@@ -112,6 +134,16 @@ export const ErrorCode = {
     message: 'خطای غیرمنتظره‌ای رخ داده است. لطفاً دوباره امتحان کنید.',
   },
 } as const
+
+export function isDomainError(e: unknown): e is DomainError {
+  if (typeof e !== 'object' || e === null) return false
+  const x = e as { code?: unknown; message?: unknown }
+  return (
+    typeof x.code === 'string' &&
+    typeof x.message === 'string' &&
+    Object.values(ErrorCode).some((c) => c.code === x.code)
+  )
+}
 
 // Helper to create an AppError
 export function createDomainError(

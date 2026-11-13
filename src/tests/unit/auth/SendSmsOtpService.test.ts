@@ -85,6 +85,7 @@ describe('sendOtpViaSms', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     process.env.SMSIR_API_KEY = 'test-api-key'
+    process.env.E2E_TEST_MODE = 'false'
     generateOtpMock.mockReturnValue('123456')
 
     vi.resetModules()
@@ -175,5 +176,21 @@ describe('sendOtpViaSms', () => {
         code: 'OTP_PROVIDER_TIMEOUT',
       },
     )
+  })
+
+  it('uses the configured test OTP without sending a real SMS in E2E mode', async () => {
+    process.env.E2E_TEST_MODE = 'true'
+    process.env.TEST_OTP_CODE = '654321'
+
+    await expect(sendOtpViaSms({ phone: '09123456789' })).resolves.toEqual({
+      success: true,
+      code: '654321',
+    })
+
+    expect(https.request).not.toHaveBeenCalled()
+    expect(generateOtpMock).not.toHaveBeenCalled()
+
+    process.env.E2E_TEST_MODE = 'false'
+    delete process.env.TEST_OTP_CODE
   })
 })
