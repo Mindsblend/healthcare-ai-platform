@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState, type FormEvent } from 'react'
 
 import { useCart } from '@/features/shop/hooks/cart/useCart'
+import { useCategories } from '@/features/shop/hooks/categories/useCategories'
 import BottomNav, { shouldShowBottomNav } from './BottomNav'
 import LandingNavbar from './LandingNavbar'
 import SectionNavbar from './SectionNavbar'
@@ -22,28 +23,6 @@ const BACK_FALLBACK_ROUTE = '/'
 const SECTION_ROUTES = [
   { prefix: '/cart', title: 'سبد خرید' },
   { prefix: '/profile', title: 'پروفایل من' },
-]
-
-// نمونه دسته‌بندی‌ها (می‌توانید عنوان‌ها و آیکون‌ها را مطابق دسته‌های زیست‌یار ویرایش کنید)
-const CATEGORIES = [
-  {
-    id: 'supplements',
-    name: 'مکمل‌های دارویی و غذایی',
-    href: '/products?cat=supplements',
-  },
-  {
-    id: 'vitamins',
-    name: 'ویتامین‌ها و مواد معدنی',
-    href: '/products?cat=vitamins',
-  },
-  { id: 'skincare', name: 'مراقبت پوست و مو', href: '/products?cat=skincare' },
-  { id: 'herbal', name: 'داروهای گیاهی', href: '/products?cat=herbal' },
-  {
-    id: 'medical-devices',
-    name: 'تجهیزات پزشکی خانگی',
-    href: '/products?cat=medical',
-  },
-  { id: 'hygiene', name: 'بهداشت فردی', href: '/products?cat=hygiene' },
 ]
 
 const isInRoutes = (pathname: string, routes: string[]) =>
@@ -90,6 +69,7 @@ export default function Navbar({ user }: NavbarProps) {
 
   const [search, setSearch] = useState(() => urlQuery ?? '')
   const { cartItems } = useCart()
+  const { categories } = useCategories()
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0)
 
   const showBottomNav = shouldShowBottomNav(pathname, user)
@@ -165,11 +145,23 @@ export default function Navbar({ user }: NavbarProps) {
     isInRoutes(pathname, [prefix]),
   )
 
+  const CATEGORY_LABELS: Record<number, string> = {
+    1: 'مراقبت از پوست و مو',
+    2: 'مکمل‌های پروتئینی ',
+    3: 'مراقبت ذهنی و افزایش تمرکز',
+    4: 'لوازم و غذای حیوانات',
+    5: 'مواد غذایی سالم و طبیعی',
+    6: 'لوازم مصرفی خانه',
+  }
+
+  const getCategoryLabel = (category: { id: number; name: string }) =>
+    CATEGORY_LABELS[category.id] ?? category.name
+
   return (
     <>
       {/* موبایل: ناوبار مخصوص سبد خرید / پروفایل */}
       {currentSection && <SectionNavbar title={currentSection.title} />}
-      
+
       <header
         className={`font-ray top-0 z-50 w-full bg-white ${
           currentSection ? 'hidden md:block' : ''
@@ -268,13 +260,13 @@ export default function Navbar({ user }: NavbarProps) {
               <div className="invisible absolute top-full right-0 z-50 pt-3 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
                 <div className="w-64 rounded-2xl border border-gray-100 bg-white p-2 shadow-xl ring-1 ring-black/5">
                   <div className="flex flex-col space-y-1">
-                    {CATEGORIES.map((category) => (
+                    {categories.map((category) => (
                       <Link
                         key={category.id}
-                        href={category.href}
+                        href={`/products?categoryId=${category.id}`}
                         className="flex items-center justify-between rounded-xl px-3.5 py-2.5 text-[13px] font-medium text-gray-700 transition hover:bg-gray-50 hover:text-black"
                       >
-                        <span>{category.name}</span>
+                        <span>{getCategoryLabel(category)}</span>
                         <svg
                           width="14"
                           height="14"
@@ -284,6 +276,7 @@ export default function Navbar({ user }: NavbarProps) {
                           strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
+                          aria-hidden="true"
                           className="text-gray-300 rtl:rotate-180"
                         >
                           <path d="M9 18l6-6-6-6" />

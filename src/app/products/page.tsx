@@ -481,6 +481,14 @@ type ProductItem = ReturnType<
   typeof useProductsPreview
 >['productsPreview'][number]
 
+// محصول وقتی تخفیف‌خورده حساب می‌شه که discount > 0 باشه،
+// یا discountedPrice عددی و کمتر از قیمت اصلی باشه
+const isDiscounted = (product: ProductItem) =>
+  (typeof product.discount === 'number' && product.discount > 0) ||
+  (typeof product.discountedPrice === 'number' &&
+    product.discountedPrice > 0 &&
+    product.discountedPrice < product.price)
+
 type ProductsGridProps = {
   isMobile: boolean
   loading: boolean
@@ -586,6 +594,7 @@ function ProductsContent() {
 
   const query = (searchParams.get('q') ?? '').trim()
   const categoryIdParam = searchParams.get('categoryId')
+  const discountedParam = searchParams.get('discounted') === '1'
 
   const [sortBy, setSortBy] = useState<SortKey>('default')
 
@@ -597,6 +606,8 @@ function ProductsContent() {
   const [maxPrice, setMaxPrice] = useState(PRICE_MAX)
 
   const [appliedPrice, setAppliedPrice] = useState<PriceRange | null>(null)
+
+  const [onlyDiscounted, setOnlyDiscounted] = useState(false)
 
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [isSortOpen, setIsSortOpen] = useState(false)
@@ -627,6 +638,11 @@ function ProductsContent() {
     setSelectedCategoryIds(Number.isNaN(id) ? new Set() : new Set([id]))
   }, [categoryIdParam])
 
+  // لینک‌هایی مثل /products?discounted=1 فیلتر تخفیف رو فعال می‌کنن
+  useEffect(() => {
+    setOnlyDiscounted(discountedParam)
+  }, [discountedParam])
+
   /* =========================================================
      Reset infinite scroll
   ========================================================== */
@@ -639,7 +655,7 @@ function ProductsContent() {
       clearTimeout(loadMoreTimeoutRef.current)
       loadMoreTimeoutRef.current = null
     }
-  }, [query, categoryIdParam, appliedPrice, sortBy])
+  }, [query, categoryIdParam, appliedPrice, sortBy, onlyDiscounted])
 
   // پاک کردن تایمر معلق موقع unmount
   useEffect(() => {
@@ -670,6 +686,10 @@ function ProductsContent() {
         return false
       }
 
+      if (onlyDiscounted && !isDiscounted(product)) {
+        return false
+      }
+
       if (
         normalizedQuery &&
         !product.title?.toLowerCase().includes(normalizedQuery)
@@ -689,7 +709,14 @@ function ProductsContent() {
     }
 
     return list
-  }, [productsPreview, selectedCategoryIds, appliedPrice, query, sortBy])
+  }, [
+    productsPreview,
+    selectedCategoryIds,
+    appliedPrice,
+    onlyDiscounted,
+    query,
+    sortBy,
+  ])
 
   /* =========================================================
      Visible products
@@ -763,7 +790,8 @@ function ProductsContent() {
     [categories, selectedCategoryIds],
   )
 
-  const activeFilterCount = selectedCategoryIds.size + (appliedPrice ? 1 : 0)
+  const activeFilterCount =
+    selectedCategoryIds.size + (appliedPrice ? 1 : 0) + (onlyDiscounted ? 1 : 0)
 
   const currentSortLabel =
     SORT_OPTIONS.find((option) => option.key === sortBy)?.label ?? ''
@@ -812,6 +840,27 @@ function ProductsContent() {
     })
   }, [])
 
+  // بدون startTransition تا چک‌باکس/چیپ فوراً آپدیت بشه (مثل toggleCategory).
+  // URL هم با replace همگام می‌شه (بدون اضافه شدن به history) تا رفرش/اشتراک‌گذاری
+  // لینک با وضعیت فیلتر هم‌خوان بمونه
+  const toggleDiscounted = useCallback(() => {
+    const next = !onlyDiscounted
+
+    setOnlyDiscounted(next)
+
+    const params = new URLSearchParams(searchParams.toString())
+
+    if (next) {
+      params.set('discounted', '1')
+    } else {
+      params.delete('discounted')
+    }
+
+    const qs = params.toString()
+
+    router.replace(qs ? `/products?${qs}` : '/products', { scroll: false })
+  }, [onlyDiscounted, router, searchParams])
+
   const openFilter = useCallback(() => {
     setMinPrice(appliedPrice?.min ?? PRICE_MIN)
     setMaxPrice(appliedPrice?.max ?? PRICE_MAX)
@@ -853,18 +902,21 @@ function ProductsContent() {
 
     startTransition(() => {
       setSelectedCategoryIds(new Set())
+      setOnlyDiscounted(false)
       clearPrice()
     })
 
-    if (categoryIdParam) {
+    if (categoryIdParam || discountedParam) {
       updateUrl((params) => {
         params.delete('categoryId')
+        params.delete('discounted')
       })
     }
-  }, [categoryIdParam, clearPrice, updateUrl])
+  }, [categoryIdParam, discountedParam, clearPrice, updateUrl])
 
   const resetAll = useCallback(() => {
     setSelectedCategoryIds(new Set())
+    setOnlyDiscounted(false)
     clearPrice()
     setIsFilterOpen(false)
     setIsSortOpen(false)
@@ -912,11 +964,18 @@ function ProductsContent() {
       }
     }
 
+    if (onlyDiscounted) {
+      return {
+        message: 'محصول تخفیف‌خورده‌ای یافت نشد',
+        suggestion: 'لطفاً فیلترها را تغییر دهید یا بعداً مراجعه کنید.',
+      }
+    }
+
     return {
       message: 'محصولی یافت نشد',
       suggestion: 'لطفاً فیلترهای دیگری را امتحان کنید یا بعداً مراجعه کنید.',
     }
-  }, [query, selectedCategories, appliedPrice])
+  }, [query, selectedCategories, appliedPrice, onlyDiscounted])
 
   /* =========================================================
      Filter content
@@ -954,6 +1013,19 @@ function ProductsContent() {
               </label>
             ))}
           </div>
+
+          <label className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2.5 hover:bg-gray-50">
+            <span className="text-color-title-on-light text-sm font-bold">
+              فقط محصولات تخفیف‌خورده
+            </span>
+
+            <input
+              type="checkbox"
+              className="h-4 w-4 accent-black"
+              checked={onlyDiscounted}
+              onChange={toggleDiscounted}
+            />
+          </label>
         </FilterSection>
 
         <FilterSection title="بازه قیمت">
@@ -1018,6 +1090,8 @@ function ProductsContent() {
       categories,
       selectedCategoryIds,
       toggleCategory,
+      onlyDiscounted,
+      toggleDiscounted,
       minPrice,
       maxPrice,
       applyPrice,
@@ -1035,7 +1109,7 @@ function ProductsContent() {
         {/* Heading */}
         <div className="flex items-end justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="font-aria text-color-title-on-light text-xl sm:text-2xl font-extrabold xl:text-3xl">
+            <h1 className="font-aria text-color-title-on-light text-xl font-extrabold sm:text-2xl xl:text-3xl">
               محصولات
             </h1>
 
@@ -1084,6 +1158,10 @@ function ProductsContent() {
               {sortBy === 'default' ? 'مرتب‌سازی' : currentSortLabel}
             </Chip>
 
+            <Chip active={onlyDiscounted} onClick={toggleDiscounted}>
+              تخفیف‌خورده‌ها
+            </Chip>
+
             <span
               aria-hidden="true"
               className="mx-1 h-6 w-px shrink-0 bg-gray-200"
@@ -1121,7 +1199,9 @@ function ProductsContent() {
           {/* Products */}
           <div className="min-w-0 flex-1">
             {/* Applied filters */}
-            {(selectedCategories.length > 0 || appliedPrice) && (
+            {(selectedCategories.length > 0 ||
+              appliedPrice ||
+              onlyDiscounted) && (
               <div
                 className={`mb-4 flex flex-wrap items-center gap-2 ${
                   appliedPrice ? '' : 'max-lg:hidden'
@@ -1135,6 +1215,14 @@ function ProductsContent() {
                     className="max-lg:hidden"
                   />
                 ))}
+
+                {onlyDiscounted && (
+                  <RemovableChip
+                    label="تخفیف‌خورده"
+                    onRemove={toggleDiscounted}
+                    className="max-lg:hidden"
+                  />
+                )}
 
                 {appliedPrice && (
                   <RemovableChip

@@ -57,8 +57,8 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="#" className="transition hover:text-gray-500">
-                  بلاگ
+                <a href="/blogs" className="transition hover:text-gray-500">
+                  بلاگ ها
                 </a>
               </li>
             </ul>

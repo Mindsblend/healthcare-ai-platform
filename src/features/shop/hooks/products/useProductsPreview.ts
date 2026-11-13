@@ -12,6 +12,13 @@ export function useProductsPreview() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    if (productsPreview.length > 0) {
+      console.log('first product:', productsPreview[0])
+      console.log('keys:', Object.keys(productsPreview[0]))
+    }
+  }, [productsPreview])
+
+  useEffect(() => {
     async function load() {
       try {
         const data = await getProductsPreview()

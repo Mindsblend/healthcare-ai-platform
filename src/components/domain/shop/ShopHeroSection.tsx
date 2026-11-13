@@ -156,7 +156,7 @@ function SavingsCard({
         </span>
       </div>
 
-      <Link href={href} className={CTA_CLASS}>
+      <Link href="/products?discounted=1" className={CTA_CLASS}>
         مشاهده محصولات تخفیف خورده
       </Link>
 
