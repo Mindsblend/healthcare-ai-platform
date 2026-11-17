@@ -315,6 +315,8 @@ describe('ProductService.createProduct', () => {
       data: {
         title: 'Test Product',
         price: 100,
+        discount: 0,
+        discountedPrice: null,
         categoryId: 5,
         slug: 'test-product',
         solution: 'Test solution',
@@ -386,6 +388,8 @@ describe('ProductService.createProduct', () => {
       data: {
         title: 'Minimal Product',
         price: 50,
+        discount: 0,
+        discountedPrice: null,
         categoryId: 3,
         slug: 'minimal-product',
         solution: 'Simple solution',
@@ -475,6 +479,8 @@ describe('ProductService.updateProduct', () => {
       data: {
         title: 'Updated Product',
         price: 150,
+        discount: 0,
+        discountedPrice: null,
         categoryId: 5,
         feedCategoryId: 7,
         slug: 'updated-product',
@@ -503,10 +509,6 @@ describe('ProductService.updateProduct', () => {
       gains: [],
       faqs: [],
     } as any)
-
-    vi.mocked(prisma.icon.deleteMany).mockResolvedValue({ count: 2 })
-    vi.mocked(prisma.gain.deleteMany).mockResolvedValue({ count: 3 })
-    vi.mocked(prisma.faq.deleteMany).mockResolvedValue({ count: 4 })
 
     const updatedProduct = {
       id: 1,
@@ -542,24 +544,6 @@ describe('ProductService.updateProduct', () => {
 
     expect(result).toEqual(updatedProduct)
 
-    expect(prisma.icon.deleteMany).toHaveBeenCalledWith({
-      where: {
-        productId: 1,
-      },
-    })
-
-    expect(prisma.gain.deleteMany).toHaveBeenCalledWith({
-      where: {
-        productId: 1,
-      },
-    })
-
-    expect(prisma.faq.deleteMany).toHaveBeenCalledWith({
-      where: {
-        productId: 1,
-      },
-    })
-
     expect(prisma.product.update).toHaveBeenCalledWith({
       where: {
         id: 1,
@@ -567,6 +551,7 @@ describe('ProductService.updateProduct', () => {
       data: {
         title: 'Updated Product',
         icons: {
+          deleteMany: {},
           create: [
             {
               title: 'Hydration',
@@ -576,6 +561,7 @@ describe('ProductService.updateProduct', () => {
           ],
         },
         gains: {
+          deleteMany: {},
           create: [
             {
               title: 'Hydration',
@@ -585,6 +571,7 @@ describe('ProductService.updateProduct', () => {
           ],
         },
         faqs: {
+          deleteMany: {},
           create: [
             {
               question: 'How does it work?',
@@ -610,8 +597,6 @@ describe('ProductService.updateProduct', () => {
       faqs: [],
     } as any)
 
-    vi.mocked(prisma.icon.deleteMany).mockResolvedValue({ count: 1 })
-
     const updatedProduct = {
       id: 1,
       title: 'Updated Product',
@@ -631,15 +616,6 @@ describe('ProductService.updateProduct', () => {
       ],
     })
 
-    expect(prisma.icon.deleteMany).toHaveBeenCalledWith({
-      where: {
-        productId: 1,
-      },
-    })
-
-    expect(prisma.gain.deleteMany).not.toHaveBeenCalled()
-    expect(prisma.faq.deleteMany).not.toHaveBeenCalled()
-
     expect(prisma.product.update).toHaveBeenCalledWith({
       where: {
         id: 1,
@@ -647,6 +623,7 @@ describe('ProductService.updateProduct', () => {
       data: {
         title: 'Updated Product',
         icons: {
+          deleteMany: {},
           create: [
             {
               title: 'New Icon',

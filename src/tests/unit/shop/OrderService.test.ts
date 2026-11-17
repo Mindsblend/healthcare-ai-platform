@@ -251,7 +251,7 @@ describe('OrderService.createOrder', () => {
     })
   })
 
-  it('returns the existing PENDING order instead of creating another order', async () => {
+  it('replaces an existing PENDING order with a new PENDING order', async () => {
     const cart = {
       id: 'cart-123',
       userId: 'user-123',
@@ -278,9 +278,33 @@ describe('OrderService.createOrder', () => {
       totalPrice: 845000,
     }
 
+    const newOrder = {
+      id: 'order-new',
+      cartId: 'cart-123',
+      status: 'PENDING',
+      totalPrice: 845000,
+    }
+
+    const orderItemDeleteMany = vi.fn()
+    const orderDelete = vi.fn()
+    const orderCreate = vi.fn().mockResolvedValue(newOrder)
+
     vi.mocked(prisma.cart.findFirst).mockResolvedValueOnce(cart as never)
     vi.mocked(prisma.order.findUnique).mockResolvedValueOnce(
       existingOrder as never,
+    )
+
+    vi.mocked(prisma.$transaction).mockImplementationOnce(
+      async (callback: any) =>
+        callback({
+          orderItem: {
+            deleteMany: orderItemDeleteMany,
+          },
+          order: {
+            delete: orderDelete,
+            create: orderCreate,
+          },
+        } as never),
     )
 
     const result = await OrderService.createOrder({
@@ -299,7 +323,21 @@ describe('OrderService.createOrder', () => {
       paymentMethod: 'zarinpal',
     })
 
-    expect(result).toBe(existingOrder)
+    expect(orderItemDeleteMany).toHaveBeenCalledWith({
+      where: {
+        orderId: 'order-123',
+      },
+    })
+
+    expect(orderDelete).toHaveBeenCalledWith({
+      where: {
+        id: 'order-123',
+      },
+    })
+
+    expect(orderCreate).toHaveBeenCalled()
+
+    expect(result).toEqual(newOrder)
   })
 
   it('deletes a FAILED order and creates a new PENDING order', async () => {
@@ -337,30 +375,25 @@ describe('OrderService.createOrder', () => {
 
     const orderItemDeleteMany = vi.fn()
     const orderDelete = vi.fn()
+    const orderCreate = vi.fn().mockResolvedValue(newOrder)
 
     vi.mocked(prisma.cart.findFirst).mockResolvedValueOnce(cart as never)
     vi.mocked(prisma.order.findUnique).mockResolvedValueOnce(
       existingOrder as never,
     )
 
-    vi.mocked(prisma.$transaction)
-      .mockImplementationOnce(async (callback: any) =>
+    vi.mocked(prisma.$transaction).mockImplementationOnce(
+      async (callback: any) =>
         callback({
           orderItem: {
             deleteMany: orderItemDeleteMany,
           },
           order: {
             delete: orderDelete,
+            create: orderCreate,
           },
         } as never),
-      )
-      .mockImplementationOnce(async (callback: any) =>
-        callback({
-          order: {
-            create: vi.fn().mockResolvedValue(newOrder),
-          },
-        } as never),
-      )
+    )
 
     const result = await OrderService.createOrder({
       userId: 'user-123',
@@ -389,6 +422,8 @@ describe('OrderService.createOrder', () => {
         id: 'order-old',
       },
     })
+
+    expect(orderCreate).toHaveBeenCalled()
 
     expect(result).toEqual(newOrder)
   })
@@ -488,11 +523,13 @@ describe('OrderService.createOrder', () => {
               productId: 'product-1',
               quantity: 2,
               price: 500000,
+              originalPrice: 500000,
             },
             {
               productId: 'product-2',
               quantity: 1,
               price: 300000,
+              originalPrice: 300000,
             },
           ],
         },

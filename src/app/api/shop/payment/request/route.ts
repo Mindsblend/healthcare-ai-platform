@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
   try {
     const session = await requireAuthority({ requiredRole: 'USER' })
     const body = await req.json()
-    const { description, orderId, email, mobile } = body
+    const { description, orderId } = body
 
     if (!orderId) {
       return NextResponse.json(
@@ -18,9 +18,12 @@ export async function POST(req: NextRequest) {
     }
 
     // خواندن سفارش از دیتابیس به عنوان تنها منبع معتبر قیمت
-    const order = await OrderService.fetchOrderById({ id: orderId })
+    const order = await OrderService.getOrderForPayment({
+      orderId,
+      userId: session.id,
+    })
 
-    if (!order || order.userId !== session.id) {
+    if (!order) {
       return NextResponse.json(
         { success: false, error: 'سفارش یافت نشد یا متعلق به شما نیست' },
         { status: 404 },
@@ -30,7 +33,7 @@ export async function POST(req: NextRequest) {
     if (order.status === 'PAID') {
       return NextResponse.json(
         { success: false, error: 'این سفارش قبلاً پرداخت شده است' },
-        { status: 400 },
+        { status: 409 },
       )
     }
 
@@ -42,13 +45,13 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // درخواست به زرین‌پال
+    // درخواست به زرین‌پال - همیشه از اطلاعات سفارش استفاده می‌کنیم
     const result = await PaymentService.requestPayment({
       amount: amountInToman,
       description: description || `پرداخت سفارش ${order.id}`,
       orderId: order.id,
-      email: email || order.shippingEmail,
-      mobile: mobile || order.shippingPhone,
+      email: order.shippingEmail,
+      mobile: order.shippingPhone,
     })
 
     if (!result.success || !result.authority) {
@@ -74,6 +77,14 @@ export async function POST(req: NextRequest) {
       paymentUrl: result.paymentUrl,
     })
   } catch (error: any) {
+    // اگر خطای احراز هویت است (status 401)، همان کد را برگردان
+    if (error?.status === 401) {
+      return NextResponse.json(
+        { success: false, error: error.message || 'Unauthorized' },
+        { status: 401 },
+      )
+    }
+
     console.error('[PAYMENT REQUEST] Error:', error)
     return NextResponse.json(
       {
