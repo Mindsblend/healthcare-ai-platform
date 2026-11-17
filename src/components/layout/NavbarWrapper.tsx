@@ -1,9 +1,14 @@
 // src/components/layout/NavbarWrapper.tsx
 import { getSession } from '@/features/auth/services/sessionService'
+import Image from 'next/image'
 import Navbar from './Navbar'
 
 export default async function NavbarWrapper() {
   const user = await getSession()
 
-  return <Navbar user={user} />
+  return (
+    <>
+      <Navbar user={user} />
+    </>
+  )
 }

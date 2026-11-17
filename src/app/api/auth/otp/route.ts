@@ -1,41 +1,46 @@
 import { NextResponse } from 'next/server'
 import { sendOtpViaSms } from '@/features/auth/services/sendSmsOtpService'
-import { saveOtp } from '@/features/auth/services/lifeCycleOtpService'
+import {
+  checkOtpRateLimit,
+  saveOtp,
+} from '@/features/auth/services/lifeCycleOtpService'
 import { createDomainError, ErrorCode } from '@/lib/errors'
 import { validateAuthenticationIdentifier } from '@/lib/helpers'
 import { sendOtpViaEmail } from '@/features/auth/services/sendEmailOtpService'
 
 export async function POST(req: Request) {
   try {
-    const { identifier } = await req.json()
+    const body: unknown = await req.json()
+    if (typeof body !== 'object' || body === null || Array.isArray(body)) {
+      throw createDomainError(ErrorCode.INVALID_INPUT)
+    }
+
+    const { identifier } = body as { identifier?: unknown }
+    if (typeof identifier !== 'string') {
+      throw createDomainError(ErrorCode.MISSING_IDENTIFIER)
+    }
+
     const { type, value } = await validateAuthenticationIdentifier(identifier)
+    await checkOtpRateLimit(value)
 
     let code: string
 
     switch (type) {
       case 'email':
-        console.log(`[EMAIL] OTP request for: ${value}`)
-
         // Send OTP
         code = await sendOtpViaEmail(value)
-        console.log('[EMAIL] OTP code sent')
 
         // Store OTP
         await saveOtp(value, code)
-        console.log('[EMAIL] OTP code saved')
         break
 
       case 'phone':
-        console.log(`[SMS] OTP request for: ${value}`)
-
         // Send OTP
         const smsResponse = await sendOtpViaSms({ phone: value })
         code = smsResponse.code
-        console.log('[SMS] OTP code sent')
 
         // Store OTP
         await saveOtp(value, code)
-        console.log('[SMS] OTP code saved')
         break
 
       default:
@@ -48,7 +53,12 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('[OTP API] Caught error:', error)
+    if (error instanceof SyntaxError) {
+      return NextResponse.json(
+        { error: createDomainError(ErrorCode.INVALID_INPUT) },
+        { status: 400 },
+      )
+    }
 
     if (
       error &&
@@ -56,7 +66,9 @@ export async function POST(req: Request) {
       'code' in error &&
       'message' in error
     ) {
-      return NextResponse.json({ error }, { status: 400 })
+      const status =
+        error.code === ErrorCode.EMAIL_PROVIDER_FAILED.code ? 502 : 400
+      return NextResponse.json({ error }, { status })
     }
 
     return NextResponse.json(

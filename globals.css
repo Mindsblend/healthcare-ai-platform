@@ -9,6 +9,7 @@
 html,
 body {
   margin: 0;
+  scroll-behavior: smooth;
   padding: 0;
 }
 
@@ -68,6 +69,15 @@ body {
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+@keyframes shrink {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
 }
 
 #custom-pagination .swiper-pagination-bullet {

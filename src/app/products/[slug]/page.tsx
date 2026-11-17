@@ -366,32 +366,66 @@ const AddToCartButton = memo(function AddToCartButton({
 
 const ProductPrice = memo(function ProductPrice({
   price,
+  discount,
+  discountedPrice,
   mobile = false,
 }: {
   price: number
+  discount?: number | null
+  discountedPrice?: number | null
   mobile?: boolean
 }) {
-  const formattedPrice = price.toLocaleString('fa-IR')
+  const hasDiscount =
+    (discount ?? 0) > 0 &&
+    discountedPrice != null &&
+    discountedPrice >= 0 &&
+    discountedPrice < price
+
+  const finalPrice = hasDiscount ? discountedPrice : price
+
+  const formattedPrice = (value: number) => value.toLocaleString('fa-IR')
 
   return (
     <div
-      className={
+      className={`font-ray text-color-title-on-light flex ${
         mobile
-          ? 'text-color-title-on-light font-ray flex shrink-0 items-center text-lg font-bold'
-          : 'text-color-title-on-light font-ray flex items-center justify-center text-sm font-extrabold 2xl:text-base'
-      }
-      aria-label={`${formattedPrice} تومان`}
+          ? 'shrink-0 flex-col items-end gap-1'
+          : 'flex-col items-start gap-1'
+      }`}
+      aria-label={`${formattedPrice(finalPrice)} تومان`}
     >
-      {formattedPrice}
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span
+          className={
+            mobile
+              ? 'text-lg font-extrabold'
+              : 'text-sm font-extrabold 2xl:text-base'
+          }
+        >
+          {formattedPrice(finalPrice)}
+        </span>
 
-      <Image
-        src="/images/toman.svg"
-        width={25}
-        height={25}
-        className="pr-1"
-        alt=""
-        aria-hidden="true"
-      />
+        <Image
+          src="/images/toman.svg"
+          width={mobile ? 22 : 25}
+          height={mobile ? 22 : 25}
+          className="pr-1"
+          alt=""
+          aria-hidden="true"
+        />
+      </div>
+
+      {hasDiscount && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs text-gray-400 line-through">
+            {formattedPrice(price)}
+          </span>
+
+          <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-600">
+            {formattedPrice(discount!)}٪ تخفیف
+          </span>
+        </div>
+      )}
     </div>
   )
 })
@@ -597,7 +631,11 @@ export default function ProductPage() {
                       onClick={handleAddToCart}
                     />
 
-                    <ProductPrice price={product.price} />
+                    <ProductPrice
+                      price={product.price}
+                      discount={product.discount}
+                      discountedPrice={product.discountedPrice}
+                    />
                   </div>
 
                   {addError && (
@@ -671,7 +709,11 @@ export default function ProductPage() {
                   mobile
                 />
 
-                <ProductPrice price={product.price} mobile />
+                <ProductPrice
+                  price={product.price}
+                  discount={product.discount}
+                  discountedPrice={product.discountedPrice}
+                />
               </div>
 
               {addError && (

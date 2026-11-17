@@ -14,8 +14,6 @@ const categories = [
   { id: 6, name: 'لوازم خانه', iconPath: '/images/chair.svg' },
 ]
 
-console.log('DATABASE_URL:', process.env.DATABASE_URL)
-
 async function seedCategories() {
   for (const category of categories) {
     await prisma.category.upsert({
@@ -28,7 +26,6 @@ async function seedCategories() {
       },
     })
   }
-  console.log('✅ Categories seeded')
 }
 
 /* =======================
@@ -623,7 +620,6 @@ async function seedProducts() {
       },
     })
   }
-  console.log('✅ Products seeded')
 }
 
 /* =======================
@@ -722,7 +718,6 @@ async function seedBlogs() {
       create: { ...blog },
     })
   }
-  console.log('✅ Blogs seeded')
 }
 
 /* =======================

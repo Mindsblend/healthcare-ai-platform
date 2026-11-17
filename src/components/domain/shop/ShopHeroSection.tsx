@@ -2,11 +2,14 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
+import { useEffect, useState, useCallback, useId } from 'react'
+import { useUserInfo } from '@/features/shop/hooks/profile/useUserInfo'
 import type { ReactElement, SVGProps } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Pagination } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/pagination'
+import { useCart } from '@/features/shop/hooks/cart/useCart'
 
 /* =========================================================
    TYPES
@@ -98,8 +101,34 @@ function SavingsCard({
   freeShippingThreshold: number
   href: string
 }) {
+  const [hovered, setHovered] = useState(false)
+  const [pinned, setPinned] = useState(false)
+  const tooltipId = useId()
+  const open = hovered || pinned
+
   return (
-    <div className={`${CARD_BASE} bg-[#F2F2F2]`}>
+    <div className={`${CARD_BASE} relative bg-[#F2F2F2]`}>
+      <button
+        type="button"
+        aria-label="نحوه محاسبه سود شما"
+        aria-describedby={tooltipId}
+        aria-expanded={open}
+        onPointerEnter={(e) => e.pointerType === 'mouse' && setHovered(true)}
+        onPointerLeave={(e) => e.pointerType === 'mouse' && setHovered(false)}
+        onFocus={(e) => {
+          if (e.currentTarget.matches(':focus-visible')) setHovered(true)
+        }}
+        onBlur={() => setHovered(false)}
+        onClick={() => setPinned((prev) => !prev)}
+        className={`absolute top-4 left-4 z-20 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full transition-all duration-200 sm:top-5 sm:left-5 ${
+          open
+            ? 'scale-105 bg-[#161A1D] text-white'
+            : 'bg-white text-[#555555] hover:bg-[#E5E5E5]'
+        }`}
+      >
+        <QuestionIcon className="h-4 w-4" />
+      </button>
+
       <div className="mb-1 flex h-9 w-9 items-center justify-center">
         <Image
           src="/images/coin.svg"
@@ -127,9 +156,45 @@ function SavingsCard({
         </span>
       </div>
 
-      <Link href={href} className={CTA_CLASS}>
+      <Link href="/products?discounted=1" className={CTA_CLASS}>
         مشاهده محصولات تخفیف خورده
       </Link>
+
+      {/* پنل توضیح: داخل کارت تا توسط Swiper بریده نشود */}
+      <div
+        id={tooltipId}
+        role="tooltip"
+        aria-hidden={!open}
+        className={`pointer-events-none absolute inset-0 z-10 flex flex-col overflow-y-auto rounded-[30px] bg-[#161A1D] p-5 transition-all duration-300 ease-out sm:p-6 ${
+          open
+            ? 'translate-y-0 opacity-100'
+            : 'invisible translate-y-1.5 opacity-0'
+        }`}
+      >
+        {/* pl-9: فضای خالی برای دکمه‌ی علامت سوال */}
+        <h3 className="font-aria mb-2.5 pl-9 text-[15px] leading-6 font-bold text-white sm:text-[16px]">
+          سود شما چطور حساب می‌شود؟
+        </h3>
+
+        <p className="font-ray text-[12px] leading-6 font-medium text-[#C9CED4] sm:text-[12.5px]">
+          مجموع تخفیف‌هایی که از ابتدای خریدتان از ما تا امروز گرفته‌اید.
+        </p>
+
+        {/* فرمول */}
+        <div className="font-ray mt-2.5 rounded-[12px] bg-[#262A2E] px-3 py-2 text-center text-[11px] leading-5 font-bold text-[#B1C8FF] sm:text-[12px]">
+          (قیمت اصلی − قیمت با تخفیف) × تعداد
+        </div>
+
+        {/* مثال */}
+        <p className="font-ray mt-2.5 text-[11px] leading-5 font-medium text-[#9AA1A9] sm:text-[11.5px]">
+          مثلاً محصول {toPersianDigits(1_000_000)} تومانی با ۲۰٪ تخفیف را{' '}
+          {toPersianDigits(800_000)} تومان خریده‌اید؛{' '}
+          <span className="font-bold text-white">
+            {toPersianDigits(200_000)} تومان سود
+          </span>
+          . محصولات بدون تخفیف حساب نمی‌شوند.
+        </p>
+      </div>
     </div>
   )
 }
@@ -194,7 +259,7 @@ function GuaranteesCard({ href }: { href: string }) {
         </li>
       </ul>
 
-      <Link href={href} className={`${CTA_CLASS} mt-6`}>
+      <Link href="legal/platform-rules" className={`${CTA_CLASS} mt-6`}>
         مشاهده ضمانت‌ها
       </Link>
     </div>
@@ -206,13 +271,91 @@ function GuaranteesCard({ href }: { href: string }) {
 ========================================================= */
 
 const ShopHeroSection = ({
-  userName = 'کیان',
-  savingsAmount = 45_600_000,
   freeShippingThreshold = 3_000_000,
   discountedProductsHref = '/products?filter=discounted',
   guaranteesHref = '/guarantees',
   categories = defaultCategories,
+  savingsAmount: providedSavingsAmount,
 }: ShopHeroSectionProps = {}) => {
+  const { userInfo } = useUserInfo()
+  const { cartItems, loading, error, isAuthenticated } = useCart()
+
+  const [apiSavingsAmount, setApiSavingsAmount] = useState<number | null>(null)
+  const [savingsLoading, setSavingsLoading] = useState(true)
+
+  const fetchSavings = useCallback(async () => {
+    if (!isAuthenticated) {
+      setApiSavingsAmount(0)
+      setSavingsLoading(false)
+      return
+    }
+
+    try {
+      setSavingsLoading(true)
+
+      const response = await fetch('/api/shop/user/savings', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-store',
+      })
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch savings: ${response.status}`)
+      }
+
+      const data: { savingsAmount?: number | string } = await response.json()
+      const amount = Number(data.savingsAmount)
+
+      if (!Number.isFinite(amount) || amount < 0) {
+        throw new Error('Invalid savings amount returned by API')
+      }
+
+      setApiSavingsAmount(amount)
+    } catch (err) {
+      console.error('Failed to fetch savings:', err)
+      setApiSavingsAmount(null)
+    } finally {
+      setSavingsLoading(false)
+    }
+  }, [isAuthenticated])
+
+  useEffect(() => {
+    void fetchSavings()
+  }, [fetchSavings, cartItems])
+
+  const displayName = [userInfo?.firstName, userInfo?.lastName]
+    .filter((name): name is string => Boolean(name?.trim()))
+    .join(' ')
+
+  const cartSavingsAmount = cartItems.reduce((total, item) => {
+    const originalPrice = Number(item.product.price)
+    const discountedPrice = Number(item.product.discountedPrice)
+    const quantity = Number(item.quantity)
+
+    if (
+      !Number.isFinite(originalPrice) ||
+      !Number.isFinite(discountedPrice) ||
+      !Number.isFinite(quantity) ||
+      originalPrice <= 0 ||
+      discountedPrice < 0 ||
+      discountedPrice >= originalPrice ||
+      quantity <= 0
+    ) {
+      return total
+    }
+
+    return total + (originalPrice - discountedPrice) * quantity
+  }, 0)
+
+  const savingsAmount =
+    typeof providedSavingsAmount === 'number' &&
+    Number.isFinite(providedSavingsAmount) &&
+    providedSavingsAmount >= 0
+      ? providedSavingsAmount
+      : (apiSavingsAmount ?? cartSavingsAmount)
+
   const cards = [
     {
       id: 'savings',
@@ -229,19 +372,18 @@ const ShopHeroSection = ({
   ]
 
   return (
-    // موبایل/تبلت: تمام‌عرض و بدون پدینگ — از lg به بعد container
-    <section className="mt-10 mb-8 w-full sm:mt-16 lg:container lg:mt-20">
-      {/* Greeting */}
-      <div className="mx-auto mb-8 flex max-w-3xl flex-col items-center px-4 text-center sm:mb-12">
+    <section className="mx-auto mt-10 mb-8 w-full sm:mt-16 lg:container lg:mt-20">
+      <div className="mx-auto mb-8 flex max-w-3xl flex-col items-center text-center sm:mb-12">
         <h1 className="font-aria text-color-title-on-light text-[28px] leading-[1.5] font-extrabold sm:text-[34px] lg:text-[40px]">
-          {userName} عزیز، خوش آمدی{' '}
+          {displayName
+            ? `${displayName} عزیز، خوش آمدی`
+            : 'به دیجی سلامت خوش آمدی'}{' '}
           <span role="img" aria-label="دست تکان دادن" className="inline-block">
             👋
           </span>
         </h1>
       </div>
 
-      {/* Mobile & tablet: Swiper */}
       <div className="lg:hidden">
         <Swiper
           modules={[Pagination]}
@@ -264,7 +406,6 @@ const ShopHeroSection = ({
         </Swiper>
       </div>
 
-      {/* Desktop */}
       <div className="hidden items-stretch justify-center gap-5 lg:flex">
         {cards.map(({ id, node }) => (
           <div key={id} className="flex w-[323px]">
@@ -279,26 +420,6 @@ const ShopHeroSection = ({
 /* =========================================================
    CATEGORY ICONS
 ========================================================= */
-
-function ProteinIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      {...props}
-    >
-      <path
-        d="M14.8 14.8c-2.1 2.1-5.4 2.9-7.6.7-2.2-2.2-1.4-5.5.7-7.6 2.8-2.8 7.3-3.1 10-.4l.1.1c2.7 2.7 2.4 7.2-.4 10-1 1-1.8 2-1.8 3.1a1.9 1.9 0 1 1-3.7 0c0-1.1.7-2.1 1.7-3.1z"
-        stroke="currentColor"
-        strokeWidth={1.6}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <circle cx="9.6" cy="9.6" r="1.1" fill="currentColor" />
-    </svg>
-  )
-}
 
 function SleepIcon(props: SVGProps<SVGSVGElement>) {
   return (
@@ -415,6 +536,26 @@ function ImmunityIcon(props: SVGProps<SVGSVGElement>) {
    GENERAL ICONS
 ========================================================= */
 
+function ProteinIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M14.8 14.8c-2.1 2.1-5.4 2.9-7.6.7-2.2-2.2-1.4-5.5.7-7.6 2.8-2.8 7.3-3.1 10-.4l.1.1c2.7 2.7 2.4 7.2-.4 10-1 1-1.8 2-1.8 3.1a1.9 1.9 0 1 1-3.7 0c0-1.1.7-2.1 1.7-3.1z"
+        stroke="currentColor"
+        strokeWidth={1.6}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="9.6" cy="9.6" r="1.1" fill="currentColor" />
+    </svg>
+  )
+}
+
 function TruckIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
@@ -518,6 +659,26 @@ function ReturnIcon(props: SVGProps<SVGSVGElement>) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+    </svg>
+  )
+}
+
+function QuestionIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M9.2 9.2a2.9 2.9 0 1 1 4.1 2.6c-.8.4-1.3 1-1.3 1.9"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="17.6" r="1.1" fill="currentColor" />
     </svg>
   )
 }

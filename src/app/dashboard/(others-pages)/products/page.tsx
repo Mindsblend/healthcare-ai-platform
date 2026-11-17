@@ -162,7 +162,6 @@ const Products = () => {
     !loading && !error && !productsPreview.length && !debouncedSearchValue
 
   const handleDelete = async (id: number) => {
-    console.log('🟢 handleDelete called with id:', id, 'type:', typeof id)
     await deleteProduct({ id })
     router.refresh()
   }

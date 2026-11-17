@@ -10,11 +10,7 @@ export async function GET(
     // Await the params Promise
     const { slug } = await params
 
-    console.log('API route - Requested slug:', slug)
-
     const collection = await CollectionService.fetchCollectionBySlug(slug)
-
-    console.log('API route - Found collection:', collection?.name)
 
     if (!collection) {
       return NextResponse.json(

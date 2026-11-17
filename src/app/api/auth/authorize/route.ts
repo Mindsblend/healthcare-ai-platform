@@ -11,7 +11,22 @@ import { validateAuthenticationIdentifier } from '@/lib/helpers'
 
 export async function POST(req: Request) {
   try {
-    const { identifier, code } = await req.json()
+    const body: unknown = await req.json()
+    if (typeof body !== 'object' || body === null || Array.isArray(body)) {
+      throw createDomainError(ErrorCode.INVALID_INPUT)
+    }
+
+    const { identifier, code } = body as {
+      identifier?: unknown
+      code?: unknown
+    }
+    if (typeof identifier !== 'string') {
+      throw createDomainError(ErrorCode.MISSING_IDENTIFIER)
+    }
+    if (typeof code !== 'string') {
+      throw createDomainError(ErrorCode.OTP_INVALID)
+    }
+
     const { type, value } = await validateAuthenticationIdentifier(identifier)
 
     let user
@@ -20,26 +35,20 @@ export async function POST(req: Request) {
     switch (type) {
       case 'email':
         await verifyOtp({ identifier: value, code })
-        console.log('[EMAIL] OTP verified successfully')
 
         user = await UserService.createUser(value, type)
-        console.log('[EMAIL] User fetched/created')
 
         token = createJwtSession(user)
-        console.log('[EMAIL] Session created')
 
         await setSessionCookie(token)
         break
 
       case 'phone':
         await verifyOtp({ identifier: value, code })
-        console.log('[SMS] OTP verified successfully')
 
         user = await UserService.createUser(value, type)
-        console.log('[SMS] User fetched/created')
 
         token = createJwtSession(user)
-        console.log('[SMS] Session created')
 
         await setSessionCookie(token)
         break
@@ -57,7 +66,12 @@ export async function POST(req: Request) {
       redirect: '/',
     })
   } catch (error) {
-    console.error('[OTP API] Caught error:', error)
+    if (error instanceof SyntaxError) {
+      return NextResponse.json(
+        { error: createDomainError(ErrorCode.INVALID_INPUT) },
+        { status: 400 },
+      )
+    }
 
     if (
       error &&

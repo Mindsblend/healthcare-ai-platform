@@ -13,7 +13,6 @@ export async function requestOtp(
   const data = await res.json()
 
   if (!res.ok) {
-    console.error('[requestOtp] error object:', data?.error)
     throw new Error(data?.error?.code || 'UNKNOWN')
   }
 

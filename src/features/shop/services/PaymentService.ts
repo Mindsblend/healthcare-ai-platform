@@ -11,13 +11,8 @@ export class PaymentService {
   static async requestPayment(input: PaymentRequestInput) {
     const { amount, description, orderId, email, mobile } = input
 
-    console.log('🟡 [PaymentService] ========== START ==========')
-    console.log('🟡 [PaymentService] Input:', JSON.stringify(input, null, 2))
-
     // ✅ Amount is already in Toman - use as-is
     const amountInToman = Math.round(Number(amount))
-
-    console.log('🟡 [PaymentService] Amount in Toman:', amountInToman)
 
     // اعتبارسنجی مبلغ (در تومان)
     if (amountInToman > this.MAX_AMOUNT_TOMAN) {
@@ -38,12 +33,6 @@ export class PaymentService {
     const callbackUrl = `${process.env.NEXTAUTH_URL}/api/shop/payment/verify`
     const merchantId = process.env.ZARINPAL_MERCHANT_ID
     const isSandbox = process.env.ZARINPAL_SANDBOX === 'true'
-
-    console.log('🟡 [PaymentService] Config:', {
-      merchantId: merchantId?.substring(0, 8) + '...',
-      isSandbox,
-      callbackUrl,
-    })
 
     if (!merchantId) {
       return {
@@ -66,11 +55,6 @@ export class PaymentService {
       mobile: mobile || undefined,
     }
 
-    console.log(
-      '🟡 [PaymentService] Request to Zarinpal:',
-      JSON.stringify(requestBody, null, 2),
-    )
-
     try {
       const response = await axios.post(apiUrl, requestBody, {
         headers: {
@@ -79,11 +63,6 @@ export class PaymentService {
         },
         timeout: 30000,
       })
-
-      console.log(
-        '🟡 [PaymentService] Response:',
-        JSON.stringify(response.data, null, 2),
-      )
 
       const responseData = response.data
 
@@ -95,14 +74,6 @@ export class PaymentService {
           : 'https://www.zarinpal.com/pg/StartPay'
 
         const paymentUrl = `${baseUrl}/${authority}`
-
-        console.log('🟡 [PaymentService] ✅ Success:', {
-          authority,
-          paymentUrl,
-          callbackUrl,
-          currency: 'IRT',
-          amount: amountInToman,
-        })
 
         return {
           success: true,
@@ -147,25 +118,11 @@ export class PaymentService {
   static async verifyPayment(input: PaymentVerifyInput) {
     const { authority, amount } = input
 
-    console.log('🟡 [PaymentService] ========== VERIFY PAYMENT ==========')
-    console.log('🟡 [PaymentService] Authority:', authority)
-    console.log('🟡 [PaymentService] Input amount:', amount)
-
     // ✅ Amount is already in Toman - use as-is
     const amountInToman = Math.round(Number(amount))
 
-    console.log('🟡 [PaymentService] Amount in Toman:', amountInToman)
-
     const merchantId = process.env.ZARINPAL_MERCHANT_ID
     const isSandbox = process.env.ZARINPAL_SANDBOX === 'true'
-
-    console.log('🟡 [PaymentService] Merchant ID (full):', merchantId)
-    console.log(
-      '🟡 [PaymentService] Merchant ID (first 8):',
-      merchantId?.substring(0, 8) + '...',
-    )
-    console.log('🟡 [PaymentService] Merchant ID length:', merchantId?.length)
-    console.log('🟡 [PaymentService] Is Sandbox:', isSandbox)
 
     if (!merchantId) {
       console.error('❌ [PaymentService] Merchant ID is missing!')
@@ -190,19 +147,12 @@ export class PaymentService {
       ? 'https://sandbox.zarinpal.com/pg/v4/payment/verify.json'
       : 'https://api.zarinpal.com/pg/v4/payment/verify.json'
 
-    console.log('🟡 [PaymentService] API URL:', apiUrl)
-
     const requestBody = {
       merchant_id: merchantId,
       currency: 'IRT', // ✅ Specify Toman as the currency
       amount: amountInToman, // ✅ Always send in Toman
       authority: authority,
     }
-
-    console.log(
-      '🟡 [PaymentService] Request body:',
-      JSON.stringify(requestBody, null, 2),
-    )
 
     try {
       const response = await axios.post(apiUrl, requestBody, {
@@ -212,12 +162,6 @@ export class PaymentService {
         },
         timeout: 30000,
       })
-
-      console.log('🟡 [PaymentService] Response status:', response.status)
-      console.log(
-        '🟡 [PaymentService] Response data:',
-        JSON.stringify(response.data, null, 2),
-      )
 
       const responseData = response.data
 

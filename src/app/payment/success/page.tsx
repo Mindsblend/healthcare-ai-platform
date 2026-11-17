@@ -13,10 +13,6 @@ function SuccessContent() {
 
   const [countdown, setCountdown] = useState(5)
 
-  useEffect(() => {
-    console.log('Payment successful! Ref ID:', refId, 'Order ID:', orderId)
-  }, [refId, orderId])
-
   // Countdown timer
   useEffect(() => {
     if (countdown === 0) {

@@ -65,6 +65,8 @@ export class CartService {
           id: item.product.id,
           title: item.product.title,
           price: item.product.price,
+          discount: item.product.discount,
+          discountedPrice: item.product.discountedPrice,
           solution: item.product.solution,
           slug: item.product.slug,
           image: item.product.image,
@@ -106,10 +108,6 @@ export class CartService {
     })
 
     if (existingCart) {
-      console.log(
-        '[CartService.createCart] Found existing cart:',
-        existingCart.id,
-      )
       return {
         id: existingCart.id,
         userId: existingCart.userId,
@@ -123,6 +121,8 @@ export class CartService {
             id: item.product.id,
             title: item.product.title,
             price: item.product.price,
+            discount: item.product.discount,
+            discountedPrice: item.product.discountedPrice,
             solution: item.product.solution,
             slug: item.product.slug,
             image: item.product.image,
@@ -200,32 +200,87 @@ export class CartService {
   }
 
   /** Change Quantity */
-  static async updateItemQuantity(input: UpdateItemQuantityInput) {
+  static async updateItemQuantity(
+    input: UpdateItemQuantityInput,
+    userId: string,
+  ) {
     const { cartItemId, quantity } = input
+
+    if (!Number.isInteger(quantity)) {
+      throw new Error('Quantity must be an integer')
+    }
+
+    const item = await prisma.cartItem.findFirst({
+      where: {
+        id: cartItemId,
+        cart: {
+          userId,
+        },
+      },
+      select: {
+        id: true,
+      },
+    })
+
+    if (!item) {
+      throw new Error('Cart item not found')
+    }
 
     if (quantity <= 0) {
       return prisma.cartItem.delete({
-        where: { id: cartItemId },
+        where: { id: item.id },
       })
     }
 
     return prisma.cartItem.update({
-      where: { id: cartItemId },
+      where: { id: item.id },
       data: { quantity },
     })
   }
 
   /** Delete Item */
-  static async removeItem(input: RemoveItemInput) {
+  static async removeItem(input: RemoveItemInput, userId: string) {
     const { cartItemId } = input
+
+    const item = await prisma.cartItem.findFirst({
+      where: {
+        id: cartItemId,
+        cart: {
+          userId,
+        },
+      },
+      select: {
+        id: true,
+      },
+    })
+
+    if (!item) {
+      throw new Error('Cart item not found')
+    }
+
     return prisma.cartItem.delete({
-      where: { id: cartItemId },
+      where: { id: item.id },
     })
   }
 
   /** Empty Carts */
-  static async clearCart(input: ClearCartInput) {
+  static async clearCart(input: ClearCartInput, userId: string) {
     const { cartId } = input
+
+    const cart = await prisma.cart.findFirst({
+      where: {
+        id: cartId,
+        userId,
+      },
+      select: {
+        id: true,
+      },
+    })
+
+    if (!cart) {
+      throw new Error('Cart not found')
+    }
+
     return prisma.cartItem.deleteMany({
       where: { cartId },
     })
@@ -238,6 +293,9 @@ export class CartService {
       where: { cartId },
     })
 
-    return items.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0)
+    return items.reduce(
+      (sum: number, item: any) => sum + item.price * item.quantity,
+      0,
+    )
   }
 }
