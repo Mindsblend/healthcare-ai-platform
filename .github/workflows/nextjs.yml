@@ -11,6 +11,25 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    # Temporary PostgreSQL database for CI tests
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: digisalamat_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d digisalamat_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/digisalamat_test?schema=public
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,18 +50,15 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Apply database migrations
+        run: npx prisma migrate deploy
 
       - name: Run tests
         run: npm run test:run
 
-      - name: Generate Prisma Client
-        run: npx prisma generate
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
       - name: Build with Next.js
         run: npm run build
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
