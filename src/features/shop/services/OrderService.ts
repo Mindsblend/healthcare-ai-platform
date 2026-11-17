@@ -51,6 +51,36 @@ export class OrderService {
     return order as unknown as OrderDetail | null
   }
 
+  static async getOrderForPayment(input: {
+    orderId: string
+    userId: string
+  }): Promise<OrderDetail | null> {
+    const { orderId, userId } = input
+    const order = await prisma.order.findFirst({
+      where: {
+        id: orderId,
+        userId,
+      },
+      include: {
+        items: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                title: true,
+                price: true,
+                image: true,
+                slug: true,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    return order as unknown as OrderDetail | null
+  }
+
   static async createOrder(input: CreateOrderInput) {
     const { userId, shippingInfo, paymentMethod } = input
 

@@ -59,10 +59,24 @@ describe('POST /api/upload/local/multiple', () => {
     const response = await POST(createRequest([first, second], 'products'))
 
     expect(uploadFile).toHaveBeenCalledTimes(2)
-    expect(uploadFile).toHaveBeenNthCalledWith(1, first, { folder: 'products' })
-    expect(uploadFile).toHaveBeenNthCalledWith(2, second, {
-      folder: 'products',
-    })
+    expect(uploadFile).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        name: 'one.png',
+        type: 'image/png',
+        size: first.size,
+      }),
+      { folder: 'products' }
+    )
+    expect(uploadFile).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        name: 'two.png',
+        type: 'image/png',
+        size: second.size,
+      }),
+      { folder: 'products' }
+    )
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toMatchObject({
       success: true,

@@ -55,7 +55,14 @@ describe('/api/upload/local/single', () => {
     expect(requireAuthority).toHaveBeenCalledWith({
       requiredRole: 'ADMIN',
     })
-    expect(uploadFile).toHaveBeenCalledWith(file, { folder: 'products' })
+    expect(uploadFile).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'rug.png',
+        type: 'image/png',
+        size: file.size,
+      }),
+      { folder: 'products' }
+    )
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toEqual({
       success: true,

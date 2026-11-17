@@ -2,10 +2,10 @@ import { CartService } from '@/features/shop/services/CartService'
 import { requireAuthority } from '@/features/auth/services/sessionService'
 
 export async function GET() {
-  try {
-    const session = await requireAuthority({ requiredRole: 'USER' })
+  const session = await requireAuthority({ requiredRole: 'USER' })
 
-    const cart = await CartService.createCart({
+  try {
+    const cart = await CartService.fetchActiveCart({
       userId: session.id,
     })
 

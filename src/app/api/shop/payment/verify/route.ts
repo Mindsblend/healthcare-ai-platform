@@ -18,6 +18,11 @@ export async function GET(req: NextRequest) {
       return redirectWithError('کد پیگیری درگاه (Authority) یافت نشد')
     }
 
+    // Check status first - if not OK, redirect without DB query
+    if (status !== 'OK') {
+      return redirectWithError('پرداخت توسط شما لغو شد یا ناموفق بود')
+    }
+
     const order = await prisma.order.findFirst({
       where: { paymentAuthority: authority },
     })
@@ -36,18 +41,6 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // اگر کاربر از پرداخت انصراف داده یا پرداخت ناموفق بوده است
-    if (status !== 'OK') {
-      await prisma.order.update({
-        where: { id: order.id },
-        data: {
-          status: 'CANCELED',
-          paymentErrorMessage: 'انصراف توسط کاربر در درگاه پرداخت',
-        },
-      })
-      return redirectWithError('پرداخت توسط شما لغو شد یا ناموفق بود')
-    }
-
     const amountInToman = Number(order.totalPrice)
 
     // تایید تراکنش با زرین‌پال
@@ -57,23 +50,21 @@ export async function GET(req: NextRequest) {
     })
 
     if (verifyResult.success) {
-      await prisma.$transaction(async (tx) => {
-        await tx.order.update({
-          where: { id: order.id },
-          data: {
-            status: 'PAID',
-            paymentRefId: verifyResult.refId?.toString() || '',
-            paymentVerifiedAt: new Date(),
-          },
-        })
-
-        if (order.cartId) {
-          await tx.cart.update({
-            where: { id: order.cartId },
-            data: { status: 'CHECKED_OUT' },
-          })
-        }
+      await prisma.order.update({
+        where: { id: order.id },
+        data: {
+          status: 'PAID',
+          paymentRefId: verifyResult.refId?.toString() || '',
+          paymentVerifiedAt: new Date(),
+        },
       })
+
+      if (order.cartId) {
+        await prisma.cart.update({
+          where: { id: order.cartId },
+          data: { status: 'CHECKED_OUT' },
+        })
+      }
 
       return NextResponse.redirect(
         new URL(

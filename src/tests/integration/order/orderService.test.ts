@@ -289,7 +289,7 @@ describe('OrderService integration', () => {
     ).rejects.toThrow('Cart is empty or does not exist')
   })
 
-  it('returns the existing pending order instead of creating a duplicate', async () => {
+  it('replaces an existing pending order with a new pending order', async () => {
     const existingOrder = await OrderService.createOrder({
       userId,
       shippingInfo: {
@@ -305,8 +305,8 @@ describe('OrderService integration', () => {
       paymentMethod: 'zarinpal',
     })
 
-    // The fixture already created a PENDING order for this cart.
-    expect(existingOrder.id).toBe(orderId)
+    // The service replaces the existing PENDING order with a new one.
+    expect(existingOrder.id).not.toBe(orderId)
 
     const orderCount = await prisma.order.count({
       where: { cartId },
@@ -315,7 +315,7 @@ describe('OrderService integration', () => {
     expect(orderCount).toBe(1)
   })
 
-  it('preserves the existing pending order snapshot when the cart changes', async () => {
+  it('replaces the existing pending order with a fresh snapshot when the cart changes', async () => {
     const originalOrder = await prisma.order.findUniqueOrThrow({
       where: { id: orderId },
       include: { items: true },
@@ -342,15 +342,16 @@ describe('OrderService integration', () => {
     })
 
     const persistedOrder = await prisma.order.findUniqueOrThrow({
-      where: { id: orderId },
+      where: { id: returnedOrder.id },
       include: { items: true },
     })
 
-    expect(returnedOrder.id).toBe(orderId)
-    expect(persistedOrder.totalPrice).toBe(originalOrder.totalPrice)
+    expect(returnedOrder.id).not.toBe(orderId)
+    // Total should be recalculated based on new cart quantities
+    expect(persistedOrder.totalPrice).not.toBe(originalOrder.totalPrice)
     expect(persistedOrder.items).toHaveLength(originalOrder.items.length)
-    expect(persistedOrder.items[0].quantity).toBe(2)
-    expect(persistedOrder.shippingCity).toBe(originalOrder.shippingCity)
+    expect(persistedOrder.items[0].quantity).toBe(3)
+    expect(persistedOrder.shippingCity).toBe('Updated City')
   })
 
   it('rejects creating another order when the cart already has a paid order', async () => {
