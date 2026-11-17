@@ -259,7 +259,7 @@ function GuaranteesCard({ href }: { href: string }) {
         </li>
       </ul>
 
-      <Link href={href} className={`${CTA_CLASS} mt-6`}>
+      <Link href="legal/platform-rules" className={`${CTA_CLASS} mt-6`}>
         مشاهده ضمانت‌ها
       </Link>
     </div>
