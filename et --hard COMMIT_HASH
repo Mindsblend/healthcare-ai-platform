@@ -1,0 +1,10 @@
+[33mf92e97f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdev[m[33m, [m[1;31morigin/dev[m[33m)[m fix github actions errors
+[33m4f4afc2[m fix errors and remove navbar banner
+[33me1c74eb[m fix shopherosection links and add discounted products filter to products filters
+[33mb69b60e[m update the otp page
+[33md26dba4[m feat(checkout): optimize checkout flow, fix price calculations, and add payment loading state
+[33me5b6737[m redesign the order pgae
+[33m4ab1610[m redesign the cart page
+[33m9a88566[m create the oflline notification and recnnect button
+[33m3c926e8[m update the footer design
+[33mfade6f8[m fix(orders): fix stale order state and update total price calculation on checkout retry
