@@ -23,6 +23,7 @@ const BACK_FALLBACK_ROUTE = '/'
 const SECTION_ROUTES = [
   { prefix: '/cart', title: 'سبد خرید' },
   { prefix: '/profile', title: 'پروفایل من' },
+  { prefix: '/order', title: 'انتخاب آدرس و پرداخت نهایی' },
 ]
 
 const isInRoutes = (pathname: string, routes: string[]) =>

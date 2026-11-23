@@ -50,7 +50,7 @@ const ProductSwiper = memo(({ products, categories }: ProductSwiperProps) => {
   return (
     <div className="flex w-full flex-col xl:mt-3">
       {/* Category Header */}
-      <div className="mb-3 flex w-full items-center justify-between">
+      <div className="mb-8 flex w-full items-center justify-between">
         <div className="hidden flex-1 items-center lg:flex">
           {hasCategories && (
             <div className="flex flex-wrap gap-4">
@@ -59,7 +59,7 @@ const ProductSwiper = memo(({ products, categories }: ProductSwiperProps) => {
                 className={`flex h-11.5 w-30.5 cursor-pointer items-center justify-center rounded-full px-4 transition ${
                   activeCategoryId === null
                     ? 'bg-black text-white'
-                    : 'bg-[#D9D9D9] text-black'
+                    : 'border border-[#D9D9D9] bg-[#F2F2F2] text-black'
                 }`}
               >
                 <span
@@ -80,7 +80,7 @@ const ProductSwiper = memo(({ products, categories }: ProductSwiperProps) => {
                   className={`flex h-11.5 w-30.5 cursor-pointer items-center justify-center rounded-full px-4 transition ${
                     activeCategoryId === category.id
                       ? 'bg-black text-white'
-                      : 'bg-[#D9D9D9] text-black'
+                      : 'border border-[#D9D9D9] bg-[#F2F2F2] text-black'
                   }`}
                 >
                   <span
@@ -167,29 +167,28 @@ const ProductSwiper = memo(({ products, categories }: ProductSwiperProps) => {
 
         {/* Navigation Buttons */}
         {hasCategories && (
-          <div className="flex items-center gap-x-2.5 self-start pr-5 xl:pr-14">
+          <div className="flex items-center gap-x-2.5 self-start px-5 md:px-6 xl:pr-14 2xl:px-[45px]">
             <button
               onClick={() => swiperRef.current?.slidePrev()}
-              className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-[#D9D9D9] xl:h-12.5 xl:w-12.5"
+              className="flex h-11.25 w-11.25 cursor-pointer items-center justify-center rounded-full border border-[#D9D9D9] bg-[#F2F2F2] xl:h-12.5 xl:w-12.5"
             >
               <Image
                 src="/images/arrow-white.svg"
                 alt="next"
                 width={20}
                 height={20}
-                className="rotate-180 invert max-xl:h-3.75 max-xl:w-3.75"
+                className="rotate-180 invert"
               />
             </button>
             <button
               onClick={() => swiperRef.current?.slideNext()}
-              className="flex h-11.25 w-11.25 cursor-pointer items-center justify-center rounded-full bg-black xl:h-15 xl:w-15"
+              className="flex h-11.25 w-11.25 cursor-pointer items-center justify-center rounded-full bg-black xl:h-12.5 xl:w-12.5"
             >
               <Image
                 src="/images/arrow-white.svg"
                 alt="prev"
-                width={30}
-                height={30}
-                className="max-xl:h-5 max-xl:w-5"
+                width={20}
+                height={20}
               />
             </button>
           </div>

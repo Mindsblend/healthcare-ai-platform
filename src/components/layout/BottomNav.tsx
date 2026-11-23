@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, type ReactNode } from 'react'
 
-const HIDDEN_ROUTES = ['/auth']
+const HIDDEN_ROUTES = ['/auth', '/order']
 
 export function shouldShowBottomNav(pathname: string, user: unknown) {
   if (!user) return false
