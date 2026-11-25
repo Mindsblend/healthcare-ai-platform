@@ -6,8 +6,7 @@ import { useEffect, type ReactNode } from 'react'
 
 const HIDDEN_ROUTES = ['/auth', '/order']
 
-export function shouldShowBottomNav(pathname: string, user: unknown) {
-  if (!user) return false
+export function shouldShowBottomNav(pathname: string) {
   return !HIDDEN_ROUTES.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`),
   )
@@ -73,7 +72,7 @@ const ITEMS = [
     href: '/',
     label: 'خانه',
     icon: HomeIcon,
-    activeFor: ['/', '/feed'],
+    activeFor: ['/'],
   },
   {
     href: '/products',
@@ -83,18 +82,29 @@ const ITEMS = [
   },
   { href: '/ai', label: 'هوش مصنوعی', icon: SparkIcon, activeFor: ['/ai'] },
   { href: '/cart', label: 'سبد خرید', icon: CartIcon, activeFor: ['/cart'] },
-  {
-    href: '/profile',
-    label: 'پروفایل',
-    icon: UserIcon,
-    activeFor: ['/profile'],
-  },
 ]
 
 /* -------------------------------- Component ------------------------------- */
 
-export default function BottomNav({ cartCount }: { cartCount: number }) {
+export default function BottomNav({
+  cartCount,
+  user,
+}: {
+  cartCount: number
+  user?: unknown
+}) {
+  const isGuest = !user
   const pathname = usePathname()
+
+  const items = [
+    ...ITEMS,
+    {
+      href: isGuest ? '/auth' : '/profile',
+      label: isGuest ? 'ورود / ثبت‌نام' : 'پروفایل',
+      icon: UserIcon,
+      activeFor: isGuest ? ['/auth'] : ['/profile'],
+    },
+  ]
 
   useEffect(() => {
     document.body.classList.add('has-bottom-nav')
@@ -112,7 +122,7 @@ export default function BottomNav({ cartCount }: { cartCount: number }) {
       className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white lg:hidden"
     >
       <ul className="flex h-16 items-stretch">
-        {ITEMS.map(({ href, label, icon: Icon, activeFor }) => {
+        {items.map(({ href, label, icon: Icon, activeFor }) => {
           const active = activeFor.some(matches)
 
           return (

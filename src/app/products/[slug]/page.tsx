@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import dynamic from 'next/dynamic'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { memo, useCallback, useMemo, useState } from 'react'
 
 import LoadingBar from '@/components/layout/LoadingBar'
@@ -433,7 +433,6 @@ const ProductPrice = memo(function ProductPrice({
 
 export default function ProductPage() {
   const params = useParams<{ slug: string }>()
-  const router = useRouter()
 
   const slug = useMemo(
     () => decodeURIComponent(params.slug).trim(),
@@ -444,7 +443,7 @@ export default function ProductPage() {
     slug,
   })
 
-  const { addToCart, isAuthenticated } = useCart()
+  const { addToCart } = useCart()
 
   const [isAdding, setIsAdding] = useState(false)
   const [addError, setAddError] = useState<string | null>(null)
@@ -470,12 +469,6 @@ export default function ProductPage() {
 
       if (isAdding || !product) return
 
-      if (!isAuthenticated) {
-        router.push(`/auth?from=${encodeURIComponent(productUrl)}`)
-
-        return
-      }
-
       setIsAdding(true)
       setAddError(null)
 
@@ -487,7 +480,7 @@ export default function ProductPage() {
         setIsAdding(false)
       }
     },
-    [addToCart, isAdding, isAuthenticated, product, productUrl, router],
+    [addToCart, isAdding, product],
   )
 
   return (

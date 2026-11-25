@@ -1,10 +1,12 @@
 'use client'
 
 import { useState, type FormEvent } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useOtpAuth } from '@/features/auth/hooks/useOtpAuth'
 import InformPopup from '@/components/layout/InformPopup'
+import { isInternalUrl } from '@/lib/helpers'
 
 const normalizeDigits = (value: string) =>
   value
@@ -23,7 +25,23 @@ const maskIdentifier = (identifier: string) => {
     : identifier
 }
 
-export default function AuthFormSection() {
+export default function AuthFormSection({
+  callbackUrl: propCallbackUrl,
+}: {
+  callbackUrl?: string
+}) {
+  const searchParams = useSearchParams()
+  const urlCallbackUrl =
+    typeof searchParams.get('callbackUrl') === 'string'
+      ? searchParams.get('callbackUrl')
+      : typeof searchParams.get('from') === 'string'
+        ? searchParams.get('from')
+        : undefined
+
+  const callbackUrl = isInternalUrl(propCallbackUrl ?? urlCallbackUrl ?? '/')
+    ? propCallbackUrl ?? urlCallbackUrl ?? '/'
+    : '/'
+
   const [identifier, setIdentifier] = useState('')
   const [otp, setOtp] = useState('')
   const {
@@ -42,7 +60,7 @@ export default function AuthFormSection() {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    void handleOtpButton(identifier.trim(), otp)
+    void handleOtpButton(identifier.trim(), otp, callbackUrl)
   }
 
   const editIdentifier = () => {

@@ -32,6 +32,7 @@ vi.mock('@/features/auth/services/sessionService', () => ({
 
 vi.mock('@/lib/helpers', () => ({
   validateAuthenticationIdentifier: validateAuthenticationIdentifierMock,
+  isInternalUrl: vi.fn((url: string) => typeof url === 'string' && url.startsWith('/')),
 }))
 
 import { POST } from '@/app/api/auth/authorize/route'

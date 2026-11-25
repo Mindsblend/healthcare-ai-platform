@@ -11,7 +11,7 @@ import LoadingBar from '@/components/layout/LoadingBar'
 // 🎯 The feed category slug after which the bundle should appear
 const TARGET_CATEGORY_SLUG = 'aaa'
 
-export default function Feed() {
+export default function Shop() {
   const {
     feedCategories,
     loading: categoriesLoading,
@@ -19,11 +19,9 @@ export default function Feed() {
   } = useFeedCategories()
   const { collections, loading: collectionsLoading } = useCollections()
 
-  // ✅ Get all active collections that have at least one product (price > 0 implies products)
   const activeCollections =
     collections?.filter((cat) => cat.isActive === true && cat.price > 0) || []
 
-  // Filter categories with products (excluding the limited-offers category if empty)
   const categoriesWithProducts =
     feedCategories?.filter(
       (cat) =>
@@ -41,7 +39,6 @@ export default function Feed() {
 
       <LoadingBar loading={isLoading} error={categoriesError}>
         {categoriesWithProducts.map((category) => {
-          // Show bundle after the TARGET_CATEGORY_SLUG category
           const showBundle = category.slug === TARGET_CATEGORY_SLUG
 
           return (

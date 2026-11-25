@@ -2,21 +2,18 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSessionFromRequest } from './features/auth/services/sessionService'
 import { getRouteType } from '@/lib/paths'
 
+const AUTH_URL = '/auth'
+
+function isInternalUrl(url: string): boolean {
+  if (!url || typeof url !== 'string') return false
+  if (!url.startsWith('/')) return false
+  if (url.startsWith('//')) return false
+  return true
+}
+
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
 
-  // Handle root redirect for authenticated users to user feed
-  if (pathname === '/') {
-    const session = getSessionFromRequest(req)
-    if (session) {
-      // User is authenticated, redirect to feed
-      return NextResponse.redirect(new URL('/feed', req.url))
-    }
-    // Not authenticated, show landing page
-    return NextResponse.next()
-  }
-
-  // Check route types for other paths
   const routeType = getRouteType(pathname)
 
   // Public routes - no check
@@ -24,13 +21,13 @@ export function proxy(req: NextRequest) {
     return NextResponse.next()
   }
 
-  // Use middleware-specific function (sync, no await needed)
   const session = getSessionFromRequest(req)
 
-  // No session - redirect to auth
+  // No session - redirect to auth with callbackUrl
   if (!session) {
-    const authUrl = new URL('/auth', req.url)
-    authUrl.searchParams.set('from', pathname)
+    const callbackUrl = isInternalUrl(pathname) ? pathname : '/'
+    const authUrl = new URL(AUTH_URL, req.url)
+    authUrl.searchParams.set('callbackUrl', callbackUrl)
     return NextResponse.redirect(authUrl)
   }
 
@@ -38,9 +35,6 @@ export function proxy(req: NextRequest) {
   if (routeType === 'admin' && session.role !== 'ADMIN') {
     return NextResponse.redirect(new URL('/', req.url))
   }
-
-  // User route check (any logged-in user is fine)
-  // ADMIN can also access user routes
 
   return NextResponse.next()
 }

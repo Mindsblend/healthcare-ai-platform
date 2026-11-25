@@ -4,6 +4,7 @@ import '../../globals.css'
 import PageViewTracker from '@/components/layout/PageViewTracker'
 import { SessionRefresher } from '@/components/layout/SessionRefresher'
 import { CartProvider } from '@/features/shop/hooks/cart/useCart'
+import GuestCartMerger from '@/components/layout/GuestCartMerger'
 import { getSession } from '@/features/auth/services/sessionService'
 import OfflineBanner from '@/components/layout/ConnectionBanner'
 import { absoluteUrl, defaultDescription, siteName, siteUrl } from '@/lib/seo'
@@ -186,6 +187,7 @@ export default async function RootLayout({
             <SessionRefresher />
             <PageViewTracker />
             <OfflineBanner />
+            <GuestCartMerger isAuthenticated={Boolean(session)} />
             {children}
           </main>
         </CartProvider>

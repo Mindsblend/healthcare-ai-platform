@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { useCart } from '@/features/shop/hooks/cart/useCart'
+import AuthModal from '@/components/layout/AuthModal'
 import LoadingBar from '@/components/layout/LoadingBar'
 
 const FREE_SHIPPING_THRESHOLD = 2_000_000
@@ -63,9 +64,11 @@ const Page = () => {
     loading: cartLoading,
     isSyncing,
     waitForCartSync,
+    isAuthenticated,
   } = useCart()
 
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
 
   const [removingIds, setRemovingIds] = useState<
     Set<(typeof cartItems)[number]['id']>
@@ -138,6 +141,15 @@ const Page = () => {
       return
     }
 
+    /**
+     * Guest users must log in or register before checkout.
+     * Open the auth modal instead of navigating to /order.
+     */
+    if (!isAuthenticated) {
+      setShowAuthModal(true)
+      return
+    }
+
     try {
       setIsCheckoutLoading(true)
 
@@ -146,13 +158,6 @@ const Page = () => {
        *
        * Wait until every pending cart mutation
        * has finished on the backend.
-       *
-       * For example:
-       *
-       * + + + + +
-       *
-       * UI may already show 6,
-       * but this waits until backend also has 6.
        */
       await waitForCartSync()
 
@@ -457,6 +462,14 @@ const Page = () => {
           </aside>
         </div>
       </div>
+
+      {showAuthModal && (
+        <AuthModal
+          isOpen={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+          callbackUrl="/order"
+        />
+      )}
     </LoadingBar>
   )
 }

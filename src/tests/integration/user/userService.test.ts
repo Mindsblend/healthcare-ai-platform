@@ -317,10 +317,12 @@ describe('UserService integration', () => {
     })
 
     it('persists profile updates', async () => {
+      const updatedPhone = `+1777${String(Date.now()).slice(-7)}`
+
       await UserService.updateUserProfile(userId, {
         firstName: 'Updated',
         lastName: 'Profile',
-        phone: '+17771234567',
+        phone: updatedPhone,
       })
 
       await expect(
@@ -328,7 +330,7 @@ describe('UserService integration', () => {
       ).resolves.toMatchObject({
         firstName: 'Updated',
         lastName: 'Profile',
-        phone: '+17771234567',
+        phone: updatedPhone,
       })
     })
   })

@@ -1,6 +1,7 @@
 export const routeConfig = {
   public: [
     '/',
+    '/cart',
     '/ai',
     '/products',
     '/products/[slug]',
@@ -8,7 +9,7 @@ export const routeConfig = {
     '/blogs/[slug]',
     '/auth',
   ],
-  user: ['/feed', '/cart', '/order', '/profile', '/ai-test'],
+  user: ['/order', '/profile', '/ai-test'],
   admin: ['/dashboard'],
 }
 
