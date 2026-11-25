@@ -61,9 +61,10 @@ export function CartProvider({
   children: ReactNode
   isAuthenticated: boolean
 }) {
-  const value = isAuthenticated
-    ? useAuthenticatedCartState()
-    : useGuestCartState()
+  const authenticatedValue = useAuthenticatedCartState()
+  const guestValue = useGuestCartState()
+
+  const value = isAuthenticated ? authenticatedValue : guestValue
 
   return <CartContext.Provider value={{ ...value, isAuthenticated }}>{children}</CartContext.Provider>
 }

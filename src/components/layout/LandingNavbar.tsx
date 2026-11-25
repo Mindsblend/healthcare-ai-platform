@@ -144,20 +144,21 @@ export default function LandingNavbar({ user, cartCount }: LandingNavbarProps) {
                 {/* دکمه ورود / ثبت‌نام */}
                 <Link
                   href="/auth"
-                  className="primary-btn hidden cursor-pointer items-center justify-between rounded-full bg-black whitespace-nowrap lg:flex"
+                  className="hidden h-12 w-38.25 shrink-0 cursor-pointer items-center gap-2 rounded-full bg-black px-2 whitespace-nowrap lg:flex"
                 >
-                  <span className="font-ray pr-2 font-medium text-white">
-                    ورود / ثبت‌نام
+                  <span className="flex-1 text-center font-aria text-base font-medium text-white">
+                    ورود | ثبت‌نام
                   </span>
-                  <div className="flex h-7 w-7 rotate-45 items-center justify-center rounded-full bg-white xl:h-10 xl:w-10">
+
+                  <span className="flex h-[31.13px] w-10 shrink-0 items-center justify-center rounded-full bg-white">
                     <Image
-                      src="/images/arrow.svg"
-                      alt="Arrow"
-                      width={20}
-                      height={20}
-                      className="max-xl:h-3.75 max-xl:w-3.75"
+                      src="/images/arrow-right.svg"
+                      alt="left arrow"
+                      width={17}
+                      height={12}
+                      className='rotate-180'
                     />
-                  </div>
+                  </span>
                 </Link>
               </div>
             )}
