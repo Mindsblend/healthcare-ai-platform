@@ -336,7 +336,7 @@ export default function Navbar({ user }: NavbarProps) {
                 className="flex h-10 w-10 shrink-0 items-center justify-center sm:hidden"
               >
                 <Image
-                  src="/images/logo-small.svg"
+                  src="/images/small-logo.svg"
                   alt="دیجی سلامت"
                   width={32}
                   height={32}

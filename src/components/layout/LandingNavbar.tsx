@@ -28,7 +28,7 @@ export default function LandingNavbar({ user, cartCount }: LandingNavbarProps) {
               <Link href="/" aria-label="خانه">
                 {/* لوگو کوچک روی موبایل/تبلت */}
                 <Image
-                  src="/images/Logo-Small.svg"
+                  src="/images/small-logo.svg"
                   alt="Logo"
                   width={45}
                   height={20}
@@ -226,7 +226,7 @@ export default function LandingNavbar({ user, cartCount }: LandingNavbarProps) {
             className="flex h-10 w-10 shrink-0 items-center justify-center"
           >
             <Image
-              src="/images/logo-small.svg"
+              src="/images/small-logo.svg"
               alt="دیجی سلامت"
               width={32}
               height={32}
