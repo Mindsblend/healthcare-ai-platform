@@ -1570,3 +1570,15 @@ export function extractBehavioralProfile(
     perceptionGap,
   }
 }
+
+/**
+ * Adres URL داخلی معتبر (فقط با / شروع شده و بدون // در ابتدا).
+ * برای جلوگیری از Open Redirect استفاده می‌شود.
+ */
+export function isInternalUrl(url: string): boolean {
+  if (!url || typeof url !== 'string') return false
+  if (!url.startsWith('/')) return false
+  if (url.startsWith('//')) return false
+  return true
+}
+

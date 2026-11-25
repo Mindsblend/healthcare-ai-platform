@@ -8,6 +8,7 @@ import {
 } from '@/features/auth/services/sessionService'
 import { createDomainError, ErrorCode } from '@/lib/errors'
 import { validateAuthenticationIdentifier } from '@/lib/helpers'
+import { isInternalUrl } from '@/lib/helpers'
 
 export async function POST(req: Request) {
   try {
@@ -16,9 +17,10 @@ export async function POST(req: Request) {
       throw createDomainError(ErrorCode.INVALID_INPUT)
     }
 
-    const { identifier, code } = body as {
+    const { identifier, code, callbackUrl } = body as {
       identifier?: unknown
       code?: unknown
+      callbackUrl?: unknown
     }
     if (typeof identifier !== 'string') {
       throw createDomainError(ErrorCode.MISSING_IDENTIFIER)
@@ -61,9 +63,13 @@ export async function POST(req: Request) {
         )
     }
 
+    const redirect = isInternalUrl(callbackUrl as string)
+      ? (callbackUrl as string)
+      : '/'
+
     return NextResponse.json({
       success: true,
-      redirect: '/',
+      redirect,
     })
   } catch (error) {
     if (error instanceof SyntaxError) {

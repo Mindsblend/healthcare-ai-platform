@@ -2,7 +2,6 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 import { ProductSummary } from '@/features/shop/shop.types'
@@ -14,12 +13,11 @@ interface Props {
 }
 
 const Product = ({ product, variant = 'card' }: Props) => {
-  const { addToCart, isAuthenticated } = useCart()
+  const { addToCart } = useCart()
 
   const [isAdding, setIsAdding] = useState(false)
   const [addError, setAddError] = useState<string | null>(null)
 
-  const router = useRouter()
   const productUrl = `/products/${product.slug}`
 
   // Use the discounted price only when it is valid and lower than
@@ -48,11 +46,6 @@ const Product = ({ product, variant = 'card' }: Props) => {
     e.stopPropagation()
 
     if (isAdding) return
-
-    if (!isAuthenticated) {
-      router.push(`/auth?from=${encodeURIComponent(productUrl)}`)
-      return
-    }
 
     setIsAdding(true)
     setAddError(null)

@@ -26,6 +26,10 @@ vi.mock('@/features/auth/actions/verifyOtpAction', () => ({
   verifyOtp: verifyOtpMock,
 }))
 
+vi.mock('next/navigation', () => ({
+  useSearchParams: vi.fn(() => new URLSearchParams()),
+}))
+
 import AuthFormSection from '@/components/domain/auth/AuthFormSection'
 
 describe('AuthFormSection', () => {
@@ -70,6 +74,7 @@ describe('AuthFormSection', () => {
       expect(verifyOtpMock).toHaveBeenCalledWith({
         identifier: '09123456789',
         code: '123456',
+        callbackUrl: '/',
       })
     })
   })

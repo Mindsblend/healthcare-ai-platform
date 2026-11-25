@@ -5,6 +5,7 @@
 export interface VerifyOtpInput {
   identifier: string
   code: string
+  callbackUrl?: string
 }
 
 export interface VerifyOtpResponse {

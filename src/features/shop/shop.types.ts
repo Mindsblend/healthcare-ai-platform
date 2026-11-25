@@ -108,6 +108,35 @@ export interface CartType {
 }
 
 // ============================================
+// GUEST CART TYPES
+// ============================================
+
+export interface GuestCartItem {
+  productId: number
+  quantity: number
+}
+
+export interface GuestProductDetail {
+  id: number
+  title: string
+  price: number
+  discount?: number | null
+  discountedPrice?: number | null
+  solution: string
+  slug: string
+  image: string
+  categoryId: number
+  category: {
+    name: string
+    iconPath: string
+  }
+}
+
+export interface GuestCartDetailsResponse {
+  products: GuestProductDetail[]
+}
+
+// ============================================
 // CART ACTION TYPES
 // ============================================
 

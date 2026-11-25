@@ -8,11 +8,22 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export default async function Auth() {
+export default async function Auth({
+  searchParams,
+}: Readonly<{
+  searchParams: { [key: string]: string | string[] | undefined }
+}>) {
   const user = await getSession()
 
+  const callbackUrl =
+    (typeof searchParams.callbackUrl === 'string'
+      ? searchParams.callbackUrl
+      : typeof searchParams.from === 'string'
+        ? searchParams.from
+        : '/') || '/'
+
   if (!user) {
-    return <AuthFormSection />
+    return <AuthFormSection callbackUrl={callbackUrl} />
   } else {
     redirect('/')
   }

@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import dynamic from 'next/dynamic'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { memo, useCallback, useMemo, useState } from 'react'
 
 import LoadingBar from '@/components/layout/LoadingBar'
@@ -154,9 +154,7 @@ const ProductGains = memo(function ProductGains({
 
   return (
     <div
-      className={
-        mobile ? 'mt-7 flex flex-col gap-3' : 'mt-5 flex flex-col gap-5'
-      }
+      className={mobile ? 'flex flex-col gap-3' : 'mt-5 flex flex-col gap-5'}
     >
       {gains.map(({ id, title, ingredient, description }) => (
         <div
@@ -394,12 +392,12 @@ const ProductPrice = memo(function ProductPrice({
       }`}
       aria-label={`${formattedPrice(finalPrice)} تومان`}
     >
-      <div className="flex flex-wrap items-center gap-1.5">
+      <div className="flex flex-wrap items-center gap-0.5 self-end">
         <span
           className={
             mobile
               ? 'text-lg font-extrabold'
-              : 'text-sm font-extrabold 2xl:text-base'
+              : 'text-lg font-extrabold 2xl:text-base'
           }
         >
           {formattedPrice(finalPrice)}
@@ -414,15 +412,14 @@ const ProductPrice = memo(function ProductPrice({
           aria-hidden="true"
         />
       </div>
-
       {hasDiscount && (
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2">
           <span className="text-xs text-gray-400 line-through">
             {formattedPrice(price)}
           </span>
 
           <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-600">
-            {formattedPrice(discount!)}٪ تخفیف
+            {formattedPrice(discount!)}٪
           </span>
         </div>
       )}
@@ -436,7 +433,6 @@ const ProductPrice = memo(function ProductPrice({
 
 export default function ProductPage() {
   const params = useParams<{ slug: string }>()
-  const router = useRouter()
 
   const slug = useMemo(
     () => decodeURIComponent(params.slug).trim(),
@@ -447,7 +443,7 @@ export default function ProductPage() {
     slug,
   })
 
-  const { addToCart, isAuthenticated } = useCart()
+  const { addToCart } = useCart()
 
   const [isAdding, setIsAdding] = useState(false)
   const [addError, setAddError] = useState<string | null>(null)
@@ -473,12 +469,6 @@ export default function ProductPage() {
 
       if (isAdding || !product) return
 
-      if (!isAuthenticated) {
-        router.push(`/auth?from=${encodeURIComponent(productUrl)}`)
-
-        return
-      }
-
       setIsAdding(true)
       setAddError(null)
 
@@ -490,14 +480,14 @@ export default function ProductPage() {
         setIsAdding(false)
       }
     },
-    [addToCart, isAdding, isAuthenticated, product, productUrl, router],
+    [addToCart, isAdding, product],
   )
 
   return (
     <LoadingBar loading={loading} error={error}>
       {product ? (
         <>
-          <main className="mt-5 sm:mt-12.5">
+          <main className="mt-2 sm:mt-12.5">
             {/* =================================================
                 MOBILE
             ================================================== */}
@@ -506,7 +496,7 @@ export default function ProductPage() {
               aria-labelledby="product-title-mobile"
             >
               <div className="sticky top-0 z-0 w-full">
-                <div className="bg-page mx-auto w-full overflow-hidden rounded-[35px] px-6.25 pb-6.25">
+                <div className="bg-page mx-auto w-full overflow-hidden rounded-[35px] px-4 pb-4">
                   <ProductImage
                     src={product.image}
                     alt={product.title}
@@ -663,13 +653,13 @@ export default function ProductPage() {
                 <div className="text-color-title-on-light flex flex-col">
                   <h2
                     id="related-products-title"
-                    className="font-aria text-2xl font-extrabold xl:text-[32px]"
+                    className="font-aria text-2xl font-extrabold xl:text-[34px]"
                   >
                     محصولات مشابه
                   </h2>
                 </div>
 
-                <div className="flex min-h-[280px] items-center justify-center pb-10">
+                <div className="flex min-h-[280px] items-center justify-center pb-5">
                   {relatedLoading ? (
                     <div
                       className="py-10 text-center"

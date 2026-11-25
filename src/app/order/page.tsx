@@ -4,6 +4,7 @@ import { useMemo, useState, useEffect, useRef } from 'react'
 import type { ChangeEvent, FocusEvent } from 'react'
 
 import { useCart } from '@/features/shop/hooks/cart/useCart'
+import { useRouter } from 'next/navigation'
 import { useCreateOrder } from '@/features/shop/hooks/orders/createOrders'
 import { useUserAddress } from '@/features/shop/hooks/profile/useUserAddress'
 import { useCreateUserAddress } from '@/features/shop/hooks/profile/createUserAddress'
@@ -125,7 +126,20 @@ const CheckoutPage = () => {
     loading: cartLoading,
     error: cartError,
     waitForCartSync,
+    isAuthenticated,
   } = useCart()
+
+  const router = useRouter()
+
+  // ----------------------------------------------------------
+  // Auth guard
+  // ----------------------------------------------------------
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push(`/auth?callbackUrl=${encodeURIComponent('/order')}`)
+    }
+  }, [isAuthenticated, router])
 
   const { createOrder, loading: orderLoading } = useCreateOrder()
 

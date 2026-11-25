@@ -1,4 +1,5 @@
 import { VerifyOtpInput, VerifyOtpResponse } from '../auth.types'
+import { isInternalUrl } from '@/lib/helpers'
 
 export async function verifyOtp(
   input: VerifyOtpInput,
@@ -17,11 +18,11 @@ export async function verifyOtp(
     throw new Error(data?.error?.code || 'UNKNOWN')
   }
 
-  if (data.redirect) {
-    window.location.href = data.redirect
-  } else {
-    window.location.href = '/'
-  }
+  const redirect = data.redirect && isInternalUrl(data.redirect)
+    ? data.redirect
+    : '/'
+
+  window.location.href = redirect
 
   return data
 }

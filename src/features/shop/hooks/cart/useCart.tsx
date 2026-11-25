@@ -22,6 +22,8 @@ import {
   AddItemInput,
   RemoveItemInput,
   UpdateItemQuantityInput,
+  GuestCartItem,
+  GuestProductDetail,
 } from '../../shop.types'
 
 type CartContextValue = {
@@ -48,6 +50,10 @@ type CartContextValue = {
 
 const CartContext = createContext<CartContextValue | null>(null)
 
+const GUEST_CART_KEY = 'guest_cart'
+
+export { GUEST_CART_KEY, parseGuestCart }
+
 export function CartProvider({
   children,
   isAuthenticated,
@@ -55,9 +61,11 @@ export function CartProvider({
   children: ReactNode
   isAuthenticated: boolean
 }) {
-  const value = useCartState(isAuthenticated)
+  const value = isAuthenticated
+    ? useAuthenticatedCartState()
+    : useGuestCartState()
 
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>
+  return <CartContext.Provider value={{ ...value, isAuthenticated }}>{children}</CartContext.Provider>
 }
 
 export function useCart() {
@@ -70,131 +78,52 @@ export function useCart() {
   return context
 }
 
-function useCartState(isAuthenticated: boolean): CartContextValue {
+/* =========================================================
+   AUTHENTICATED CART (DB via Prisma)
+   ========================================================= */
+
+function useAuthenticatedCartState(): Omit<CartContextValue, 'isAuthenticated'> {
   const [cart, setCart] = useState<CartType | null>(null)
-
   const [cartItems, setCartItems] = useState<CartItemType[]>([])
-
-  const [loading, setLoading] = useState(isAuthenticated)
-
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
   const [pendingAddCount, setPendingAddCount] = useState(0)
-
   const [pendingMutationCount, setPendingMutationCount] = useState(0)
 
-  // =========================================================
-  // Refs
-  // =========================================================
-
   const cartRef = useRef<CartType | null>(null)
-
   const cartRequest = useRef<Promise<CartType | null> | null>(null)
-
   const createCartRequest = useRef<Promise<CartType> | null>(null)
-
-  /**
-   * All mutations are serialized:
-   *
-   * ADD
-   * UPDATE
-   * REMOVE
-   *
-   * cannot hit the backend simultaneously.
-   */
   const mutationQueue = useRef<Promise<void>>(Promise.resolve())
-
-  /**
-   * Latest desired quantity for every cart item.
-   *
-   * Example:
-   *
-   * 1 → 2 → 3 → 4 → 5
-   *
-   * backend ultimately receives:
-   *
-   * 5
-   */
   const quantityTargets = useRef(new Map<number, number>())
-
-  /**
-   * Tracks active update worker for each cart item.
-   */
   const quantityWorkers = useRef(new Map<number, Promise<void>>())
-
-  /**
-   * Every mutation receives a version.
-   */
   const mutationVersion = useRef(0)
   const completedVersion = useRef(0)
-
-  /**
-   * IMPORTANT:
-   *
-   * Unlike mutationQueue, these promises preserve
-   * the real mutation result/rejection.
-   *
-   * waitForCartSync() uses this collection so
-   * a failed mutation cannot be silently swallowed.
-   */
   const pendingMutationPromises = useRef(new Set<Promise<unknown>>())
-
-  // =========================================================
-  // Cart state helpers
-  // =========================================================
 
   const applyCart = useCallback((nextCart: CartType | null) => {
     cartRef.current = nextCart
-
     setCart(nextCart)
     setCartItems(nextCart?.items ?? [])
-
     return nextCart
   }, [])
 
-  // =========================================================
-  // Fetch cart
-  // =========================================================
-
   const fetchCart = useCallback(async () => {
-    if (!isAuthenticated) {
-      return applyCart(null)
-    }
-
     const activeCart = await getCart()
-
     return applyCart(activeCart)
-  }, [applyCart, isAuthenticated])
+  }, [applyCart])
 
   const loadCartOnce = useCallback(async () => {
-    if (!isAuthenticated) {
-      return applyCart(null)
-    }
-
     if (!cartRequest.current) {
       cartRequest.current = fetchCart().finally(() => {
         cartRequest.current = null
       })
     }
-
     return cartRequest.current
-  }, [applyCart, fetchCart, isAuthenticated])
-
-  // =========================================================
-  // Initial cart load
-  // =========================================================
+  }, [applyCart, fetchCart])
 
   useEffect(() => {
     setError(null)
-
-    if (!isAuthenticated) {
-      setLoading(false)
-      applyCart(null)
-      return
-    }
-
     setLoading(true)
-
     void loadCartOnce()
       .catch((err: unknown) => {
         setError(err instanceof Error ? err.message : 'Failed to load cart')
@@ -202,41 +131,25 @@ function useCartState(isAuthenticated: boolean): CartContextValue {
       .finally(() => {
         setLoading(false)
       })
-  }, [applyCart, isAuthenticated, loadCartOnce])
-
-  // =========================================================
-  // Refresh cart
-  // =========================================================
+  }, [applyCart, loadCartOnce])
 
   const refreshCart = useCallback(async () => {
     try {
       return await fetchCart()
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to refresh cart')
-
       throw err
     }
   }, [fetchCart])
 
-  // =========================================================
-  // Get / Create Cart
-  // =========================================================
-
   const getOrCreateCart = useCallback(async (): Promise<CartType> => {
-    if (!isAuthenticated) {
-      throw new Error('AUTH_REQUIRED')
-    }
-
     if (cartRef.current) {
       return cartRef.current
     }
-
     const existingCart = await loadCartOnce()
-
     if (existingCart) {
       return existingCart
     }
-
     if (!createCartRequest.current) {
       createCartRequest.current = createCart()
         .then((newCart) => {
@@ -247,35 +160,22 @@ function useCartState(isAuthenticated: boolean): CartContextValue {
           createCartRequest.current = null
         })
     }
-
     return createCartRequest.current
-  }, [applyCart, isAuthenticated, loadCartOnce])
-
-  // =========================================================
-  // Mutation helpers
-  // =========================================================
+  }, [applyCart, loadCartOnce])
 
   const startMutation = useCallback(() => {
     mutationVersion.current += 1
-
     setPendingMutationCount((count) => count + 1)
-
     return mutationVersion.current
   }, [])
 
   const finishMutation = useCallback((version: number) => {
     completedVersion.current = Math.max(completedVersion.current, version)
-
     setPendingMutationCount((count) => Math.max(0, count - 1))
   }, [])
 
-  /**
-   * Add a mutation promise to the set and automatically
-   * remove it when it settles.
-   */
   const trackMutationPromise = useCallback(<T,>(promise: Promise<T>) => {
     pendingMutationPromises.current.add(promise)
-
     promise.then(
       () => {
         pendingMutationPromises.current.delete(promise)
@@ -284,75 +184,44 @@ function useCartState(isAuthenticated: boolean): CartContextValue {
         pendingMutationPromises.current.delete(promise)
       },
     )
-
     return promise
   }, [])
 
-  // =========================================================
-  // ADD TO CART
-  // =========================================================
-
   const addToCart = useCallback(
     (productId: number, quantity = 1): Promise<void> => {
-      if (!isAuthenticated) {
-        return Promise.reject(new Error('AUTH_REQUIRED'))
-      }
-
       const version = startMutation()
-
       setPendingAddCount((count) => count + 1)
 
       const task = mutationQueue.current.then(async () => {
         try {
           const activeCart = await getOrCreateCart()
-
           const input: AddItemInput = {
             cartId: activeCart.id,
             productId,
             quantity,
           }
-
           await addItemAction(input)
-
           await refreshCart()
-
           setError(null)
         } catch (err: unknown) {
           const message =
             err instanceof Error ? err.message : 'Failed to add item'
-
           setError(message)
-
           throw err
         }
       })
 
-      /**
-       * Queue continues even when current mutation fails.
-       */
       mutationQueue.current = task.catch(() => undefined)
 
       const publicTask = task.finally(() => {
         setPendingAddCount((count) => Math.max(0, count - 1))
-
         finishMutation(version)
       })
 
       return trackMutationPromise(publicTask)
     },
-    [
-      finishMutation,
-      getOrCreateCart,
-      isAuthenticated,
-      refreshCart,
-      startMutation,
-      trackMutationPromise,
-    ],
+    [finishMutation, getOrCreateCart, refreshCart, startMutation, trackMutationPromise],
   )
-
-  // =========================================================
-  // UPDATE QUANTITY
-  // =========================================================
 
   const updateQuantity = useCallback(
     (cartItemId: number, quantity: number): Promise<void> => {
@@ -361,113 +230,60 @@ function useCartState(isAuthenticated: boolean): CartContextValue {
       }
 
       const version = startMutation()
-
-      /**
-       * Latest desired quantity.
-       */
       quantityTargets.current.set(cartItemId, quantity)
 
-      /**
-       * Optimistic UI.
-       */
       setCartItems((items) =>
         items.map((item) =>
-          item.id === cartItemId
-            ? {
-                ...item,
-                quantity,
-              }
-            : item,
+          item.id === cartItemId ? { ...item, quantity } : item,
         ),
       )
 
-      /**
-       * Existing worker for this item:
-       * return it instead of creating another worker.
-       */
       const existingWorker = quantityWorkers.current.get(cartItemId)
-
       if (existingWorker) {
         const publicTask = existingWorker.finally(() => {
           finishMutation(version)
         })
-
         return trackMutationPromise(publicTask)
       }
 
-      /**
-       * Create worker.
-       */
       const task = mutationQueue.current.then(async () => {
         try {
           while (true) {
             const target = quantityTargets.current.get(cartItemId)
-
-            if (target === undefined) {
-              break
-            }
-
-            /**
-             * Consume target.
-             */
+            if (target === undefined) break
             quantityTargets.current.delete(cartItemId)
 
             const input: UpdateItemQuantityInput = {
               cartItemId,
               quantity: target,
             }
-
             await updateItemAction(input)
 
-            /**
-             * Another quantity was requested
-             * while the request was in progress.
-             */
             if (quantityTargets.current.has(cartItemId)) {
               continue
             }
-
             break
           }
-
           setError(null)
         } catch (err: unknown) {
           const mutationError =
             err instanceof Error ? err : new Error('Failed to update quantity')
-
           setError(mutationError.message)
-
-          /**
-           * Restore real backend state.
-           */
           try {
             await refreshCart()
           } catch {
             // Keep original mutation error.
           }
-
           throw mutationError
         }
       })
 
-      /**
-       * Keep queue alive after failure.
-       */
       const safeTask = task.catch(() => undefined)
-
       mutationQueue.current = safeTask
 
-      /**
-       * Track worker promise that preserves
-       * the actual rejection.
-       */
       const workerPromise = task
-
       quantityWorkers.current.set(cartItemId, workerPromise)
 
-      /**
-       * Cleanup worker map.
-       */
       workerPromise.then(
         () => {
           if (quantityWorkers.current.get(cartItemId) === workerPromise) {
@@ -490,38 +306,24 @@ function useCartState(isAuthenticated: boolean): CartContextValue {
     [finishMutation, refreshCart, startMutation, trackMutationPromise],
   )
 
-  // =========================================================
-  // REMOVE FROM CART
-  // =========================================================
-
   const removeFromCart = useCallback(
     (cartItemId: number): Promise<void> => {
       const version = startMutation()
 
       const task = mutationQueue.current.then(async () => {
         try {
-          const input: RemoveItemInput = {
-            cartItemId,
-          }
-
+          const input: RemoveItemInput = { cartItemId }
           await removeItemAction(input)
-
           await refreshCart()
-
           setError(null)
         } catch (err: unknown) {
           const message =
             err instanceof Error ? err.message : 'Failed to remove item'
-
           setError(message)
-
           throw err
         }
       })
 
-      /**
-       * Keep queue usable after failure.
-       */
       mutationQueue.current = task.catch(() => undefined)
 
       const publicTask = task.finally(() => {
@@ -533,75 +335,246 @@ function useCartState(isAuthenticated: boolean): CartContextValue {
     [finishMutation, refreshCart, startMutation, trackMutationPromise],
   )
 
-  // =========================================================
-  // WAIT FOR CART SYNC
-  // =========================================================
-
   const waitForCartSync = useCallback(async () => {
     while (true) {
       const targetVersion = mutationVersion.current
-
-      /**
-       * Snapshot current pending mutations.
-       *
-       * These promises preserve rejection.
-       */
       const pending = Array.from(pendingMutationPromises.current)
 
       if (pending.length > 0) {
-        /**
-         * If ANY mutation failed, checkout must stop.
-         */
         await Promise.all(pending)
       }
 
-      /**
-       * Wait for queue as a final guarantee.
-       */
       await mutationQueue.current
 
-      /**
-       * If a mutation happened while we were
-       * waiting, loop again.
-       */
       if (completedVersion.current < targetVersion) {
         continue
       }
-
       if (mutationVersion.current !== targetVersion) {
         continue
       }
-
       break
     }
 
-    /**
-     * Final single server refresh.
-     */
     await refreshCart()
   }, [refreshCart])
-
-  // =========================================================
-  // Return
-  // =========================================================
 
   return {
     cart,
     cartItems,
-
     loading,
     error,
-
     isAdding: pendingAddCount > 0,
-
     isSyncing: pendingMutationCount > 0,
-
-    isAuthenticated,
-
     addToCart,
     removeFromCart,
     updateQuantity,
+    refreshCart,
+    waitForCartSync,
+  }
+}
 
+/* =========================================================
+   GUEST CART (localStorage)
+   ========================================================= */
+
+function parseGuestCart(): GuestCartItem[] {
+  if (typeof localStorage === 'undefined') return []
+  try {
+    const stored = localStorage.getItem(GUEST_CART_KEY)
+    if (!stored) return []
+    const parsed = JSON.parse(stored)
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter(
+      (item: unknown): item is GuestCartItem =>
+        typeof item === 'object' &&
+        item !== null &&
+        typeof (item as GuestCartItem).productId === 'number' &&
+        Number.isInteger((item as GuestCartItem).productId) &&
+        typeof (item as GuestCartItem).quantity === 'number' &&
+        Number.isInteger((item as GuestCartItem).quantity) &&
+        (item as GuestCartItem).quantity > 0,
+    )
+  } catch {
+    // Corrupt JSON → purge and start empty
+    try {
+      localStorage.removeItem(GUEST_CART_KEY)
+    } catch {
+      // ignore
+    }
+    return []
+  }
+}
+
+function saveGuestCart(items: GuestCartItem[]): void {
+  if (typeof localStorage === 'undefined') return
+  try {
+    localStorage.setItem(GUEST_CART_KEY, JSON.stringify(items))
+  } catch {
+    // ignore quota errors
+  }
+}
+
+async function fetchGuestDetails(
+  productIds: number[],
+): Promise<GuestProductDetail[]> {
+  if (productIds.length === 0) return []
+  const res = await fetch('/api/cart/guest-details', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ productIds }),
+  })
+  if (!res.ok) return []
+  const data = await res.json()
+  return Array.isArray(data?.products) ? data.products : []
+}
+
+function buildGuestCartItem(
+  item: GuestCartItem,
+  details: GuestProductDetail[],
+): CartItemType {
+  const product = details.find((p) => p.id === item.productId)
+  return {
+    id: item.productId,
+    cartId: 'guest',
+    quantity: item.quantity,
+    price: product?.price ?? 0,
+    product: product
+      ? {
+          id: product.id,
+          title: product.title,
+          price: product.price,
+          discount: product.discount ?? null,
+          discountedPrice: product.discountedPrice ?? null,
+          solution: product.solution,
+          slug: product.slug,
+          image: product.image,
+          categoryId: product.categoryId,
+          category: product.category,
+        }
+      : {
+          id: item.productId,
+          title: 'محصول نامشخص',
+          price: 0,
+          discount: null,
+          discountedPrice: null,
+          solution: '',
+          slug: '',
+          image: '',
+          categoryId: 0,
+          category: { name: '', iconPath: '' },
+        },
+  }
+}
+
+function useGuestCartState(): Omit<CartContextValue, 'isAuthenticated'> {
+  const [rawItems, setRawItems] = useState<GuestCartItem[]>([])
+  const [cartItems, setCartItems] = useState<CartItemType[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [isAdding, setIsAdding] = useState(false)
+
+  // Read localStorage after mount (hydration-safe)
+  useEffect(() => {
+    const items = parseGuestCart()
+    setRawItems(items)
+    setLoading(false)
+  }, [])
+
+  // Persist to localStorage whenever rawItems changes
+  useEffect(() => {
+    if (loading) return
+    saveGuestCart(rawItems)
+  }, [rawItems, loading])
+
+  // Enrich guest items with product details from the API
+  useEffect(() => {
+    if (loading || rawItems.length === 0) {
+      setCartItems([])
+      return
+    }
+
+    let cancelled = false
+    const productIds = rawItems.map((i) => i.productId)
+
+    void fetchGuestDetails(productIds).then((details) => {
+      if (cancelled) return
+      setCartItems(
+        rawItems.map((item) => buildGuestCartItem(item, details)),
+      )
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [rawItems, loading])
+
+  const addToCart = useCallback(
+    (productId: number, quantity = 1): Promise<void> => {
+      setIsAdding(true)
+      setRawItems((prev) => {
+        const existing = prev.find((i) => i.productId === productId)
+        const next = existing
+          ? prev.map((i) =>
+              i.productId === productId
+                ? { ...i, quantity: i.quantity + quantity }
+                : i,
+            )
+          : [...prev, { productId, quantity }]
+        return next
+      })
+      // Brief visual feedback so "در حال افزودن..." shows on the button.
+      setTimeout(() => setIsAdding(false), 300)
+      return Promise.resolve()
+    },
+    [],
+  )
+
+  const removeFromCart = useCallback(
+    (cartItemId: number): Promise<void> => {
+      setRawItems((prev) => prev.filter((i) => i.productId !== cartItemId))
+      return Promise.resolve()
+    },
+    [],
+  )
+
+  const updateQuantity = useCallback(
+    (cartItemId: number, quantity: number): Promise<void> => {
+      if (quantity < 1) {
+        setRawItems((prev) => prev.filter((i) => i.productId !== cartItemId))
+        return Promise.resolve()
+      }
+      setRawItems((prev) =>
+        prev.map((i) =>
+          i.productId === cartItemId ? { ...i, quantity } : i,
+        ),
+      )
+      return Promise.resolve()
+    },
+    [],
+  )
+
+  const refreshCart = useCallback(async (): Promise<CartType | null> => {
+    // Re-read localStorage to guarantee sync with other tabs
+    const items = parseGuestCart()
+    setRawItems(items)
+    return null
+  }, [])
+
+  const waitForCartSync = useCallback(async () => {
+    // Guest cart is synchronous (localStorage); nothing to wait for.
+    return
+  }, [])
+
+  return {
+    cart: null,
+    cartItems,
+    loading,
+    error,
+    isAdding,
+    isSyncing: false,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
     refreshCart,
     waitForCartSync,
   }

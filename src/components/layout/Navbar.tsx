@@ -16,13 +16,13 @@ type NavbarProps = {
   user: unknown
 }
 
-const GUEST_SEARCH_ROUTES = ['/products']
 const BACK_FALLBACK_ROUTE = '/'
 
 // صفحه‌هایی که ناوبار مخصوص خودشان را دارند (اولین تطابق برنده است)
 const SECTION_ROUTES = [
   { prefix: '/cart', title: 'سبد خرید' },
   { prefix: '/profile', title: 'پروفایل من' },
+  { prefix: '/order', title: 'انتخاب آدرس و پرداخت نهایی' },
 ]
 
 const isInRoutes = (pathname: string, routes: string[]) =>
@@ -72,8 +72,7 @@ export default function Navbar({ user }: NavbarProps) {
   const { categories } = useCategories()
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0)
 
-  const showBottomNav = shouldShowBottomNav(pathname, user)
-  const guestHasSearch = isInRoutes(pathname, GUEST_SEARCH_ROUTES)
+  const showBottomNav = shouldShowBottomNav(pathname)
   const isProductsSection = isInRoutes(pathname, ['/products'])
 
   const PRODUCT_DETAIL_PREFIX = '/products/'
@@ -124,20 +123,10 @@ export default function Navbar({ user }: NavbarProps) {
 
   if (!user) {
     return (
-      <LandingNavbar
-        user={user}
-        cartCount={cartCount}
-        search={
-          guestHasSearch
-            ? {
-                value: search,
-                onChange: setSearch,
-                onSubmit: handleSearch,
-                onClear: clearSearch,
-              }
-            : undefined
-        }
-      />
+      <>
+        <LandingNavbar user={user} cartCount={cartCount} />
+        {showBottomNav && <BottomNav cartCount={cartCount} user={user} />}
+      </>
     )
   }
 
@@ -411,7 +400,7 @@ export default function Navbar({ user }: NavbarProps) {
       </header>
 
       {/* نوار ناوبری پایین صفحه برای موبایل */}
-      {showBottomNav && <BottomNav cartCount={cartCount} />}
+      {showBottomNav && <BottomNav cartCount={cartCount} user={user} />}
     </>
   )
 }

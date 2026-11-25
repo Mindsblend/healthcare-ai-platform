@@ -45,11 +45,11 @@ export function useOtpAuth() {
     }
   }
 
-  const verifyCode = async (identifier: string, code: string) => {
+  const verifyCode = async (identifier: string, code: string, callbackUrl?: string) => {
     setLoading(true)
     setError(null)
     try {
-      await verifyOtp({ identifier: identifier, code })
+      await verifyOtp({ identifier: identifier, code, callbackUrl })
       setStage('verified')
       return true
     } catch (e: unknown) {
@@ -60,11 +60,11 @@ export function useOtpAuth() {
     }
   }
 
-  const handleOtpButton = async (identifier: string, otp: string) => {
+  const handleOtpButton = async (identifier: string, otp: string, callbackUrl?: string) => {
     if (stage === 'idle') {
       await sendCode(identifier)
     } else if (stage === 'sent' && otp.length === 6) {
-      await verifyCode(identifier, otp)
+      await verifyCode(identifier, otp, callbackUrl)
     }
   }
 
