@@ -1,6 +1,7 @@
 // app/api/shop/payment/verify/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { PaymentService } from '@/features/shop/services/PaymentService'
+import { OrderService } from '@/features/shop/services/OrderService'
 import { prisma } from '@/lib/prisma'
 
 export async function GET(req: NextRequest) {
@@ -50,21 +51,11 @@ export async function GET(req: NextRequest) {
     })
 
     if (verifyResult.success) {
-      await prisma.order.update({
-        where: { id: order.id },
-        data: {
-          status: 'PAID',
-          paymentRefId: verifyResult.refId?.toString() || '',
-          paymentVerifiedAt: new Date(),
-        },
+      await OrderService.finalizePayment({
+        orderId: order.id,
+        status: 'PAID',
+        refId: verifyResult.refId?.toString() || '',
       })
-
-      if (order.cartId) {
-        await prisma.cart.update({
-          where: { id: order.cartId },
-          data: { status: 'CHECKED_OUT' },
-        })
-      }
 
       return NextResponse.redirect(
         new URL(
@@ -73,13 +64,10 @@ export async function GET(req: NextRequest) {
         ),
       )
     } else {
-      await prisma.order.update({
-        where: { id: order.id },
-        data: {
-          status: 'FAILED',
-          paymentErrorMessage:
-            verifyResult.message || 'Payment verification failed',
-        },
+      await OrderService.finalizePayment({
+        orderId: order.id,
+        status: 'FAILED',
+        errorMessage: verifyResult.message || 'Payment verification failed',
       })
 
       return redirectWithError(

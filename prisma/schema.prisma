@@ -16,11 +16,14 @@ model User {
   role              UserRole           @default(USER)
   firstName         String?
   lastName          String?
-  addresses         Address[]
-  aiResponses       AiResponse[]
-  carts             Cart[]
-  healthAssessments HealthAssessment[]
-  orders            Order[]
+  addresses              Address[]
+  aiResponses            AiResponse[]
+  carts                  Cart[]
+  healthAssessments      HealthAssessment[]
+  orders                 Order[]
+  pushSubscriptions      PushSubscription[]
+  notificationPreference NotificationPreference?
+  notifications          Notification[]
 }
 
 model Address {
@@ -96,6 +99,7 @@ model Order {
   cart                Cart        @relation(fields: [cartId], references: [id])
   user                User?       @relation(fields: [userId], references: [id])
   items               OrderItem[]
+  notifications       Notification[]
 }
 
 model OrderItem {
@@ -308,6 +312,92 @@ model Subscription {
   updatedAt DateTime @updatedAt
 }
 
+model PushSubscription {
+  id           String                 @id @default(cuid())
+  userId       String
+  endpoint     String                 @unique
+  p256dh       String
+  auth         String
+  userAgent    String?
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  user         User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deliveries   NotificationDelivery[]
+
+  @@index([userId])
+}
+
+model NotificationPreference {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  orderUpdates Boolean  @default(true)
+  promotions   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id            String               @id @default(cuid())
+  userId        String
+  type          NotificationType
+  title         String
+  body          String
+  url           String?
+  dedupeKey     String               @unique
+  status        NotificationStatus   @default(PENDING)
+  attempts      Int                  @default(0)
+  maxAttempts   Int                  @default(5)
+  nextAttemptAt DateTime             @default(now())
+  lastError     String?
+  orderId       String?
+  campaignId    String?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  user          User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order         Order?               @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  campaign      PromotionCampaign?   @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  deliveries    NotificationDelivery[]
+
+  @@index([status, nextAttemptAt])
+  @@index([userId])
+  @@index([campaignId])
+}
+
+model NotificationDelivery {
+  id             String             @id @default(cuid())
+  notificationId String
+  subscriptionId String
+  status         NotificationStatus @default(PENDING)
+  attempts       Int                @default(0)
+  lastError      String?
+  sentAt         DateTime?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  notification   Notification       @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  subscription   PushSubscription   @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, subscriptionId])
+  @@index([notificationId])
+}
+
+model PromotionCampaign {
+  id              String                   @id @default(cuid())
+  title           String
+  body            String
+  url             String
+  dedupeKey       String                   @unique
+  status          PromotionCampaignStatus  @default(DRAFT)
+  totalRecipients Int                      @default(0)
+  sentCount       Int                      @default(0)
+  failedCount     Int                      @default(0)
+  createdBy       String
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+  sentAt          DateTime?
+  notifications   Notification[]
+}
+
 enum UserRole {
   USER
   ADMIN
@@ -328,4 +418,22 @@ enum OrderStatus {
   DELIVERING
   DELIVERED
   PREPARING
+}
+
+enum NotificationType {
+  ORDER_STATUS
+  PROMOTION
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum PromotionCampaignStatus {
+  DRAFT
+  SENDING
+  COMPLETED
+  FAILED
 }

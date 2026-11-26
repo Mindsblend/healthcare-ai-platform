@@ -8,6 +8,7 @@ vi.mock('@/lib/prisma', () => ({
       findFirst: vi.fn(),
       findMany: vi.fn(),
       findUnique: vi.fn(),
+      findUniqueOrThrow: vi.fn(),
       update: vi.fn(),
       updateMany: vi.fn(),
     },
@@ -828,7 +829,6 @@ describe('OrderService.verifyAndFinalizePayment', () => {
 
     const txOrderUpdateMany = vi.fn().mockResolvedValue({ count: 1 })
     const txOrderFindUnique = vi.fn().mockResolvedValue(updatedOrder)
-
     const txCartUpdate = vi.fn().mockResolvedValue({
       ...order.cart,
       status: 'CHECKED_OUT',
@@ -849,6 +849,8 @@ describe('OrderService.verifyAndFinalizePayment', () => {
         })
       },
     )
+
+    vi.mocked(prisma.order.findUniqueOrThrow).mockResolvedValueOnce(updatedOrder as never)
 
     const result = await OrderService.verifyAndFinalizePayment({
       authority: 'A123456789',
@@ -874,6 +876,12 @@ describe('OrderService.verifyAndFinalizePayment', () => {
     expect(txOrderFindUnique).toHaveBeenCalledWith({
       where: {
         id: 'order-123',
+      },
+      select: {
+        id: true,
+        userId: true,
+        cartId: true,
+        status: true,
       },
     })
 
@@ -925,6 +933,8 @@ describe('OrderService.verifyAndFinalizePayment', () => {
         })
       },
     )
+
+    vi.mocked(prisma.order.findUniqueOrThrow).mockResolvedValueOnce(updatedOrder as never)
 
     const result = await OrderService.verifyAndFinalizePayment({
       authority: 'A123456789',
@@ -1024,11 +1034,18 @@ describe('OrderService.verifyAndFinalizePayment', () => {
       cart: { id: 'cart-1' },
     } as any)
 
+    const txOrderFindUnique = vi.fn().mockResolvedValue({
+      id: 'order-1',
+      userId: 'user-1',
+      cartId: 'cart-1',
+      status: 'PENDING',
+    })
+
     vi.mocked(prisma.$transaction).mockImplementation(async (callback: any) =>
       callback({
         order: {
           updateMany: vi.fn().mockResolvedValue({ count: 0 }),
-          findUnique: vi.fn(),
+          findUnique: txOrderFindUnique,
         },
         cart: {
           update: vi.fn(),
@@ -1043,12 +1060,16 @@ describe('OrderService.verifyAndFinalizePayment', () => {
         status: 'PAID',
       }),
     ).rejects.toThrow(
-      'Order order-1 is no longer pending and cannot be finalized',
+      'Order order-1 is no longer PENDING and cannot be finalized',
     )
   })
 })
 
 describe('OrderService.updateOrder', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   it('updates the order status and shipping notes', async () => {
     const currentOrder = {
       id: 'order-1',
@@ -1062,7 +1083,22 @@ describe('OrderService.updateOrder', () => {
     }
 
     vi.mocked(prisma.order.findUnique).mockResolvedValue(currentOrder as any)
-    vi.mocked(prisma.order.update).mockResolvedValue(updatedOrder as any)
+
+    const txOrderFindUnique = vi.fn().mockResolvedValue(currentOrder)
+    const txOrderUpdate = vi.fn().mockResolvedValue(updatedOrder)
+
+    vi.mocked(prisma.$transaction).mockImplementationOnce(
+      async (callback: any) => {
+        return callback({
+          order: {
+            findUnique: txOrderFindUnique,
+            update: txOrderUpdate,
+          },
+        })
+      },
+    )
+
+    vi.mocked(prisma.order.findUniqueOrThrow).mockResolvedValueOnce(updatedOrder as never)
 
     const result = await OrderService.updateOrder({
       orderId: 'order-1',
@@ -1074,7 +1110,17 @@ describe('OrderService.updateOrder', () => {
       where: { id: 'order-1' },
     })
 
-    expect(prisma.order.update).toHaveBeenCalledWith({
+    expect(txOrderFindUnique).toHaveBeenCalledWith({
+      where: { id: 'order-1' },
+      select: {
+        id: true,
+        userId: true,
+        cartId: true,
+        status: true,
+      },
+    })
+
+    expect(txOrderUpdate).toHaveBeenCalledWith({
       where: { id: 'order-1' },
       data: {
         status: 'PAID',
@@ -1087,7 +1133,6 @@ describe('OrderService.updateOrder', () => {
 
   it('throws when the order does not exist', async () => {
     vi.mocked(prisma.order.findUnique).mockResolvedValue(null)
-    vi.mocked(prisma.order.update).mockClear()
 
     await expect(
       OrderService.updateOrder({
@@ -1096,8 +1141,6 @@ describe('OrderService.updateOrder', () => {
         shippingNotes: 'Leave at the door',
       }),
     ).rejects.toThrow('Order not found')
-
-    expect(prisma.order.update).not.toHaveBeenCalled()
   })
 
   it('deletes a CANCELED order and creates a new PENDING order', async () => {
