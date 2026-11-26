@@ -3,6 +3,7 @@ import type { NextRequest, NextResponse } from 'next/server'
 
 const serwistRoute = createSerwistRoute({
   swSrc: 'src/app/sw.ts',
+  useNativeEsbuild: true,
   globDirectory: '.next/server/app',
   globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2,webp,webmanifest}'],
   globIgnores: [
