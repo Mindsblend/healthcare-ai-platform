@@ -4,22 +4,33 @@ import { requireAuthority } from '@/features/auth/services/sessionService'
 import { prisma } from '@/lib/prisma'
 
 export async function POST() {
-  let session
-  try {
-    session = await requireAuthority({ requiredRole: 'USER' })
-  } catch {
-    return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 })
-  }
+  const cookieStore = await cookies()
 
   try {
+    let session
+    try {
+      session = await requireAuthority({ requiredRole: 'USER' })
+    } catch {
+      // No valid session: still clear the cookie so logout is idempotent.
+      cookieStore.delete('session')
+      return NextResponse.json({
+        success: true,
+        message: 'Logged out successfully',
+      })
+    }
+
     // Delete all push subscriptions for this user to prevent
-    // a shared device from receiving previous user's notifications
-    await prisma.pushSubscription.deleteMany({
-      where: { userId: session.id },
-    })
+    // a shared device from receiving previous user's notifications.
+    // Best-effort: a failure here must not block logout.
+    try {
+      await prisma.pushSubscription.deleteMany({
+        where: { userId: session.id },
+      })
+    } catch (error) {
+      console.error('Logout: failed to delete push subscriptions:', error)
+    }
 
     // Clear the session cookie
-    const cookieStore = await cookies()
     cookieStore.delete('session')
 
     return NextResponse.json({
@@ -28,9 +39,11 @@ export async function POST() {
     })
   } catch (error) {
     console.error('Logout error:', error)
-    return NextResponse.json(
-      { success: false, message: 'Error logging out' },
-      { status: 500 },
-    )
+    // Ensure the cookie is cleared even on unexpected failures.
+    cookieStore.delete('session')
+    return NextResponse.json({
+      success: true,
+      message: 'Logged out successfully',
+    })
   }
 }

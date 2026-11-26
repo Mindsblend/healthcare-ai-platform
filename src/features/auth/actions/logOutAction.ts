@@ -10,8 +10,9 @@ export async function logOut(): Promise<LogOutResponse> {
   const data = await res.json()
 
   if (!res.ok) {
-    console.error('[logOut] error object:', data?.error)
-    throw new Error(data?.error?.code || 'UNKNOWN')
+    const code = data?.error?.code || data?.message || 'UNKNOWN'
+    console.error('[logOut] error object:', data?.error ?? data)
+    throw new Error(code)
   }
 
   return data
