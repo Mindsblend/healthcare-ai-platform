@@ -48,7 +48,13 @@ describe('POST /api/auth/logout', () => {
     const authorizationError = new Error('Unauthorized')
     requireAuthorityMock.mockRejectedValue(authorizationError)
 
-    await expect(POST()).rejects.toThrow('Unauthorized')
+    const response = await POST()
+
+    expect(response.status).toBe(401)
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      message: 'Unauthorized',
+    })
 
     expect(cookiesMock).not.toHaveBeenCalled()
     expect(deleteCookieMock).not.toHaveBeenCalled()

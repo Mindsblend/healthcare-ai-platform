@@ -8,6 +8,7 @@ import GuestCartMerger from '@/components/layout/GuestCartMerger'
 import TopBanner from '@/components/layout/TopBanner'
 import { getSession } from '@/features/auth/services/sessionService'
 import OfflineBanner from '@/components/layout/ConnectionBanner'
+import InstallPromptBanner from '@/components/pwa/InstallPromptBanner'
 import { absoluteUrl, defaultDescription, siteName, siteUrl } from '@/lib/seo'
 import { JsonLd } from '@/components/seo/JsonLd'
 
@@ -191,6 +192,7 @@ export default async function RootLayout({
             <TopBanner />
             <GuestCartMerger isAuthenticated={Boolean(session)} />
             {children}
+            <InstallPromptBanner />
           </main>
         </CartProvider>
       </body>

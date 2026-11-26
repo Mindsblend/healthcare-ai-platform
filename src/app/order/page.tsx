@@ -574,6 +574,7 @@ const CheckoutPage = () => {
   return (
     <LoadingBar
       loading={cartLoading || paymentLoading || orderLoading}
+      loadingText={'در حال ورود به درگاه پرداخت...'}
       error={cartError}
     >
       <section className="container my-10">

@@ -11,8 +11,23 @@ function isInternalUrl(url: string): boolean {
   return true
 }
 
+function isPwaPublicPath(pathname: string): boolean {
+  return (
+    pathname === '/manifest.webmanifest' ||
+    pathname.startsWith('/icons/') ||
+    pathname === '/sw.js' ||
+    pathname === '/offline' ||
+    pathname.startsWith('/offline/')
+  )
+}
+
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
+
+  // PWA public paths - never redirect to auth
+  if (isPwaPublicPath(pathname)) {
+    return NextResponse.next()
+  }
 
   const routeType = getRouteType(pathname)
 
@@ -41,6 +56,6 @@ export function proxy(req: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest)$).*)',
   ],
 }

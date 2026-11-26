@@ -1,6 +1,9 @@
 // features/shop/orders/services/orderService.ts
 
 import { prisma } from '@/lib/prisma'
+import type { Prisma } from '@/generated/prisma/client'
+import { enqueueOrderStatusNotification } from '@/features/notifications/services/notificationOutbox'
+import { dispatchNotification } from '@/features/notifications/services/notificationDispatcher'
 import {
   OrderDetail,
   OrderSummary,
@@ -11,6 +14,94 @@ import {
 } from '../shop.types'
 
 export class OrderService {
+  /**
+   * تنها مسیر تغییر وضعیت سفارش.
+   *
+   * تغییر وضعیت و ثبت اعلان در Outbox داخل یک تراکنش انجام می‌شود؛ ارسال
+   * Push بعد از commit و به‌صورت fire-and-forget است تا خطای ارسال هرگز
+   * باعث rollback سفارش نشود.
+   */
+  private static async applyStatusTransition(input: {
+    orderId: string
+    status?: OrderStatus
+    data?: Prisma.OrderUpdateInput
+    expectedStatus?: OrderStatus
+    checkoutCart?: boolean
+  }) {
+    const { orderId, status, data = {}, expectedStatus, checkoutCart } = input
+
+    const notificationId = await prisma.$transaction(async (tx) => {
+      const existing = await tx.order.findUnique({
+        where: { id: orderId },
+        select: {
+          id: true,
+          userId: true,
+          cartId: true,
+          status: true,
+        },
+      })
+
+      if (!existing) {
+        throw new Error('Order not found')
+      }
+
+      const statusChanged = Boolean(status && status !== existing.status)
+
+      if (expectedStatus) {
+        const result = await tx.order.updateMany({
+          where: { id: orderId, status: expectedStatus },
+          data: {
+            ...data,
+            ...(status ? { status } : {}),
+          },
+        })
+
+        if (result.count !== 1) {
+          throw new Error(
+            `Order ${orderId} is no longer ${expectedStatus} and cannot be finalized`,
+          )
+        }
+      } else {
+        await tx.order.update({
+          where: { id: orderId },
+          data: {
+            ...data,
+            ...(status ? { status } : {}),
+          },
+        })
+      }
+
+      if (checkoutCart && existing.cartId) {
+        await tx.cart.update({
+          where: { id: existing.cartId },
+          data: { status: 'CHECKED_OUT' },
+        })
+      }
+
+      if (!statusChanged || !status || !existing.userId) {
+        return null
+      }
+
+      return enqueueOrderStatusNotification(tx, {
+        orderId,
+        userId: existing.userId,
+        status,
+      })
+    })
+
+    if (notificationId) {
+      void dispatchNotification(notificationId).catch((error) => {
+        console.error(
+          '[order-status] notification dispatch failed',
+          notificationId,
+          error,
+        )
+      })
+    }
+
+    return prisma.order.findUniqueOrThrow({ where: { id: orderId } })
+  }
+
   static async fetchOrdersPreview(): Promise<OrderSummary[]> {
     return prisma.order.findMany({
       select: {
@@ -274,38 +365,18 @@ export class OrderService {
         )
       }
 
-      const updatedOrder = await prisma.$transaction(async (tx: any) => {
-        const orderStatus: OrderStatus = status === 'PAID' ? 'PAID' : 'FAILED'
+      const orderStatus: OrderStatus = status === 'PAID' ? 'PAID' : 'FAILED'
 
-        const result = await tx.order.updateMany({
-          where: {
-            id: order.id,
-            status: 'PENDING',
-          },
-          data: {
-            status: orderStatus,
-            paymentRefId: refId,
-            paymentVerifiedAt: new Date(),
-            paymentErrorMessage: errorMessage,
-          },
-        })
-
-        if (result.count !== 1) {
-          throw new Error(
-            `Order ${order.id} is no longer pending and cannot be finalized`,
-          )
-        }
-
-        if (status === 'PAID' && order.cartId) {
-          await tx.cart.update({
-            where: { id: order.cartId },
-            data: { status: 'CHECKED_OUT' },
-          })
-        }
-
-        return tx.order.findUnique({
-          where: { id: order.id },
-        })
+      const updatedOrder = await this.applyStatusTransition({
+        orderId: order.id,
+        status: orderStatus,
+        expectedStatus: 'PENDING',
+        checkoutCart: status === 'PAID',
+        data: {
+          paymentRefId: refId,
+          paymentVerifiedAt: new Date(),
+          paymentErrorMessage: errorMessage,
+        },
       })
 
       return updatedOrder
@@ -316,6 +387,40 @@ export class OrderService {
       )
       throw error
     }
+  }
+
+  /**
+   * نهایی‌سازی پرداخت بر اساس شناسه سفارش (مسیر callback درگاه).
+   */
+  static async finalizePayment(input: {
+    orderId: string
+    status: 'PAID' | 'FAILED'
+    refId?: string
+    errorMessage?: string
+  }) {
+    const { orderId, status, refId, errorMessage } = input
+
+    if (status === 'PAID') {
+      return this.applyStatusTransition({
+        orderId,
+        status: 'PAID',
+        expectedStatus: 'PENDING',
+        checkoutCart: true,
+        data: {
+          paymentRefId: refId ?? '',
+          paymentVerifiedAt: new Date(),
+        },
+      })
+    }
+
+    return this.applyStatusTransition({
+      orderId,
+      status: 'FAILED',
+      expectedStatus: 'PENDING',
+      data: {
+        paymentErrorMessage: errorMessage,
+      },
+    })
   }
 
   static async updateOrder(input: UpdateOrderInput) {
@@ -329,10 +434,10 @@ export class OrderService {
       throw new Error('Order not found')
     }
 
-    const updatedOrder = await prisma.order.update({
-      where: { id: orderId },
+    const updatedOrder = await this.applyStatusTransition({
+      orderId,
+      status,
       data: {
-        status: status as OrderStatus,
         shippingNotes,
       },
     })
